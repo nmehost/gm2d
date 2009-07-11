@@ -1038,7 +1038,7 @@ class SVG2Gfx
        var w = Math.ceil( width );
        var h = Math.ceil( height );
 
-       var bmp = new flash.display.BitmapData(w,h,true,0x000000 #if (neko||cpp) , 0 #end );
+       var bmp = new flash.display.BitmapData(w,h,true,I32.ZERO );
 
        #if flash
        var shape = new flash.display.Shape();
@@ -1066,7 +1066,7 @@ class SVG2Gfx
        var w = Math.ceil( inRect.width*inScale );
        var h = Math.ceil( inRect.height*inScale );
 
-       var bmp = new flash.display.BitmapData(w,h,true,0x000000 #if (neko||cpp) , 0 #end );
+       var bmp = new flash.display.BitmapData(w,h,true,I32.ZERO );
 
        #if flash
        var shape = new flash.display.Shape();
