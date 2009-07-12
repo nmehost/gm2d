@@ -50,6 +50,7 @@ class Game extends flash.display.Sprite
    function AddDialog(inName:String, inDialog:Dialog) { mDialogMap.set(inName,inDialog); }
 
    public function Resource(inName:String) { return mResources.get(inName); }
+   public function FreeResource(inName:String) { return mResources.remove(inName); }
 
    public function IsDown(inCode:Int) : Bool { return mKeyDown[inCode]; }
 

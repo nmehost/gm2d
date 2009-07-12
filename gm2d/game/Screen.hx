@@ -26,6 +26,7 @@ class Screen extends flash.display.Sprite
    // These are not static, even though they could be.
    // This allows non-static function to see them
    function Resource(inName:String) { return mGame.Resource(inName); }
+   function FreeResource(inName:String) { return mGame.FreeResource(inName); }
    function SetScreen(inName:String) { return mGame.SetScreen(inName); }
    function ShowDialog(inName:String) { mGame.ShowDialog(inName); }
 

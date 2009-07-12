@@ -101,26 +101,34 @@ enum FillType
 
 typedef PathSegments = Array<PathSegment>;
 
-typedef Path =
+class Path
 {
-   var fill:FillType;
-   var fill_alpha:Float;
-   var stroke_alpha:Float;
-   var stroke_colour:Null<Int>;
-   var stroke_width:Float;
-   var stroke_caps:CapsStyle;
-   var joint_style:JointStyle;
-   var miter_limit:Float;
-   var matrix:Matrix;
-   var name:String;
+   public function new() { }
 
-   var segments:PathSegments;
+   public var fill:FillType;
+   public var fill_alpha:Float;
+   public var stroke_alpha:Float;
+   public var stroke_colour:Null<Int>;
+   public var stroke_width:Float;
+   public var stroke_caps:CapsStyle;
+   public var joint_style:JointStyle;
+   public var miter_limit:Float;
+   public var matrix:Matrix;
+   public var name:String;
+
+   public var segments:PathSegments;
 }
 
-typedef Group =
+class Group
 {
-   var name:String;
-   var children:Array<DisplayElement>;
+   public function new()
+   {
+      name = "";
+      children = [];
+   }
+
+   public var name:String;
+   public var children:Array<DisplayElement>;
 }
 
 enum DisplayElement
@@ -137,8 +145,6 @@ typedef ObjectFilter = String->GroupPath->Bool;
 
 class SVG2Gfx
 {
-    var mXML:Xml;
-
     public var width(default,null):Float;
     public var height(default,null):Float;
 
@@ -163,8 +169,7 @@ class SVG2Gfx
 
     public function new(inXML:Xml)
     {
-       mXML = inXML;
-       var svg =  mXML.firstElement();
+       var svg =  inXML.firstElement();
        if (svg==null || svg.nodeName!="svg")
           throw "Not an SVG file\n";
 
@@ -454,20 +459,18 @@ class SVG2Gfx
 
        var name = inPath.exists("id") ? inPath.get("id") : "";
 
-       var path =
-       {
-          fill:GetFillStyle("fill",inPath,styles),
-          fill_alpha: GetFloatStyle("fill-opacity",inPath,styles,1.0),
-          stroke_alpha: GetFloatStyle("stroke-opacity",inPath,styles,1.0),
-          stroke_colour:GetStrokeStyle("stroke",inPath,styles,null),
-          stroke_width: GetFloatStyle("stroke-width",inPath,styles,1.0),
-          stroke_caps:CapsStyle.ROUND,
-          joint_style:JointStyle.ROUND,
-          miter_limit: GetFloatStyle("stroke-miterlimit",inPath,styles,3.0),
-          segments:[],
-          matrix:matrix,
-          name:name,
-       }
+       var path = new Path();
+       path.fill=GetFillStyle("fill",inPath,styles);
+       path.fill_alpha= GetFloatStyle("fill-opacity",inPath,styles,1.0);
+       path.stroke_alpha= GetFloatStyle("stroke-opacity",inPath,styles,1.0);
+       path.stroke_colour=GetStrokeStyle("stroke",inPath,styles,null);
+       path.stroke_width= GetFloatStyle("stroke-width",inPath,styles,1.0);
+       path.stroke_caps=CapsStyle.ROUND;
+       path.joint_style=JointStyle.ROUND;
+       path.miter_limit= GetFloatStyle("stroke-miterlimit",inPath,styles,3.0);
+       path.segments=[];
+       path.matrix=matrix;
+       path.name=name;
 
        if (inIsRect)
        {
@@ -520,7 +523,7 @@ class SVG2Gfx
 
     public function LoadGroup(inG:Xml, matrix:Matrix,inStyles:Styles) : Group
     {
-       var g:Group = { children: [], name:"" };
+       var g = new Group();
        if (inG.exists("transform"))
        {
           matrix = matrix.clone();

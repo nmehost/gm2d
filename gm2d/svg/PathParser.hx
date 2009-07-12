@@ -24,6 +24,29 @@ class PathParser {
     var state:PathParserState;
     var args:Array<Float>;
     
+
+    static var MOVE  = "M".charCodeAt(0);
+    static var MOVER = "m".charCodeAt(0);
+    static var LINE  = "L".charCodeAt(0);
+    static var LINER = "l".charCodeAt(0);
+    static var HMOVE = "H".charCodeAt(0);
+    static var HMOVER = "h".charCodeAt(0);
+    static var VMOVE = "V".charCodeAt(0);
+    static var VMOVER = "v".charCodeAt(0);
+    static var CUBIC = "C".charCodeAt(0);
+    static var CUBICR = "c".charCodeAt(0);
+    static var SCUBIC = "S".charCodeAt(0);
+    static var SCUBICR = "s".charCodeAt(0);
+    static var QUAD = "Q".charCodeAt(0);
+    static var QUADR = "q".charCodeAt(0);
+    static var SQUAD = "T".charCodeAt(0);
+    static var SQUADR = "t".charCodeAt(0);
+    static var ARC = "A".charCodeAt(0);
+    static var ARCR = "a".charCodeAt(0);
+    static var CLOSE = "Z".charCodeAt(0);
+    static var CLOSER = "z".charCodeAt(0);
+
+
     public function new() {
         state=Empty;
     }
