@@ -88,7 +88,11 @@ class Loader
       loader.addEventListener(flash.events.SecurityErrorEvent.SECURITY_ERROR, OnError);
       loader.load(new URLRequest(inFileName));
    #else
+       #if neko
        var xml_data = neko.io.File.getContent(inFileName);
+       #elseif cpp
+       var xml_data = cpp.io.File.getContent(inFileName);
+       #end
        if (xml_data.length < 1)
           throw ("Could not find file:" + inFileName);
        var xml = Xml.parse(xml_data);

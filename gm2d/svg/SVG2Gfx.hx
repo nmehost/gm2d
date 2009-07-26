@@ -1041,7 +1041,7 @@ class SVG2Gfx
        var w = Math.ceil( width );
        var h = Math.ceil( height );
 
-       var bmp = new flash.display.BitmapData(w,h,true,I32.ZERO );
+       var bmp = new flash.display.BitmapData(w,h,true,neash.RGB.CLEAR );
 
        #if flash
        var shape = new flash.display.Shape();
@@ -1069,7 +1069,7 @@ class SVG2Gfx
        var w = Math.ceil( inRect.width*inScale );
        var h = Math.ceil( inRect.height*inScale );
 
-       var bmp = new flash.display.BitmapData(w,h,true,I32.ZERO );
+       var bmp = new flash.display.BitmapData(w,h,true,neash.RGB.ZERO );
 
        #if flash
        var shape = new flash.display.Shape();
