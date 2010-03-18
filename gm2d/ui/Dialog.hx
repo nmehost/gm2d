@@ -23,7 +23,7 @@ class Dialog extends flash.display.Sprite
    var mLayoutDirty:Bool;
 
    public static var labelColor = 0x000000;
-   public static var labelFormat = new TextFormat();
+   public static var labelFormat = DefaultTextFormat();
 
    public function new(?inForceWidth:Null<Float>, ?inForceHeight:Null<Float>)
    {
@@ -75,6 +75,7 @@ class Dialog extends flash.display.Sprite
    public function SetSVGBackground(inSVG:SVG2Gfx)
    {
       inSVG.Render(getBackground(),null,null);
+
       var all  = inSVG.GetExtent(null, null);
       var scale9 = inSVG.GetExtent(null, function(_,groups) { return groups[0]==".scale9"; } );
       if (scale9!=null)
@@ -149,6 +150,12 @@ class Dialog extends flash.display.Sprite
       addChild(label);
       mItemLayout.add( new TextLayout(label) );
    }
+	static function DefaultTextFormat()
+	{
+	   var fmt = new flash.text.TextFormat();
+		fmt.size = 20;
+		return fmt;
+	}
 }
 
 

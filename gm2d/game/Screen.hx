@@ -16,8 +16,8 @@ class Screen extends flash.display.Sprite
    public function new()
    {
       super();
-      mNominalWidth = 640;
-      mNominalHeight = 480;
+      mNominalWidth = 240;
+      mNominalHeight = 320;
       mMarginX = 0;
       mMarginY = 0;
       mItems = new ItemList(this);
