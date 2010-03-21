@@ -3,6 +3,7 @@ package gm2d.svg;
 import Xml;
 import gm2d.svg.PathParser;
 import gm2d.svg.PathSegment;
+#if flash
 import flash.geom.Matrix;
 import flash.geom.Rectangle;
 import flash.display.Graphics;
@@ -15,6 +16,23 @@ import flash.display.SpreadMethod;
 import flash.display.InterpolationMethod;
 import flash.display.CapsStyle;
 import flash.display.JointStyle;
+import flash.display.LineScaleMode;
+#else
+import nme.geom.Matrix;
+import nme.geom.Rectangle;
+import nme.display.Graphics;
+
+import nme.display.Shape;
+import nme.display.Sprite;
+import nme.display.DisplayObject;
+import nme.display.GradientType;
+import nme.display.SpreadMethod;
+import nme.display.InterpolationMethod;
+import nme.display.CapsStyle;
+import nme.display.JointStyle;
+import nme.display.LineScaleMode;
+
+#end
 
 
 class Grad
@@ -153,7 +171,7 @@ class SVG2Gfx
 
     var mRoot:Array<Group>;
 
-    var mGfx : flash.display.Graphics;
+    var mGfx : Graphics;
     var mMatrix : Matrix;
     var mFilter : ObjectFilter;
     var mGroupPath : GroupPath;
@@ -850,7 +868,7 @@ class SVG2Gfx
                 sw = 1;
              }
              mGfx.lineStyle( sw, inPath.stroke_colour,
-                             a, false,flash.display.LineScaleMode.NORMAL,
+                             a, false,LineScaleMode.NORMAL,
                              inPath.stroke_caps,inPath.joint_style,
                              inPath.miter_limit);
           }
@@ -1015,11 +1033,14 @@ class SVG2Gfx
     {
        Render(inGfx,inMatrix,inFilter);
        var rect = GetExtent(inMatrix, function(_,groups) { return groups[0]==".scale9"; } );
+		 // TODO:
+		 /*
        if (rect!=null)
           inObj.scale9Grid = rect;
        #if !flash
        inObj.cacheAsBitmap = neash.Lib.IsOpenGL();
        #end
+		 */
     }
 
     public function RenderSprite(inObj:Sprite, ?inMatrix:Matrix,?inFilter:ObjectFilter)
@@ -1041,22 +1062,16 @@ class SVG2Gfx
        var w = Math.ceil( width );
        var h = Math.ceil( height );
 
-       var bmp = new flash.display.BitmapData(w,h,true,neash.RGB.CLEAR );
+       var bmp = new gm2d.display.BitmapData(w,h,true,gm2d.RGB.CLEAR );
 
-       #if flash
-       var shape = new flash.display.Shape();
+       var shape = new gm2d.display.Shape();
        mGfx = shape.graphics;
-       #else
-       mGfx = bmp.graphics;
-       #end
 
        mGroupPath = [];
        for(g in mRoot)
           RenderGroup(g,true);
 
-      #if flash
       bmp.draw(shape);
-      #end
       mGfx = null;
 
       return bmp;
@@ -1069,22 +1084,16 @@ class SVG2Gfx
        var w = Math.ceil( inRect.width*inScale );
        var h = Math.ceil( inRect.height*inScale );
 
-       var bmp = new flash.display.BitmapData(w,h,true,neash.RGB.ZERO );
+       var bmp = new gm2d.display.BitmapData(w,h,true,gm2d.RGB.ZERO );
 
-       #if flash
-       var shape = new flash.display.Shape();
+       var shape = new gm2d.display.Shape();
        mGfx = shape.graphics;
-       #else
-       mGfx = bmp.graphics;
-       #end
 
        mGroupPath = [];
        for(g in mRoot)
           RenderGroup(g,true);
 
-      #if flash
       bmp.draw(shape);
-      #end
       mGfx = null;
 
       return bmp;

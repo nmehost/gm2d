@@ -41,10 +41,10 @@ class Loader
          mOnFinished(mResources);
    }
 
-   public function LoadBitmap(inFileName:String, inResourceName:String)
+   public function loadBitmap(inFilename:String, inResourceName:String)
    {
    #if flash
-       var urlReq = new flash.net.URLRequest(inFileName);
+       var urlReq = new flash.net.URLRequest(inFilename);
        var loader = new flash.display.Loader();
        var me = this;
        mRequests++;
@@ -61,13 +61,12 @@ class Loader
        loader.contentLoaderInfo.addEventListener(flash.events.SecurityErrorEvent.SECURITY_ERROR, OnError);
        loader.load(urlReq);
    #else
-       var bmp = new neash.display.BitmapData(0,0);
-       bmp.LoadFromFile(inFileName);
+       var bmp = nme.display.BitmapData.load(inFilename);
        mResources.set(inResourceName,bmp);
    #end
    }
 
-   public function LoadXML(inFileName:String, inResourceName:String,?inTransform:Dynamic)
+   public function LoadXML(inFilename:String, inResourceName:String,?inTransform:Dynamic)
    {
    #if flash
       mRequests++;
@@ -86,15 +85,15 @@ class Loader
       // TODO: track loading byte status ...
       loader.addEventListener(flash.events.IOErrorEvent.IO_ERROR, OnError);
       loader.addEventListener(flash.events.SecurityErrorEvent.SECURITY_ERROR, OnError);
-      loader.load(new URLRequest(inFileName));
+      loader.load(new URLRequest(inFilename));
    #else
        #if neko
-       var xml_data = neko.io.File.getContent(inFileName);
+       var xml_data = neko.io.File.getContent(inFilename);
        #elseif cpp
-       var xml_data = cpp.io.File.getContent(inFileName);
+       var xml_data = cpp.io.File.getContent(inFilename);
        #end
        if (xml_data.length < 1)
-          throw ("Could not find file:" + inFileName);
+          throw ("Could not find file:" + inFilename);
        var xml = Xml.parse(xml_data);
        if (inTransform==null)
           mResources.set(inResourceName,xml);
@@ -103,9 +102,9 @@ class Loader
    #end
    }
 
-   public function LoadSVG(inFileName:String, inResourceName:String)
+   public function LoadSVG(inFilename:String, inResourceName:String)
    {
-      LoadXML(inFileName,inResourceName,
+      LoadXML(inFilename,inResourceName,
          function(xml:Xml) { return new gm2d.svg.SVG2Gfx(xml); } );
    }
 
