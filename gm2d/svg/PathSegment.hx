@@ -9,7 +9,7 @@ class PathSegment
    var x:Float;
    var y:Float;
 
-   public function new(inX:Float,inY:Float,inRel:Bool)
+   public function new(inX:Float,inY:Float)
    {
       x = inX;
       y = inY;
@@ -28,23 +28,33 @@ class PathSegment
       inGfx.moveTo(ioContext.lastX,ioContext.lastY);
    }
 
-   public function Extent(ioRect:Rectangle)
+   public function GetExtent(inMatrix:Matrix,ioRect:Rectangle)
    {
-      AddExtent(x,y,ioRect);
+      AddExtent(x,y,inMatrix,ioRect);
    }
 
-   function AddExtent(inX:Float, inY:Float, ioExtent : Rectangle )
+   function AddExtent(inX:Float, inY:Float,inMatrix:Matrix,ioExtent : Rectangle )
    {
-      if (inX<ioExtent.left) ioExtent.left = inX;
-      if (inX>ioExtent.right) ioExtent.right = inX;
-      if (inY<ioExtent.top) ioExtent.top = inY;
-      if (inY>ioExtent.bottom) ioExtent.bottom = inY;
+      var tx = inX*inMatrix.a + inY*inMatrix.c + inMatrix.tx;
+      var ty = inY*inMatrix.b + inY*inMatrix.d + inMatrix.ty;
+
+      if (ioExtent.width<0)
+      {
+         ioExtent.x = tx;
+         ioExtent.y = ty;
+         ioExtent.width = ioExtent.height = 0;
+         return;
+      }
+      if (tx<ioExtent.left) ioExtent.left = tx;
+      if (tx>ioExtent.right) ioExtent.right = tx;
+      if (ty<ioExtent.top) ioExtent.top = ty;
+      if (ty>ioExtent.bottom) ioExtent.bottom = ty;
    }
 }
 
 class MoveSegment extends PathSegment
 {
-   public function new(inX:Float,inY:Float,inRel:Bool) { super(inX,inY,inRel); }
+   public function new(inX:Float,inY:Float) { super(inX,inY); }
 }
 
 
@@ -79,10 +89,10 @@ class QuadraticSegment extends PathSegment
       inGfx.curveTo( ioContext.transX(x,y),ioContext.transY(x,y), ioContext.lastX, ioContext.lastY);
    }
 
-   override public function Extent(ioRect:Rectangle)
+   override public function GetExtent(inMatrix:Matrix,ioRect:Rectangle)
    {
-      AddExtent(x,y);
-      AddExtent(cx,cy);
+      AddExtent(x,y,inMatrix,ioRect);
+      AddExtent(cx,cy,inMatrix,ioRect);
    }
 }
 
@@ -118,8 +128,8 @@ class CubicSegment extends PathSegment
       var tcx2 = ioContext.transX(cx2,cy2);
       var tcy2 = ioContext.transY(cx2,cy2);
 
-       var dx1 = tcx1-tx0;
-       var dy1 = tcy1-ty0;
+       var dx1 = tcx1-tx;
+       var dy1 = tcy1-ty;
        var dx2 = tcx2-tcx1;
        var dy2 = tcy2-tcy1;
        var dx3 = tx-tcx2;
@@ -139,39 +149,48 @@ class CubicSegment extends PathSegment
              var c2 = 3*u1*u*u;
              var c3 = u*u*u;
              u+=du;
-             mGfx.lineTo(c0*tc0 + c1*tcx1 + c2*tcx2 + c3*tx,
-                         c0*tc0 + c1*tcy1 + c2*tcy2 + c3*ty );
+             inGfx.lineTo(c0*c0 + c1*tcx1 + c2*tcx2 + c3*tx,
+                          c0*c0 + c1*tcy1 + c2*tcy2 + c3*ty );
           }
        }
-       mGfx.lineTo(tx,ty);
+       inGfx.lineTo(tx,ty);
    }
-   override public function Extent(ioRect:Rectangle)
+   override public function GetExtent(inMatrix:Matrix,ioRect:Rectangle)
    {
-      AddExtent(x,y);
-      AddExtent(cx1,cy1);
-      AddExtent(cx2,cy2);
+      AddExtent(x,y,inMatrix,ioRect);
+      AddExtent(cx1,cy1,inMatrix,ioRect);
+      AddExtent(cx2,cy2,inMatrix,ioRect);
    }
 }
 
 class ArcSegment extends PathSegment
 {
+   var x1:Float;
+   var y1:Float;
    var rx:Float;
    var ry:Float;
-   var rotation:Float;
-   var largeArc:Bool;
-   var sweep:Bool;
+   var phi:Float;
+   var fA:Bool;
+   var fS:Bool;
 
-   public function new( inRX:Float, inRY:Float, inRotation:Float,
+   public function new( inX1:Float, inY1:Float, inRX:Float, inRY:Float, inRotation:Float,
                         inLargeArc:Bool, inSweep:Bool, x:Float, y:Float)
    {
+      x1 = inX1;
+      y1 = inY1;
       super(x,y);
       rx = inRX;
       ry = inRY;
-      rotation = inRotation;
-      largeArc = inLargeArc;
-      sweep = inSweep;
+      phi = inRotation;
+      fA = inLargeArc;
+      fS = inSweep;
    }
 
+   override public function GetExtent(inMatrix:Matrix,ioRect:Rectangle)
+   {
+      AddExtent(x,y,inMatrix,ioRect);
+      AddExtent(x1,y1,inMatrix,ioRect);
+   }
 
    override public function Draw(inGfx:Graphics,ioContext:RenderContext)
    {
@@ -187,8 +206,8 @@ class ArcSegment extends PathSegment
        var p = phi*Math.PI/180.0;
        var cos = Math.cos(p);
        var sin = Math.sin(p);
-       var dx = (x1-x2)*0.5;
-       var dy = (y1-y2)*0.5;
+       var dx = (x1-x)*0.5;
+       var dy = (y1-y)*0.5;
        var x1_ = cos*dx + sin*dy;
        var y1_ = -sin*dx + cos*dy;
 
@@ -210,8 +229,8 @@ class ArcSegment extends PathSegment
 
        // Something not quite right here.
        // See:  http://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
-       var xm = (x1+x2)*0.5;
-       var ym = (y1+y2)*0.5;
+       var xm = (x1+x)*0.5;
+       var ym = (y1+y)*0.5;
 
        var cx = cos*cx_ + sin*cy_ + xm;
        var cy = -sin*cx_ + cos*cy_ + ym;
@@ -257,7 +276,7 @@ class ArcSegment extends PathSegment
              inGfx.lineTo( ta*c + tb*s + tx, tc*c + td*s + ty );
           }
        }
-       inGfx.lineTo(ioContext.transX(x2,y2), ioContext.transY(x2,y2));
+       inGfx.lineTo(ioContext.lastX, ioContext.lastY);
    }
 }
 

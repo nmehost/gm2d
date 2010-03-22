@@ -149,12 +149,14 @@ class PathParser {
 
     function prevX():Float { return (g.length>0) ? g[g.length-1].prevX() : 0; }
     function prevY():Float { return (g.length>0) ? g[g.length-1].prevY() : 0; }
+    function prevCX():Float { return (g.length>0) ? g[g.length-1].prevCX() : 0; }
+    function prevCY():Float { return (g.length>0) ? g[g.length-1].prevCY() : 0; }
     
     function command( cmd:String, a:Array<Float> ) {
         var op:PathSegment = 
             switch( cmd.charCodeAt(0) ) {
-                case MOVE:  new MoveSegemnt( a[0], a[1] );
-                case MOVER: new MoveSegemnt( a[0]+prevX(), a[1]+prevX() );
+                case MOVE:  cast(new MoveSegment( a[0], a[1]),PathSegment);
+                case MOVER: new MoveSegment( a[0]+prevX(), a[1]+prevX() );
                 case LINE:  new DrawSegment( a[0], a[1] );
                 case LINER: new DrawSegment( a[0]+prevX(), a[1]+prevX() );
                 case HLINE:  new DrawSegment( a[0], 0 );
@@ -162,35 +164,42 @@ class PathParser {
                 case VLINE:  new DrawSegment( 0, a[0] );
                 case VLINER: new DrawSegment( 0, a[0]+prevX());
                 case CUBIC:
-                    new CubicSegement( a[0], a[1], a[2], a[3], a[4], a[5] );
+                    new CubicSegment( a[0], a[1], a[2], a[3], a[4], a[5] );
                 case CUBICR:
                     var rx = prevX();
                     var ry = prevY();
-                    new CubicSegement( a[0]+rx, a[1]+ry, a[2]+rx, a[3]+ry, a[4]+rx, a[5]+ry );
+                    new CubicSegment( a[0]+rx, a[1]+ry, a[2]+rx, a[3]+ry, a[4]+rx, a[5]+ry );
                 case SCUBIC:
                     var rx = prevX();
                     var ry = prevY();
-                    new CubicSegement( rx*2-prevCX(), ry*2-prevCY(),a[0], a[1], a[2], a[3] );
+                    new CubicSegment( rx*2-prevCX(), ry*2-prevCY(),a[0], a[1], a[2], a[3] );
                 case SCUBICR:
                     var rx = prevX();
                     var ry = prevY();
-                    new CubicSegement( ry*2-prevCX(), ry*2-prevCY(),a[0]+rx, a[1]+ry, a[2]+rx, a[3]+ry );
-                case QUAD:
-                    new QuadraticSegement( a[0], a[1], a[2], a[3] );
-                case "q":
-                    QuadraticToR( a[0], a[1], a[2], a[3] );
-                case "T":
-                    SmoothQuadraticTo( a[0], a[1] );
-                case "t":
-                    SmoothQuadraticToR( a[0], a[1] );
-                case "A":
-                    ArcTo( a[0], a[1], a[2], a[3]!=0., a[4]!=0., a[5], a[6] );
-                case "a":
-                    ArcToR( a[0], a[1], a[2], a[3]!=0., a[4]!=0., a[5], a[6] );
-                case "Z":
-                    Close;
-                case "z":
-                    Close;
+                    new CubicSegment( rx*2-prevCX(), ry*2-prevCY(),a[0]+rx, a[1]+ry, a[2]+rx, a[3]+ry );
+                case QUAD: new QuadraticSegment( a[0], a[1], a[2], a[3] );
+                case QUADR:
+                    var rx = prevX();
+                    var ry = prevY();
+                    new QuadraticSegment( a[0], a[1], a[2], a[3] );
+                case SQUAD:
+                    var rx = prevX();
+                    var ry = prevY();
+                    new QuadraticSegment( rx*2-prevCX(), rx*2-prevCY(),a[2], a[3] );
+                case SQUADR:
+                    var rx = prevX();
+                    var ry = prevY();
+                    new QuadraticSegment( rx*2-prevCX(), ry*2-prevCY(),a[0]+rx, a[1]+ry );
+                case ARC:
+                    new ArcSegment(prevX(), prevY(), a[0], a[1], a[2], a[3]!=0., a[4]!=0., a[5], a[6] );
+                case ARCR:
+                    var rx = prevX();
+                    var ry = prevY();
+                    new ArcSegment( rx,ry, a[0], a[1], a[2], a[3]!=0., a[4]!=0., a[5]+rx, a[6]+ry );
+                //case "Z":
+                    //Close;
+                //case "z":
+                    //Close;
                 default:
                     throw("unimplemented shape command "+cmd);
             }

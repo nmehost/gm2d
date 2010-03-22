@@ -500,33 +500,33 @@ class SVG2Gfx
           var ry = inPath.exists("ry") ? Std.parseFloat(inPath.get("ry")) : 0.0;
           if (rx==0 || ry==0)
           {
-             path.segments.push( MoveTo(x,y) );
-             path.segments.push( LineTo(x+w,y) );
-             path.segments.push( LineTo(x+w,y+h) );
-             path.segments.push( LineTo(x,y+h) );
-             path.segments.push( LineTo(x,y) );
+             path.segments.push( new MoveSegment(x,y) );
+             path.segments.push( new DrawSegment(x+w,y) );
+             path.segments.push( new DrawSegment(x+w,y+h) );
+             path.segments.push( new DrawSegment(x,y+h) );
+             path.segments.push( new DrawSegment(x,y) );
           }
           else
           {
-             path.segments.push( MoveTo(x,y+ry) );
+             path.segments.push( new MoveSegment(x,y+ry) );
              // top-left
-             path.segments.push( QuadraticTo(x,y,x+rx,y) );
+             path.segments.push( new QuadraticSegment(x,y,x+rx,y) );
  
-             path.segments.push( LineTo(x+w-rx,y) );
+             path.segments.push( new DrawSegment(x+w-rx,y) );
              // top-right
-             path.segments.push( QuadraticTo(x+w,y,x+w,y+rx) );
+             path.segments.push( new QuadraticSegment(x+w,y,x+w,y+rx) );
  
-             path.segments.push( LineTo(x+w,y+h-ry) );
+             path.segments.push( new DrawSegment(x+w,y+h-ry) );
  
              // bottom-right
-             path.segments.push( QuadraticTo(x+w,y+h,x+w-rx,y+h) );
+             path.segments.push( new QuadraticSegment(x+w,y+h,x+w-rx,y+h) );
  
-             path.segments.push( LineTo(x+rx,y+h) );
+             path.segments.push( new DrawSegment(x+rx,y+h) );
  
              // bottom-left
-             path.segments.push( QuadraticTo(x,y+h,x,y+h-ry) );
+             path.segments.push( new QuadraticSegment(x,y+h,x,y+h-ry) );
  
-             path.segments.push( LineTo(x,y+ry) );
+             path.segments.push( new DrawSegment(x,y+ry) );
            }
        }
        else
@@ -578,255 +578,6 @@ class SVG2Gfx
        return g;
     }
 
-    function AddExtent(inX:Float,inY:Float)
-    {
-       if (mExtent==null)
-          mExtent = new Rectangle(inX,inY,0,0);
-       else
-       {
-          if (inX<mExtent.left) mExtent.left = inX;
-          if (inX>mExtent.right) mExtent.right = inX;
-          if (inY<mExtent.top) mExtent.top = inY;
-          if (inY>mExtent.bottom) mExtent.bottom = inY;
-       }
-    }
-
-    var mPenX:Float;
-    var mPenY:Float;
-    var mLastMoveX:Float;
-    var mLastMoveY:Float;
-    var mPrevP2X:Float;
-    var mPrevP2Y:Float;
-
-    function DoMoveTo(m:Matrix,x:Float,y:Float)
-    {
-       mPenX = m.a*x + m.c*y + m.tx;
-       mPenY = m.b*x + m.d*y + m.ty;
-       mLastMoveX = mPenX;
-       mLastMoveY = mPenY;
-       if (mGfx!=null)
-          mGfx.moveTo(mPenX,mPenY);
-       else
-          AddExtent(mPenX,mPenY);
-    }
-
-    function DoLineTo(m:Matrix,x:Float,y:Float)
-    {
-       mPenX = m.a*x + m.c*y + m.tx;
-       mPenY = m.b*x + m.d*y + m.ty;
-       if (mGfx!=null)
-          mGfx.lineTo(mPenX,mPenY);
-       else
-          AddExtent(mPenX,mPenY);
-    }
-
-    function DoQuadraticTo(xc:Float,yc:Float,x:Float,y:Float)
-    {
-       mPrevP2X = xc;
-       mPrevP2Y = yc;
-       mPenX = x;
-       mPenY = y;
-       if (mGfx!=null)
-          mGfx.curveTo(xc,yc,x,y);
-       else
-       {
-          AddExtent(xc,yc);
-          AddExtent(mPenX,mPenY);
-       }
-    }
-
-
-    function DoCubicTo( x1:Float,y1:Float, x2:Float,y2:Float, x3:Float,y3:Float)
-    {
-       var dx1 = x1-mPenX;
-       var dy1 = y1-mPenY;
-       var dx2 = x2-x1;
-       var dy2 = y2-y1;
-       var dx3 = x3-x2;
-       var dy3 = y3-y2;
-       var len = Math.sqrt(dx1*dx1+dy1*dy1 + dx2*dx2+dy2*dy2 + dx3*dx3+dy3*dy3);
-       var steps = Math.round(len*0.4);
-
-       if (steps>1)
-       {
-          var du = 1.0/steps;
-          var u = du;
-          for(i in 1...steps)
-          {
-             var u1 = 1.0-u;
-             var c0 = u1*u1*u1;
-             var c1 = 3*u1*u1*u;
-             var c2 = 3*u1*u*u;
-             var c3 = u*u*u;
-             u+=du;
-             if (mGfx!=null)
-                mGfx.lineTo(c0*mPenX + c1*x1 + c2*x2 + c3*x3,
-                            c0*mPenY + c1*y1 + c2*y2 + c3*y3 );
-             else
-                AddExtent(c0*mPenX + c1*x1 + c2*x2 + c3*x3,
-                          c0*mPenY + c1*y1 + c2*y2 + c3*y3 );
-          }
-       }
-
-       mPrevP2X = x2;
-       mPrevP2Y = y2;
-       mPenX = x3;
-       mPenY = y3;
-       if (mGfx!=null)
-          mGfx.lineTo(mPenX,mPenY);
-       else
-          AddExtent(mPenX,mPenY);
-    }
-
-    function MDoCubicTo(m:Matrix,
-                       inX1:Float,inY1:Float,
-                       inX2:Float,inY2:Float,
-                       inX3:Float,inY3:Float)
-    {
-       DoCubicTo(m.a*inX1 + m.c*inY1 + m.tx, m.b*inX1 + m.d*inY1 + m.ty,
-                 m.a*inX2 + m.c*inY2 + m.tx, m.b*inX2 + m.d*inY2 + m.ty,
-                 m.a*inX3 + m.c*inY3 + m.tx, m.b*inX3 + m.d*inY3 + m.ty );
-    }
-
-    function SMDoCubicTo(m:Matrix,
-                       inX2:Float,inY2:Float,
-                       inX3:Float,inY3:Float)
-    {
-       DoCubicTo(mPenX*2-mPrevP2X, mPenY*2-mPrevP2Y,
-                 m.a*inX2 + m.c*inY2 + m.tx, m.b*inX2 + m.d*inY2 + m.ty,
-                 m.a*inX3 + m.c*inY3 + m.tx, m.b*inX3 + m.d*inY3 + m.ty );
-    }
-
-    function MDoQuadraticTo(m:Matrix,
-                       inX1:Float,inY1:Float,
-                       inX2:Float,inY2:Float )
-    {
-       DoQuadraticTo(m.a*inX1 + m.c*inY1 + m.tx, m.b*inX1 + m.d*inY1 + m.ty,
-                 m.a*inX2 + m.c*inY2 + m.tx, m.b*inX2 + m.d*inY2 + m.ty );
-    }
-
-    function SMDoQuadraticTo(m:Matrix, inX1:Float,inY1:Float )
-    {
-       DoQuadraticTo(mPenX*2-mPrevP2X, mPenY*2-mPrevP2Y,
-                     m.a*inX1 + m.c*inY1 + m.tx, m.b*inX1 + m.d*inY1 + m.ty );
-    }
-
-
-
-    function DoArcTo(m:Matrix,x1:Float,y1:Float,x2:Float,y2:Float,
-                rx:Float, ry:Float,
-                phi:Float, fA:Bool, fS:Bool)
-    {
-       if (rx==0 || ry==0)
-       {
-          DoLineTo(m,x2,y2);
-          return;
-       }
-       if (rx<0) rx = -rx;
-       if (ry<0) ry = -ry;
-
-       var p = phi*Math.PI/180.0;
-       var cos = Math.cos(p);
-       var sin = Math.sin(p);
-       var dx = (x1-x2)*0.5;
-       var dy = (y1-y2)*0.5;
-       var x1_ = cos*dx + sin*dy;
-       var y1_ = -sin*dx + cos*dy;
-
-       var rx2 = rx*rx;
-       var ry2 = ry*ry;
-       var x1_2 = x1_*x1_;
-       var y1_2 = y1_*y1_;
-       var s = (rx2*ry2 - rx2*y1_2 - ry2*x1_2) /
-                 (rx2*y1_2 + ry2*x1_2 );
-       if (s<0)
-          s=0;
-       else if (fA==fS)
-          s = -Math.sqrt(s);
-       else
-          s = Math.sqrt(s);
-
-       var cx_ = s*rx*y1_/ry;
-       var cy_ = -s*ry*x1_/rx;
-
-       // Something not quite right here.
-       // See:  http://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
-       var xm = (x1+x2)*0.5;
-       var ym = (y1+y2)*0.5;
-
-       var cx = cos*cx_ + sin*cy_ + xm;
-       var cy = -sin*cx_ + cos*cy_ + ym;
-
-       var theta = Math.atan2( (y1_-cy_)/ry, (x1_-cx_)/rx );
-       var dtheta = Math.atan2( (-y1_-cy_)/ry, (-x1_-cx_)/rx ) - theta;
-
-       if (fS && dtheta<0)
-          dtheta+=2.0*Math.PI;
-       else if (!fS && dtheta>0)
-          dtheta-=2.0*Math.PI;
-
-
-       // axis, at theta = 0;
-       //
-       // p =  [ M ] [ + centre ] [ rotate phi ] [ rx 0 ] [ cos(theta),sin(theta) ]t
-       //                                        [ 0 ry ]
-       //   = [ a c tx ] [ cos*rx  sin*ry cx ]  [ cos(theta), sin(theta) 1 ]t;
-       //     [ b d ty ] [-sin*rx  cos*ry cy ]
-       //     [ 0 0 1  ] [ 0       0       1 ]
-       //
-       var ta = m.a*cos*rx - m.c*sin*rx;
-       var tc = m.a*sin*ry + m.c*cos*ry;
-       var tx = m.a*cx     + m.c*cy + m.tx;
-
-       var tb = m.b*cos*rx - m.d*sin*rx;
-       var td = m.b*sin*ry + m.d*cos*ry;
-       var ty = m.b*cx     + m.d*cy + m.ty;
-
-       var len = Math.abs(dtheta)*Math.sqrt(ta*ta + tb*tb + tc*tc + td*td);
-       var steps = Math.round(len);
-
-       if (steps>1)
-       {
-          dtheta /= steps;
-          for(i in 1...steps-1)
-          {
-             var c = Math.cos(theta);
-             var s = Math.sin(theta);
-             theta+=dtheta;
-             if (mGfx!=null)
-                mGfx.lineTo( ta*c + tb*s + tx, tc*c + td*s + ty );
-             else
-                AddExtent( ta*c + tb*s + tx, tc*c + td*s + ty );
-          }
-       }
-       DoLineTo(m,x2,y2);
-    }
-
-
-    function DoClose()
-    {
-       if (mPenX!=mLastMoveX || mPenY!=mLastMoveY)
-       {
-          mPenY = mLastMoveX;
-          mPenY = mLastMoveY;
-          if (mGfx!=null)
-             mGfx.lineTo(mPenX,mPenY);
-       }
-    }
-
-    function Finalise()
-    {
-       if ((mPenX!=mLastMoveX || mPenY!=mLastMoveY) && mGfx!=null)
-       {
-          mPenY = mLastMoveX;
-          mPenY = mLastMoveY;
-          mGfx.lineStyle();
-          mGfx.lineTo(mPenX,mPenY);
-       }
-    }
-
-
-
     public function RenderPath(inPath:Path)
     {
        if (mFilter!=null && !mFilter(inPath.name,mGroupPath))
@@ -875,101 +626,24 @@ class SVG2Gfx
        }
 
 
-       for(segment in inPath.segments)
+       if (mGfx==null)
        {
-          switch(segment)
-          {
-             case MoveTo(x,y):
-                px = x; py = y;
-                DoMoveTo(m,px,py);
+          for(segment in inPath.segments)
+             segment.GetExtent(m,mExtent);
 
-             case MoveToR(x,y):
-                px += x; py += y;
-                DoMoveTo(m,px,py);
-
-             case Close:
-                DoClose();
-    
-             case LineTo(x,y):
-                px = x; py = y;
-                DoLineTo(m,px,py);
-
-             case LineToR(x,y):
-                px += x; py += y;
-                DoLineTo(m,px,py);
-
-             case HorizontalTo(x):
-                px = x;
-                DoLineTo(m,px,py);
-
-             case HorizontalToR(x):
-                px += x;
-                DoLineTo(m,px,py);
-
-             case VerticalTo(y):
-                py = y;
-                DoLineTo(m,px,py);
-
-             case VerticalToR(y):
-                py += y;
-                DoLineTo(m,px,py);
-    
-             case CubicTo(x1, y1, x2, y2, x, y):
-                px = x; py = y;
-                MDoCubicTo(m,x1,y1,x2,y2,px,py);
-
-             case CubicToR(x1, y1, x2, y2, x, y):
-                x1 += px; y1 += py;
-                x2 += px; y2 += py;
-                px += x; py += y;
-                MDoCubicTo(m,x1,y1,x2,y2,px,py);
-
-             case SmoothCubicTo( x2, y2, x, y):
-                px = x; py = y;
-                SMDoCubicTo(m,x2,y2,px,py);
-
-
-             case SmoothCubicToR( x2, y2, x, y):
-                x2 += px; y2 += py;
-                px += x; py += y;
-                SMDoCubicTo(m,x2,y2,px,py);
-    
-             case QuadraticTo( x1, y1, x, y):
-                px = x; py = y;
-                MDoQuadraticTo(m,x1,y1,px,py);
-
-
-             case QuadraticToR( x1, y1, x, y):
-                x1 += px; y1+=py;
-                px += x; py += y;
-                MDoQuadraticTo(m,x1,y1,px,py);
-
-             case SmoothQuadraticTo( x, y):
-                px = x; py = y;
-                SMDoQuadraticTo(m,px,py);
-
-             case SmoothQuadraticToR( x, y):
-                px += x; py += y;
-                SMDoQuadraticTo(m,px,py);
-    
-             case ArcTo( rx, ry, rotation, largeArc, sweep, x, y):
-                DoArcTo(m,px,py,x,y,rx,ry,rotation,largeArc,sweep);
-                px = x; py = y;
-
-             case ArcToR( rx, ry, rotation, largeArc, sweep, x, y):
-                x+=px; y+=py;
-                DoArcTo(m,px,py,x,y,rx,ry,rotation,largeArc,sweep);
-                px = x; py = y;
-
-          }
+          // switch(inPath.fill) { case FillNone: default: Finalise(); }
+       }
+       else
+       {
+          var context = new RenderContext();
+          context.matrix = m;
+          for(segment in inPath.segments)
+             segment.Draw(mGfx, context);
        }
 
-       switch(inPath.fill)
-       {
-          case FillNone:
-          default: Finalise();
-       }
     }
+
+
 
     public function RenderGroup(inGroup:Group,inIgnoreDot:Bool)
     {
@@ -1010,10 +684,11 @@ class SVG2Gfx
           RenderGroup(g,true);
     }
 
-    public function GetExtent(?inMatrix:Matrix, ?inFilter:ObjectFilter, inIgnoreDot=true ) : Rectangle
+    public function GetExtent(?inMatrix:Matrix, ?inFilter:ObjectFilter, inIgnoreDot=true ) :
+        Rectangle
     {
        mGfx = null;
-       mExtent = null;
+       mExtent = new Rectangle(0,0,-1,-1);
        if (inMatrix==null)
           mMatrix = new Matrix();
        else
