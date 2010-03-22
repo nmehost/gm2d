@@ -29,10 +29,10 @@ class PathParser {
     static var MOVER = "m".charCodeAt(0);
     static var LINE  = "L".charCodeAt(0);
     static var LINER = "l".charCodeAt(0);
-    static var HMOVE = "H".charCodeAt(0);
-    static var HMOVER = "h".charCodeAt(0);
-    static var VMOVE = "V".charCodeAt(0);
-    static var VMOVER = "v".charCodeAt(0);
+    static var HLINE = "H".charCodeAt(0);
+    static var HLINER = "h".charCodeAt(0);
+    static var VLINE = "V".charCodeAt(0);
+    static var VLINER = "v".charCodeAt(0);
     static var CUBIC = "C".charCodeAt(0);
     static var CUBICR = "c".charCodeAt(0);
     static var SCUBIC = "S".charCodeAt(0);
@@ -146,36 +146,37 @@ class PathParser {
                 
         }
     }
+
+    function prevX():Float { return (g.length>0) ? g[g.length-1].prevX() : 0; }
+    function prevY():Float { return (g.length>0) ? g[g.length-1].prevY() : 0; }
     
     function command( cmd:String, a:Array<Float> ) {
-        var op = 
-            switch( cmd ) {
-                case "M":
-                    MoveTo( a[0], a[1] );
-                case "m":
-                    MoveToR( a[0], a[1] );
-                case "L":
-                    LineTo( a[0], a[1] );
-                case "l":
-                    LineToR( a[0], a[1] );
-                case "H":
-                    HorizontalTo( a[0] );
-                case "h":
-                    HorizontalToR( a[0] );
-                case "V":
-                    VerticalTo( a[0] );
-                case "v":
-                    VerticalToR( a[0] );
-                case "C":
-                    CubicTo( a[0], a[1], a[2], a[3], a[4], a[5] );
-                case "c":
-                    CubicToR( a[0], a[1], a[2], a[3], a[4], a[5] );
-                case "S":
-                    SmoothCubicTo( a[0], a[1], a[2], a[3] );
-                case "s":
-                    SmoothCubicToR( a[0], a[1], a[2], a[3] );
-                case "Q":
-                    QuadraticTo( a[0], a[1], a[2], a[3] );
+        var op:PathSegment = 
+            switch( cmd.charCodeAt(0) ) {
+                case MOVE:  new MoveSegemnt( a[0], a[1] );
+                case MOVER: new MoveSegemnt( a[0]+prevX(), a[1]+prevX() );
+                case LINE:  new DrawSegment( a[0], a[1] );
+                case LINER: new DrawSegment( a[0]+prevX(), a[1]+prevX() );
+                case HLINE:  new DrawSegment( a[0], 0 );
+                case HLINER: new DrawSegment( a[0]+prevX(), 0);
+                case VLINE:  new DrawSegment( 0, a[0] );
+                case VLINER: new DrawSegment( 0, a[0]+prevX());
+                case CUBIC:
+                    new CubicSegement( a[0], a[1], a[2], a[3], a[4], a[5] );
+                case CUBICR:
+                    var rx = prevX();
+                    var ry = prevY();
+                    new CubicSegement( a[0]+rx, a[1]+ry, a[2]+rx, a[3]+ry, a[4]+rx, a[5]+ry );
+                case SCUBIC:
+                    var rx = prevX();
+                    var ry = prevY();
+                    new CubicSegement( rx*2-prevCX(), ry*2-prevCY(),a[0], a[1], a[2], a[3] );
+                case SCUBICR:
+                    var rx = prevX();
+                    var ry = prevY();
+                    new CubicSegement( ry*2-prevCX(), ry*2-prevCY(),a[0]+rx, a[1]+ry, a[2]+rx, a[3]+ry );
+                case QUAD:
+                    new QuadraticSegement( a[0], a[1], a[2], a[3] );
                 case "q":
                     QuadraticToR( a[0], a[1], a[2], a[3] );
                 case "T":
