@@ -1,13 +1,46 @@
 import gm2d.display.Sprite;
+import gm2d.blit.Tilesheet;
+import gm2d.blit.Tile;
+import gm2d.blit.Layer;
+import gm2d.Game;
 
 
 class Tilemap extends Sprite
 {
 	var mResources:Dynamic;
+	var mTilesheet:Tilesheet;
+	var mTiles:Array<Tile>;
+   var mViewport:gm2d.blit.Viewport;
+   var mMapLayer:Layer;
+   var mPlayerLayer:Layer;
+
+	static var map = [
+	  "####################",
+	  "#     ######      ##",
+	  "#     ###### #    ##",
+	  "#     ###### #######",
+	  "### ########       #",
+	  "### ############## #",
+	  "###         ###### #",
+	  "### ####### ###### #",
+	  "### #######        #",
+	  "#        ###########",
+	  "#        #####    ##",
+	  "#               # ##",
+	  "#        #####    ##",
+	  "#        ###### ####",
+	  "## ############ ####",
+	  "## #  ##     ## ####",
+	  "## # ##O     ## ####",
+	  "## # ##### #### ####",
+	  "## # #####      ####",
+	  "##   ###############",
+	  "####################" ];
 
 	function new()
 	{
 		super();
+		gm2d.Lib.current.addChild(this);
 		var loader = new gm2d.game.Loader();
 		loader.loadBitmap("Tiles.png","tiles");
 		loader.Process(onLoaded);
@@ -15,14 +48,44 @@ class Tilemap extends Sprite
 
 	function onLoaded(inResources:Dynamic)
 	{
-	   mResources = inResources;
-		//trace("Loaded " + mResources);
+		mResources = inResources;
+		mTilesheet = new Tilesheet(mResources.get("tiles"));
+		mTiles = mTilesheet.partition(32,32);
+
+      mViewport = new gm2d.blit.Viewport(400, 300, false, 0xff0000);
+		mViewport.worldWidth = 640;
+		mViewport.worldHeight = 640;
+	   mViewport.x = 40;
+	   mViewport.y = 10;
+		addChild(mViewport);
+		mMapLayer = new gm2d.blit.Layer();
+		mViewport.addLayer(mMapLayer);
+		mPlayerLayer = new gm2d.blit.Layer();
+		mViewport.addLayer(mPlayerLayer);
+
+		for(y in 0...20)
+		{
+			var row = map[y];
+			for(x in 0...20)
+			{
+				switch( row.substr(x,1) )
+				{
+					case "#" : mMapLayer.addTile(mTiles[0],x*32,y*32);
+					case " " : mMapLayer.addTile(mTiles[1],x*32,y*32);
+					case "O" : mMapLayer.addTile(mTiles[2],x*32,y*32);
+				}
+			}
+		}
+
+		mViewport.centerOn(300,300);
 	}
 
 
    static public function main()
 	{
-		gm2d.Lib.boot(function() new Tilemap());
+		Game.useHardware = true;
+		Game.title = "Tilemap";
+		Game.create(function() new Tilemap());
 	}
 }
 

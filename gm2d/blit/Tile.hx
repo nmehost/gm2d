@@ -1,10 +1,11 @@
-import flash.geom.Rectangle;
+package gm2d.blit;
+import gm2d.geom.Rectangle;
 
 class Tile
 {
 	public var rect(default,null):Rectangle;
 	public var id(default,null):Int;
-	var sheet:Tilesheet;
+	public var sheet:Tilesheet;
 
 	public function new(inSheet:Tilesheet, inRect:Rectangle)
 	{

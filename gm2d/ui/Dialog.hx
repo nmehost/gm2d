@@ -30,7 +30,7 @@ class Dialog extends flash.display.Sprite
       super();
       mItems = new ItemList(this);
       mBG = new Shape();
-      mDebug = neash.Lib.debug ? new Shape() : null;
+      mDebug = gm2d.Lib.debug ? new Shape() : null;
       mLayout = new GridLayout(1,"vertical").setColFlags(0,Layout.AlignCenterX);
       mItemLayout = new GridLayout(2,"items");
       mButtonLayout = new GridLayout(null,"buttons");

@@ -1,20 +1,65 @@
-package gm2d.game;
+package gm2d;
 
+import gm2d.display.Sprite;
 import flash.events.Event;
 import flash.events.KeyboardEvent;
 import gm2d.ui.Dialog;
 
-class Game extends flash.display.Sprite
+class Game
 {
+	static var created = false;
+
+	static public var initWidth = 480;
+	static public var initHeight = 320;
+	static public var useHardware = true;
+	static public var isResizable = true;
+	static public var frameRate = 30.0;
+	static public var backgroundColor = 0xffffff;
+	static public var title(default,setTitle):String;
+	static public var icon(default,setIcon):String;
+
+   public static function create( inOnLoaded:Void->Void )
+	{
+		if (created) throw "Game.create : already created";
+
+		created = true;
+
+   #if flash
+     inOnLoaded();
+   #else
+     nme.Lib.create(inOnLoaded,initWidth,initHeight,frameRate,backgroundColor,
+	       (useHardware ? nme.Lib.HARDWARE : 0) | (isResizable ? nme.Lib.RESIZABLE : 0),
+			 title, icon );
+   #end
+	
+	}
+
+   static function setTitle(inTitle:String) : String
+	{
+		title = inTitle;
+		return inTitle;
+	}
+
+   static function setIcon(inIcon:String) : String
+	{
+		icon = inIcon;
+		return inIcon;
+	}
+
+
+
+#if false
    var mScreen:Screen;
    var mDialogScreen:Screen;
    var mDialog:Dialog;
    var mKeyDown:Array<Bool>;
    var mLastStep:Float;
    var mLastEnter:Float;
+
    var mScreenMap:Hash<Screen>;
    var mDialogMap:Hash<Dialog>;
    var mResources:Resources;
+
 
    public function new()
    {
@@ -169,4 +214,5 @@ class Game extends flash.display.Sprite
    }
 
 
+#end
 }
