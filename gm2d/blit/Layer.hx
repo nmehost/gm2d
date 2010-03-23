@@ -6,8 +6,8 @@ class LayerTile
 	public function new(inTile:Tile,inX:Float,inY:Float)
 	{
 		tile = inTile;
-		x = inX;
-		y = inY;
+		x = inX - inTile.hotX;
+		y = inY - inTile.hotY;
 		next = null;
 	}
 	public var tile:Tile;
@@ -73,15 +73,21 @@ class Layer
 		}
 	}
 
+	public function clear()
+	{
+		if (mViewport!=null) { mViewport.makeDirty(); }
+		mHead = mLast = null;
+	}
+
 	function setOffsetX(inVal:Float):Float
 	{
-		offsetX = inVal;
+		offsetX = Std.int(inVal);
 		return inVal;
 	}
 
 	function setOffsetY(inVal:Float):Float
 	{
-		offsetY = inVal;
+		offsetY = Std.int(inVal);
 		return inVal;
 	}
 }

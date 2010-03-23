@@ -35,6 +35,7 @@ class Game
    static var created = false;
 
    static var mScreenMap:Hash<Screen> = new Hash<Screen>();
+	static var mKeyDown = new Array<Bool>();
 
    public static function create( inOnLoaded:Void->Void )
    {
@@ -74,12 +75,13 @@ class Game
       parent.addChild(mFPSControl);
 
 
-      //parent.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown );
-      //parent.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp );
+      parent.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown );
+      parent.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp );
       parent.stage.addEventListener(Event.ENTER_FRAME, onEnter);
       //parent.stage.addEventListener(Event.RESIZE, onSize);
    }
 
+   public static function isKeyDown(inCode:Int) { return mKeyDown[inCode]; } 
 
    public static function gm2dAddScreen(inScreen:Screen)
    {
@@ -181,6 +183,25 @@ class Game
    }
 
 
+   static function onKeyDown(event:KeyboardEvent )
+   {
+      mKeyDown[event.keyCode] = true;
+
+      //if (mDialog!=null) mDialog.onKeyDown(event); else
+		if (mCurrentScreen!=null)
+         mCurrentScreen.onKeyDown(event);
+   }
+
+   static function onKeyUp(event:KeyboardEvent )
+   {
+      mKeyDown[event.keyCode] = false;
+
+      //if (mDialog!=null) mDialog.onKeyUp(event); else
+		if (mCurrentScreen!=null)
+         mCurrentScreen.onKeyUp(event);
+   }
+
+
    static function setTitle(inTitle:String) : String
    {
       title = inTitle;
@@ -242,21 +263,6 @@ class Game
 
 
 
-   function OnKeyDown(event:flash.events.KeyboardEvent )
-   {
-      if (mDialog!=null)
-         mDialog.OnKeyDown(event);
-      else if (mScreen!=null)
-         mScreen.OnKeyDown(event);
-      mKeyDown[event.keyCode] = true;
-   }
-
-   function OnKeyUp(event:flash.events.KeyboardEvent )
-   {
-      if (mDialog==null && mScreen!=null)
-         mScreen.OnKeyUp(event);
-      mKeyDown[event.keyCode] = false;
-   }
 
    function onUpdate(e:flash.events.Event)
    {
@@ -293,26 +299,6 @@ class Game
       mLastEnter = now;
    }
 
-   public function SetScreen(inScreen:String)
-   {
-      var screen:Screen = mScreenMap.get(inScreen);
-      if (screen==null)
-         throw "Invalid Screen "+  inScreen;
-
-      CloseDialog();
-
-      if (mScreen!=null)
-      {
-         removeChild(mScreen);
-         mScreen = null;
-      }
-
-      mScreen = screen;
-
-      addChildAt(mScreen,0);
-      mScreen.OnAdded();
-      mScreen.Layout(stage.stageWidth,stage.stageHeight);
-   }
 
    public function ShowDialog(inDialog:String)
    {

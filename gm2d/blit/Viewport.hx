@@ -76,7 +76,7 @@ class Viewport extends Sprite
 
       originY = inY - mHeight/2;
       if (originY<0) originY = 0;
-      else if (originY+mHeight > worldHeight) originY = worldWidth-mHeight;
+      else if (originY+mHeight > worldHeight) originY = worldHeight-mHeight;
       makeDirty();
    }
 

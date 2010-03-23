@@ -4,6 +4,7 @@ import gm2d.Game;
 import gm2d.ui.ItemList;
 import gm2d.ui.Dialog;
 import flash.events.MouseEvent;
+import flash.events.KeyboardEvent;
 import flash.ui.Keyboard;
 
 class Screen extends flash.display.Sprite
@@ -34,9 +35,12 @@ class Screen extends flash.display.Sprite
 
    public function onActivate(inActive:Bool) { }
    public function getUpdateFrequency() { return 0.0; }
-   public function updateDelta(inDT:Float) { return 0.0; }
+   public function updateDelta(inDT:Float) {  }
    public function updateFixed() {  }
    public function renderFixedExtra(inFraction:Float) {  }
+   public function onKeyDown(event:KeyboardEvent) { }
+   public function onKeyUp(event:KeyboardEvent) { }
+
 
 #if false
    public function OnKeyUp(event:flash.events.KeyboardEvent ) { }
