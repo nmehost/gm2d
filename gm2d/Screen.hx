@@ -1,4 +1,6 @@
-package gm2d.game;
+package gm2d;
+
+import gm2d.Game;
 import gm2d.ui.ItemList;
 import gm2d.ui.Dialog;
 import flash.events.MouseEvent;
@@ -6,22 +8,41 @@ import flash.ui.Keyboard;
 
 class Screen extends flash.display.Sprite
 {
-   static var mGame : Game;
+   public var screenName(default,null):String;
+ 
    var mMarginX:Float;
    var mMarginY:Float;
    var mNominalWidth:Float;
    var mNominalHeight:Float;
    var mItems:gm2d.ui.ItemList;
 
-   public function new()
+   public function new(inName:String)
    {
       super();
-      mNominalWidth = 240;
-      mNominalHeight = 320;
-      mMarginX = 0;
-      mMarginY = 0;
+
+      screenName = inName;
+
       mItems = new ItemList(this);
+
+      Game.gm2dAddScreen(this);
    }
+
+   public function makeCurrent()
+   {
+      Game.setCurrentScreen(this);
+   }
+
+   public function onActivate(inActive:Bool) { }
+   public function getUpdateFrequency() { return 0.0; }
+   public function updateDelta(inDT:Float) { return 0.0; }
+   public function updateFixed() {  }
+   public function renderFixedExtra(inFraction:Float) {  }
+
+#if false
+   public function OnKeyUp(event:flash.events.KeyboardEvent ) { }
+   public function OnAdded() { }
+
+
 
    // These are not static, even though they could be.
    // This allows non-static function to see them
@@ -81,6 +102,7 @@ class Screen extends flash.display.Sprite
          ScaleScreen(inH/mNominalHeight);
       }
    }
+#end
 }
 
 
