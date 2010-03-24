@@ -1,7 +1,7 @@
 package gm2d.ui;
 
-import flash.display.DisplayObject;
-import flash.text.TextField;
+import gm2d.display.DisplayObject;
+import gm2d.text.TextField;
 
 // --- Layout -------------------------------------------
 
@@ -25,7 +25,7 @@ class Layout
    public var width:Float;
    public var height:Float;
 
-   static var mDebug:flash.display.Graphics;
+   static var mDebug:gm2d.display.Graphics;
 
    public function new()
    {
@@ -39,7 +39,7 @@ class Layout
       { throw "setRect - not implemented"; }
    public function setSpacing(inX:Float,inY:Float) : Layout { return this; }
 
-   static public function SetDebug(inGfx:flash.display.Graphics) { mDebug = inGfx; }
+   static public function SetDebug(inGfx:gm2d.display.Graphics) { mDebug = inGfx; }
 
    public function setBorders(inL:Float,inT:Float,inR:Float,inB:Float) : Layout
    {

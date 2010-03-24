@@ -1,12 +1,13 @@
 package gm2d.ui;
 
-import flash.filters.BitmapFilterType;
-import flash.filters.DropShadowFilter;
-import flash.filters.GlowFilter;
-import flash.events.MouseEvent;
+import gm2d.filters.BitmapFilter;
+import gm2d.filters.BitmapFilterType;
+import gm2d.filters.DropShadowFilter;
+import gm2d.filters.GlowFilter;
+import gm2d.events.MouseEvent;
 
 
-class Base extends flash.display.Sprite
+class Base extends gm2d.display.Sprite
 {
    var current:Bool;
    var highlightColour:Int;
@@ -22,7 +23,7 @@ class Base extends flash.display.Sprite
    {
       if (inCurrent)
       {
-         var glow = new GlowFilter(0x0000ff, 1.0, 3, 3, 3, 3, false, false);
+         var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, 3, 3, 3, 3, false, false);
          filters = [ glow ];
       }
       else

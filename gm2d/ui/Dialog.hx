@@ -1,16 +1,16 @@
 package gm2d.ui;
 
-import flash.events.MouseEvent;
-import flash.display.DisplayObject;
-import flash.display.Shape;
-import flash.text.TextField;
-import flash.text.TextFormat;
+import gm2d.events.MouseEvent;
+import gm2d.display.DisplayObject;
+import gm2d.display.Shape;
+import gm2d.text.TextField;
+import gm2d.text.TextFormat;
 import gm2d.ui.ItemList;
 import gm2d.ui.Layout;
 import gm2d.svg.SVG2Gfx;
 
 
-class Dialog extends flash.display.Sprite
+class Dialog extends gm2d.display.Sprite
 {
    var mItems:ItemList;
    var mLayout:GridLayout;
@@ -90,9 +90,7 @@ class Dialog extends flash.display.Sprite
 
       var bg = mBG;
       renderBackground = function(w,h) { bg.width = w; bg.height = h; }
-      #if !flash
-      mBG.cacheAsBitmap = neash.Lib.IsOpenGL();
-      #end
+      mBG.cacheAsBitmap = gm2d.Lib.isOpenGL;
    }
    public function getLayoutWidth()
    {
@@ -114,7 +112,7 @@ class Dialog extends flash.display.Sprite
    public dynamic function onAdded() { }
    public dynamic function onClose() { }
 
-   public function OnKeyDown(event:flash.events.KeyboardEvent ) : Bool
+   public function OnKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
       { return mItems.OnKeyDown(event); }
 
 
@@ -133,7 +131,7 @@ class Dialog extends flash.display.Sprite
       mButtonLayout.add( inButton.getLayout() );
    }
 
-   public function addObj(inObj:flash.display.DisplayObject)
+   public function addObj(inObj:gm2d.display.DisplayObject)
    {
       mLayoutDirty = true;
       addChild(inObj);
@@ -146,13 +144,13 @@ class Dialog extends flash.display.Sprite
       label.text = inText;
       label.setTextFormat( labelFormat );
       label.textColor = labelColor;
-      label.autoSize = flash.text.TextFieldAutoSize.LEFT;
+      label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
       addChild(label);
       mItemLayout.add( new TextLayout(label) );
    }
 	static function DefaultTextFormat()
 	{
-	   var fmt = new flash.text.TextFormat();
+	   var fmt = new gm2d.text.TextFormat();
 		fmt.size = 20;
 		return fmt;
 	}

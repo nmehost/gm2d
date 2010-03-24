@@ -5,7 +5,7 @@ import gm2d.blit.Layer;
 import gm2d.Game;
 import gm2d.Screen;
 
-import flash.ui.Keyboard;
+import gm2d.ui.Keyboard;
 
 
 class Tilemap extends Screen

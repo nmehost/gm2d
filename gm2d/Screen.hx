@@ -3,11 +3,11 @@ package gm2d;
 import gm2d.Game;
 import gm2d.ui.ItemList;
 import gm2d.ui.Dialog;
-import flash.events.MouseEvent;
-import flash.events.KeyboardEvent;
-import flash.ui.Keyboard;
+import gm2d.events.MouseEvent;
+import gm2d.events.KeyboardEvent;
+import gm2d.ui.Keyboard;
 
-class Screen extends flash.display.Sprite
+class Screen extends gm2d.display.Sprite
 {
    public var screenName(default,null):String;
  
@@ -43,7 +43,7 @@ class Screen extends flash.display.Sprite
 
 
 #if false
-   public function OnKeyUp(event:flash.events.KeyboardEvent ) { }
+   public function OnKeyUp(event:gm2d.events.KeyboardEvent ) { }
    public function OnAdded() { }
 
 
@@ -58,7 +58,7 @@ class Screen extends flash.display.Sprite
    static public function SetGame(inGame : Game) { Screen.mGame = inGame; }
    function IsDown(inCode:Int) { return mGame.IsDown(inCode); }
 
-   public function OnKeyDown(event:flash.events.KeyboardEvent ) : Bool
+   public function OnKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
    {
       if (mItems.OnKeyDown(event))
          return true;
@@ -66,7 +66,7 @@ class Screen extends flash.display.Sprite
    }
 
 
-   public function OnKeyUp(event:flash.events.KeyboardEvent ) { }
+   public function OnKeyUp(event:gm2d.events.KeyboardEvent ) { }
    public function OnAdded() { }
    public function GetUpdateFrequency() { return 0.0; }
    public function UpdateDelta(inDT:Float) { }

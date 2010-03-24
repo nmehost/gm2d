@@ -1,8 +1,8 @@
 package gm2d.ui;
 
-import flash.display.Sprite;
-import flash.events.MouseEvent;
-import flash.ui.Keyboard;
+import gm2d.display.Sprite;
+import gm2d.events.MouseEvent;
+import gm2d.ui.Keyboard;
 
 
 class ItemList
@@ -45,7 +45,7 @@ class ItemList
    }
 
 
-   public function OnKeyDown(event:flash.events.KeyboardEvent ) : Bool
+   public function OnKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
    {
       var code = event.keyCode;
       if (mItems.length>1)

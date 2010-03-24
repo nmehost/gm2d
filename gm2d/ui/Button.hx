@@ -1,10 +1,10 @@
 package gm2d.ui;
 
-import flash.display.BitmapData;
-import flash.display.Bitmap;
-import flash.display.DisplayObject;
-import flash.events.MouseEvent;
-import flash.text.TextField;
+import gm2d.display.BitmapData;
+import gm2d.display.Bitmap;
+import gm2d.display.DisplayObject;
+import gm2d.events.MouseEvent;
+import gm2d.text.TextField;
 import gm2d.ui.Layout;
 
 class Button extends Base
@@ -35,7 +35,7 @@ class Button extends Base
       label.text = inText;
       label.setTextFormat( Dialog.labelFormat );
       label.textColor = Dialog.labelColor;
-      label.autoSize = flash.text.TextFieldAutoSize.LEFT;
+      label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
       return new Button(label,inOnClick);
    }
 

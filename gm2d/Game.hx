@@ -2,9 +2,9 @@ package gm2d;
 
 import gm2d.display.Sprite;
 import gm2d.Screen;
-import flash.events.Event;
-import flash.events.KeyboardEvent;
-import flash.text.TextField;
+import gm2d.events.Event;
+import gm2d.events.KeyboardEvent;
+import gm2d.text.TextField;
 import gm2d.ui.Dialog;
 
 class Game
@@ -234,9 +234,9 @@ class Game
       #if !flash
       neash.Lib.mQuitOnEscape = false;
       #end
-      flash.Lib.current.addChild(this);
+      gm2d.Lib.current.addChild(this);
       stage.stageFocusRect = false;
-      stage.scaleMode = flash.display.StageScaleMode.NO_SCALE;
+      stage.scaleMode = gm2d.display.StageScaleMode.NO_SCALE;
 
 
       mLastEnter = haxe.Timer.stamp();
@@ -264,7 +264,7 @@ class Game
 
 
 
-   function onUpdate(e:flash.events.Event)
+   function onUpdate(e:gm2d.events.Event)
    {
       var now = haxe.Timer.stamp();
       if (mCurrentScreen!=null)
