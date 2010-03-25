@@ -20,12 +20,23 @@ class Viewport extends Sprite
    public var worldWidth:Float;
    public var worldHeight:Float;
 
-   var mBitmapData:gm2d.display.BitmapData;
-   var mBitmap:gm2d.display.Bitmap;
    var mRect:Rectangle;
 
+   public static function create(inWidth:Int, inHeight:Int,
+        inTransparent:Bool=false,inBackground:Int=0xffffff,inForceSoftware:Bool = false)
+            : Viewport
+   {
+      #if flash
+      return new BMPViewport(inWidth,inHeight,inTransparent,inBackground);
+      #else
+      if (inForceSoftware || !gm2d.Lib.isOpenGL)
+         return new BMPViewport(inWidth,inHeight,inTransparent,inBackground);
+      else
+         return new NMEViewport(inWidth,inHeight,inTransparent,inBackground);
+      #end
+   }
 
-   public function new(inWidth:Int, inHeight:Int,inTransparent:Bool=false,inBackground:Int=0xffffff)
+   function new(inWidth:Int, inHeight:Int,inTransparent:Bool=false,inBackground:Int=0xffffff)
    {
       super();
       mWidth = inWidth;
@@ -38,11 +49,7 @@ class Viewport extends Sprite
       originY = 0;
       
 
-      mBitmapData = new gm2d.display.BitmapData(inWidth,inHeight,inTransparent, getBG() );
-      mBitmap = new gm2d.display.Bitmap(mBitmapData);
       mRect = new Rectangle(0,0,mWidth,mHeight);
-      addChild(mBitmap);
-
 
       mLayers = [];
       mDirty = false;
@@ -71,7 +78,6 @@ class Viewport extends Sprite
    {
       makeDirty();
       mLayers.push(inLayer);
-      inLayer.gm2dSetViewport(this);
    }
 
    public function centerOn(inX:Float, inY:Float)
@@ -85,6 +91,12 @@ class Viewport extends Sprite
       else if (originY+mHeight > worldHeight) originY = worldHeight-mHeight;
       makeDirty();
    }
+
+   public function createLayer() : Layer
+   {
+      return null;
+   }
+ 
 
    function setOriginX(inVal:Float):Float
    {
@@ -112,16 +124,16 @@ class Viewport extends Sprite
       mCallbackStage.removeEventListener(Event.RENDER,onRender);
       mCallbackStage = null;
    }
+
+   function renderViewport()
+   {
+   }
+
    function onRender(_)
    {
       mDirty = false;
 
-      mBitmapData.lock();
-      mBitmapData.fillRect(mRect,getBG());
-      for(layer in mLayers)
-         layer.render(mBitmapData,originX,originY);
-      mBitmapData.unlock();
-
+      renderViewport();
    }
 
 

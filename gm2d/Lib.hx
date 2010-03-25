@@ -11,13 +11,20 @@ class Lib
 
    static function getCurrent() : DisplayObjectContainer
    {
-   #if flash
+      #if flash
       return flash.Lib.current;
-   #else
+      #else
       return nme.Lib.current;
-   #end
+      #end
    }
 
-   static function getIsOpenGL() { return false; }
+   static function getIsOpenGL()
+   {
+      #if flash
+      return false;
+      #else
+      return nme.Lib.stage.isOpenGL;
+      #end
+   }
 }
 

@@ -16,8 +16,8 @@ class Tilemap extends Screen
    var mViewport:gm2d.blit.Viewport;
    var mMapLayer:Layer;
    var mPlayerLayer:Layer;
-	var mPlayerX:Float;
-	var mPlayerY:Float;
+   var mPlayerX:Float;
+   var mPlayerY:Float;
 
    static var map = [
      "####################",
@@ -54,19 +54,17 @@ class Tilemap extends Screen
       mResources = inResources;
       mTilesheet = new Tilesheet(mResources.get("tiles"));
       mTiles = mTilesheet.partition(32,32);
-		mTiles[3].hotX = 16;
-		mTiles[3].hotY = 16;
+      mTiles[3].hotX = 16;
+      mTiles[3].hotY = 16;
 
-      mViewport = new gm2d.blit.Viewport(400, 300, false, 0xff0000);
+      mViewport = gm2d.blit.Viewport.create(400, 300, false, 0xff0000);
       mViewport.worldWidth = 640;
       mViewport.worldHeight = 640;
       mViewport.x = 40;
       mViewport.y = 10;
       addChild(mViewport);
-      mMapLayer = new gm2d.blit.Layer();
-      mViewport.addLayer(mMapLayer);
-      mPlayerLayer = new gm2d.blit.Layer();
-      mViewport.addLayer(mPlayerLayer);
+      mMapLayer = mViewport.createLayer();
+      mPlayerLayer = mViewport.createLayer();
 
       for(y in 0...20)
       {
@@ -88,43 +86,43 @@ class Tilemap extends Screen
       makeCurrent();
    }
 
-	public function canMove(inX:Float, inY:Float)
-	{
-		var x0 = Std.int( (inX-10)/32 );
-		var x1 = Std.int( (inX+10)/32 );
-		var y0 = Std.int( (inY-10)/32 );
-		var y1 = Std.int( (inY+10)/32 );
+   public function canMove(inX:Float, inY:Float)
+   {
+      var x0 = Std.int( (inX-10)/32 );
+      var x1 = Std.int( (inX+10)/32 );
+      var y0 = Std.int( (inY-10)/32 );
+      var y1 = Std.int( (inY+10)/32 );
 
-		for(y in y0...y1+1)
-			for(x in x0...x1+1)
-				if (map[y].substr(x,1)=="#")
-					return false;
-		return true;
-	}
+      for(y in y0...y1+1)
+         for(x in x0...x1+1)
+            if (map[y].substr(x,1)=="#")
+               return false;
+      return true;
+   }
 
    override public function updateDelta(inDT:Float)
-	{
-		if (inDT>0.1) inDT = 0.1;
-		var px = mPlayerX;
-		if (Game.isKeyDown(Keyboard.LEFT))
-			px -= inDT*100;
-		if (Game.isKeyDown(Keyboard.RIGHT))
-			px += inDT*100;
+   {
+      if (inDT>0.1) inDT = 0.1;
+      var px = mPlayerX;
+      if (Game.isKeyDown(Keyboard.LEFT))
+         px -= inDT*100;
+      if (Game.isKeyDown(Keyboard.RIGHT))
+         px += inDT*100;
       if (px!=0 && canMove(px,mPlayerY))
-			mPlayerX = px;
+         mPlayerX = px;
 
-		var py = mPlayerY;
-		if (Game.isKeyDown(Keyboard.UP))
-			py -= inDT*100;
-		if (Game.isKeyDown(Keyboard.DOWN))
-			py += inDT*100;
+      var py = mPlayerY;
+      if (Game.isKeyDown(Keyboard.UP))
+         py -= inDT*100;
+      if (Game.isKeyDown(Keyboard.DOWN))
+         py += inDT*100;
       if (py!=0 && canMove(mPlayerX,py))
-			mPlayerY = py;
+         mPlayerY = py;
 
-	   mPlayerLayer.clear();
+      mPlayerLayer.clear();
       mPlayerLayer.addTile(mTiles[3],mPlayerX,mPlayerY);
       mViewport.centerOn(mPlayerX,mPlayerY);
-	}
+   }
 
 
    static public function main()
