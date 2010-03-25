@@ -16,6 +16,7 @@ class NMEViewport extends Viewport
    {
       var layer = NMELayer.gm2dCreate(this);
       addLayer(layer);
+		addChild(layer.gm2dShape);
       return layer;
    }
 
