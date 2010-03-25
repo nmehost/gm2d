@@ -23,7 +23,7 @@ class Tilesheet
 	static public inline var INTERP_SMOOTH       = 0x04;
 
    #if !flash
-	//var nmeSheet:nme.display.Tilesheet;
+	var nmeSheet:nme.display.Tilesheet;
 	#end
 
 	public function new(inData:BitmapData,inFlags:Int = BORDERS_NONE)
@@ -34,7 +34,7 @@ class Tilesheet
 		mSpace = inFlags & 0x03;
 		mSmooth = (inFlags & INTERP_SMOOTH) != 0;
 		#if !flash
-		//nmeSheet = new nme.display.Tilesheet(gm2dData,inFlags);
+		nmeSheet = new nme.display.Tilesheet(gm2dData);
 		#end
 	}
 
@@ -43,7 +43,7 @@ class Tilesheet
 		var id = mTiles.length;
 		mTiles.push(inTile);
 		#if !flash
-		//nmeSheet.Add(inTile.rect);
+		nmeSheet.addTileRect(inTile.rect);
 		#end
 		return id;
 	}

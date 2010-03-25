@@ -133,6 +133,7 @@ class Tilemap extends Screen
       Game.title = "Tilemap";
       Game.showFPS = true;
       Game.fpsColor = 0xffffff;
+      Game.backgroundColor = 0x202040;
       Game.create(function() new Tilemap());
    }
 }

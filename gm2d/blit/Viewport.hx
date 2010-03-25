@@ -20,11 +20,9 @@ class Viewport extends Sprite
    public var worldWidth:Float;
    public var worldHeight:Float;
 
-   #if flash
-   var mBitmapData:flash.display.BitmapData;
-   var mBitmap:flash.display.Bitmap;
+   var mBitmapData:gm2d.display.BitmapData;
+   var mBitmap:gm2d.display.Bitmap;
    var mRect:Rectangle;
-   #end
 
 
    public function new(inWidth:Int, inHeight:Int,inTransparent:Bool=false,inBackground:Int=0xffffff)
@@ -38,19 +36,27 @@ class Viewport extends Sprite
       mTransparent = inTransparent;
       originX = 0;
       originY = 0;
-      #if flash
-      mBitmapData = new flash.display.BitmapData(inWidth,inHeight,inTransparent,
-              inBackground | (inTransparent ? 0x00 : 0xff000000) );
-      mBitmap = new flash.display.Bitmap(mBitmapData);
+      
+
+      mBitmapData = new gm2d.display.BitmapData(inWidth,inHeight,inTransparent, getBG() );
+      mBitmap = new gm2d.display.Bitmap(mBitmapData);
       mRect = new Rectangle(0,0,mWidth,mHeight);
       addChild(mBitmap);
+
+
       mLayers = [];
-      #end
       mDirty = false;
       // Manage handlers so we can clean up ourselves
       addEventListener(Event.ADDED_TO_STAGE,onAdded);
       addEventListener(Event.REMOVED_FROM_STAGE,onRemoved);
    }
+
+   function getBG()
+   {
+      return mTransparent ? haxe.Int32.make(mBackground>>16,mBackground&0xffff) :
+                           haxe.Int32.make(0xff00|(mBackground>>16),mBackground&0xffff);
+   }
+
 
    public inline function makeDirty() : Void
    {
@@ -109,16 +115,13 @@ class Viewport extends Sprite
    function onRender(_)
    {
       mDirty = false;
-      #if flash
+
       mBitmapData.lock();
-      if (mTransparent)
-         mBitmapData.fillRect(mRect,0);
-      else
-         mBitmapData.fillRect(mRect,mBackground | 0xff000000);
+      mBitmapData.fillRect(mRect,getBG());
       for(layer in mLayers)
          layer.render(mBitmapData,originX,originY);
       mBitmapData.unlock();
-      #end
+
    }
 
 

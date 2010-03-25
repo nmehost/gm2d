@@ -1,6 +1,5 @@
 package gm2d.blit;
 
-#if flash
 class LayerTile
 {
    public function new(inTile:Tile,inX:Float,inY:Float)
@@ -15,33 +14,27 @@ class LayerTile
    public var y:Float;
    public var next:LayerTile;
 }
-#end
 
 class Layer
 {
    public var offsetX(default,setOffsetX):Float;
    public var offsetY(default,setOffsetY):Float;
    var mViewport:Viewport;
-   #if flash
    var mHead:LayerTile;
    var mLast:LayerTile;
-   #end
 
    public function new()
    {
       offsetX = 0;
       offsetY = 0;
-      #if flash
       mHead = null;
       mLast = null;
-      #end
    }
 
-   #if flash
-   public function render(inBitmap:flash.display.BitmapData,inOX:Float, inOY:Float)
+   public function render(inBitmap:gm2d.display.BitmapData,inOX:Float, inOY:Float)
    {
       var tile = mHead;
-      var pos = new flash.geom.Point();
+      var pos = new gm2d.geom.Point();
       var ox = offsetX - inOX;
       var oy = offsetY - inOY;
       while(tile!=null)
@@ -52,7 +45,6 @@ class Layer
          tile = tile.next;
       }
    }
-   #end
 
    public function gm2dSetViewport(inViewport:Viewport)
    {
@@ -62,7 +54,6 @@ class Layer
    public function addTile(inTile:Tile, inX:Float, inY:Float)
    {
       if (mViewport!=null) { mViewport.makeDirty(); }
-      #if flash
       if (mLast==null)
       {
          mLast = mHead = new LayerTile(inTile,inX,inY);
@@ -72,15 +63,12 @@ class Layer
          mLast.next = new LayerTile(inTile,inX,inY);
          mLast = mLast.next;
       }
-      #end
    }
 
    public function clear()
    {
       if (mViewport!=null) { mViewport.makeDirty(); }
-      #if flash
       mHead = mLast = null;
-      #end
    }
 
    function setOffsetX(inVal:Float):Float
