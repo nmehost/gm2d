@@ -32,10 +32,31 @@ class NMELayer extends Layer
 
    public override function gm2dRender(inOX:Float, inOY:Float)
    {
-      Flush();
       gm2dShape.x = -inOX;
       gm2dShape.y = -inOY;
+
+      if (dynamicRender!=null)
+         dynamicRender(inOX,inOY);
+
+      Flush();
    }
+
+
+   public override function isPersistent() : Bool { return true; }
+
+   public override function drawTile(inTile:Tile, inX:Float, inY:Float)
+   {
+      var sheet = inTile.sheet;
+      if (sheet!=mCurrentSheet)
+      {
+         Flush();
+         mCurrentSheet = sheet;
+      }
+      mXYID.push(inX-inTile.hotX);
+      mXYID.push(inY-inTile.hotY);
+      mXYID.push(inTile.id);
+   }
+ 
 
    public override function addTile(inTile:Tile, inX:Float, inY:Float)
    {

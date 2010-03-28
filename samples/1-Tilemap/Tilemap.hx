@@ -2,6 +2,7 @@ import gm2d.display.Sprite;
 import gm2d.blit.Tilesheet;
 import gm2d.blit.Tile;
 import gm2d.blit.Layer;
+import gm2d.blit.Grid;
 import gm2d.Game;
 import gm2d.Screen;
 
@@ -10,7 +11,7 @@ import gm2d.ui.Keyboard;
 
 class Tilemap extends Screen
 {
-   var mResources:Dynamic;
+   var mResources:Hash<Dynamic>;
    var mTilesheet:Tilesheet;
    var mTiles:Array<Tile>;
    var mViewport:gm2d.blit.Viewport;
@@ -20,26 +21,47 @@ class Tilemap extends Screen
    var mPlayerY:Float;
 
    static var map = [
-     "####################",
-     "#     ######      ##",
-     "#     ###### #    ##",
-     "#     ###### #######",
-     "### ########       #",
-     "### ############## #",
-     "###         ###### #",
-     "### ####### ###### #",
-     "### #######        #",
-     "#        ###########",
-     "#               # ##",
-     "#        #####    ##",
-     "#        ###### ####",
-     "## ############ ####",
-     "## #  ##     ## ####",
-     "## # ##O     ## ####",
-     "## # ##### #### ####",
-     "## # #####      ####",
-     "##   ###############",
-     "####################" ];
+     "########################################",
+     "#      #####      ######################",
+     "#     ###### #    ####      ##        ##",
+     "#     ###### ########O     ###        ##",
+     "### ########       ###     ###       ###",
+     "### ############## ##### ######## ######",
+     "###         ###### ##### ######## ######",
+     "### ####### ###### ##### ######## ######",
+     "### #######        #####              ##",
+     "#        ############################ ##",
+     "#               # ##          ####### ##",
+     "#        #####    ## ########       # ##",
+     "#        ###### ################### # ##",
+     "## ############ ################### # ##",
+     "## #   #     ## ###            #### # ##",
+     "## # ###     ## ### ########## #### # ##",
+     "## # ##### #### ### ########## #### # ##",
+     "## # #####      ### ########## #### # ##",
+     "##   ###### ####### ########## #### # ##",
+     "########### ####### ########## #### # ##",
+     "########### #######      ##### #### # ##",
+     "########### ############       #### # ##",
+     "########### ############ ########## # ##",
+     "##                       ########## # ##",
+     "## ################################ # ##",
+     "## ################################ # ##",
+     "## ############                       ##",
+     "## ############ ##### ##################",
+     "## ############ ##### ##################",
+     "##        ##### ##### ##################",
+     "##        ##### ##### ##################",
+     "##        ##### #####               ####",
+     "#### ########## #####               ####",
+     "#  # ########## #####               ####",
+     "# ## ########## #####               ####",
+     "# ##             ############ ##########",
+     "# ########################### ##########",
+     "# ########################### ##########",
+     "#                             ##########",
+     "########################################"
+];
 
    function new()
    {
@@ -49,36 +71,43 @@ class Tilemap extends Screen
       loader.Process(onLoaded);
    }
 
-   function onLoaded(inResources:Dynamic)
+   function onLoaded(inResources:Hash<Dynamic>)
    {
       mResources = inResources;
-      mTilesheet = new Tilesheet(mResources.get("tiles"));
+      //cpp bug
+      //mTilesheet = new Tilesheet(mResources.get("tiles"));
+      var bmp:gm2d.display.BitmapData = mResources.get("tiles");
+      mTilesheet = new Tilesheet(bmp);
       mTiles = mTilesheet.partition(32,32);
       mTiles[3].hotX = 16;
       mTiles[3].hotY = 16;
 
       mViewport = gm2d.blit.Viewport.create(400, 300, false, 0xff0000);
-      mViewport.worldWidth = 640;
-      mViewport.worldHeight = 640;
+      mViewport.worldWidth = 640*2;
+      mViewport.worldHeight = 640*2;
       mViewport.x = 40;
       mViewport.y = 10;
       addChild(mViewport);
-      mMapLayer = mViewport.createLayer();
-      mPlayerLayer = mViewport.createLayer();
 
-      for(y in 0...20)
+      var grid = new Grid();
+      for(y in 0...40)
       {
          var row = map[y];
-         for(x in 0...20)
+         var tiles = grid[y] = new Tiles();
+         for(x in 0...40)
          {
             switch( row.substr(x,1) )
             {
-               case "#" : mMapLayer.addTile(mTiles[0],x*32,y*32);
-               case " " : mMapLayer.addTile(mTiles[1],x*32,y*32);
-               case "O" : mMapLayer.addTile(mTiles[2],x*32,y*32);
+               case "#" : tiles.push(mTiles[0]);
+               case " " : tiles.push(mTiles[1]);
+               case "O" : tiles.push(mTiles[2]);
+               default  : tiles.push(null);
             }
          }
       }
+
+      mMapLayer = mViewport.createGridLayer(grid);
+      mPlayerLayer = mViewport.createLayer();
 
       mPlayerX = 48;
       mPlayerY = 48;

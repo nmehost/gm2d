@@ -5,10 +5,14 @@ import gm2d.display.Stage;
 import gm2d.events.Event;
 import gm2d.geom.Rectangle;
 
+
+import gm2d.blit.Grid;
+
+
 class Viewport extends Sprite
 {
-   var mWidth:Int;
-   var mHeight:Int;
+   public var viewWidth(default,null):Int;
+   public var viewHeight(default,null):Int;
    var mCallbackStage:Stage;
    var mLayers:Array<Layer>;
    var mTransparent:Bool;
@@ -39,8 +43,8 @@ class Viewport extends Sprite
    function new(inWidth:Int, inHeight:Int,inTransparent:Bool=false,inBackground:Int=0xffffff)
    {
       super();
-      mWidth = inWidth;
-      mHeight = inHeight;
+      viewWidth = inWidth;
+      viewHeight = inHeight;
       worldWidth = inWidth;
       worldHeight = inHeight;
       mBackground = inBackground;
@@ -49,7 +53,7 @@ class Viewport extends Sprite
       originY = 0;
       
 
-      mRect = new Rectangle(0,0,mWidth,mHeight);
+      mRect = new Rectangle(0,0,viewWidth,viewHeight);
 
       mLayers = [];
       mDirty = false;
@@ -58,11 +62,18 @@ class Viewport extends Sprite
       addEventListener(Event.REMOVED_FROM_STAGE,onRemoved);
    }
 
+   #if !neko
+   function getBG()
+   {
+      return mBackground | ( mTransparent ? 0 : 0xff000000 );
+   }
+   #else
    function getBG()
    {
       return mTransparent ? haxe.Int32.make(mBackground>>16,mBackground&0xffff) :
                            haxe.Int32.make(0xff00|(mBackground>>16),mBackground&0xffff);
    }
+   #end
 
 
    public inline function makeDirty() : Void
@@ -82,13 +93,13 @@ class Viewport extends Sprite
 
    public function centerOn(inX:Float, inY:Float)
    {
-      originX = inX - mWidth/2;
+      originX = inX - viewWidth/2;
       if (originX<0) originX = 0;
-      else if (originX+mWidth > worldWidth) originX = worldWidth-mWidth;
+      else if (originX+viewWidth > worldWidth) originX = worldWidth-viewWidth;
 
-      originY = inY - mHeight/2;
+      originY = inY - viewHeight/2;
       if (originY<0) originY = 0;
-      else if (originY+mHeight > worldHeight) originY = worldHeight-mHeight;
+      else if (originY+viewHeight > worldHeight) originY = worldHeight-viewHeight;
       makeDirty();
    }
 
@@ -96,6 +107,16 @@ class Viewport extends Sprite
    {
       return null;
    }
+
+   public function createGridLayer(inGrid:Grid)
+   {
+      var layer = createLayer();
+
+      var handler = new GridHandler(layer, inGrid );
+
+      return layer;
+   }
+
  
 
    function setOriginX(inVal:Float):Float
@@ -131,9 +152,8 @@ class Viewport extends Sprite
 
    function onRender(_)
    {
-      mDirty = false;
-
       renderViewport();
+      mDirty = false;
    }
 
 

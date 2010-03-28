@@ -10,13 +10,14 @@ class NMEViewport extends Viewport
    public function new(inWidth:Int, inHeight:Int,inTransparent:Bool,inBackground)
    {
       super(inWidth,inHeight,inTransparent,inBackground);
+      scrollRect = new Rectangle(0,0,inWidth,inHeight);
    }
 
    public override function createLayer() : Layer
    {
       var layer = NMELayer.gm2dCreate(this);
       addLayer(layer);
-		addChild(layer.gm2dShape);
+      addChild(layer.gm2dShape);
       return layer;
    }
 
@@ -24,7 +25,7 @@ class NMEViewport extends Viewport
 
    override function renderViewport()
    {
-	   for(layer in mLayers)
+      for(layer in mLayers)
          layer.gm2dRender(originX,originY);
    }
 
