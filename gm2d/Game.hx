@@ -14,6 +14,7 @@ class Game
    static public var useHardware = true;
    static public var isResizable = true;
    static public var frameRate = 30.0;
+   static public var iPhoneOrientation:Null<Int> = null;
    static public var showFPS(getShowFPS,setShowFPS):Bool;
    static public var fpsColor(getFPSColor,setFPSColor):Int;
    static public var backgroundColor = 0xffffff;
@@ -47,8 +48,19 @@ class Game
      init();
      inOnLoaded();
    #else
+	  var w = initWidth;
+	  var h = initHeight;
+	  #if (testOrientation)
+	  if (iPhoneOrientation==90 || iPhoneOrientation==270 ||
+	       (iPhoneOrientation==null && initWidth>initHeight ))
+	  {
+	     w = initHeight;
+	     h = initWidth;
+	  }
+	  #end
+
      nme.Lib.create(function() { init(); inOnLoaded(); },
-          initWidth,initHeight,frameRate,backgroundColor,
+          w,h,frameRate,backgroundColor,
           (useHardware ? nme.Lib.HARDWARE : 0) | (isResizable ? nme.Lib.RESIZABLE : 0),
           title, icon );
    #end
@@ -79,6 +91,18 @@ class Game
       parent.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp );
       parent.stage.addEventListener(Event.ENTER_FRAME, onEnter);
       //parent.stage.addEventListener(Event.RESIZE, onSize);
+
+      #if (iphone || testOrientation)
+		var o = iPhoneOrientation==null ? (initWidth>initHeight ? 90:0) : iPhoneOrientation;
+		switch(o)
+		{
+			case 0:
+			case 90:  parent.rotation=90; parent.x=initHeight;
+			case 180: parent.rotation=180; parent.x=initWidth; parent.y=initHeight;
+			case 270: parent.rotation=270; parent.y=initWidth;
+			default: throw("Unsupported orientation :" + iPhoneOrientation);
+		}
+		#end
    }
 
    public static function isKeyDown(inCode:Int) { return mKeyDown[inCode]; } 

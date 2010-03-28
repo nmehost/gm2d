@@ -93,7 +93,8 @@ class Tilemap extends Screen
       for(y in 0...40)
       {
          var row = map[y];
-         var tiles = grid[y] = new Tiles();
+         grid[y] = new Tiles();
+         var tiles = grid[y];
          for(x in 0...40)
          {
             switch( row.substr(x,1) )
@@ -117,10 +118,10 @@ class Tilemap extends Screen
 
    public function canMove(inX:Float, inY:Float)
    {
-      var x0 = Std.int( (inX-10)/32 );
-      var x1 = Std.int( (inX+10)/32 );
-      var y0 = Std.int( (inY-10)/32 );
-      var y1 = Std.int( (inY+10)/32 );
+      var x0 = Std.int( (inX-8)/32 );
+      var x1 = Std.int( (inX+8)/32 );
+      var y0 = Std.int( (inY-8)/32 );
+      var y1 = Std.int( (inY+8)/32 );
 
       for(y in y0...y1+1)
          for(x in x0...x1+1)
@@ -161,6 +162,7 @@ class Tilemap extends Screen
       Game.showFPS = true;
       Game.fpsColor = 0xffffff;
       Game.backgroundColor = 0x202040;
+      Game.iPhoneOrientation = 90;
       Game.create(function() new Tilemap());
    }
 }
