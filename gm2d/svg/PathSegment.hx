@@ -86,7 +86,7 @@ class QuadraticSegment extends PathSegment
    override public function Draw(inGfx:Graphics,ioContext:RenderContext)
    {
       ioContext.setLast(x,y);
-      inGfx.curveTo( ioContext.transX(x,y),ioContext.transY(x,y), ioContext.lastX, ioContext.lastY);
+      inGfx.curveTo( ioContext.transX(cx,cy),ioContext.transY(cx,cy), ioContext.lastX, ioContext.lastY);
    }
 
    override public function GetExtent(inMatrix:Matrix,ioRect:Rectangle)
@@ -149,11 +149,11 @@ class CubicSegment extends PathSegment
              var c2 = 3*u1*u*u;
              var c3 = u*u*u;
              u+=du;
-             inGfx.lineTo(c0*c0 + c1*tcx1 + c2*tcx2 + c3*tx,
-                          c0*c0 + c1*tcy1 + c2*tcy2 + c3*ty );
+             inGfx.lineTo(c0*tx + c1*tcx1 + c2*tcx2 + c3*tx1,
+                          c0*ty + c1*tcy1 + c2*tcy2 + c3*ty1 );
           }
        }
-       inGfx.lineTo(tx,ty);
+       inGfx.lineTo(tx1,ty1);
    }
    override public function GetExtent(inMatrix:Matrix,ioRect:Rectangle)
    {

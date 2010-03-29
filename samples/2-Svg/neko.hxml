@@ -1,0 +1,4 @@
+-main Svg
+-neko Svg.n
+-lib nme
+-cp ../..

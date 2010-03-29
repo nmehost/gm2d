@@ -20,6 +20,8 @@ class PathParser {
 
     var input:String;
     var pin:Int;
+	 var lastMoveX:Float;
+	 var lastMoveY:Float;
 
     var state:PathParserState;
     var args:Array<Float>;
@@ -52,6 +54,7 @@ class PathParser {
     }
 
     public function parse( pathToParse:String ) :Iterable<PathSegment> {
+        lastMoveX = lastMoveY = 0;
         input=pathToParse;
         pin=0;
         args = new Array<Float>();
@@ -153,10 +156,17 @@ class PathParser {
     function prevCY():Float { return (g.length>0) ? g[g.length-1].prevCY() : 0; }
     
     function command( cmd:String, a:Array<Float> ) {
+        var code = cmd.charCodeAt(0);
         var op:PathSegment = 
-            switch( cmd.charCodeAt(0) ) {
-                case MOVE:  cast(new MoveSegment( a[0], a[1]),PathSegment);
-                case MOVER: new MoveSegment( a[0]+prevX(), a[1]+prevX() );
+            switch(code) {
+                case MOVE:
+		              lastMoveX = a[0];
+		              lastMoveY = a[1];
+					     cast(new MoveSegment( lastMoveX, lastMoveY),PathSegment);
+                case MOVER:
+		              lastMoveX = a[0]+prevX();
+		              lastMoveY = a[1]+prevY();
+					     new MoveSegment(lastMoveX, lastMoveY);
                 case LINE:  new DrawSegment( a[0], a[1] );
                 case LINER: new DrawSegment( a[0]+prevX(), a[1]+prevX() );
                 case HLINE:  new DrawSegment( a[0], 0 );
@@ -196,15 +206,14 @@ class PathParser {
                     var rx = prevX();
                     var ry = prevY();
                     new ArcSegment( rx,ry, a[0], a[1], a[2], a[3]!=0., a[4]!=0., a[5]+rx, a[6]+ry );
-                //case "Z":
-                    //Close;
-                //case "z":
-                    //Close;
+                case CLOSE:
+                    new DrawSegment(lastMoveX, lastMoveY);
+                case CLOSER:
+                    new DrawSegment(lastMoveX, lastMoveY);
                 default:
                     throw("unimplemented shape command "+cmd);
             }
         
-    //                trace("PUSH "+op );
         g.push(op);
     }
 }

@@ -102,7 +102,7 @@ class Loader
    #end
    }
 
-   public function LoadSVG(inFilename:String, inResourceName:String)
+   public function loadSVG(inFilename:String, inResourceName:String)
    {
       LoadXML(inFilename,inResourceName,
          function(xml:Xml) { return new gm2d.svg.SVG2Gfx(xml); } );
