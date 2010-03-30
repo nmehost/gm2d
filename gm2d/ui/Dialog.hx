@@ -43,6 +43,7 @@ class Dialog extends gm2d.display.Sprite
       mForceWidth = inForceWidth;
       mForceHeight = inForceHeight;
       mLayoutDirty = true;
+
    }
 
    public function setBorders(inL:Float,inT:Float,inR:Float,inB:Float)
@@ -67,6 +68,7 @@ class Dialog extends gm2d.display.Sprite
    }
    public dynamic function renderBackground(inW:Float,inH:Float)
    {
+		//trace("renderBackground " + inW + "," + inH);
       var gfx = getBackground();
       gfx.beginFill(0xffffff);
       gfx.lineStyle(2,0x000000);

@@ -1,10 +1,10 @@
 package gm2d.ui;
 
-import flash.display.DisplayObject;
-import flash.display.Sprite;
-import flash.events.MouseEvent;
-import flash.text.TextField;
-import flash.geom.Rectangle;
+import gm2d.display.DisplayObject;
+import gm2d.display.Sprite;
+import gm2d.events.MouseEvent;
+import gm2d.text.TextField;
+import gm2d.geom.Rectangle;
 import gm2d.ui.Layout;
 import gm2d.svg.SVG2Gfx;
 
@@ -54,7 +54,7 @@ class Slider extends Base
 
    function OnTrackDone(_)
    {
-      mThumb.stopDrag();
+      //mThumb.stopDrag();
    }
 
 	function SetThumbX(inX:Float)
@@ -73,7 +73,7 @@ class Slider extends Base
 	   mSliding = false;
 	   stage.removeEventListener(MouseEvent.MOUSE_MOVE, OnMoveSlider);
 	}
-	function OnClick(inEvent:MouseEvent) { SetThumbX(mouseX); }
+	function OnClick(inEvent:MouseEvent) { SetThumbX(1/*mouseX*/); }
 
 	function OnMoveSlider(inEvent:MouseEvent)
 	{
@@ -81,7 +81,7 @@ class Slider extends Base
 		   EndMoveSlider();
 	   else
 		{
-         SetThumbX(mouseX);
+         SetThumbX(1/*mouseX*/);
       }
 	}
    function OnTrack(_)

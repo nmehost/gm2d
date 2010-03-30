@@ -23,6 +23,7 @@ class Game
    static public var screenName(getScreenName,setScreenName):String;
 
    static var mCurrentScreen:Screen;
+   static var mCurrentDialog:Dialog;
 
    static var mScreenParent:Sprite;
    static var mDialogParent:Sprite;
@@ -36,6 +37,7 @@ class Game
    static var created = false;
 
    static var mScreenMap:Hash<Screen> = new Hash<Screen>();
+   static var mDialogMap:Hash<Dialog> = new Hash<Dialog>();
 	static var mKeyDown = new Array<Bool>();
 
    public static function create( inOnLoaded:Void->Void )
@@ -71,7 +73,7 @@ class Game
    {
       mScreenParent = new Sprite();
       mDialogParent = new Sprite();
-      mDialogParent.visible = false;
+      mDialogParent.visible = true;
       mFPSControl = new TextField();
       mFPSControl.text = "1.0 FPS";
       mFPSControl.selectable = false;
@@ -211,7 +213,7 @@ class Game
    {
       mKeyDown[event.keyCode] = true;
 
-      //if (mDialog!=null) mDialog.onKeyDown(event); else
+      //if (mCurrentDialog!=null) mCurrentDialog.onKeyDown(event); else
 		if (mCurrentScreen!=null)
          mCurrentScreen.onKeyDown(event);
    }
@@ -220,7 +222,7 @@ class Game
    {
       mKeyDown[event.keyCode] = false;
 
-      //if (mDialog!=null) mDialog.onKeyUp(event); else
+      //if (mCurrentDialog!=null) mCurrentDialog.onKeyUp(event); else
 		if (mCurrentScreen!=null)
          mCurrentScreen.onKeyUp(event);
    }
@@ -237,6 +239,52 @@ class Game
       icon = inIcon;
       return inIcon;
    }
+
+
+   public static function addDialog(inName:String, inDialog:Dialog)
+	{
+	   mDialogMap.set(inName,inDialog);
+	}
+
+
+   static public function showDialog(inDialog:String,inCenter:Bool=true) : Dialog
+   {
+      var dialog:Dialog = mDialogMap.get(inDialog);
+      if (dialog==null)
+         throw "Invalid Dialog "+  inDialog;
+      DoShowDialog(dialog);
+		if (inCenter)
+		{
+		   dialog.center(dialog.stage.stageWidth,dialog.stage.stageHeight);
+		}
+		return dialog;
+   }
+
+   static public function closeDialog() { DoShowDialog(null); }
+
+   static function DoShowDialog(inDialog:Dialog)
+   {
+      if (mCurrentDialog!=null)
+      {
+         mCurrentDialog.onClose();
+         mDialogParent.removeChild(mCurrentDialog);
+         mCurrentDialog = null;
+      }
+
+      mCurrentDialog = inDialog;
+
+      if (mCurrentDialog!=null)
+      {
+         mDialogParent.addChild(mCurrentDialog);
+         mCurrentDialog.onAdded();
+         mCurrentDialog.DoLayout();
+      }
+
+		mDialogParent.visible = mCurrentDialog!=null;
+   }
+
+
+
 
 
 
@@ -276,9 +324,6 @@ class Game
 
    function SetResources(inResources:Resources) { mResources = inResources; }
 
-
-   function AddScreen(inName:String, inScreen:Screen) { mScreenMap.set(inName,inScreen); }
-   function AddDialog(inName:String, inDialog:Dialog) { mDialogMap.set(inName,inDialog); }
 
    public function Resource(inName:String) { return mResources.get(inName); }
    public function FreeResource(inName:String) { return mResources.remove(inName); }

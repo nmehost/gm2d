@@ -1,0 +1,4 @@
+-main Dialog
+-neko Dialog.n
+-lib nme
+-cp ../..
