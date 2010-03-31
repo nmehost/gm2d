@@ -30,6 +30,7 @@ class Dialog extends gm2d.display.Sprite
       super();
       mItems = new ItemList(this);
       mBG = new Shape();
+      addChild(mBG);
       mDebug = gm2d.Lib.debug ? new Shape() : null;
       mLayout = new GridLayout(1,"vertical").setColFlags(0,Layout.AlignCenterX);
       mItemLayout = new GridLayout(2,"items");
@@ -37,7 +38,6 @@ class Dialog extends gm2d.display.Sprite
       mLayout.add(mItemLayout);
       mLayout.add(mButtonLayout);
       mLayout.setRowStretch(1,0);
-      addChild(mBG);
       if (mDebug!=null)
          addChild(mDebug);
       mForceWidth = inForceWidth;
@@ -58,7 +58,7 @@ class Dialog extends gm2d.display.Sprite
          Layout.SetDebug(mDebug.graphics);
       //trace("DoLayout:" + mForceWidth + "," + mForceHeight);
       mLayout.calcSize(mForceWidth,mForceHeight);
-      //trace("Done:" + mLayout.width + "," + mLayout.height);
+      trace("Done:" + mLayout.width + "," + mLayout.height);
       mLayout.setRect(0,0,mLayout.width,mLayout.height);
       onLaidOut();
       if (renderBackground!=null)

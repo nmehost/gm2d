@@ -90,7 +90,6 @@ class DisplayLayout extends Layout
    }
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
-      //trace("Set rect " + mObj + " = " + inX + "," + inY + "  " + inW + "x" + inH);
       var w = inW - mBLeft - mBRight;
       var x = mOX + inX + mBLeft;
       switch(mAlign & Layout.AlignMaskX)
@@ -178,6 +177,7 @@ class StackLayout extends Layout
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
+      trace("StackLayout::setRect " + inX + "," + inY + "   " +inW + "x"+inH);
       for(child in mChildren)
          child.setRect( inX+mBLeft, inY+mBTop, inW-mBLeft-mBRight, inH-mBTop-mBBottom );
    }
@@ -354,16 +354,19 @@ class GridLayout extends Layout
 
    function BestColWidths()
    {
+      trace("BestColWidths..." + mColInfo.length);
       for(col in mColInfo)
          col.mWidth = 0;
       for(row in mRowInfo)
       {
+         trace(row.mCols.length);
          for(i in 0...row.mCols.length)
          {
             var col =  row.mCols[i];
             if (col!=null)
             {
                var w = col.getBestWidth();
+               trace(" item w " + w);
                if (w>mColInfo[i].mWidth)
                   mColInfo[i].mWidth = w;
             }
@@ -372,6 +375,9 @@ class GridLayout extends Layout
       var str = "";
       for(col in mColInfo)
         str+="  " + col.mWidth;
+
+      trace(str);
+      trace(" done BestColWidths");
    }
 
    function BestRowHeights()
@@ -472,6 +478,7 @@ class GridLayout extends Layout
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
+      trace("GridLayout::setRect " + inX + "," + inY + "   " +inW + "x"+inH);
       calcSize(inW,inH);
       var y = inY + mBTop;
       for(row in mRowInfo)
@@ -484,10 +491,11 @@ class GridLayout extends Layout
             var ox = x;
             var oy = y;
             var w = col_w;
+            trace(w);
             var h = row_h;
 
             var item = row.mCols[c];
-            switch(mColInfo[c].mFlags)
+            switch(mColInfo[c].mFlags & Layout.AlignMaskX)
             {
                case Layout.AlignLeft:
                   w = item.getBestWidth();
@@ -498,8 +506,10 @@ class GridLayout extends Layout
                   w = item.getBestWidth();
                   ox += (col_w - w)/2;
             }
+            trace(w + " in " + col_w);
 
-            switch(row.mFlags)
+
+            switch(row.mFlags & Layout.AlignMaskY)
             {
                case Layout.AlignTop:
                   h = item.getBestHeight();

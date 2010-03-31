@@ -4,6 +4,7 @@ import gm2d.blit.Tile;
 import gm2d.blit.Layer;
 import gm2d.blit.Grid;
 import gm2d.Game;
+import gm2d.events.Event;
 import gm2d.Screen;
 
 import gm2d.ui.Keyboard;
@@ -113,7 +114,16 @@ class Tilemap extends Screen
       mPlayerX = 48;
       mPlayerY = 48;
       mPlayerLayer.addTile(mTiles[3],mPlayerX,mPlayerY);
+
       makeCurrent();
+      /*
+      flash.Lib.current.stage.addEventListener( flash.events.MouseEvent.CLICK, function(_)
+        {
+           flash.Lib.current.stage.fullScreenSourceRect = new flash.geom.Rectangle(0,0,480,320);
+           flash.Lib.current.stage.displayState = flash.display.StageDisplayState.FULL_SCREEN;
+           
+        } );
+      */
    }
 
    public function canMove(inX:Float, inY:Float)

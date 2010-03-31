@@ -18,39 +18,40 @@ class Dialog extends Screen
 
 
       var loader = new gm2d.game.Loader();
-		loader.loadSVG("bg.svg","background");
-		loader.loadSVG("slider.svg","slider");
+      loader.loadSVG("bg.svg","background");
+      loader.loadSVG("slider.svg","slider");
       loader.Process(onLoaded);
       makeCurrent();
    }
 
    function onLoaded(inResources:Hash<Dynamic>)
    {
-		var settings = new gm2d.ui.Dialog(300,200);
+      var settings = new gm2d.ui.Dialog(300,200);
       var bg:SVG2Gfx = inResources.get("background");
-		settings.SetSVGBackground( bg );
+      settings.SetSVGBackground( bg );
 
-      settings.addLabel("Music Volume");
-      var sl:SVG2Gfx = inResources.get("slider");
-      settings.addUI(gm2d.ui.Slider.SkinnedSlider(sl,null,0,100,50,OnMusic) );
+      //settings.addLabel("Music Volume");
+      //var sl:SVG2Gfx = inResources.get("slider");
+      //settings.addUI(gm2d.ui.Slider.SkinnedSlider(sl,null,0,100,50,OnMusic) );
 
       var but = Button.TextButton("Ok", function() { Game.closeDialog(); } );
-      bg.RenderSprite(but);
-      but.width = 100;
-      but.height = 40;
+      //bg.RenderSprite(but);
+      //but.width = 100;
+      //but.height = 40;
       settings.addButton(but);
+      //settings.addUI(but);
 
       var but = Button.TextButton("Cancel", function() { Game.closeDialog(); } );
-      bg.RenderSprite(but);
-      but.width = 100;
-      but.height = 40;
+      //bg.RenderSprite(but);
+      //but.width = 100;
+      //but.height = 40;
       settings.addButton(but);
 
-		Game.addDialog("Settings",settings);
-		Game.showDialog("Settings");
+      Game.addDialog("Settings",settings);
+      Game.showDialog("Settings");
    }
 
-	function OnMusic(inVal) { trace(inVal); }
+   function OnMusic(inVal) { trace(inVal); }
 
    override public function updateDelta(inDT:Float)
    {
@@ -59,6 +60,7 @@ class Dialog extends Screen
 
    static public function main()
    {
+      gm2d.Lib.debug = true;
       Game.useHardware = false;
       Game.title = "Dialog";
       Game.showFPS = true;

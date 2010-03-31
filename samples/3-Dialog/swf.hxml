@@ -1,4 +1,4 @@
 -main Dialog
 -swf9 Dialog.swf
--swf-header 480:320:60:202040
+-swf-header 480:320:60:a0a0ff
 -cp ../..

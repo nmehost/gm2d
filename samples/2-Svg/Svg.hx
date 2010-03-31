@@ -40,7 +40,7 @@ class Svg extends Screen
 
    static public function main()
    {
-      Game.useHardware = false;
+      Game.useHardware = true;
       Game.title = "Svg";
       Game.showFPS = true;
       Game.fpsColor = 0xffffff;
