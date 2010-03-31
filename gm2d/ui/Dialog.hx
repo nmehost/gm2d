@@ -58,7 +58,6 @@ class Dialog extends gm2d.display.Sprite
          Layout.SetDebug(mDebug.graphics);
       //trace("DoLayout:" + mForceWidth + "," + mForceHeight);
       mLayout.calcSize(mForceWidth,mForceHeight);
-      trace("Done:" + mLayout.width + "," + mLayout.height);
       mLayout.setRect(0,0,mLayout.width,mLayout.height);
       onLaidOut();
       if (renderBackground!=null)
@@ -86,7 +85,7 @@ class Dialog extends gm2d.display.Sprite
       if (interior == null)
          interior = scale9;
 
-      if (interior != null)
+      if (interior != null && false)
          setBorders(interior.left,interior.top, all.right-interior.right,
                     all.bottom-interior.bottom);
 
@@ -124,6 +123,7 @@ class Dialog extends gm2d.display.Sprite
    {
       mLayoutDirty = true;
       mItems.addUI(inItem);
+		addChild(inItem);
       mItemLayout.add( new DisplayLayout(inItem) );
    }
    public function addButton(inButton:gm2d.ui.Button)

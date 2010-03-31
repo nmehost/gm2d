@@ -30,21 +30,16 @@ class Dialog extends Screen
       var bg:SVG2Gfx = inResources.get("background");
       settings.SetSVGBackground( bg );
 
-      //settings.addLabel("Music Volume");
-      //var sl:SVG2Gfx = inResources.get("slider");
-      //settings.addUI(gm2d.ui.Slider.SkinnedSlider(sl,null,0,100,50,OnMusic) );
+      settings.addLabel("Music Volume");
+      var sl:SVG2Gfx = inResources.get("slider");
+      settings.addUI(gm2d.ui.Slider.SkinnedSlider(sl,null,0,100,50,OnMusic) );
 
       var but = Button.TextButton("Ok", function() { Game.closeDialog(); } );
-      //bg.RenderSprite(but);
-      //but.width = 100;
-      //but.height = 40;
+		but.setBackground(bg,100,40);
       settings.addButton(but);
-      //settings.addUI(but);
 
       var but = Button.TextButton("Cancel", function() { Game.closeDialog(); } );
-      //bg.RenderSprite(but);
-      //but.width = 100;
-      //but.height = 40;
+		but.setBackground(bg,100,40);
       settings.addButton(but);
 
       Game.addDialog("Settings",settings);
@@ -60,7 +55,7 @@ class Dialog extends Screen
 
    static public function main()
    {
-      gm2d.Lib.debug = true;
+      //gm2d.Lib.debug = true;
       Game.useHardware = false;
       Game.title = "Dialog";
       Game.showFPS = true;

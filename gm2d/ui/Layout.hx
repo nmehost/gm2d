@@ -55,6 +55,8 @@ class Layout
       return null;
    }
 
+	public function setBestSize(inW:Float, inH:Float) { }
+
    public function getBestWidth(?inHeight:Null<Float>) : Float { return 0.0; }
    public function getBestHeight(?inWidth:Null<Float>) : Float { return 0.0; }
 }
@@ -88,6 +90,21 @@ class DisplayLayout extends Layout
    public override function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void
    {
    }
+
+	public override function setBestSize(inW:Float,inH:Float)
+	{
+	  mOWidth = inW;
+	  mOHeight = inH;
+	}
+
+	function setObjRect(x:Float,y:Float,w:Float,h:Float)
+	{
+		mObj.x = x;
+		mObj.y = y;
+		mObj.width = w;
+		mObj.height = h;
+	}
+
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
       var w = inW - mBLeft - mBRight;
@@ -95,17 +112,13 @@ class DisplayLayout extends Layout
       switch(mAlign & Layout.AlignMaskX)
       {
          case Layout.AlignLeft:
-            mObj.x = x;
-            mObj.width = mOWidth;
+            w = mOWidth;
          case Layout.AlignRight:
-            mObj.x = x + w-mOWidth;
-            mObj.width = mOWidth;
+            x = x + w-mOWidth;
+            w = mOWidth;
          case Layout.AlignCenterX:
-            mObj.x = x + (w-mOWidth)/2;
-            mObj.width = mOWidth;
-         default:
-            mObj.x = x;
-            mObj.width = w;
+            x = x + (w-mOWidth)/2;
+            w = mOWidth;
       }
 
       var h = inH - mBTop - mBBottom;
@@ -113,18 +126,16 @@ class DisplayLayout extends Layout
       switch(mAlign & Layout.AlignMaskY)
       {
          case Layout.AlignTop:
-            mObj.y = y;
-            mObj.height = mOHeight;
+            h = mOHeight;
          case Layout.AlignBottom:
-            mObj.y = y + h - mOHeight;
-            mObj.height = mOHeight;
+            y = y + h - mOHeight;
+            h = mOHeight;
          case Layout.AlignCenterY:
-            mObj.y = y + (h - mOHeight)/2;
-            mObj.height = mOHeight;
-         default:
-            mObj.y = y;
-            mObj.height = h;
+            y = y + (h - mOHeight)/2;
+            h = mOHeight;
       }
+
+		setObjRect(x,y,w,h);
 
       if (Layout.mDebug!=null)
       {
@@ -148,6 +159,17 @@ class TextLayout extends DisplayLayout
       mOWidth = inPrefWidth==null ? inObj.textWidth : inPrefWidth;
       mOHeight =  inPrefHeight==null ? inObj.textHeight : inPrefHeight;
    }
+
+   /*
+	override function setObjRect(x:Float,y:Float,w:Float,h:Float)
+	{
+		var text:TextField = cast mObj;
+		text.x = x;
+		text.y = y;
+		text.width = w;
+		text.height = h;
+	}
+	*/
 }
 
 // --- StackLayout ---------------------------------------------------------------------
@@ -177,7 +199,7 @@ class StackLayout extends Layout
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
-      trace("StackLayout::setRect " + inX + "," + inY + "   " +inW + "x"+inH);
+      //trace("StackLayout::setRect " + inX + "," + inY + "   " +inW + "x"+inH);
       for(child in mChildren)
          child.setRect( inX+mBLeft, inY+mBTop, inW-mBLeft-mBRight, inH-mBTop-mBBottom );
    }
@@ -352,23 +374,30 @@ class GridLayout extends Layout
       return this;
    }
 
+	static var indent = "";
+
    function BestColWidths()
    {
-      trace("BestColWidths..." + mColInfo.length);
+      //trace(indent + "BestColWidths..." + mColInfo.length);
+		var oindent = indent;
+		indent += "  ";
       for(col in mColInfo)
          col.mWidth = 0;
       for(row in mRowInfo)
       {
-         trace(row.mCols.length);
+         //trace(indent + " cols : "  + row.mCols.length);
          for(i in 0...row.mCols.length)
          {
             var col =  row.mCols[i];
             if (col!=null)
             {
                var w = col.getBestWidth();
-               trace(" item w " + w);
+               //trace(indent + " item w " + w);
                if (w>mColInfo[i].mWidth)
+					{
                   mColInfo[i].mWidth = w;
+                  //trace(indent + " -> [" + i + "] = " + w);
+					}
             }
          }
       }
@@ -376,8 +405,10 @@ class GridLayout extends Layout
       for(col in mColInfo)
         str+="  " + col.mWidth;
 
-      trace(str);
-      trace(" done BestColWidths");
+		indent = oindent;
+
+      //trace(indent + "sizes " + str);
+      //trace(indent + "done BestColWidths");
    }
 
    function BestRowHeights()
@@ -416,6 +447,7 @@ class GridLayout extends Layout
      if (inWidth!=null)
      {
         var extra = inWidth - width;
+		  //trace("Extra spacing : " + inWidth + " - " + width + "(" + mBLeft + "+" + mBRight + ")");
         if (extra!=0)
         {
            var stretch = 0.0;
@@ -478,8 +510,13 @@ class GridLayout extends Layout
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
-      trace("GridLayout::setRect " + inX + "," + inY + "   " +inW + "x"+inH);
+	   var oindent = indent;
+      //trace(indent + "GridLayout::setRect " + inX + "," + inY + "   " +inW + "x"+inH);
+		indent += "   ";
       calcSize(inW,inH);
+		//for(col in mColInfo)
+		  //trace("Got col " + col.mWidth );
+		indent = oindent;
       var y = inY + mBTop;
       for(row in mRowInfo)
       {
@@ -491,7 +528,6 @@ class GridLayout extends Layout
             var ox = x;
             var oy = y;
             var w = col_w;
-            trace(w);
             var h = row_h;
 
             var item = row.mCols[c];
@@ -506,7 +542,7 @@ class GridLayout extends Layout
                   w = item.getBestWidth();
                   ox += (col_w - w)/2;
             }
-            trace(w + " in " + col_w);
+            //trace(indent + "Put " + w + " in " + col_w);
 
 
             switch(row.mFlags & Layout.AlignMaskY)
@@ -526,6 +562,8 @@ class GridLayout extends Layout
          }
          y+= row.mHeight + mSpaceY;
       }
+
+		indent = oindent;
 
       if (Layout.mDebug!=null)
       {

@@ -4,7 +4,9 @@ import gm2d.filters.BitmapFilter;
 import gm2d.filters.BitmapFilterType;
 import gm2d.filters.DropShadowFilter;
 import gm2d.filters.GlowFilter;
+import gm2d.display.DisplayObjectContainer;
 import gm2d.events.MouseEvent;
+import gm2d.ui.Layout;
 
 
 class Base extends gm2d.display.Sprite
