@@ -148,6 +148,7 @@ class Dialog extends gm2d.display.Sprite
       label.textColor = labelColor;
       label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
       addChild(label);
+      trace("Label: " + label.textWidth + "x" + label.textHeight);
       mItemLayout.add( new TextLayout(label) );
    }
 	static function DefaultTextFormat()

@@ -19,7 +19,7 @@ class Button extends Base
    {
       super();
       mCallback = inOnClick;
-		mBG = new Sprite();
+      mBG = new Sprite();
       mDisplayObj = inObject;
       addChild(mBG);
       addChild(mDisplayObj);
@@ -27,11 +27,11 @@ class Button extends Base
    }
 
    public function setBackground(inSVG:gm2d.svg.SVG2Gfx, inW:Float, inH:Float)
-	{
+   {
       inSVG.RenderSprite(mBG);
-		mBG.width = inW;
-		mBG.height = inH;
-	}
+      mBG.width = inW;
+      mBG.height = inH;
+   }
 
 
    public static function BMPButton(inBitmapData:BitmapData,inX:Float, inY:Float,inOnClick:Void->Void)
