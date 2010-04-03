@@ -73,7 +73,7 @@ class Slider extends Base
 	   mSliding = false;
 	   stage.removeEventListener(MouseEvent.MOUSE_MOVE, OnMoveSlider);
 	}
-	function OnClick(inEvent:MouseEvent) { SetThumbX(1/*mouseX*/); }
+	function OnClick(inEvent:MouseEvent) { SetThumbX(mouseX); }
 
 	function OnMoveSlider(inEvent:MouseEvent)
 	{
@@ -81,11 +81,12 @@ class Slider extends Base
 		   EndMoveSlider();
 	   else
 		{
-         SetThumbX(1/*mouseX*/);
+         SetThumbX(mouseX);
       }
 	}
    function OnTrack(_)
    {
+	trace("Track !");
 	   if (!mSliding)
 		{
 	      mSliding = true;

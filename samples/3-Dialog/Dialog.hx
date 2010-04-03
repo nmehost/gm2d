@@ -55,7 +55,7 @@ class Dialog extends Screen
 
    static public function main()
    {
-      gm2d.Lib.debug = true;
+      //gm2d.Lib.debug = true;
       Game.useHardware = false;
       Game.title = "Dialog";
       Game.showFPS = true;
