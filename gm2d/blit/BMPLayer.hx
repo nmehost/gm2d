@@ -45,9 +45,9 @@ class BMPLayer extends Layer
    public override function drawTile(inTile:Tile, inX:Float, inY:Float)
    {
       var p = mPos;
-      p.x = inX + mDynamicOX;
-      p.y = inY + mDynamicOY;
-      bitmap.copyPixels(inTile.sheet.gm2dData, inTile.rect, p);
+      p.x = inX + mDynamicOX -inTile.hotX;
+      p.y = inY + mDynamicOY -inTile.hotY;
+      bitmap.copyPixels(inTile.sheet.gm2dData, inTile.rect, p, null, null, inTile.sheet.useAlpha);
    }
 
    public override function gm2dRender(inOX:Float, inOY:Float)
@@ -74,7 +74,7 @@ class BMPLayer extends Layer
 
    public override function addTile(inTile:Tile, inX:Float, inY:Float)
    {
-      if (mViewport!=null) { mViewport.makeDirty(); }
+      if (mViewport!=null) { mViewport.invalidate(); }
       if (mLast==null)
       {
          mLast = mHead = new LayerTile(inTile,inX,inY);

@@ -1,0 +1,4 @@
+-main Particles
+-neko Particles.n
+-lib nme
+-cp ../..

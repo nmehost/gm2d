@@ -1,0 +1,4 @@
+-main Particles
+-swf9 Particles.swf
+-swf-header 480:320:1000:202040
+-cp ../..

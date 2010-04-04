@@ -7,6 +7,7 @@ import gm2d.geom.Point;
 class Tilesheet
 {
 	public var gm2dData : BitmapData;
+        public var useAlpha(default,null):Bool;
 	var mAllocX:Int;
 	var mAllocY:Int;
 	var mAllocHeight:Int;
@@ -36,6 +37,7 @@ class Tilesheet
 		#if !flash
 		gm2dSheet = new nme.display.Tilesheet(gm2dData);
 		#end
+           useAlpha = inData.transparent;
 	}
 
 	public function gm2dAllocTile(inTile:Tile)

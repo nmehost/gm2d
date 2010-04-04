@@ -1,0 +1,4 @@
+-main Particles
+-cpp cpp
+-lib nme
+-cp ../..

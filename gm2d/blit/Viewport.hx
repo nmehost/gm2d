@@ -76,7 +76,7 @@ class Viewport extends Sprite
    #end
 
 
-   public inline function makeDirty() : Void
+   public inline function invalidate() : Void
    {
       if (!mDirty)
       {
@@ -87,7 +87,7 @@ class Viewport extends Sprite
    }
    public function addLayer(inLayer:Layer)
    {
-      makeDirty();
+      invalidate();
       mLayers.push(inLayer);
    }
 
@@ -100,7 +100,7 @@ class Viewport extends Sprite
       originY = inY - viewHeight/2;
       if (originY<0) originY = 0;
       else if (originY+viewHeight > worldHeight) originY = worldHeight-viewHeight;
-      makeDirty();
+      invalidate();
    }
 
    public function createLayer() : Layer
@@ -121,14 +121,14 @@ class Viewport extends Sprite
 
    function setOriginX(inVal:Float):Float
    {
-      makeDirty();
+      invalidate();
       originX = inVal;
       return inVal;
    }
 
    function setOriginY(inVal:Float):Float
    {
-      makeDirty();
+      invalidate();
       originY = inVal;
       return inVal;
    }

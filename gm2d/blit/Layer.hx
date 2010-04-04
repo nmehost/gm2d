@@ -35,7 +35,7 @@ class Layer
 
    public function clear()
    {
-      if (mViewport!=null) { mViewport.makeDirty(); }
+      if (mViewport!=null) { mViewport.invalidate(); }
       gm2dClear();
    }
 
