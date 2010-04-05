@@ -8,6 +8,8 @@ import gm2d.Game;
 import gm2d.events.Event;
 import gm2d.Screen;
 
+import gm2d.ui.Accelerometer;
+
 import gm2d.ui.Keyboard;
 
 class Particle
@@ -20,7 +22,8 @@ class Particle
     public var dphase:Float;
     public var tile:Int;
 
-    public static var GRAVITY = 9.8;
+    public static var GRAVITY_X = 0.0;
+    public static var GRAVITY_Y = -9.8;
 
     public function new(inX:Float, inY:Float)
     {
@@ -43,7 +46,10 @@ class Particle
        x+=dx*inDT;
        y+=dy*inDT;
        if (phase<2)
-          dy -= GRAVITY*inDT;
+       {
+          dx += GRAVITY_X*inDT;
+          dy += GRAVITY_Y*inDT;
+       }
 
        return true;
     }
@@ -113,6 +119,13 @@ class Particles extends Screen
    override public function updateDelta(inDT:Float)
    {
       var alive = new Array<Particle>();
+
+      var acc = gm2d.ui.Accelerometer.get();
+      if (acc!=null)
+      {
+         Particle.GRAVITY_X = acc.y*9.8;
+         Particle.GRAVITY_Y = acc.x*9.8;
+      }
 
       for(p in mParticles)
       {
