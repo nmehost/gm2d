@@ -8,6 +8,7 @@ import gm2d.Screen;
 import gm2d.svg.SVG2Gfx;
 import gm2d.ui.Button;
 import gm2d.ui.Keyboard;
+import gm2d.events.MouseEvent;
 
 
 class Dialog extends Screen
@@ -22,6 +23,13 @@ class Dialog extends Screen
       loader.loadSVG("slider.svg","slider");
       loader.Process(onLoaded);
       makeCurrent();
+		var s = stage;
+		s.addEventListener( MouseEvent.CLICK, function (e)
+		{
+		   var t : gm2d.display.DisplayObject = e.target;
+		   if ( t==s)
+            Game.showDialog("Settings");
+		} );
    }
 
    function onLoaded(inResources:Hash<Dynamic>)
