@@ -7,25 +7,13 @@ package gm2d.svg;
 
 import gm2d.svg.PathSegment;
 
-enum PathParserState {
-    Empty;
-    ParseCommand( cmd:String, nargs:Int );
-    ParseFloat( s:String, old:PathParserState );
-}
-
 class PathParser {
-    static var commandReg = ~/[MmZzLlHhVvCcSsQqTtAa]/;
+    var lastMoveX:Float;
+    var lastMoveY:Float;
+    var prev:PathSegment;
 
-    var g:Array<PathSegment>;
-
-    var input:String;
-    var pin:Int;
-	 var lastMoveX:Float;
-	 var lastMoveY:Float;
-
-    var state:PathParserState;
-    var args:Array<Float>;
     
+    static var sCommandArgs:Array<Int>;
 
     static var MOVE  = "M".charCodeAt(0);
     static var MOVER = "m".charCodeAt(0);
@@ -48,173 +36,178 @@ class PathParser {
     static var CLOSE = "Z".charCodeAt(0);
     static var CLOSER = "z".charCodeAt(0);
 
+    static var UNKNOWN = -1;
+    static var SEPARATOR = -2;
+    static var FLOAT = -3;
+
+
 
     public function new() {
-        state=Empty;
+        if (sCommandArgs==null)
+        {
+           sCommandArgs = [];
+           for(i in 0...128)
+              sCommandArgs[i] = commandArgs(i);
+        }
     }
 
-    public function parse( pathToParse:String ) :Iterable<PathSegment> {
+    public function parse( pathToParse:String ) :Array<PathSegment> {
         lastMoveX = lastMoveY = 0;
-        input=pathToParse;
-        pin=0;
-        args = new Array<Float>();
-        g = new Array<PathSegment>();
+        var pos=0;
+        var args = new Array<Float>();
+        var segments = new Array<PathSegment>();
+        var current_command_pos = 0;
+        var current_command = -1;
+        var current_args = -1;
         
-        while( pin<input.length ) {
-            var c = input.charAt(pin);
-           // trace("CHAR '"+c+"', STATE "+state);
-            if( StringTools.isSpace(c,0) || c=="," ) {  // whitespace
-                endState();
-			} else if( c=="-" ) {            // - (minus) // fixme should trigger new float, except when in exponent like "1.324e-12"
-                switch( state ) {
-                    case ParseFloat(f,old):
-                        if( f.length==0 ) state=ParseFloat("-",old);
-						else if( f.charAt(f.length-1)=="e" ) {
-							state=ParseFloat(f+c,old);
-							pin++;
-                        } else {
-                            endState();
-                            state=ParseFloat("-",state);
-                        }
-                    default:
-                        state=ParseFloat("-",state);
-                        pin++;
-                }
-			} else if( commandReg.match(c) ) {
-                endState();
-                parseCommand(commandReg.matched(0));
-            } else {
-                switch( state ) {
-                    case ParseFloat(f,old):
-                        state = ParseFloat(f+c,old);
-                        pin++;
-                    default:
-                        state = ParseFloat(c,state);
-                        pin++;
-                }
+        prev = null;
+
+        var len = pathToParse.length;
+        while( pos<=len )
+        {
+            var code = pos==len ? 32 : pathToParse.charCodeAt(pos);
+            var command = (code>0 && code<128) ? sCommandArgs[code] : UNKNOWN;
+
+            if (command==UNKNOWN)
+               throw("failed parsing path near '"+pathToParse.substr(pos)+"'");
+ 
+            if (command==SEPARATOR)
+            {
+               pos++;
+            }
+            else if( command==FLOAT )
+            {
+               var end = pos+1;
+               while(end<pathToParse.length)
+               {
+                  var ch = pathToParse.charCodeAt(end);
+                  if (ch<0 || ch>127 || sCommandArgs[ch]!=FLOAT )
+                     break;
+                  end++;
+               }
+               args.push( Std.parseFloat(pathToParse.substr(pos,end-pos)) );
+               pos = end;
+            }
+            else
+            {
+               current_command = code;
+               current_args = command;
+               current_command_pos = pos;
+               pos++;
+            }
+
+            if (current_args==args.length && current_command>=0)
+            {
+               prev = createCommand( current_command, args );
+               if (prev==null)
+                  throw "Unknown command " + current_command + " near '" +
+                     pathToParse.substr(current_command_pos) + "'"; 
+               segments.push(prev);
+               current_args = -1;
+               current_command_pos = pos;
+               current_command = -1;
+               args = [];
             }
         }
-        endState();
-        
-        return g;
-    }
-    
-    function parseCommand( cmd:String ) {
-        var nargs = switch(cmd.toUpperCase()) {
-            case "Z":
-                0;
-            case "H","V":
-                1;
-            case "M","L","T":
-                2;
-            case "S","Q":
-                4;
-            case "C":
-                6;
-            case "A":
-                7;
-        }    
-        state = ParseCommand(cmd,nargs);
-    }
-    
-    function fail() {
-        throw("failed parsing path '"+input.substr(pin)+"'");
-    }
-    
-    function endState() {
-       //trace("END "+state );
-        switch( state ) {
-        
-            case Empty:
-                pin++;
-                
-            case ParseFloat(c,old):
-                args.push( Std.parseFloat(c) );
-                state = old;
-                endState();
-                
-            case ParseCommand(cmd,nargs):
-                if( args.length==nargs ) {
-        //            trace("COMMAND "+cmd+", args: "+args );
-                    command( cmd, args );
-                    args = new Array<Float>();
-                    if( nargs==0 ) state=Empty;
-                    else if( cmd.toUpperCase()=="M" ) {
-                        if( cmd=="M" ) cmd="L";
-                        else cmd="l";
-                        parseCommand(cmd);
-                    }
-                } 
-                pin++;
-                
+
+        if (current_command>=0)
+        {
+            throw "Unfinished command near '" +
+                     pathToParse.substr(current_command_pos) + "'"; 
         }
+        
+        return segments;
+    }
+    
+    function commandArgs( inCode:Int ) : Int
+    {
+       if (inCode==10) return SEPARATOR;
+
+       var str = String.fromCharCode(inCode).toUpperCase();
+       if (str>="0" && str<="9")
+          return FLOAT;
+
+       switch(str)
+       {
+           case "Z": return 0;
+           case "H","V": return 1;
+           case "M","L","T": return 2;
+           case "S","Q": return 4;
+           case "C": return 6;
+           case "A": return 7;
+           case "\t","\n"," ","\r","," : return SEPARATOR;
+           case "-" : return FLOAT;
+           case "+" : return FLOAT;
+           case "E" : return FLOAT;
+           case "." : return FLOAT;
+       }
+
+       return UNKNOWN;
     }
 
-    function prevX():Float { return (g.length>0) ? g[g.length-1].prevX() : 0; }
-    function prevY():Float { return (g.length>0) ? g[g.length-1].prevY() : 0; }
-    function prevCX():Float { return (g.length>0) ? g[g.length-1].prevCX() : 0; }
-    function prevCY():Float { return (g.length>0) ? g[g.length-1].prevCY() : 0; }
+    function prevX():Float { return (prev!=null) ? prev.prevX() : 0; }
+    function prevY():Float { return (prev!=null) ? prev.prevY() : 0; }
+    function prevCX():Float { return (prev!=null) ? prev.prevCX() : 0; }
+    function prevCY():Float { return (prev!=null) ? prev.prevCY() : 0; }
     
-    function command( cmd:String, a:Array<Float> ) {
-        var code = cmd.charCodeAt(0);
-        var op:PathSegment = 
-            switch(code) {
+    function createCommand( code:Int , a:Array<Float> ) : PathSegment
+    {
+        switch(code)
+        {
                 case MOVE:
-		              lastMoveX = a[0];
-		              lastMoveY = a[1];
-					     cast(new MoveSegment( lastMoveX, lastMoveY),PathSegment);
+                    lastMoveX = a[0];
+                    lastMoveY = a[1];
+                    return new MoveSegment( lastMoveX, lastMoveY);
                 case MOVER:
-		              lastMoveX = a[0]+prevX();
-		              lastMoveY = a[1]+prevY();
-					     new MoveSegment(lastMoveX, lastMoveY);
-                case LINE:  new DrawSegment( a[0], a[1] );
-                case LINER: new DrawSegment( a[0]+prevX(), a[1]+prevX() );
-                case HLINE:  new DrawSegment( a[0], 0 );
-                case HLINER: new DrawSegment( a[0]+prevX(), 0);
-                case VLINE:  new DrawSegment( 0, a[0] );
-                case VLINER: new DrawSegment( 0, a[0]+prevX());
+                    lastMoveX = a[0]+prevX();
+                    lastMoveY = a[1]+prevY();
+                    return new MoveSegment(lastMoveX, lastMoveY);
+                case LINE:  return new DrawSegment( a[0], a[1] );
+                case LINER: return new DrawSegment( a[0]+prevX(), a[1]+prevX() );
+                case HLINE:  return new DrawSegment( a[0], 0 );
+                case HLINER: return new DrawSegment( a[0]+prevX(), 0);
+                case VLINE:  return new DrawSegment( 0, a[0] );
+                case VLINER: return new DrawSegment( 0, a[0]+prevX());
                 case CUBIC:
-                    new CubicSegment( a[0], a[1], a[2], a[3], a[4], a[5] );
+                    return new CubicSegment( a[0], a[1], a[2], a[3], a[4], a[5] );
                 case CUBICR:
                     var rx = prevX();
                     var ry = prevY();
-                    new CubicSegment( a[0]+rx, a[1]+ry, a[2]+rx, a[3]+ry, a[4]+rx, a[5]+ry );
+                    return new CubicSegment( a[0]+rx, a[1]+ry, a[2]+rx, a[3]+ry, a[4]+rx, a[5]+ry );
                 case SCUBIC:
                     var rx = prevX();
                     var ry = prevY();
-                    new CubicSegment( rx*2-prevCX(), ry*2-prevCY(),a[0], a[1], a[2], a[3] );
+                    return new CubicSegment( rx*2-prevCX(), ry*2-prevCY(),a[0], a[1], a[2], a[3] );
                 case SCUBICR:
                     var rx = prevX();
                     var ry = prevY();
-                    new CubicSegment( rx*2-prevCX(), ry*2-prevCY(),a[0]+rx, a[1]+ry, a[2]+rx, a[3]+ry );
-                case QUAD: new QuadraticSegment( a[0], a[1], a[2], a[3] );
+                    return new CubicSegment( rx*2-prevCX(), ry*2-prevCY(),a[0]+rx, a[1]+ry, a[2]+rx, a[3]+ry );
+                case QUAD: return new QuadraticSegment( a[0], a[1], a[2], a[3] );
                 case QUADR:
                     var rx = prevX();
                     var ry = prevY();
-                    new QuadraticSegment( a[0], a[1], a[2], a[3] );
+                    return new QuadraticSegment( a[0], a[1], a[2], a[3] );
                 case SQUAD:
                     var rx = prevX();
                     var ry = prevY();
-                    new QuadraticSegment( rx*2-prevCX(), rx*2-prevCY(),a[2], a[3] );
+                    return new QuadraticSegment( rx*2-prevCX(), rx*2-prevCY(),a[2], a[3] );
                 case SQUADR:
                     var rx = prevX();
                     var ry = prevY();
-                    new QuadraticSegment( rx*2-prevCX(), ry*2-prevCY(),a[0]+rx, a[1]+ry );
+                    return new QuadraticSegment( rx*2-prevCX(), ry*2-prevCY(),a[0]+rx, a[1]+ry );
                 case ARC:
-                    new ArcSegment(prevX(), prevY(), a[0], a[1], a[2], a[3]!=0., a[4]!=0., a[5], a[6] );
+                    return new ArcSegment(prevX(), prevY(), a[0], a[1], a[2], a[3]!=0., a[4]!=0., a[5], a[6] );
                 case ARCR:
                     var rx = prevX();
                     var ry = prevY();
-                    new ArcSegment( rx,ry, a[0], a[1], a[2], a[3]!=0., a[4]!=0., a[5]+rx, a[6]+ry );
+                    return new ArcSegment( rx,ry, a[0], a[1], a[2], a[3]!=0., a[4]!=0., a[5]+rx, a[6]+ry );
                 case CLOSE:
-                    new DrawSegment(lastMoveX, lastMoveY);
+                    return new DrawSegment(lastMoveX, lastMoveY);
                 case CLOSER:
-                    new DrawSegment(lastMoveX, lastMoveY);
-                default:
-                    throw("unimplemented shape command "+cmd);
+                    return new DrawSegment(lastMoveX, lastMoveY);
             }
-        
-        g.push(op);
+
+        return null;
     }
 }
 

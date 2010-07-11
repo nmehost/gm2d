@@ -25,6 +25,7 @@ class BMPLayer extends Layer
    var mDynamicOX:Float;
    var mDynamicOY:Float;
    var mPos:Point;
+   var mBMPViewport:BMPViewport;
    public var bitmap(default,null):BitmapData;
 
    function new(inVP:BMPViewport)
@@ -34,13 +35,20 @@ class BMPLayer extends Layer
       mLast = null;
       mDynamicOX = mDynamicOY = 0;
       mPos = new Point();
-      bitmap = inVP.gm2dBitmapData;
+      mBMPViewport = inVP;
+      bitmap = mBMPViewport.gm2dBitmapData;
    }
 
    public static function gm2dCreate(inVP:BMPViewport)
    {
       return new BMPLayer(inVP);
    }
+
+   public override function resize(inWidth:Int, inHeight:Int)
+   {
+      bitmap = mBMPViewport.gm2dBitmapData;
+   }
+
 
    public override function drawTile(inTile:Tile, inX:Float, inY:Float)
    {

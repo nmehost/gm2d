@@ -75,7 +75,8 @@ class Dialog extends gm2d.display.Sprite
    }
    public function SetSVGBackground(inSVG:SVG2Gfx)
    {
-      inSVG.Render(getBackground(),null,null);
+      var gfx = getBackground();
+      inSVG.Render(gfx,null,null);
 
       var all  = inSVG.GetExtent(null, null);
       var scale9 = inSVG.GetExtent(null, function(_,groups) { return groups[0]==".scale9"; } );
@@ -91,7 +92,7 @@ class Dialog extends gm2d.display.Sprite
 
       var bg = mBG;
       renderBackground = function(w,h) { bg.width = w; bg.height = h; }
-      mBG.cacheAsBitmap = gm2d.Lib.isOpenGL;
+      cacheAsBitmap = gm2d.Lib.isOpenGL;
    }
    public function getLayoutWidth()
    {
@@ -146,9 +147,9 @@ class Dialog extends gm2d.display.Sprite
       label.text = inText;
       label.setTextFormat( labelFormat );
       label.textColor = labelColor;
+      label.selectable = false;
       label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
       addChild(label);
-      trace("Label: " + label.textWidth + "x" + label.textHeight);
       mItemLayout.add( new TextLayout(label) );
    }
 	static function DefaultTextFormat()

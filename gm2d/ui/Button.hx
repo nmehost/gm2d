@@ -49,6 +49,7 @@ class Button extends Base
       label.setTextFormat( Dialog.labelFormat );
       label.textColor = Dialog.labelColor;
       label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
+      label.selectable = false;
       return new Button(label,inOnClick);
    }
 
@@ -67,6 +68,7 @@ class Button extends Base
       {
          layout.add( new DisplayLayout(mDisplayObj) );
       }
+      layout.mDebugCol = 0x00ff00;
       return layout;
    }
 

@@ -27,6 +27,13 @@ class BMPViewport extends Viewport
       return layer;
    }
 
+   override function resize(inWidth:Int, inHeight:Int)
+   {
+      gm2dBitmapData = new gm2d.display.BitmapData(inWidth,inHeight,mTransparent, getBG() );
+      mBitmap.bitmapData = gm2dBitmapData;
+      super.resize(inWidth,inHeight);
+   }
+
 
    override function renderViewport()
    {

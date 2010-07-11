@@ -17,7 +17,6 @@ class Dialog extends Screen
    {
       super("Main");
 
-
       var loader = new gm2d.game.Loader();
       loader.loadSVG("bg.svg","background");
       loader.loadSVG("slider.svg","slider");
@@ -43,15 +42,15 @@ class Dialog extends Screen
       settings.addUI(gm2d.ui.Slider.SkinnedSlider(sl,null,0,100,50,OnMusic) );
 
       var but = Button.TextButton("Ok", function() { Game.closeDialog(); } );
-		but.setBackground(bg,100,40);
+      but.setBackground(bg,100,40);
       settings.addButton(but);
 
       var but = Button.TextButton("Cancel", function() { Game.closeDialog(); } );
-		but.setBackground(bg,100,40);
+      but.setBackground(bg,100,40);
       settings.addButton(but);
 
       Game.addDialog("Settings",settings);
-      Game.showDialog("Settings");
+      var dlg = Game.showDialog("Settings");
    }
 
    function OnMusic(inVal) { trace(inVal); }
@@ -63,8 +62,8 @@ class Dialog extends Screen
 
    static public function main()
    {
-      //gm2d.Lib.debug = true;
-      Game.useHardware = false;
+      gm2d.Lib.debug = false;
+      Game.useHardware = true;
       Game.title = "Dialog";
       Game.showFPS = true;
       Game.fpsColor = 0x000000;

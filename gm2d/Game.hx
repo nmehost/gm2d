@@ -2,10 +2,15 @@ package gm2d;
 
 import gm2d.display.Sprite;
 import gm2d.Screen;
+import gm2d.display.StageScaleMode;
+import gm2d.display.StageDisplayState;
 import gm2d.events.Event;
 import gm2d.events.KeyboardEvent;
 import gm2d.text.TextField;
 import gm2d.ui.Dialog;
+import gm2d.reso.Loader;
+import gm2d.reso.Resources;
+
 
 class Game
 {
@@ -20,7 +25,8 @@ class Game
    static public var backgroundColor = 0xffffff;
    static public var title(default,setTitle):String;
    static public var icon(default,setIcon):String;
-   static public var screenName(getScreenName,setScreenName):String;
+   static public var pixelAccurate:Bool = false;
+   static public var toggleFullscreenOnAltEnter:Bool = true;
 
    static var mCurrentScreen:Screen;
    static var mCurrentDialog:Dialog;
@@ -38,7 +44,8 @@ class Game
 
    static var mScreenMap:Hash<Screen> = new Hash<Screen>();
    static var mDialogMap:Hash<Dialog> = new Hash<Dialog>();
-	static var mKeyDown = new Array<Bool>();
+   static var mKeyDown = new Array<Bool>();
+   static var mResources = new Hash<Dynamic>();
 
    public static function create( inOnLoaded:Void->Void )
    {
@@ -50,16 +57,16 @@ class Game
      init();
      inOnLoaded();
    #else
-	  var w = initWidth;
-	  var h = initHeight;
-	  #if (testOrientation)
-	  if (iPhoneOrientation==90 || iPhoneOrientation==270 ||
-	       (iPhoneOrientation==null && initWidth>initHeight ))
-	  {
-	     w = initHeight;
-	     h = initWidth;
-	  }
-	  #end
+     var w = initWidth;
+     var h = initHeight;
+     #if (testOrientation)
+     if (iPhoneOrientation==90 || iPhoneOrientation==270 ||
+          (iPhoneOrientation==null && initWidth>initHeight ))
+     {
+        w = initHeight;
+        h = initWidth;
+     }
+     #end
 
      nme.Lib.create(function() { init(); inOnLoaded(); },
           w,h,frameRate,backgroundColor,
@@ -88,30 +95,32 @@ class Game
       parent.addChild(mDialogParent);
       parent.addChild(mFPSControl);
 
+      if (pixelAccurate)
+         parent.stage.scaleMode = gm2d.display.StageScaleMode.NO_SCALE;
 
       parent.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown );
       parent.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp );
       parent.stage.addEventListener(Event.ENTER_FRAME, onEnter);
-      //parent.stage.addEventListener(Event.RESIZE, onSize);
+      parent.stage.addEventListener(Event.RESIZE, onSize);
 
       #if (iphone || testOrientation)
-		var o = iPhoneOrientation==null ? (initWidth>initHeight ? 90:0) : iPhoneOrientation;
-		switch(o)
-		{
-			case 0:
-			case 90:  parent.rotation=90; parent.x=initHeight;
-			case 180: parent.rotation=180; parent.x=initWidth; parent.y=initHeight;
-			case 270: parent.rotation=270; parent.y=initWidth;
-			default: throw("Unsupported orientation :" + iPhoneOrientation);
-		}
-		#end
+      var o = iPhoneOrientation==null ? (initWidth>initHeight ? 90:0) : iPhoneOrientation;
+      switch(o)
+      {
+         case 0:
+         case 90:  parent.rotation=90; parent.x=initHeight;
+         case 180: parent.rotation=180; parent.x=initWidth; parent.y=initHeight;
+         case 270: parent.rotation=270; parent.y=initWidth;
+         default: throw("Unsupported orientation :" + iPhoneOrientation);
+      }
+      #end
    }
 
    public static function isKeyDown(inCode:Int) { return mKeyDown[inCode]; } 
 
-   public static function gm2dAddScreen(inScreen:Screen)
+   public static function addScreen(inName:String,inScreen:Screen)
    {
-      mScreenMap.set(inScreen.screenName,inScreen);
+      mScreenMap.set(inName,inScreen);
    }
 
    static public function setCurrentScreen(inScreen:Screen)
@@ -129,11 +138,50 @@ class Game
 
       if (mCurrentScreen!=null)
       {
+         var mode = mCurrentScreen.getScaleMode();
+         mScreenParent.stage.scaleMode = mode==ScreenScaleMode.PIXEL_PERFECT ?
+           StageScaleMode.NO_SCALE  : StageScaleMode.SHOW_ALL;
+         
          mScreenParent.addChild(mCurrentScreen);
          mCurrentScreen.onActivate(true);
+         updateScale();
+           
       }
       mLastEnter = haxe.Timer.stamp();
       mLastStep = mLastEnter;
+   }
+
+   static function updateScale()
+   {
+      var scale = 1.0;
+      var stage = mCurrentScreen.stage;
+      var sw = stage.stageWidth / initWidth;
+      var sh = stage.stageHeight / initHeight;
+      scale = sw < sh ? sw : sh;
+
+      mDialogParent.scaleX = scale;
+      mDialogParent.scaleY = scale;
+
+      if (mCurrentScreen!=null)
+      {
+         var mode = mCurrentScreen.getScaleMode();
+         if (mode!=ScreenScaleMode.PIXEL_PERFECT)
+         {
+            mScreenParent.x = ((stage.stageWidth  - initWidth*scale)/2)/scale;
+            mScreenParent.y = ((stage.stageHeight - initHeight*scale)/2)/scale;
+            scale = 1.0;
+         }
+         else
+         {
+            mScreenParent.x = (stage.stageWidth  - initWidth*scale)/2;
+            mScreenParent.y = (stage.stageHeight - initHeight*scale)/2;
+            mDialogParent.x = (stage.stageWidth - initWidth*scale)/2;
+            mDialogParent.y = (stage.stageHeight - initHeight*scale)/2;
+         }
+         mDialogParent.x = mScreenParent.x;
+         mDialogParent.y = mScreenParent.y;
+         mCurrentScreen.scaleScreen(scale);
+      }
    }
 
    static function getShowFPS() { return mShowFPS; } 
@@ -154,11 +202,7 @@ class Game
       return inCol;
    }
 
-   static function getScreenName()
-   {
-      return mCurrentScreen==null ? "" : mCurrentScreen.screenName;
-   } 
-   static function setScreenName(inName:String) : String
+   public static function setScreen(inName:String) : String
    {
       if (!mScreenMap.exists(inName))
          throw "Unknown screen : " + inName;
@@ -191,7 +235,7 @@ class Game
 
             var fractional_step = (now-mLastStep) * freq;
 
-            mCurrentScreen.renderFixedExtra(fractional_step);
+            mCurrentScreen.render(fractional_step);
 
             //trace(steps + ":" + fps + "   (" + fractional_step + ")");
 
@@ -208,23 +252,36 @@ class Game
       }
    }
 
+   static public function toggleFullscreen()
+   {
+      #if nme
+      var stage = nme.Lib.current.stage;
+      stage.displayState = (stage.displayState==StageDisplayState.NORMAL) ?
+       StageDisplayState.FULL_SCREEN : StageDisplayState.NORMAL;
+      #end
+   }
+
 
    static function onKeyDown(event:KeyboardEvent )
    {
-      mKeyDown[event.keyCode] = true;
+      if (toggleFullscreenOnAltEnter && event.keyCode==13 && event.altKey)
+         toggleFullscreen();
+
 
       //if (mCurrentDialog!=null) mCurrentDialog.onKeyDown(event); else
-		if (mCurrentScreen!=null)
+      if (mCurrentScreen!=null)
          mCurrentScreen.onKeyDown(event);
+
+      mKeyDown[event.keyCode] = true;
    }
 
    static function onKeyUp(event:KeyboardEvent )
    {
-      mKeyDown[event.keyCode] = false;
-
       //if (mCurrentDialog!=null) mCurrentDialog.onKeyUp(event); else
-		if (mCurrentScreen!=null)
+      if (mCurrentScreen!=null)
          mCurrentScreen.onKeyUp(event);
+
+      mKeyDown[event.keyCode] = false;
    }
 
 
@@ -242,9 +299,9 @@ class Game
 
 
    public static function addDialog(inName:String, inDialog:Dialog)
-	{
-	   mDialogMap.set(inName,inDialog);
-	}
+   {
+      mDialogMap.set(inName,inDialog);
+   }
 
 
    static public function showDialog(inDialog:String,inCenter:Bool=true) : Dialog
@@ -253,11 +310,11 @@ class Game
       if (dialog==null)
          throw "Invalid Dialog "+  inDialog;
       DoShowDialog(dialog);
-		if (inCenter)
-		{
-		   dialog.center(dialog.stage.stageWidth,dialog.stage.stageHeight);
-		}
-		return dialog;
+      if (inCenter)
+      {
+         dialog.center(dialog.stage.stageWidth,dialog.stage.stageHeight);
+      }
+      return dialog;
    }
 
    static public function closeDialog() { DoShowDialog(null); }
@@ -280,69 +337,39 @@ class Game
          mCurrentDialog.DoLayout();
       }
 
-		mDialogParent.visible = mCurrentDialog!=null;
+      mDialogParent.visible = mCurrentDialog!=null;
    }
 
 
-
-
-
-
-#if false
-   var mScreen:Screen;
-   var mDialogScreen:Screen;
-   var mDialog:Dialog;
-   var mKeyDown:Array<Bool>;
-   var mLastStep:Float;
-   var mLastEnter:Float;
-
-   var mDialogMap:Hash<Dialog>;
-   var mResources:Resources;
-
-
-   public function new()
+   public static function close()
    {
-      super();
-      #if !flash
-      neash.Lib.mQuitOnEscape = false;
+      #if nme
+      nme.Lib.close();
       #end
-      gm2d.Lib.current.addChild(this);
-      stage.stageFocusRect = false;
-      stage.scaleMode = gm2d.display.StageScaleMode.NO_SCALE;
-
-
-      mLastEnter = haxe.Timer.stamp();
-      mLastStep = mLastEnter;
-      mScreen = null;
-      mDialog = null;
-      mKeyDown = [];
-
-      mScreenMap = new Hash<Screen>();
-      mDialogMap = new Hash<Dialog>();
-      Screen.SetGame(this);
    }
 
-   function SetResources(inResources:Resources) { mResources = inResources; }
+
+   public static function setResources(inResources:Resources) { mResources = inResources; }
+
+   public static function resource(inName:String) { return mResources.get(inName); }
 
 
-   public function Resource(inName:String) { return mResources.get(inName); }
-   public function FreeResource(inName:String) { return mResources.remove(inName); }
-
-   public function IsDown(inCode:Int) : Bool { return mKeyDown[inCode]; }
+   public static function freeResource(inName:String) { return mResources.remove(inName); }
 
 
 
+   public static function isDown(inCode:Int) : Bool { return mKeyDown[inCode]; }
 
-   function onUpdate(e:gm2d.events.Event)
+   static function onUpdate(e:gm2d.events.Event)
    {
       var now = haxe.Timer.stamp();
       if (mCurrentScreen!=null)
       {
-         var freq = mCurrentScreen.GetUpdateFrequency();
+         var freq = mCurrentScreen.getUpdateFrequency();
          if (freq<=0)
          {
-            mScreen.UpdateDelta(now-mLastEnter);
-            mScreen.Render(0);
+            mCurrentScreen.updateDelta(now-mLastEnter);
+            mCurrentScreen.render(0);
             mLastEnter = now;
          }
          else
@@ -352,14 +379,14 @@ class Game
             // Do a number of descrete steps based on the frequency.
             var steps = Math.floor( (now-mLastStep) * freq );
             for(i in 0...steps)
-               mScreen.UpdateFixed();
+               mCurrentScreen.updateFixed();
 
             mLastStep += steps / freq;
 
 
             var fractional_step = (now-mLastStep) * freq;
 
-            mScreen.Render(fractional_step);
+            mCurrentScreen.render(fractional_step);
 
             //hxcpp.Lib.println(steps + ":" + fps + "   (" + fractional_step + ")");
 
@@ -369,45 +396,10 @@ class Game
    }
 
 
-   public function ShowDialog(inDialog:String)
+   static function onSize(e:Event)
    {
-      var dialog:Dialog = mDialogMap.get(inDialog);
-      if (dialog==null)
-         throw "Invalid Dialog "+  inDialog;
-      DoShowDialog(dialog);
-   }
-
-   public function CloseDialog() { DoShowDialog(null); }
-
-   function DoShowDialog(inDialog:Dialog)
-   {
-      if (mDialog!=null)
-      {
-         mDialog.onClose();
-         mDialogScreen.removeChild(mDialog);
-         mDialog = null;
-      }
-
-      mDialog = inDialog;
-
-      if (mDialog!=null)
-      {
-         if (mScreen==null)
-            throw "Can't add a dialog without a screen.";
-
-         mDialogScreen = mScreen;
-         mDialogScreen.addChild(mDialog);
-         mDialog.onAdded();
-         mDialog.DoLayout();
-      }
-   }
-
-   function OnSize(e:Event)
-   {
-      if (mScreen!=null)
-         mScreen.Layout(stage.stageWidth,stage.stageHeight);
+      updateScale();
    }
 
 
-#end
 }

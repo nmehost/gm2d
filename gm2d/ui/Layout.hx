@@ -25,11 +25,14 @@ class Layout
    public var width:Float;
    public var height:Float;
 
+   public var mDebugCol:Int;
+
    static var mDebug:gm2d.display.Graphics;
 
    public function new()
    {
       width = height = 0.0;
+      mDebugCol = 0xff0000;
       mBLeft = mBRight = mBTop = mBBottom = 5;
    }
 
@@ -139,10 +142,10 @@ class DisplayLayout extends Layout
 
       if (Layout.mDebug!=null)
       {
-         Layout.mDebug.lineStyle(1,0xff0000);
+         Layout.mDebug.lineStyle(2,mDebugCol);
          Layout.mDebug.drawRect(inX,inY,inW,inH);
-         Layout.mDebug.lineStyle(1,0x00ff00);
-         Layout.mDebug.drawRect(mObj.x,mObj.y,mObj.width,mObj.height);
+         //Layout.mDebug.lineStyle(1,0x00ff00);
+         //Layout.mDebug.drawRect(mObj.x,mObj.y,mObj.width,mObj.height);
       }
    }
 
@@ -158,18 +161,21 @@ class TextLayout extends DisplayLayout
       super(inObj,inAlign);
       mOWidth = inPrefWidth==null ? inObj.textWidth : inPrefWidth;
       mOHeight =  inPrefHeight==null ? inObj.textHeight : inPrefHeight;
+      mDebugCol = 0xff00ff;
    }
 
-   /*
+/*
 	override function setObjRect(x:Float,y:Float,w:Float,h:Float)
 	{
+      trace("Tex Height :" + h );
 		var text:TextField = cast mObj;
 		text.x = x;
 		text.y = y;
 		text.width = w;
 		text.height = h;
+      trace("New Height :" + text.height );
 	}
-	*/
+*/
 }
 
 // --- StackLayout ---------------------------------------------------------------------
@@ -567,7 +573,7 @@ class GridLayout extends Layout
 
       if (Layout.mDebug!=null)
       {
-         Layout.mDebug.lineStyle(1,0xff0000);
+         Layout.mDebug.lineStyle(1,0x0000ff);
          Layout.mDebug.drawRect(inX,inY,inW,inH);
       }
    }

@@ -62,6 +62,17 @@ class Viewport extends Sprite
       addEventListener(Event.REMOVED_FROM_STAGE,onRemoved);
    }
 
+   public function resize(inWidth:Int, inHeight:Int)
+   {
+      viewWidth = inWidth;
+      viewHeight = inHeight;
+      mRect = new Rectangle(0,0,viewWidth,viewHeight);
+      invalidate();
+      for(layer in mLayers)
+         layer.resize(inWidth,inHeight);
+   }
+
+
    #if !neko
    function getBG()
    {
@@ -70,8 +81,7 @@ class Viewport extends Sprite
    #else
    function getBG()
    {
-      return mTransparent ? haxe.Int32.make(mBackground>>16,mBackground&0xffff) :
-                           haxe.Int32.make(0xff00|(mBackground>>16),mBackground&0xffff);
+      return gm2d.RGB.RGBA(mBackground&0xffffff,mTransparent?0x00:0xff);
    }
    #end
 

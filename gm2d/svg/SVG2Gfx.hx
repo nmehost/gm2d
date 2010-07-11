@@ -759,7 +759,7 @@ class SVG2Gfx
        var w = Math.ceil( inRect.width*inScale );
        var h = Math.ceil( inRect.height*inScale );
 
-       var bmp = new gm2d.display.BitmapData(w,h,true,gm2d.RGB.ZERO );
+       var bmp = new gm2d.display.BitmapData(w,h,true,gm2d.RGB.CLEAR );
 
        var shape = new gm2d.display.Shape();
        mGfx = shape.graphics;

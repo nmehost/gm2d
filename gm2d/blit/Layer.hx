@@ -22,6 +22,7 @@ class Layer
 
    public function gm2dRender(inOX:Float, inOY:Float) { }
 
+   public function resize(inWidth:Int, inHeight:Int) { }
 
    public function gm2dClear() { }
 

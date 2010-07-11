@@ -11,6 +11,15 @@ class NMEViewport extends Viewport
    {
       super(inWidth,inHeight,inTransparent,inBackground);
       scrollRect = new Rectangle(0,0,inWidth,inHeight);
+      /*
+      if (!inTransparent)
+         opaqueBackground = 
+         #if neko
+            getBG().rgb;
+         #else
+            getBG();
+         #end
+       */
    }
 
    public override function createLayer() : Layer
@@ -21,8 +30,12 @@ class NMEViewport extends Viewport
       return layer;
    }
 
-
-
+   override function resize(inWidth:Int, inHeight:Int)
+   {
+      scrollRect = new Rectangle(0,0,inWidth,inHeight);
+      super.resize(inWidth,inHeight);
+   }
+ 
    override function renderViewport()
    {
       for(layer in mLayers)

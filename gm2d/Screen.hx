@@ -9,23 +9,13 @@ import gm2d.ui.Keyboard;
 
 class Screen extends gm2d.display.Sprite
 {
-   public var screenName(default,null):String;
- 
-   var mMarginX:Float;
-   var mMarginY:Float;
-   var mNominalWidth:Float;
-   var mNominalHeight:Float;
    var mItems:gm2d.ui.ItemList;
 
-   public function new(inName:String)
+   public function new()
    {
       super();
 
-      screenName = inName;
-
       mItems = new ItemList(this);
-
-      Game.gm2dAddScreen(this);
    }
 
    public function makeCurrent()
@@ -37,76 +27,29 @@ class Screen extends gm2d.display.Sprite
    public function getUpdateFrequency() { return 0.0; }
    public function updateDelta(inDT:Float) {  }
    public function updateFixed() {  }
-   public function renderFixedExtra(inFraction:Float) {  }
-   public function onKeyDown(event:KeyboardEvent) { }
-   public function onKeyUp(event:KeyboardEvent) { }
-
-
-#if false
-   public function OnKeyUp(event:gm2d.events.KeyboardEvent ) { }
-   public function OnAdded() { }
-
+   public function render(inFraction:Float) {  }
+   public function onKeyDown(event:KeyboardEvent):Bool { return false; }
+   public function onKeyUp(event:KeyboardEvent):Bool { return false; }
+   public function onAdded() { }
+   public function getScaleMode() { return ScreenScaleMode.CENTER_SCALED; }
 
 
    // These are not static, even though they could be.
    // This allows non-static function to see them
-   function Resource(inName:String) { return mGame.Resource(inName); }
-   function FreeResource(inName:String) { return mGame.FreeResource(inName); }
-   function SetScreen(inName:String) { return mGame.SetScreen(inName); }
-   function ShowDialog(inName:String) { mGame.ShowDialog(inName); }
+   function resource(inName:String) { return Game.resource(inName); }
+   function freeResource(inName:String) { return Game.freeResource(inName); }
+   function setScreen(inName:String) { return Game.setScreen(inName); }
+   function showDialog(inName:String) { Game.showDialog(inName); }
 
-   static public function SetGame(inGame : Game) { Screen.mGame = inGame; }
-   function IsDown(inCode:Int) { return mGame.IsDown(inCode); }
-
-   public function OnKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
-   {
-      if (mItems.OnKeyDown(event))
-         return true;
-      return false;
-   }
+   function isDown(inCode:Int) { return Game.isDown(inCode); }
 
 
-   public function OnKeyUp(event:gm2d.events.KeyboardEvent ) { }
-   public function OnAdded() { }
-   public function GetUpdateFrequency() { return 0.0; }
-   public function UpdateDelta(inDT:Float) { }
-   public function UpdateFixed() { }
-   public function Render(inExtra:Float) { }
 
-   public function ScaleScreen(inScale:Float)
-   {
-      scaleX = scaleY = inScale;
-   }
+   public function scaleScreen(inScale:Float) { }
 
    public function setCurrent(inItem:gm2d.ui.Base) { mItems.setCurrent(inItem); }
    public function addUI(inItem:gm2d.ui.Base) { mItems.addUI(inItem); }
 
-   public function Layout(inW:Int,inH:Int)
-   {
-      // Width-limited
-      if (inW*mNominalHeight < inH*mNominalWidth)
-      {
-         mMarginX = 0;
-         var h = inW*mNominalHeight/mNominalWidth;
-         mMarginY = (h-inH) * 0.5;
-         x = 0;
-         y = -mMarginY;
-
-         ScaleScreen(inW/mNominalWidth);
-      }
-      // Height-limited
-      else
-      {
-         mMarginY = 0;
-         var w = (inH*mNominalWidth/mNominalHeight);
-         mMarginX = (w-inW) * 0.5;
-         y = 0;
-         x = -mMarginX;
-
-         ScaleScreen(inH/mNominalHeight);
-      }
-   }
-#end
 }
 
 

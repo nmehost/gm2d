@@ -1,4 +1,4 @@
-package gm2d.game;
+package gm2d.reso;
 
 typedef Resources = Hash<Dynamic>;
 
