@@ -28,7 +28,8 @@ class Screen extends gm2d.display.Sprite
    public function updateDelta(inDT:Float) {  }
    public function updateFixed() {  }
    public function render(inFraction:Float) {  }
-   public function onKeyDown(event:KeyboardEvent):Bool { return false; }
+   public function onKeyDown(event:KeyboardEvent):Bool { return mItems.onKeyDown(event); }
+
    public function onKeyUp(event:KeyboardEvent):Bool { return false; }
    public function onAdded() { }
    public function getScaleMode() { return ScreenScaleMode.CENTER_SCALED; }

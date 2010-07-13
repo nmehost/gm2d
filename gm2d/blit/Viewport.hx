@@ -58,8 +58,8 @@ class Viewport extends Sprite
       mLayers = [];
       mDirty = false;
       // Manage handlers so we can clean up ourselves
-      addEventListener(Event.ADDED_TO_STAGE,onAdded);
-      addEventListener(Event.REMOVED_FROM_STAGE,onRemoved);
+      addEventListener(Event.ADDED_TO_STAGE,onAddedCB);
+      addEventListener(Event.REMOVED_FROM_STAGE,onRemovedCB);
    }
 
    public function resize(inWidth:Int, inHeight:Int)
@@ -143,14 +143,18 @@ class Viewport extends Sprite
       return inVal;
    }
 
-   function onAdded(_)
+   function onAddedCB(_) { onAdded(); }
+
+   function onAdded()
    {
       mCallbackStage = stage;
       mCallbackStage.addEventListener(Event.RENDER,onRender);
       if (mDirty)
          mCallbackStage.invalidate();
    }
-   function onRemoved(_)
+
+   function onRemovedCB(_) { onRemoved(); }
+   function onRemoved()
    {
       mCallbackStage.removeEventListener(Event.RENDER,onRender);
       mCallbackStage = null;

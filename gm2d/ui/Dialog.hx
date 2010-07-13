@@ -21,6 +21,7 @@ class Dialog extends gm2d.display.Sprite
    var mForceWidth:Null<Float>;
    var mForceHeight:Null<Float>;
    var mLayoutDirty:Bool;
+   var mLabelLookup:Hash<TextField>;
 
    public static var labelColor = 0x000000;
    public static var labelFormat = DefaultTextFormat();
@@ -67,7 +68,7 @@ class Dialog extends gm2d.display.Sprite
    }
    public dynamic function renderBackground(inW:Float,inH:Float)
    {
-		//trace("renderBackground " + inW + "," + inH);
+      //trace("renderBackground " + inW + "," + inH);
       var gfx = getBackground();
       gfx.beginFill(0xffffff);
       gfx.lineStyle(2,0x000000);
@@ -114,8 +115,8 @@ class Dialog extends gm2d.display.Sprite
    public dynamic function onAdded() { }
    public dynamic function onClose() { }
 
-   public function OnKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
-      { return mItems.OnKeyDown(event); }
+   public function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
+      { return mItems.onKeyDown(event); }
 
 
    public function setCurrent(inItem:gm2d.ui.Base) { mItems.setCurrent(inItem); }
@@ -124,7 +125,7 @@ class Dialog extends gm2d.display.Sprite
    {
       mLayoutDirty = true;
       mItems.addUI(inItem);
-		addChild(inItem);
+      addChild(inItem);
       mItemLayout.add( new DisplayLayout(inItem) );
    }
    public function addButton(inButton:gm2d.ui.Button)
@@ -140,24 +141,35 @@ class Dialog extends gm2d.display.Sprite
       addChild(inObj);
       mItemLayout.add( new DisplayLayout(inObj) );
    }
-   public function addLabel(inText:String)
+   public function addLabel(inText:String,?inName:String)
    {
       mLayoutDirty = true;
       var label = new TextField();
+      label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
       label.text = inText;
       label.setTextFormat( labelFormat );
       label.textColor = labelColor;
       label.selectable = false;
-      label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
       addChild(label);
       mItemLayout.add( new TextLayout(label) );
+
+      if (inName!=null)
+      {
+          if (mLabelLookup!=null) mLabelLookup = new Hash<TextField>();
+          mLabelLookup.set(inName,label);
+      }
    }
-	static function DefaultTextFormat()
-	{
-	   var fmt = new gm2d.text.TextFormat();
-		fmt.size = 20;
-		return fmt;
-	}
+   public function setLabel(inName:String,inValue:String)
+   {
+      mLabelLookup.get(inName).text = inValue;
+   }
+
+   static function DefaultTextFormat()
+   {
+      var fmt = new gm2d.text.TextFormat();
+      fmt.size = 20;
+      return fmt;
+   }
 }
 
 

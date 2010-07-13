@@ -11,16 +11,15 @@ class NMEViewport extends Viewport
    {
       super(inWidth,inHeight,inTransparent,inBackground);
       scrollRect = new Rectangle(0,0,inWidth,inHeight);
-      /*
-      if (!inTransparent)
-         opaqueBackground = 
-         #if neko
-            getBG().rgb;
-         #else
-            getBG();
-         #end
-       */
    }
+
+  override function onAdded()
+  {
+     super.onAdded();
+     if (!mTransparent)
+        opaqueBackground = #if neko getBG().rgb; #else getBG(); #end
+  }
+
 
    public override function createLayer() : Layer
    {

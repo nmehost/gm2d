@@ -45,15 +45,15 @@ class ItemList
    }
 
 
-   public function OnKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
+   public function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
    {
       var code = event.keyCode;
       if (mItems.length>1)
       {
          var dir = 0;
-         if (code == Keyboard.DOWN || (code==Keyboard.TAB && !event.shiftKey) )
+         if (code == Keyboard.DOWN || code==Keyboard.RIGHT || (code==Keyboard.TAB && !event.shiftKey) )
             dir = 1;
-         else if (code==Keyboard.UP || code==Keyboard.TAB)
+         else if (code==Keyboard.UP || code==Keyboard.LEFT || code==Keyboard.TAB)
             dir = -1;
          if (dir!=0)
          {
@@ -74,6 +74,7 @@ class ItemList
              mCurrent.activate(0);
              return true;
           }
+          /*
           else if (code==Keyboard.RIGHT)
           {
              mCurrent.activate(1);
@@ -84,6 +85,7 @@ class ItemList
              mCurrent.activate(2);
              return true;
           }
+          */
       }
       return false;
    }

@@ -730,6 +730,13 @@ class SVG2Gfx
        return shape;
     }
 
+    public function namedShape(inName:String) : Shape
+    {
+       return CreateShape(null, function(name,_) { return name==inName; } );
+    }
+
+
+
     public function ToBitmap()
     {
        mMatrix = new Matrix();

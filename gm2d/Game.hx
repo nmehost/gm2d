@@ -256,7 +256,7 @@ class Game
    {
       #if nme
       var stage = nme.Lib.current.stage;
-      stage.displayState = (stage.displayState==StageDisplayState.NORMAL) ?
+      stage.displayState = Type.enumEq(stage.displayState,StageDisplayState.NORMAL) ?
        StageDisplayState.FULL_SCREEN : StageDisplayState.NORMAL;
       #end
    }

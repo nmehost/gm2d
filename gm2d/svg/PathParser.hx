@@ -61,8 +61,10 @@ class PathParser {
         var current_args = -1;
         
         prev = null;
+        //trace(pathToParse);
 
         var len = pathToParse.length;
+        var finished = false;
         while( pos<=len )
         {
             var code = pos==len ? 32 : pathToParse.charCodeAt(pos);
@@ -85,35 +87,58 @@ class PathParser {
                      break;
                   end++;
                }
-               args.push( Std.parseFloat(pathToParse.substr(pos,end-pos)) );
+               if (current_command<0)
+               {
+                  //throw "Too many numbers near '" +
+                     //pathToParse.substr(current_command_pos) + "'";
+               }
+               else
+               {
+                  var f = Std.parseFloat(pathToParse.substr(pos,end-pos));
+                  args.push(f);
+               }
                pos = end;
             }
             else
             {
                current_command = code;
                current_args = command;
+               finished = false;
                current_command_pos = pos;
+               args = [];
                pos++;
             }
 
-            if (current_args==args.length && current_command>=0)
+            if (current_command>=0)
             {
-               prev = createCommand( current_command, args );
-               if (prev==null)
-                  throw "Unknown command " + current_command + " near '" +
-                     pathToParse.substr(current_command_pos) + "'"; 
-               segments.push(prev);
-               current_args = -1;
-               current_command_pos = pos;
-               current_command = -1;
-               args = [];
+               if (current_args==args.length)
+               {
+                  prev = createCommand( current_command, args );
+                  if (prev==null)
+                     throw "Unknown command " + String.fromCharCode(current_command) +
+                        " near '" + pathToParse.substr(current_command_pos) + "'"; 
+                  segments.push(prev);
+                  finished = true;
+                  if (current_args==0)
+                  {
+                     current_args = -1;
+                     current_command = -1;
+                  }
+                  else if (current_command==MOVE)
+                     current_command = LINE;
+                  else if (current_command==MOVER)
+                     current_command = LINER;
+
+                  current_command_pos = pos;
+                  args = [];
+               }
             }
         }
 
-        if (current_command>=0)
+        if (current_command>=0 && !finished)
         {
-            throw "Unfinished command near '" +
-                     pathToParse.substr(current_command_pos) + "'"; 
+            throw "Unfinished command (" + args.length + "/" + current_args +
+                ") near '" + pathToParse.substr(current_command_pos) + "'"; 
         }
         
         return segments;
@@ -163,11 +188,11 @@ class PathParser {
                     lastMoveY = a[1]+prevY();
                     return new MoveSegment(lastMoveX, lastMoveY);
                 case LINE:  return new DrawSegment( a[0], a[1] );
-                case LINER: return new DrawSegment( a[0]+prevX(), a[1]+prevX() );
+                case LINER: return new DrawSegment( a[0]+prevX(), a[1]+prevY() );
                 case HLINE:  return new DrawSegment( a[0], 0 );
-                case HLINER: return new DrawSegment( a[0]+prevX(), 0);
+                case HLINER: return new DrawSegment( a[0]+prevX(), prevY());
                 case VLINE:  return new DrawSegment( 0, a[0] );
-                case VLINER: return new DrawSegment( 0, a[0]+prevX());
+                case VLINER: return new DrawSegment( prevX(), a[0]+prevY());
                 case CUBIC:
                     return new CubicSegment( a[0], a[1], a[2], a[3], a[4], a[5] );
                 case CUBICR:
