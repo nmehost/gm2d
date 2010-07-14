@@ -159,8 +159,6 @@ class Game
       var sh = stage.stageHeight / initHeight;
       scale = sw < sh ? sw : sh;
 
-      mDialogParent.scaleX = scale;
-      mDialogParent.scaleY = scale;
 
       if (mCurrentScreen!=null)
       {
@@ -169,7 +167,7 @@ class Game
          {
             mScreenParent.x = ((stage.stageWidth  - initWidth*scale)/2)/scale;
             mScreenParent.y = ((stage.stageHeight - initHeight*scale)/2)/scale;
-            scale = 1.0;
+            scale =1.0;
          }
          else
          {
@@ -180,6 +178,8 @@ class Game
          }
          mDialogParent.x = mScreenParent.x;
          mDialogParent.y = mScreenParent.y;
+         mDialogParent.scaleX = scale;
+         mDialogParent.scaleY = scale;
          mCurrentScreen.scaleScreen(scale);
       }
    }
