@@ -10,6 +10,7 @@ class ItemList
    var mParent:Sprite;
    var mItems:Array<gm2d.ui.Base>;
    var mCurrent:gm2d.ui.Base;
+   var mSuspendedCurrent:gm2d.ui.Base;
 
    public function new(inParent:Sprite)
    {
@@ -30,6 +31,22 @@ class ItemList
       }
    }
 
+   public function setActive(inActive:Bool)
+   {
+      if (!inActive && mCurrent!=null)
+      {
+          mSuspendedCurrent = mCurrent;
+          setCurrent(null);
+      }
+      else if (inActive && mCurrent==null && mSuspendedCurrent!=null)
+      {
+         setCurrent(mSuspendedCurrent);
+         mSuspendedCurrent = null;
+      }
+   }
+
+   public function isSuspended() { return mSuspendedCurrent!=null; }
+
    public function addUI(inItem:gm2d.ui.Base)
    {
       mItems.push(inItem);
@@ -39,7 +56,11 @@ class ItemList
          mCurrent.setCurrent(true);
       }
       var me = this;
-      inItem.addEventListener( MouseEvent.MOUSE_OVER, function (_) { me.setCurrent(inItem); });
+      inItem.addEventListener( MouseEvent.MOUSE_OVER, function (_)
+          {
+             if (!me.isSuspended())
+                me.setCurrent(inItem);
+          });
 
       mParent.addChild(inItem);
    }
@@ -47,6 +68,9 @@ class ItemList
 
    public function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
    {
+      if (isSuspended())
+         return false;
+
       var code = event.keyCode;
       if (mItems.length>1)
       {

@@ -10,11 +10,12 @@ import gm2d.ui.Keyboard;
 class Screen extends gm2d.display.Sprite
 {
    var mItems:gm2d.ui.ItemList;
+   var mPaused:Bool;
 
    public function new()
    {
+      mPaused = false;
       super();
-
       mItems = new ItemList(this);
    }
 
@@ -22,6 +23,13 @@ class Screen extends gm2d.display.Sprite
    {
       Game.setCurrentScreen(this);
    }
+
+   public function setRunning(inRun:Bool)
+   {
+      mPaused = !inRun;
+      mItems.setActive(inRun);
+   }
+   public function isPaused() { return mPaused; }
 
    public function onActivate(inActive:Bool) { }
    public function getUpdateFrequency() { return 0.0; }

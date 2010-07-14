@@ -145,8 +145,10 @@ class Game
          mScreenParent.addChild(mCurrentScreen);
          mCurrentScreen.onActivate(true);
          updateScale();
-           
+
+         mCurrentScreen.setRunning(mCurrentDialog==null);
       }
+
       mLastEnter = haxe.Timer.stamp();
       mLastStep = mLastEnter;
    }
@@ -268,8 +270,11 @@ class Game
          toggleFullscreen();
 
 
-      //if (mCurrentDialog!=null) mCurrentDialog.onKeyDown(event); else
-      if (mCurrentScreen!=null)
+      var used = false;
+      if (mCurrentDialog!=null)
+          used = mCurrentDialog.onKeyDown(event);
+
+      if (!used && mCurrentScreen!=null)
          mCurrentScreen.onKeyDown(event);
 
       mKeyDown[event.keyCode] = true;
@@ -326,12 +331,16 @@ class Game
          mCurrentDialog.onClose();
          mDialogParent.removeChild(mCurrentDialog);
          mCurrentDialog = null;
+         if (mCurrentScreen!=null && inDialog==null)
+            mCurrentScreen.setRunning(true);
       }
 
       mCurrentDialog = inDialog;
 
       if (mCurrentDialog!=null)
       {
+         if (mCurrentScreen!=null)
+            mCurrentScreen.setRunning(false);
          mDialogParent.addChild(mCurrentDialog);
          mCurrentDialog.onAdded();
          mCurrentDialog.DoLayout();
