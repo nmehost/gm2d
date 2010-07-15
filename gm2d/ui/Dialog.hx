@@ -107,8 +107,9 @@ class Dialog extends gm2d.display.Sprite
    }
    public function center(inWidth:Float,inHeight:Float)
    {
-      x = (inWidth - getLayoutWidth())/2;
-      y = (inHeight - getLayoutHeight())/2;
+      var p = (parent==null) ? this : parent;
+      x = ( (inWidth - getLayoutWidth())/2 )/p.scaleX;
+      y = ( (inHeight - getLayoutHeight())/2 )/p.scaleY;
    }
 
    public dynamic function onLaidOut() { }

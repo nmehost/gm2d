@@ -173,10 +173,10 @@ class Game
          }
          else
          {
-            mScreenParent.x = (stage.stageWidth  - initWidth*scale)/2;
-            mScreenParent.y = (stage.stageHeight - initHeight*scale)/2;
-            mDialogParent.x = (stage.stageWidth - initWidth*scale)/2;
-            mDialogParent.y = (stage.stageHeight - initHeight*scale)/2;
+            var x0 = (stage.stageWidth  - initWidth*scale)/2;
+            var y0 = (stage.stageHeight - initHeight*scale)/2;
+            mScreenParent.x = x0;
+            mScreenParent.y = y0;
          }
          mDialogParent.x = mScreenParent.x;
          mDialogParent.y = mScreenParent.y;
@@ -317,7 +317,7 @@ class Game
       DoShowDialog(dialog);
       if (inCenter)
       {
-         dialog.center(dialog.stage.stageWidth,dialog.stage.stageHeight);
+         dialog.center(initWidth,initHeight);
       }
       return dialog;
    }
