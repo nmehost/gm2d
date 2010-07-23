@@ -73,9 +73,9 @@ class Particles extends Screen
 
    function new()
    {
-      super("Main");
+      super();
       mParticles = [];
-      var loader = new gm2d.game.Loader();
+      var loader = new gm2d.reso.Loader();
       loader.loadBitmap("Blobs.png","blobs");
       loader.Process(onLoaded);
    }

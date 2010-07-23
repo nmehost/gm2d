@@ -66,8 +66,8 @@ class Tilemap extends Screen
 
    function new()
    {
-      super("Main");
-      var loader = new gm2d.game.Loader();
+      super();
+      var loader = new gm2d.reso.Loader();
       loader.loadBitmap("Tiles.png","tiles");
       loader.Process(onLoaded);
    }
@@ -89,6 +89,7 @@ class Tilemap extends Screen
       mViewport.x = 40;
       mViewport.y = 10;
       addChild(mViewport);
+      //mViewport.cacheAsBitmap = true;
 
       var grid = new Grid();
       for(y in 0...40)

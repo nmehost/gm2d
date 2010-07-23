@@ -15,9 +15,9 @@ class Dialog extends Screen
 {
    function new()
    {
-      super("Main");
+      super();
 
-      var loader = new gm2d.game.Loader();
+      var loader = new gm2d.reso.Loader();
       loader.loadSVG("bg.svg","background");
       loader.loadSVG("slider.svg","slider");
       loader.Process(onLoaded);

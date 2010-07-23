@@ -15,8 +15,8 @@ class Svg extends Screen
 
    function new()
    {
-      super("Main");
-      var loader = new gm2d.game.Loader();
+      super();
+      var loader = new gm2d.reso.Loader();
       loader.loadSVG("tiger.svg","svg");
       loader.Process(onLoaded);
    }
