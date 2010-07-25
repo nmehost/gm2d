@@ -90,7 +90,10 @@ class Loader
        #if neko
        var xml_data = neko.io.File.getContent(inFilename);
        #elseif cpp
-       var xml_data = cpp.io.File.getContent(inFilename);
+       var xml_data = haxe.Resource.getString(inFilename);
+       //trace("Got reso data : " + inFilename + " = " + xml_data.length );
+       if (xml_data==null)
+          xml_data = cpp.io.File.getContent(inFilename);
        #end
        if (xml_data.length < 1)
           throw ("Could not find file:" + inFilename);

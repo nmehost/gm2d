@@ -15,16 +15,16 @@ class Slider extends Base
    var mCallback : Float->Void;
    var mMin:Float;
    var mMax:Float;
-	var mSliding:Bool;
-	var mX0:Float;
-	var mX1:Float;
-	var mLength:Float;
+   var mSliding:Bool;
+   var mX0:Float;
+   var mX1:Float;
+   var mLength:Float;
 
    public function new(inTrack:Sprite,inThumb:Sprite,
                        inText:DisplayObject,inMin:Float,inMax:Float,inPos:Float,
                        inOnChange:Float->Void,
-							  ?inX0:Float = 0.0,
-							  ?inX1:Null<Float>)
+                       ?inX0:Float = 0.0,
+                       ?inX1:Null<Float>)
    {
       super();
       name = "Slider";
@@ -36,11 +36,11 @@ class Slider extends Base
       addChild(mTrack);
       mMax = inMax;
       mMin = inMin;
-		mX0 = inX0;
-		mX1 = (inX1==null) ? (mTrack==null ? 100 : mTrack.width) : inX1;
-		mLength = mX1-mX0;
-		if (mLength==0) mLength = 1;
-		mSliding = false;
+      mX0 = inX0;
+      mX1 = (inX1==null) ? (mTrack==null ? 100 : mTrack.width) : inX1;
+      mLength = mX1-mX0;
+      if (mLength==0) mLength = 1;
+      mSliding = false;
 
       if (mThumb!=null)
       {
@@ -57,41 +57,41 @@ class Slider extends Base
       //mThumb.stopDrag();
    }
 
-	function SetThumbX(inX:Float)
-	{
-	   inX -= mTrack.x + mX0;
-	   if (inX<0)
-		   SetPos(mMin);
-	   else if (inX>mLength)
-		   SetPos(mMax);
-	   else
-		   SetPos( mMin + (mMax-mMin)*inX/mLength );
-	}
+   function SetThumbX(inX:Float)
+   {
+      inX -= mTrack.x + mX0;
+      if (inX<0)
+         SetPos(mMin);
+      else if (inX>mLength)
+         SetPos(mMax);
+      else
+         SetPos( mMin + (mMax-mMin)*inX/mLength );
+   }
 
-	function EndMoveSlider()
-	{
-	   mSliding = false;
-	   stage.removeEventListener(MouseEvent.MOUSE_MOVE, OnMoveSlider);
-	}
-	function OnClick(inEvent:MouseEvent) { SetThumbX(mouseX); }
+   function EndMoveSlider()
+   {
+      mSliding = false;
+      stage.removeEventListener(MouseEvent.MOUSE_MOVE, OnMoveSlider);
+   }
+   function OnClick(inEvent:MouseEvent) { SetThumbX(mouseX); }
 
-	function OnMoveSlider(inEvent:MouseEvent)
-	{
-		if (!inEvent.buttonDown && mSliding)
-		   EndMoveSlider();
-	   else
-		{
+   function OnMoveSlider(inEvent:MouseEvent)
+   {
+      if (!inEvent.buttonDown && mSliding)
+         EndMoveSlider();
+      else
+      {
          SetThumbX(mouseX);
       }
-	}
+   }
    function OnTrack(_)
    {
-	trace("Track !");
-	   if (!mSliding)
-		{
-	      mSliding = true;
-	      stage.addEventListener(MouseEvent.MOUSE_MOVE, OnMoveSlider);
-		}
+   trace("Track !");
+      if (!mSliding)
+      {
+         mSliding = true;
+         stage.addEventListener(MouseEvent.MOUSE_MOVE, OnMoveSlider);
+      }
    }
 
    function SetPos(inPos:Float)
@@ -112,8 +112,8 @@ class Slider extends Base
       inSkin.RenderSprite(thumb,null, function(name,groups) { return groups[0]=="Thumb"; } );
 
       var rect = inSkin.GetExtent(null,
-		               function(name,groups) { return groups[0]==".Active"; },true );
-		if (rect!=null)
+                     function(name,groups) { return groups[0]==".Active"; },true );
+      if (rect!=null)
          return new Slider(track,thumb,null, inMin,inMax,inPos,inOnChange,rect.left,rect.right);
 
       return new Slider(track,thumb,null, inMin,inMax,inPos,inOnChange);

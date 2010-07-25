@@ -6,10 +6,12 @@ import gm2d.display.StageScaleMode;
 import gm2d.display.StageDisplayState;
 import gm2d.events.Event;
 import gm2d.events.KeyboardEvent;
+import gm2d.events.MouseEvent;
 import gm2d.text.TextField;
 import gm2d.ui.Dialog;
 import gm2d.reso.Loader;
 import gm2d.reso.Resources;
+import gm2d.geom.Point;
 
 
 class Game
@@ -100,8 +102,11 @@ class Game
 
       parent.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown );
       parent.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp );
-      parent.stage.addEventListener(Event.ENTER_FRAME, onEnter);
       parent.stage.addEventListener(Event.RESIZE, onSize);
+      parent.stage.addEventListener(Event.ENTER_FRAME, onEnter);
+      parent.stage.addEventListener("mouseMove", onMouseMove);
+      parent.stage.addEventListener("mouseDown", onMouseDown);
+      parent.stage.addEventListener("mouseUp", onMouseUp);
 
       #if (iphone || testOrientation)
       var o = iPhoneOrientation==null ? (initWidth>initHeight ? 90:0) : iPhoneOrientation;
@@ -122,6 +127,35 @@ class Game
    {
       mScreenMap.set(inName,inScreen);
    }
+
+   public static function onMouseMove(inEvent)
+   {
+      if (mCurrentScreen!=null)
+      {
+         var pos = mCurrentScreen.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
+         mCurrentScreen.onMouseMove(pos.x,pos.y);
+      }
+   }
+
+   public static function onMouseDown(inEvent)
+   {
+      if (mCurrentScreen!=null)
+      {
+         var pos = mCurrentScreen.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
+         mCurrentScreen.onMouseDown(pos.x,pos.y);
+      }
+   }
+
+   public static function onMouseUp(inEvent)
+   {
+      if (mCurrentScreen!=null)
+      {
+         var pos = mCurrentScreen.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
+         mCurrentScreen.onMouseUp(pos.x,pos.y);
+      }
+   }
+
+
 
    static public function setCurrentScreen(inScreen:Screen)
    {
@@ -226,19 +260,29 @@ class Game
          }
          else
          {
-            var fps = 1.0/(now-mLastEnter);
+            var steps = 0;
 
-            // Do a number of descrete steps based on the frequency.
-            var steps = Math.floor( (now-mLastStep) * freq );
+            // Looks like a gap?
+            if (now>mLastEnter+1.0)
+            {
+               steps = 1;
+               mLastStep = now;
+            }
+            else
+            {
+               // Do a number of descrete steps based on the frequency.
+               steps = Math.floor( (now-mLastStep) * freq );
+               mLastStep += steps / freq;
+            }
+
             for(i in 0...steps)
                mCurrentScreen.updateFixed();
-
-            mLastStep += steps / freq;
 
             var fractional_step = (now-mLastStep) * freq;
 
             mCurrentScreen.render(fractional_step);
 
+            //var fps = (now==mLastEnter) ? 1000 : 1.0/(now-mLastEnter);
             //trace(steps + ":" + fps + "   (" + fractional_step + ")");
 
          }
@@ -268,7 +312,6 @@ class Game
    {
       if (toggleFullscreenOnAltEnter && event.keyCode==13 && event.altKey)
          toggleFullscreen();
-
 
       var used = false;
       if (mCurrentDialog!=null)

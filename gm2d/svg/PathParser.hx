@@ -61,7 +61,6 @@ class PathParser {
         var current_args = -1;
         
         prev = null;
-        //trace(pathToParse);
 
         var len = pathToParse.length;
         var finished = false;

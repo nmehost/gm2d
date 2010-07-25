@@ -69,7 +69,9 @@ class ItemList
    public function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
    {
       if (isSuspended())
+      {
          return false;
+      }
 
       var code = event.keyCode;
       if (mItems.length>1)
