@@ -41,6 +41,16 @@ class Loader
          mOnFinished(mResources);
    }
 
+   public function loadBitmapResource(inResourceName:String)
+   {
+	   var bytes = haxe.Resource.getBytes(inResourceName);
+      #if flash
+      #else
+      var bmp = nme.display.BitmapData.loadFromHaxeBytes(bytes);
+      mResources.set(inResourceName,bmp);
+      #end
+   }
+
    public function loadBitmap(inFilename:String, inResourceName:String)
    {
    #if flash
