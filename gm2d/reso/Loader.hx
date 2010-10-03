@@ -43,8 +43,26 @@ class Loader
 
    public function loadBitmapResource(inResourceName:String)
    {
-	   var bytes = haxe.Resource.getBytes(inResourceName);
+      var bytes = haxe.Resource.getBytes(inResourceName);
       #if flash
+
+       var loader = new flash.display.Loader();
+       var me = this;
+       mRequests++;
+       loader.contentLoaderInfo.addEventListener(flash.events.Event.COMPLETE,
+          function(e:flash.events.Event)
+             {
+             var obj:flash.display.Bitmap = untyped loader.content;
+
+             me.mResources.set(inResourceName,obj.bitmapData);
+             me.OneComplete();
+             }
+          );
+       loader.contentLoaderInfo.addEventListener(flash.events.IOErrorEvent.IO_ERROR, OnError);
+       loader.contentLoaderInfo.addEventListener(flash.events.SecurityErrorEvent.SECURITY_ERROR, OnError);
+       loader.loadBytes(bytes.getData());
+ 
+
       #else
       var bmp = nme.display.BitmapData.loadFromHaxeBytes(bytes);
       mResources.set(inResourceName,bmp);
