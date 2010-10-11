@@ -26,6 +26,7 @@ class Button extends Base
    public function new(inObject:DisplayObject,inOnClick:Void->Void)
    {
       super();
+      name = "button";
       mCallback = inOnClick;
       mIsDown = false;
       mBG = new Sprite();
@@ -103,7 +104,8 @@ class Button extends Base
       label.textColor = Dialog.labelColor;
       label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
       label.selectable = false;
-      return new Button(label,inOnClick);
+      var result =  new Button(label,inOnClick);
+      return result;
    }
 
 

@@ -5,14 +5,12 @@ import gm2d.display.DisplayObject;
 import gm2d.display.Shape;
 import gm2d.text.TextField;
 import gm2d.text.TextFormat;
-import gm2d.ui.ItemList;
 import gm2d.ui.Layout;
 import gm2d.svg.SVG2Gfx;
 
 
-class Dialog extends gm2d.display.Sprite
+class Dialog extends Window
 {
-   var mItems:ItemList;
    var mLayout:GridLayout;
    var mItemLayout:Layout;
    var mButtonLayout:Layout;
@@ -29,7 +27,6 @@ class Dialog extends gm2d.display.Sprite
    public function new(?inForceWidth:Null<Float>, ?inForceHeight:Null<Float>)
    {
       super();
-      mItems = new ItemList(this);
       mBG = new Shape();
       addChild(mBG);
       mDebug = gm2d.Lib.debug ? new Shape() : null;
@@ -116,23 +113,18 @@ class Dialog extends gm2d.display.Sprite
    public dynamic function onAdded() { }
    public dynamic function onClose() { }
 
-   public function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
-      { return mItems.onKeyDown(event); }
 
-
-   public function setCurrent(inItem:gm2d.ui.Base) { mItems.setCurrent(inItem); }
 
    public function addUI(inItem:gm2d.ui.Base)
    {
       mLayoutDirty = true;
-      mItems.addUI(inItem);
       addChild(inItem);
       mItemLayout.add( new DisplayLayout(inItem) );
    }
    public function addButton(inButton:gm2d.ui.Button)
    {
       mLayoutDirty = true;
-      mItems.addUI(inButton);
+      addChild(inButton);
       mButtonLayout.add( inButton.getLayout() );
    }
 

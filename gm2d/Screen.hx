@@ -1,22 +1,20 @@
 package gm2d;
 
 import gm2d.Game;
-import gm2d.ui.ItemList;
 import gm2d.ui.Dialog;
 import gm2d.events.MouseEvent;
 import gm2d.events.KeyboardEvent;
 import gm2d.ui.Keyboard;
 
-class Screen extends gm2d.display.Sprite
+class Screen extends gm2d.ui.Window
 {
-   var mItems:gm2d.ui.ItemList;
    var mPaused:Bool;
 
    public function new()
    {
       mPaused = false;
+      name = "Screen";
       super();
-      mItems = new ItemList(this);
    }
 
    public function makeCurrent()
@@ -24,10 +22,11 @@ class Screen extends gm2d.display.Sprite
       Game.setCurrentScreen(this);
    }
 
+
    public function setRunning(inRun:Bool)
    {
       mPaused = !inRun;
-      mItems.setActive(inRun);
+      setActive(inRun);
    }
    public function isPaused() { return mPaused; }
 
@@ -36,7 +35,6 @@ class Screen extends gm2d.display.Sprite
    public function updateDelta(inDT:Float) {  }
    public function updateFixed() {  }
    public function render(inFraction:Float) {  }
-   public function onKeyDown(event:KeyboardEvent):Bool { return mItems.onKeyDown(event); }
 
    public function onKeyUp(event:KeyboardEvent):Bool { return false; }
    public function onAdded() { }
@@ -56,11 +54,7 @@ class Screen extends gm2d.display.Sprite
    function isDown(inCode:Int) { return Game.isDown(inCode); }
 
 
-
    public function scaleScreen(inScale:Float) { }
-
-   public function setCurrent(inItem:gm2d.ui.Base) { mItems.setCurrent(inItem); }
-   public function addUI(inItem:gm2d.ui.Base) { mItems.addUI(inItem); }
 
 }
 

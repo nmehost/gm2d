@@ -49,6 +49,9 @@ class Game
    static var mKeyDown = new Array<Bool>();
    static var mResources = new Hash<Dynamic>();
 
+   static public var screen(getCurrent,null):Screen;
+
+
    public static function create( inOnLoaded:Void->Void )
    {
       if (created) throw "Game.create : already created";
@@ -127,6 +130,8 @@ class Game
    {
       mScreenMap.set(inName,inScreen);
    }
+
+   static function getCurrent() { return mCurrentScreen; }
 
    public static function onMouseMove(inEvent)
    {
