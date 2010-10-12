@@ -15,11 +15,16 @@ class Window extends Base
       addEventListener(MouseEvent.MOUSE_MOVE, windowMouseMove);
    }
 
+   public function destroy()
+   {
+      removeEventListener(MouseEvent.MOUSE_MOVE, windowMouseMove);
+   }
+
    public function getItemList() : Array<Base>
    {
       var result = new Array<Base>();
 
-      getItemsRecurse(result);
+      Base.getItemsRecurse(this,result);
       return result;
    }
 

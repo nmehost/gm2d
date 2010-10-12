@@ -26,9 +26,19 @@ class MenuItem
    public var gmPopup:PopupMenu;
 }
 
-class PopupMenu extends Base
+class PopupMenu extends Window
 {
-   var mItems:Array<MenuItem>;
+   var mItem:MenuItem;
+   
+   public function new(inItem:MenuItem)
+   {
+      super();
+      mItem = inItem;
+      var gfx = graphics;
+      gfx.lineStyle(1,0x000000);
+      gfx.beginFill(0xffffff);
+      gfx.drawRoundRect(0.5,0.5,100,200,5);
+   }
 }
 
 class Menubar extends Base
@@ -52,7 +62,9 @@ class Menubar extends Base
    {
       mItems.push(inItem);
       
-      var but = Button.TextButton(inItem.gmText,function(){ });
+      var me = this;
+      var nx = mNextX;
+      var but = Button.TextButton(inItem.gmText,function(){me.popup(inItem,nx,me.mHeight);});
       but.onCurrentChanged = function(inCurrent:Bool) 
       {
          if (inCurrent)
@@ -67,6 +79,11 @@ class Menubar extends Base
       but.x = mNextX;
       mNextX += but.width + 10;
       addChild(but);
+   }
+
+   public function popup(inItem:MenuItem,inX:Float,inY:Float)
+   {
+      Game.popup( new PopupMenu(inItem), inX, inY );
    }
 
    public function layout(inWidth:Float, inHeight:Float)

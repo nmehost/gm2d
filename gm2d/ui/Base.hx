@@ -20,18 +20,19 @@ class Base extends gm2d.display.Sprite
       highlightColour = 0x0000ff;
    }
 
-   public function getItemsRecurse(outList : Array<Base>)
+   static public function getItemsRecurse(inParent:DisplayObjectContainer,outList : Array<Base>)
    {
-      if (wantFocus())
-         outList.push(this);
-      for(i in 0...numChildren)
+      for(i in 0...inParent.numChildren)
       {
-         var child = getChildAt(i);
+         var child = inParent.getChildAt(i);
          if (Std.is(child,Base))
          {
             var child:Base = cast child;
-            child.getItemsRecurse(outList);
-          }
+            if (child.wantFocus())
+               outList.push(child);
+         }
+         if (Std.is(child,DisplayObjectContainer))
+           getItemsRecurse(cast child, outList);
       }
    }
 

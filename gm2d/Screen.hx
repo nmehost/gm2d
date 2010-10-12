@@ -38,7 +38,7 @@ class Screen extends gm2d.ui.Window
 
    public function onKeyUp(event:KeyboardEvent):Bool { return false; }
    public function onAdded() { }
-   public function getScaleMode() { return ScreenScaleMode.CENTER_SCALED; }
+   public function getScaleMode() : ScreenScaleMode { return ScreenScaleMode.CENTER_SCALED; }
 
    public function onMouseMove(inX:Float, inY:Float) { }
    public function onMouseDown(inX:Float, inY:Float) { }

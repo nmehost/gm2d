@@ -12,6 +12,7 @@ import gm2d.ui.Dialog;
 import gm2d.reso.Loader;
 import gm2d.reso.Resources;
 import gm2d.geom.Point;
+import gm2d.ui.Window;
 
 
 class Game
@@ -32,9 +33,11 @@ class Game
 
    static var mCurrentScreen:Screen;
    static var mCurrentDialog:Dialog;
+   static var mCurrentPopup:Window;
 
    static var mScreenParent:Sprite;
    static var mDialogParent:Sprite;
+   static var mPopupParent:Sprite;
    static var mFPSControl:TextField;
    static var mFPSColor:Int = 0xff0000;
    static var mLastEnter = 0.0;
@@ -85,6 +88,7 @@ class Game
    {
       mScreenParent = new Sprite();
       mDialogParent = new Sprite();
+      mPopupParent = new Sprite();
       mDialogParent.visible = true;
       mFPSControl = new TextField();
       mFPSControl.text = "1.0 FPS";
@@ -98,6 +102,7 @@ class Game
       var parent = gm2d.Lib.current;
       parent.addChild(mScreenParent);
       parent.addChild(mDialogParent);
+      parent.addChild(mPopupParent);
       parent.addChild(mFPSControl);
 
       if (pixelAccurate)
@@ -144,6 +149,15 @@ class Game
 
    public static function onMouseDown(inEvent)
    {
+      if (inEvent.target == gm2d.Lib.current.stage)
+      {
+         if (mCurrentPopup!=null)
+         {
+             closePopup();
+             return;
+         }
+      }
+
       if (mCurrentScreen!=null)
       {
          var pos = mCurrentScreen.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
@@ -178,7 +192,8 @@ class Game
       if (mCurrentScreen!=null)
       {
          var mode = mCurrentScreen.getScaleMode();
-         mScreenParent.stage.scaleMode = mode==ScreenScaleMode.PIXEL_PERFECT ?
+         mScreenParent.stage.scaleMode =
+           (mode==ScreenScaleMode.PIXEL_PERFECT || mode==ScreenScaleMode.TOPLEFT_UNSCALED) ?
            StageScaleMode.NO_SCALE  : StageScaleMode.SHOW_ALL;
          
          mScreenParent.addChild(mCurrentScreen);
@@ -204,7 +219,13 @@ class Game
       if (mCurrentScreen!=null)
       {
          var mode = mCurrentScreen.getScaleMode();
-         if (mode!=ScreenScaleMode.PIXEL_PERFECT)
+         if (mode!=ScreenScaleMode.TOPLEFT_UNSCALED)
+         {
+            mScreenParent.x = 0;
+            mScreenParent.y = 0;
+            scale =1.0;
+         }
+         else if (mode!=ScreenScaleMode.PIXEL_PERFECT)
          {
             mScreenParent.x = ((stage.stageWidth  - initWidth*scale)/2)/scale;
             mScreenParent.y = ((stage.stageHeight - initHeight*scale)/2)/scale;
@@ -221,6 +242,10 @@ class Game
          mDialogParent.y = mScreenParent.y;
          mDialogParent.scaleX = scale;
          mDialogParent.scaleY = scale;
+         mPopupParent.x = mScreenParent.x;
+         mPopupParent.y = mScreenParent.y;
+         mPopupParent.scaleX = scale;
+         mPopupParent.scaleY = scale;
          mCurrentScreen.scaleScreen(scale);
       }
    }
@@ -395,6 +420,30 @@ class Game
       }
 
       mDialogParent.visible = mCurrentDialog!=null;
+   }
+
+   public static function popup(inPopup:Window,inX:Float,inY:Float)
+   {
+       mCurrentPopup = inPopup;
+       mPopupParent.addChild(inPopup);
+       inPopup.x = inX;
+       inPopup.y = inY;
+       mPopupParent.visible = true;
+       mDialogParent.mouseEnabled = false;
+       mScreenParent.mouseEnabled = false;
+   }
+
+   public static function closePopup()
+   {
+      if (mCurrentPopup!=null)
+      {
+          mPopupParent.removeChild(mCurrentPopup);
+          mCurrentPopup.destroy();
+          mCurrentPopup = null;
+      }
+      mPopupParent.visible = false;
+      mDialogParent.mouseEnabled = true;
+      mScreenParent.mouseEnabled = true;
    }
 
 

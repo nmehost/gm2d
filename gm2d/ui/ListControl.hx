@@ -37,6 +37,9 @@ class ListControl extends Base
       layout(mWidth);
    }
 
+   override public function wantFocus() { return false; }
+
+
    public function drawBG()
    {
       var gfx = graphics;
