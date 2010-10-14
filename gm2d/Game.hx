@@ -140,7 +140,12 @@ class Game
 
    public static function onMouseMove(inEvent)
    {
-      if (mCurrentScreen!=null)
+      if (mCurrentPopup!=null)
+      {
+         var pos = mCurrentPopup.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
+         mCurrentPopup.onMouseMove(pos.x,pos.y);
+      }
+      else if (mCurrentScreen!=null)
       {
          var pos = mCurrentScreen.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
          mCurrentScreen.onMouseMove(pos.x,pos.y);

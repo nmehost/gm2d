@@ -22,6 +22,7 @@ class Base extends gm2d.display.Sprite
 
    static public function getItemsRecurse(inParent:DisplayObjectContainer,outList : Array<Base>)
    {
+      if (!inParent.mouseEnabled) return;
       for(i in 0...inParent.numChildren)
       {
          var child = inParent.getChildAt(i);

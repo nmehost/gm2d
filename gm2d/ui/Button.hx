@@ -40,6 +40,13 @@ class Button extends Base
       addEventListener(MouseEvent.MOUSE_UP, function(_) { me.setDown(false); } );
    }
 
+   public function getLabel() : TextField
+   { 
+      if (Std.is(mDisplayObj,TextField))
+         return cast mDisplayObj;
+      return null;
+   }
+
    public function setBackground(inSVG:gm2d.svg.SVG2Gfx, inW:Float, inH:Float)
    {
       inSVG.RenderSprite(mBG);

@@ -36,13 +36,7 @@ class Screen extends gm2d.ui.Window
    public function updateFixed() {  }
    public function render(inFraction:Float) {  }
 
-   public function onKeyUp(event:KeyboardEvent):Bool { return false; }
-   public function onAdded() { }
    public function getScaleMode() : ScreenScaleMode { return ScreenScaleMode.CENTER_SCALED; }
-
-   public function onMouseMove(inX:Float, inY:Float) { }
-   public function onMouseDown(inX:Float, inY:Float) { }
-   public function onMouseUp(inX:Float, inY:Float) { }
 
    // These are not static, even though they could be.
    // This allows non-static function to see them

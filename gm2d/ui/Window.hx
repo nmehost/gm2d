@@ -23,7 +23,6 @@ class Window extends Base
    public function getItemList() : Array<Base>
    {
       var result = new Array<Base>();
-
       Base.getItemsRecurse(this,result);
       return result;
    }
@@ -114,6 +113,15 @@ class Window extends Base
       }
       return false;
    }
+
+   public function onKeyUp(event:gm2d.events.KeyboardEvent):Bool { return false; }
+   public dynamic function onAdded() { }
+
+   public function onMouseMove(inX:Float, inY:Float) { }
+   public function onMouseDown(inX:Float, inY:Float) { }
+   public function onMouseUp(inX:Float, inY:Float) { }
+
+
 }
 
 

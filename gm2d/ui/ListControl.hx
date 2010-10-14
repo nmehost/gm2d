@@ -47,7 +47,6 @@ class ListControl extends Base
       {
          gfx.beginFill( (i==mSelected) ? mSelectColour : ( (i & 1) > 0 ? mOddColour: mEvenColour ) );
          gfx.drawRect(0,i*mItemHeight,mWidth,mItemHeight);
-         trace("drawBG " + mItemHeight);
       }
    }
 
@@ -58,7 +57,6 @@ class ListControl extends Base
          var o = mItems[i];
          var h = o.height;
          o.x = 2;
-         trace(i + " = " + (mItemHeight-h)*0.5 );
          o.y = i*mItemHeight + (mItemHeight-h)*0.5;
       }
       mChildrenClean = mItems.length;

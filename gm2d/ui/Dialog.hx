@@ -110,7 +110,6 @@ class Dialog extends Window
    }
 
    public dynamic function onLaidOut() { }
-   public dynamic function onAdded() { }
    public dynamic function onClose() { }
 
 
