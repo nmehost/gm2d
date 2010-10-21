@@ -107,8 +107,8 @@ class Button extends Base
    {
       var label = new TextField();
       label.text = inText;
-      label.setTextFormat( Dialog.labelFormat );
-      label.textColor = Dialog.labelColor;
+      label.setTextFormat( Panel.labelFormat );
+      label.textColor = Panel.labelColor;
       label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
       label.selectable = false;
       var result =  new Button(label,inOnClick);

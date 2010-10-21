@@ -152,7 +152,7 @@ class Game
       }
    }
 
-   public static function onMouseDown(inEvent)
+   public static function onMouseDown(inEvent:MouseEvent)
    {
       if (inEvent.target == gm2d.Lib.current.stage)
       {
@@ -421,7 +421,7 @@ class Game
             mCurrentScreen.setRunning(false);
          mDialogParent.addChild(mCurrentDialog);
          mCurrentDialog.onAdded();
-         mCurrentDialog.DoLayout();
+         mCurrentDialog.doLayout();
       }
 
       mDialogParent.visible = mCurrentDialog!=null;

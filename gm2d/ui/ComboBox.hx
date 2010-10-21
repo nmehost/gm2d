@@ -111,7 +111,7 @@ class ComboBox extends Base
        mText.text = inText;
    }
 
-   public function layout(inW:Float, inH:Float)
+   public override function layout(inW:Float, inH:Float)
    {
        var gfx = graphics;
        gfx.clear();

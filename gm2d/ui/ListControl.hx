@@ -36,7 +36,7 @@ class ListControl extends Base
       }
       mItems.push(inItem);
       addChild(inItem);
-      layout(mWidth);
+      layout(mWidth,height);
    }
 
    public function addText(inString:String)
@@ -83,7 +83,7 @@ class ListControl extends Base
       }
    }
 
-   public function layout(inWidth:Float)
+   public override function layout(inWidth:Float,inHeight:Float)
    {
       for(i in mChildrenClean...mItems.length)
       {

@@ -117,8 +117,16 @@ class DisplayLayout extends Layout
    {
       mObj.x = x;
       mObj.y = y;
-      mObj.width = w;
-      mObj.height = h;
+      if (Std.is(mObj,Base))
+      {
+         var base:Base = cast mObj;
+         base.layout(w,h);
+      }
+      else
+      {
+         mObj.width = w;
+         mObj.height = h;
+      }
    }
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
