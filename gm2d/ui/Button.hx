@@ -106,11 +106,13 @@ class Button extends Base
    public static function TextButton(inText:String,inOnClick:Void->Void)
    {
       var label = new TextField();
+      label.defaultTextFormat = Panel.labelFormat;
       label.text = inText;
-      label.setTextFormat( Panel.labelFormat );
       label.textColor = Panel.labelColor;
       label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
       label.selectable = false;
+      label.mouseEnabled = false;
+      label.embedFonts = false;
       var result =  new Button(label,inOnClick);
       return result;
    }

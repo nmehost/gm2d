@@ -107,8 +107,9 @@ class Panel extends Sprite
       mLayoutDirty = true;
       var label = new TextField();
       label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
+      label.defaultTextFormat = labelFormat;
       label.text = inText;
-      label.setTextFormat( labelFormat );
+      label.setTextFormat(labelFormat);
       label.textColor = labelColor;
       label.selectable = false;
       addChild(label);
@@ -128,7 +129,8 @@ class Panel extends Sprite
    static function DefaultTextFormat()
    {
       var fmt = new gm2d.text.TextFormat();
-      fmt.size = 20;
+      fmt.size = 16;
+      fmt.font = "Arial";
       return fmt;
    }
 

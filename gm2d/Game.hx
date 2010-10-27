@@ -429,6 +429,7 @@ class Game
 
    public static function popup(inPopup:Window,inX:Float,inY:Float)
    {
+       closePopup();
        mCurrentPopup = inPopup;
        mPopupParent.addChild(inPopup);
        inPopup.x = inX;

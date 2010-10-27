@@ -39,12 +39,14 @@ class ListControl extends Base
       layout(mWidth,height);
    }
 
-   public function addText(inString:String)
+   public function addText(inString:String,inSelectable:Bool=true)
    {
       var t = new TextField();
       t.text = inString;
       t.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
-      t.selectable = true;
+      t.selectable = inSelectable;
+      if (!inSelectable)
+         t.mouseEnabled = false;
       t.height = 20;
       addItem(t);
    }

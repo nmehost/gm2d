@@ -22,7 +22,7 @@ class ComboList extends Window
          mOptions.push("");
 
       for(o in mOptions)
-         mList.addText(o);
+         mList.addText(o,false);
       addChild(mList);
       var gfx = graphics;
       gfx.lineStyle(1,0x000000);
@@ -64,6 +64,14 @@ class ComboBox extends Base
    public function new(inVal="", ?inOptions:Array<String>)
    {
        super();
+       mText = new TextField();
+       mText.defaultTextFormat = Panel.labelFormat;
+       mText.text = inVal;
+       mText.x = 0.5;
+       mText.y = 0.5;
+       mText.height = 21;
+       mText.type = gm2d.text.TextFieldType.INPUT;
+ 
        if (mBMP==null)
        {
           mBMP = new BitmapData(22,22);
@@ -86,14 +94,6 @@ class ComboBox extends Base
           mBMP.draw(shape);
        }
        mOptions = inOptions==null ? [] : inOptions.copy();
-       mText = new TextField();
-       mText.text = inVal;
-       mText.x = 0.5;
-       mText.y = 0.5;
-       mText.height = 22;
-       mText.background = true;
-       mText.backgroundColor = 0xf0f0ff;
-       mText.type = gm2d.text.TextFieldType.INPUT;
        addChild(mText);
        var me = this;
        addEventListener(MouseEvent.CLICK, function(ev)  if (ev.localX > me.mButtonX) me.popup()  );
@@ -102,7 +102,7 @@ class ComboBox extends Base
    function popup()
    {
       var pop = new ComboList(this, mWidth, mOptions);
-      var pos = this.localToGlobal( new gm2d.geom.Point(x,y) );
+      var pos = this.localToGlobal( new gm2d.geom.Point(0,0) );
       gm2d.Game.popup(pop,pos.x,pos.y+22);
    }
 
@@ -115,7 +115,8 @@ class ComboBox extends Base
    {
        var gfx = graphics;
        gfx.clear();
-       gfx.lineStyle(1,0x000000);
+       gfx.lineStyle(1,0x808080);
+       gfx.beginFill(0xf0f0ff);
        gfx.drawRect(0.5,0.5,inW-1,23);
        gfx.lineStyle();
        var mtx = new gm2d.geom.Matrix();
@@ -126,6 +127,8 @@ class ComboBox extends Base
        mWidth = inW;
        gfx.drawRect(mButtonX,1.5,mBMP.width,mBMP.height);
        mText.width = inW - mBMP.width - 2;
+       mText.y =  (mBMP.height - 2 - mText.textHeight)/2;
+       mText.height =  mBMP.height - 23-mText.y;
    }
 
 }

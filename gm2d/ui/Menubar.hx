@@ -72,7 +72,7 @@ class PopupMenu extends Window
             mButtons.push(but);
             addChild(but);
             var tw = l.textWidth;
-            var th = l.textHeight;
+            var th = l.height;
             but.x = 10;
             but.y = ty;
             ty+=th;
@@ -193,6 +193,8 @@ class Menubar extends Sprite
        mHeight = inHeight;
        var gfx = graphics;
        gfx.clear();
+       for(but in mButtons)
+          but.y = (mHeight-but.height)/2;
        renderBackground(gfx,mWidth,mHeight);
    }
 
