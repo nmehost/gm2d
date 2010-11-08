@@ -18,6 +18,7 @@ class Panel extends Sprite
    var mForceHeight:Null<Float>;
    var mLayoutDirty:Bool;
    var mLabelLookup:Hash<TextField>;
+   var mButtons:Array<Button>;
 
    public static var labelColor = 0x000000;
    public static var labelFormat = DefaultTextFormat();
@@ -28,6 +29,7 @@ class Panel extends Sprite
 
       mForceWidth = inForceWidth;
       mForceHeight = inForceHeight;
+      mButtons = [];
       mLayoutDirty = true;
 
 
@@ -35,6 +37,7 @@ class Panel extends Sprite
       mLayout = new GridLayout(1,"vertical").setColFlags(0,Layout.AlignCenterX);
       mItemLayout = new GridLayout(2,"items");
       mButtonLayout = new GridLayout(null,"buttons");
+      mButtonLayout.setSpacing(20,0);
       mLayout.add(mItemLayout);
       mLayout.add(mButtonLayout);
       mLayout.setRowStretch(1,0);
@@ -60,6 +63,20 @@ class Panel extends Sprite
       onLaidOut();
       Layout.SetDebug(null);
    }
+
+   public function setButtonBGs(inRenderer:gm2d.display.Graphics->Float->Float->Void, inExtraX=10.0, inExtraY=5.0)
+   {
+      var cols = mButtonLayout.getColWidths();
+      var h = mButtonLayout.getBestHeight();
+      var w = 0.0;
+      for(c in cols)
+         if (c>w) w=c;
+      for(but in mButtons)
+      {
+          but.setBG(inRenderer,w+inExtraX,h+inExtraY);
+      }
+   }
+
 
    public function getLayout() { return mLayout; }
 
@@ -93,6 +110,7 @@ class Panel extends Sprite
    {
       mLayoutDirty = true;
       addChild(inButton);
+      mButtons.push(inButton);
       mButtonLayout.add( inButton.getLayout() );
    }
 

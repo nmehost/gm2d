@@ -17,17 +17,6 @@ class Dialog extends Window
 
    public var panel(getPanel,null):Panel;
 
-   /*
-   var mLayout:GridLayout;
-   var mItemLayout:Layout;
-   var mButtonLayout:Layout;
-   var mBG:Shape;
-   var mDebug:Shape;
-   var mForceWidth:Null<Float>;
-   var mForceHeight:Null<Float>;
-   var mLayoutDirty:Bool;
-   var mLabelLookup:Hash<TextField>;
-   */
 
    public function new(?inForceWidth:Null<Float>, ?inForceHeight:Null<Float>)
    {
@@ -53,7 +42,7 @@ class Dialog extends Window
    {
       panel.doLayout();
       if (renderBackground!=null)
-         renderBackground(mPanel.width,mLayout.height);
+         renderBackground(mLayout.width,mLayout.height);
    }
    public function SetSVGBackground(inSVG:SVG2Gfx)
    {

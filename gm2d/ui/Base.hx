@@ -52,8 +52,8 @@ class Base extends gm2d.display.Sprite
 
    public function layout(inW:Float,inH:Float):Void
    {
-      width = inW;
-      height = inH;
+      //width = inW;
+      //height = inH;
    }
 
    public function activate(inDirection:Int) { }

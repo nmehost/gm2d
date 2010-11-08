@@ -42,6 +42,7 @@ class ListControl extends Base
    public function addText(inString:String,inSelectable:Bool=true)
    {
       var t = new TextField();
+      t.defaultTextFormat = Panel.labelFormat;
       t.text = inString;
       t.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
       t.selectable = inSelectable;

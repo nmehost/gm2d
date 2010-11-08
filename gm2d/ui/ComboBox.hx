@@ -109,6 +109,7 @@ class ComboBox extends Base
    public function setText(inText:String)
    {
        mText.text = inText;
+       mText.height = 100;
    }
 
    public override function layout(inW:Float, inH:Float)
@@ -128,7 +129,7 @@ class ComboBox extends Base
        gfx.drawRect(mButtonX,1.5,mBMP.width,mBMP.height);
        mText.width = inW - mBMP.width - 2;
        mText.y =  (mBMP.height - 2 - mText.textHeight)/2;
-       mText.height =  mBMP.height - 23-mText.y;
+       mText.height =  mBMP.height-mText.y;
    }
 
 }

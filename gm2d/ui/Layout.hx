@@ -66,6 +66,7 @@ class Layout
    }
 
    public function setBestSize(inW:Float, inH:Float) { }
+   public function getColWidths() : Array<Float> { return [ getBestWidth() ]; }
 
    public function getBestWidth(?inHeight:Null<Float>) : Float { return 0.0; }
    public function getBestHeight(?inWidth:Null<Float>) : Float { return 0.0; }
@@ -122,7 +123,7 @@ class DisplayLayout extends Layout
          var base:Base = cast mObj;
          base.layout(w,h);
       }
-      else
+      else if (mObj.scale9Grid != null)
       {
          mObj.width = w;
          mObj.height = h;
@@ -159,6 +160,7 @@ class DisplayLayout extends Layout
             h = mOHeight;
       }
 
+       
       setObjRect(x,y,w,h);
 
       if (Layout.mDebug!=null)
@@ -185,18 +187,14 @@ class TextLayout extends DisplayLayout
       mDebugCol = 0xff00ff;
    }
 
-/*
    override function setObjRect(x:Float,y:Float,w:Float,h:Float)
    {
-      trace("Tex Height :" + h );
       var text:TextField = cast mObj;
       text.x = x;
       text.y = y;
-      text.width = w;
-      text.height = h;
-      trace("New Height :" + text.height );
+      //text.width = w;
+      //text.height = h;
    }
-*/
 }
 
 // --- StackLayout ---------------------------------------------------------------------
@@ -226,7 +224,8 @@ class StackLayout extends Layout
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
-      //trace("StackLayout::setRect " + inX + "," + inY + "   " +inW + "x"+inH);
+      trace("StackLayout::setRect " + inX + "," + inY + "   " +inW + "x"+inH);
+      trace("   " + (inW-mBLeft-mBRight) + "," + (inH-mBTop-mBBottom) );
       for(child in mChildren)
          child.setRect( inX+mBLeft, inY+mBTop, inW-mBLeft-mBRight, inH-mBTop-mBBottom );
    }
@@ -278,17 +277,28 @@ class ChildStackLayout extends StackLayout
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
       var new_w = inW-mBLeft-mBRight;
-      var new_h = inW-mBTop-mBBottom;
+      var new_h = inH-mBTop-mBBottom;
+      //trace("ChildStackLayout: setRect : " + inX + "," + inY );
       for(i in 0...mChildren.length)
       {
          var child = mChildren[i];
          if (i==0)
          {
             child.setRect( inX+mBLeft, inY+mBTop, new_w, new_h );
+            //trace(" set first " + (inX+mBLeft) + "," + new_w);
          }
          else
+         {
             child.setRect( 0, 0, new_w, new_h );
-       }
+            //trace(" set other:"+new_w);
+         }
+      }
+
+      if (Layout.mDebug!=null)
+      {
+         Layout.mDebug.lineStyle(1,0xffff00);
+         Layout.mDebug.drawRect(inX,inY,inW,inH);
+      }
    }
 }
 
@@ -426,7 +436,6 @@ class GridLayout extends Layout
             if (col!=null)
             {
                var w = col.getBestWidth();
-               //trace(indent + " item w " + w);
                if (w>mColInfo[i].mWidth)
                {
                   mColInfo[i].mWidth = w;
@@ -463,6 +472,15 @@ class GridLayout extends Layout
          }
       }
 
+   }
+
+   override public function getColWidths() : Array<Float>
+   {
+      BestColWidths();
+      var result = new Array<Float>();
+      for(col in mColInfo)
+         result.push(col.mWidth);
+      return result;
    }
 
 

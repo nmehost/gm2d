@@ -7,6 +7,7 @@ import gm2d.display.DisplayObjectContainer;
 import gm2d.display.Sprite;
 import gm2d.events.MouseEvent;
 import gm2d.text.TextField;
+import gm2d.geom.Rectangle;
 import gm2d.ui.Layout;
 
 class Button extends Base
@@ -21,6 +22,8 @@ class Button extends Base
    var mDownDX:Float;
    var mDownDY:Float;
    var mLayout:Layout;
+   var mBGLayout:Layout;
+   var mMainLayout:Layout;
    var mItemLayout:Layout;
 
    public function new(inObject:DisplayObject,inOnClick:Void->Void)
@@ -53,6 +56,22 @@ class Button extends Base
       mBG.width = inW;
       mBG.height = inH;
    }
+
+   public function setBG(inRenderer:gm2d.display.Graphics->Float->Float->Void,inW:Float, inH:Float)
+   {
+      var gfx = mBG.graphics;
+      gfx.clear();
+      inRenderer(gfx,inW,inH);
+      var layout = getLayout();
+      mMainLayout.setBestSize(mBG.width,mBG.height);
+      mBGLayout.setBestSize(mBG.width,mBG.height);
+   }
+
+   public function setDownOffsets( inDownDX:Float, inDownDY:Float)
+   {
+      mDownDX = inDownDX;
+      mDownDY = inDownDY;
+   }
    public function setBGStates(inUpBmp:BitmapData, inDownBmp:BitmapData,
              inDownDX:Int = 0, inDownDY:Int = 0)
    {
@@ -83,10 +102,12 @@ class Button extends Base
          if (mDownDX!=0 || mDownDY!=0)
          {
             getLayout();
+            //var layout = mDownBmp==null ? mLayout : mItemLayout;
+            var layout = mItemLayout;
             if (mIsDown)
-               mItemLayout.setOffset(mDownDX,mDownDY);
+               layout.setOffset(mDownDX,mDownDY);
             else
-               mItemLayout.setOffset(0,0);
+               layout.setOffset(0,0);
             mLayout.setRect(x,y,width,height);
          }
       }
@@ -111,9 +132,9 @@ class Button extends Base
       label.textColor = Panel.labelColor;
       label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
       label.selectable = false;
-      label.mouseEnabled = false;
-      label.embedFonts = false;
+      //label.mouseEnabled = false;
       var result =  new Button(label,inOnClick);
+      result.setDownOffsets(1,1);
       return result;
    }
 
@@ -124,8 +145,8 @@ class Button extends Base
       {
          mLayout = new ChildStackLayout( );
          mLayout.setBorders(0,0,0,0);
-         mLayout.add( (new DisplayLayout(this)).setOrigin(0,0) );
-         mLayout.add( new DisplayLayout(mBG) );
+         mLayout.add( mMainLayout = (new DisplayLayout(this)).setOrigin(0,0) );
+         mLayout.add( mBGLayout = new DisplayLayout(mBG) );
    
          mItemLayout = ( Std.is(mDisplayObj,TextField)) ?
              new TextLayout(cast mDisplayObj)  : 

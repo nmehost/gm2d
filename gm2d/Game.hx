@@ -13,6 +13,8 @@ import gm2d.reso.Loader;
 import gm2d.reso.Resources;
 import gm2d.geom.Point;
 import gm2d.ui.Window;
+import gm2d.filters.BitmapFilter;
+import gm2d.filters.DropShadowFilter;
 
 
 class Game
@@ -51,6 +53,7 @@ class Game
    static var mDialogMap:Hash<Dialog> = new Hash<Dialog>();
    static var mKeyDown = new Array<Bool>();
    static var mResources = new Hash<Dynamic>();
+   static var mPopupFilters:Array<BitmapFilter>;
 
    static public var screen(getCurrent,null):Screen;
 
@@ -427,9 +430,18 @@ class Game
       mDialogParent.visible = mCurrentDialog!=null;
    }
 
-   public static function popup(inPopup:Window,inX:Float,inY:Float)
+   public static function popup(inPopup:Window,inX:Float,inY:Float,inShadow:Bool=true)
    {
        closePopup();
+       if (inShadow)
+       {
+          if (mPopupFilters==null)
+          {
+             mPopupFilters = [];
+             mPopupFilters.push( new DropShadowFilter(3,45,0,0.5,3,3,1) );
+          }
+          inPopup.filters = mPopupFilters;
+       }
        mCurrentPopup = inPopup;
        mPopupParent.addChild(inPopup);
        inPopup.x = inX;
