@@ -33,7 +33,7 @@ class Layout
    {
       width = height = 0.0;
       mDebugCol = 0xff0000;
-      mBLeft = mBRight = mBTop = mBBottom = 5;
+      mBLeft = mBRight = mBTop = mBBottom = 0;
    }
 
    public function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void

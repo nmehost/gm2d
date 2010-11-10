@@ -22,6 +22,8 @@ class Panel extends Sprite
 
    public static var labelColor = 0x000000;
    public static var labelFormat = DefaultTextFormat();
+   public static var panelColor = 0xe0e0d0;
+   public static var buttonColor = 0xf0f0f0;
 
    public function new(?inForceWidth:Null<Float>, ?inForceHeight:Null<Float>)
    {
@@ -35,9 +37,10 @@ class Panel extends Sprite
 
       mDebug = gm2d.Lib.debug ? new Shape() : null;
       mLayout = new GridLayout(1,"vertical").setColFlags(0,Layout.AlignCenterX);
+      mLayout.setSpacing(0,20);
       mItemLayout = new GridLayout(2,"items");
       mButtonLayout = new GridLayout(null,"buttons");
-      mButtonLayout.setSpacing(20,0);
+      mButtonLayout.setSpacing(10,0);
       mLayout.add(mItemLayout);
       mLayout.add(mButtonLayout);
       mLayout.setRowStretch(1,0);
@@ -120,6 +123,13 @@ class Panel extends Sprite
       addChild(inObj);
       mItemLayout.add( new DisplayLayout(inObj) );
    }
+
+   public function addLabelObj(inLabel:String,inObj:DisplayObject,?inName:String)
+   {
+      addLabel(inLabel,inName);
+      addObj(inObj);
+   }
+ 
    public function addLabel(inText:String,?inName:String)
    {
       mLayoutDirty = true;

@@ -395,17 +395,13 @@ class Game
       var dialog:Dialog = mDialogMap.get(inDialog);
       if (dialog==null)
          throw "Invalid Dialog "+  inDialog;
-      DoShowDialog(dialog);
-      if (inCenter)
-      {
-         dialog.center(initWidth,initHeight);
-      }
+      doShowDialog(dialog,inCenter);
       return dialog;
    }
 
-   static public function closeDialog() { DoShowDialog(null); }
+   static public function closeDialog() { doShowDialog(null,false); }
 
-   static function DoShowDialog(inDialog:Dialog)
+   static public function doShowDialog(inDialog:Dialog,inCenter:Bool)
    {
       if (mCurrentDialog!=null)
       {
@@ -425,6 +421,8 @@ class Game
          mDialogParent.addChild(mCurrentDialog);
          mCurrentDialog.onAdded();
          mCurrentDialog.doLayout();
+         if (inCenter)
+            mCurrentDialog.center(initWidth,initHeight);
       }
 
       mDialogParent.visible = mCurrentDialog!=null;

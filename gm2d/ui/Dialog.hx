@@ -2,41 +2,83 @@ package gm2d.ui;
 
 import gm2d.events.MouseEvent;
 import gm2d.display.DisplayObject;
-import gm2d.display.Shape;
+import gm2d.display.Sprite;
 import gm2d.text.TextField;
 import gm2d.text.TextFormat;
 import gm2d.ui.Layout;
 import gm2d.svg.SVG2Gfx;
+import gm2d.filters.BitmapFilter;
+import gm2d.filters.DropShadowFilter;
+
 
 
 class Dialog extends Window
 {
    var mPanel:Panel;
    var mLayout:Layout;
-   var mBG:Shape;
+   var mTitle:TextField;
+   var mBG:Sprite;
 
    public var panel(getPanel,null):Panel;
 
 
-   public function new(?inForceWidth:Null<Float>, ?inForceHeight:Null<Float>)
+   public function new(inTitle:String="",?inForceWidth:Null<Float>, ?inForceHeight:Null<Float>)
    {
       super();
-      mBG = new Shape();
+      mBG = new Sprite();
       addChild(mBG);
+      var title_gap = 0;
+      if (inTitle!="")
+      {
+         mTitle = new TextField();
+         mTitle.mouseEnabled = false;
+         mTitle.defaultTextFormat = Panel.labelFormat;
+         mTitle.textColor = 0x000000;
+         mTitle.selectable = false;
+         mTitle.text = inTitle;
+         mTitle.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
+         mTitle.y = 2;
+         title_gap = 24;
+
+         var f:Array<BitmapFilter> = [];
+         f.push( new DropShadowFilter(2,45,0xffffff,1,0,0,1) );
+         mTitle.filters = f;
+
+         mBG.addChild(mTitle);
+      }
       mPanel = new Panel(inForceWidth,inForceHeight);
       addChild(mPanel);
-      mLayout = mPanel.getLayout();
-     }
+      mLayout = mPanel.getLayout().setBorders(10,10+title_gap,10,10);
+
+      var f:Array<BitmapFilter> = [];
+      f.push( new DropShadowFilter(5,45,0,0.5,3,3,1) );
+      filters = f;
+
+      mBG.addEventListener(gm2d.events.MouseEvent.MOUSE_DOWN, doDrag);
+   }
+
+   function doneDrag(_)
+   {
+      stopDrag();
+      stage.removeEventListener(gm2d.events.MouseEvent.MOUSE_UP, doneDrag);
+   }
+
+   function doDrag(_)
+   {
+      startDrag();
+      stage.addEventListener(gm2d.events.MouseEvent.MOUSE_UP, doneDrag);
+   }
 
    public function getBackground() { return mBG.graphics; }
    public function getPanel() { return mPanel; }
    public dynamic function renderBackground(inW:Float,inH:Float)
    {
-      //trace("renderBackground " + inW + "," + inH);
       var gfx = getBackground();
-      gfx.beginFill(0xffffff);
-      gfx.lineStyle(2,0x000000);
-      gfx.drawRoundRect(0,0,inW,inH,10,10);
+      gfx.lineStyle(1,0x000000);
+      gfx.drawRoundRect(0.5,0.5,inW,inH,10,10);
+      gfx.beginFill(Panel.panelColor);
+      if (mTitle!=null)
+         mTitle.x = (inW - mTitle.textWidth)/2;
    }
    public function doLayout()
    {

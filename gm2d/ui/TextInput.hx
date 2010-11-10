@@ -12,7 +12,7 @@ class TextInput extends Base
    var mWidth:Float;
    static var boxHeight = 22;
 
-   public function new(inVal="")
+   public function new(inVal="", ?onUpdate:String->Void)
    {
        super();
        mText = new TextField();
@@ -22,6 +22,12 @@ class TextInput extends Base
        mText.y = 0.5;
        mText.height = boxHeight-1;
        mText.type = gm2d.text.TextFieldType.INPUT;
+
+       if (onUpdate!=null)
+       {
+          var t= mText;
+          mText.addEventListener(gm2d.events.Event.CHANGE, function(_) onUpdate(t.text) );
+       }
  
        addChild(mText);
    }
