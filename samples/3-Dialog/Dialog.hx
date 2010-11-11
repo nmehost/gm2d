@@ -9,6 +9,8 @@ import gm2d.svg.SVG2Gfx;
 import gm2d.ui.Button;
 import gm2d.ui.Keyboard;
 import gm2d.events.MouseEvent;
+import gm2d.ui.BitmapFont;
+import gm2d.ui.BitmapText;
 
 
 class Dialog extends Screen
@@ -37,17 +39,19 @@ class Dialog extends Screen
       var bg:SVG2Gfx = inResources.get("background");
       settings.SetSVGBackground( bg );
 
-      settings.addLabel("Music Volume");
+      var panel =settings.panel;
+
+      panel.addLabel("Music Volume");
       var sl:SVG2Gfx = inResources.get("slider");
-      settings.addUI(gm2d.ui.Slider.SkinnedSlider(sl,null,0,100,50,OnMusic) );
+      panel.addUI(gm2d.ui.Slider.SkinnedSlider(sl,null,0,100,50,OnMusic) );
 
       var but = Button.TextButton("Ok", function() { Game.closeDialog(); } );
       but.setBackground(bg,100,40);
-      settings.addButton(but);
+      panel.addButton(but);
 
       var but = Button.TextButton("Cancel", function() { Game.closeDialog(); } );
       but.setBackground(bg,100,40);
-      settings.addButton(but);
+      panel.addButton(but);
 
       Game.addDialog("Settings",settings);
       var dlg = Game.showDialog("Settings");
