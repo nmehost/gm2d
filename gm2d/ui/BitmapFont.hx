@@ -3,6 +3,9 @@ import gm2d.display.BitmapData;
 import gm2d.text.TextField;
 import gm2d.blit.Tile;
 import gm2d.blit.Tilesheet;
+import gm2d.filters.BitmapFilter;
+import gm2d.filters.GlowFilter;
+import gm2d.geom.Rectangle;
 
 class TileInfo
 {
@@ -29,24 +32,44 @@ class BitmapFont
       leftToRight = inLeftToRight;
    }
 
-   public static function create(inFont:String, inHeight:Float=12, inLeftToRight:Bool=true)
+   public static function create(inFont:String, inHeight:Float=12, inCol=0x000000, inLeftToRight:Bool=true)
    {
       var fmt = new gm2d.text.TextFormat();
       fmt.size = inHeight;
       fmt.font = inFont;
       var tf = new TextField( );
-      tf.textColor = 0x00ff00;
+      tf.textColor = inCol;
       tf.defaultTextFormat = fmt;
       tf.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
+
+      var filters:Array<BitmapFilter> = [];
+      filters.push( new GlowFilter(0xff0000,1,6,6,2,1) );
 
       return new BitmapFont(inHeight,  inLeftToRight, function(font,char)
          {
             tf.text = String.fromCharCode(char);
-            var w = Std.int(tf.textWidth);
+            var w = Std.int(tf.textWidth)+5;
             var h = Std.int(tf.textHeight);
-            var bmp = new BitmapData(w,h,true);
+            var bmp = new BitmapData(w,h,true, gm2d.RGB.CLEAR );
+            tf.filters = null;
             bmp.draw(tf);
-            font.addBitmap(char,bmp,w);
+            var rect = bmp.getColorBoundsRect( gm2d.RGB.BLACK, gm2d.RGB.CLEAR, false ); // Not clear
+            if (rect.width==0 || rect.height==0)
+               font.addGlyph(char,null,0);
+            else
+            {
+               var frect = rect;
+               for(filter in filters)
+                  frect = bmp.generateFilterRect(frect,filter);
+               //trace(frect);
+
+               var tight = new BitmapData( Std.int(frect.width), Std.int(frect.height),true, gm2d.RGB.CLEAR );
+               tf.filters = filters;
+               tight.draw(tf,new gm2d.geom.Matrix(1,0,0,1,-frect.x,-frect.y) );
+               var tile = font.addBitmap(char,tight,rect.width+1);
+               tile.hotX = -(frect.x-rect.x);
+               tile.hotY = -frect.y;
+            }
          } );
    }
 
@@ -109,6 +132,7 @@ class BitmapFont
             break;
       }
       mGlyphs[inGlyph] = new TileInfo(tile,inAdvance);
+      return tile;
    }
 }
 

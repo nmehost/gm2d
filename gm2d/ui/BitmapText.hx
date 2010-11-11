@@ -53,7 +53,7 @@ class BitmapText extends Base
        var gfx = graphics;
        gfx.clear();
        gfx.lineStyle(1,0x808080);
-       gfx.beginFill(0xf0f0ff);
+       gfx.beginFill(0x0000ff);
        gfx.drawRect(0.5,0.5,inW-1,23);
        gfx.lineStyle();
    }

@@ -68,7 +68,8 @@ class BMPLayer extends Layer
       {
          pos.x = tile.x + ox;
          pos.y = tile.y + oy;
-         bitmap.copyPixels(tile.tile.sheet.gm2dData, tile.tile.rect, pos);
+         var t = tile.tile;
+         bitmap.copyPixels(t.sheet.gm2dData, t.rect, pos, null, null, t.sheet.useAlpha);
          tile = tile.next;
       }
 
