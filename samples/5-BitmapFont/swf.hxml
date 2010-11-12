@@ -1,0 +1,5 @@
+-main BitmapFont
+-swf9 BitmapFont.swf
+-swf-header 640:480:60:400000
+-resource Edmunds.png@font
+-cp ../..

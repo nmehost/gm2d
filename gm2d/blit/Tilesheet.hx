@@ -70,7 +70,11 @@ class Tilesheet
 
       while(true)
       {
-         if (mAllocY + h > th) return null;
+         if (mAllocY + h > th)
+         {
+            //trace("Overflow : " + mAllocY + "+" + h + " > " + th);
+            return null;
+         }
          if (mAllocX + w < tw)
             break;
          mAllocY += mAllocHeight;
@@ -81,7 +85,7 @@ class Tilesheet
       var x = mAllocX;
       var y = mAllocY;
       mAllocX += w;
-      if (th>mAllocHeight) mAllocHeight = th;
+      if (h>mAllocHeight) mAllocHeight = h;
       if (mSpace==2)
       {
          x++;
@@ -101,6 +105,13 @@ class Tilesheet
       gm2dData.copyPixels(inData,new Rectangle(0,0,sw,sh), new Point(x,y), null,null,true );
 
       return new Tile(this, new Rectangle(x,y,sw,sh) );
+   }
+
+   public function addTileRect(inData:BitmapData,inRect:Rectangle) : Tile
+   {
+      var bmp = new BitmapData(Std.int(inRect.width), Std.int(inRect.height),true, gm2d.RGB.CLEAR );
+      bmp.copyPixels(inData,inRect, new Point(0,0), null,null,true );
+      return addTile(bmp);
    }
 
    public function partition(inTW:Int, inTH:Int, inOffsetX:Int=0, inOffsetY:Int=0,

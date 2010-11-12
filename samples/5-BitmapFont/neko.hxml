@@ -1,0 +1,5 @@
+-main BitmapFont
+-neko BitmapFont.n
+-lib nme
+-resource Edmunds.png@font
+-cp ../..
