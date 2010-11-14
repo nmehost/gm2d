@@ -3,6 +3,7 @@ package gm2d.ui;
 import gm2d.text.TextField;
 import gm2d.text.TextFieldType;
 import gm2d.display.BitmapData;
+import gm2d.display.Shape;
 import gm2d.events.MouseEvent;
 import gm2d.ui.Button;
 import gm2d.blit.Viewport;
@@ -26,6 +27,8 @@ class BitmapText extends Base
    var mSelectionAnchor:Int;
    var mCaretCode:Int;
    var mCaretTile:Tile;
+   var mSelectionOverlay:Shape;
+   var mCharPos:Array<Float>;
 
    // TextField-like API
    public var text(getText,setText):String;
@@ -50,6 +53,7 @@ class BitmapText extends Base
       setCaret("|".charCodeAt(0));
 
       setText(inVal);
+      mCharPos = [];
 
       var occ = onCurrentChanged;
       var me = this;
@@ -74,6 +78,8 @@ class BitmapText extends Base
    {
       mSelStart = mSelEnd = -1;
       mSelectionAnchored = false;
+      if (mSelectionOverlay!=null)
+         mSelectionOverlay.visible = false;
       //Rebuild();
    }
 
@@ -81,10 +87,10 @@ class BitmapText extends Base
    {
       if (mSelEnd > mSelStart && mSelStart>=0)
       {
+         mText = mText.substr(0,mSelStart) + mText.substr(mSelEnd);
          mInsertPos = mSelStart;
          mSelStart = mSelEnd = -1;
          mSelectionAnchored = false;
-         mText = mText.substr(0,mSelStart) + mText.substr(mSelEnd);
          RebuildText();
       }
    }
@@ -106,6 +112,9 @@ class BitmapText extends Base
 
    function OnMoveKeyEnd()
    {
+      if (mInsertPos<0) mInsertPos = 0;
+      if (mInsertPos>mText.length) mInsertPos = mText.length;
+
       if (mSelectionAnchored)
       {
          if (mInsertPos<mSelectionAnchor)
@@ -266,18 +275,48 @@ class BitmapText extends Base
    {
       mLayer.clear();
       var x = 0.0;
+      mCharPos = [];
       for(i in 0...mText.length)
       {
+         mCharPos.push(x);
          var code = mText.charCodeAt(i);
          var tile = mFont.getGlyph(code);
          if (tile!=null)
             mLayer.addTile(tile,x,0);
-         if (i==mInsertPos && mCaretLayer!=null && mCaretLayer.visible)
-            mCaretLayer.offsetX = x;
          x += mFont.getAdvance(code);
       }
-      if (mText.length==mInsertPos && mCaretLayer!=null && mCaretLayer.visible)
-         mCaretLayer.offsetX = x;
+      mCharPos.push(x);
+
+      if (mCaretLayer!=null && mCaretLayer.visible && mInsertPos>=0)
+         mCaretLayer.offsetX = mCharPos[mInsertPos];
+
+      var want_selection = false;
+      if (selectable && (mSelStart<mSelEnd))
+      {
+         var x0 = mCharPos[mSelStart];
+         if (x0<0) x0 = 0;
+         var x1 = mCharPos[mSelEnd];
+         if (x1>mViewport.viewWidth) x1 = mViewport.viewWidth;
+
+         if (x1>x0)
+         {
+            if (mSelectionOverlay==null)
+            {
+               mSelectionOverlay = new Shape();
+               addChild(mSelectionOverlay);
+               mSelectionOverlay.blendMode = gm2d.display.BlendMode.INVERT;
+            }
+            var gfx = mSelectionOverlay.graphics;
+            gfx.clear();
+            gfx.beginFill(0xffffff);
+            gfx.drawRect(x0,0,x1-x0,mViewport.viewHeight);
+            mSelectionOverlay.visible = true;
+            want_selection = true;
+         }
+      }
+
+      if (!want_selection && mSelectionOverlay!=null && mSelectionOverlay.visible)
+         mSelectionOverlay.visible = false;
    }
 
    public function getType() { return mInput ? TextFieldType.INPUT : TextFieldType.DYNAMIC;}
@@ -290,6 +329,7 @@ class BitmapText extends Base
    public override function layout(inW:Float, inH:Float)
    {
        mViewport.resize(Std.int(inW),Std.int(inH));
+       RebuildText();
        var gfx = graphics;
        gfx.clear();
        gfx.lineStyle(1,0x808080);
