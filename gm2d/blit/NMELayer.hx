@@ -9,10 +9,10 @@ class NMELayer extends Layer
    
    function new(inVP:NMEViewport)
    {
-      super(inVP);
+      gm2dShape = new nme.display.Shape();
       mXYID = [];
       mCurrentSheet = null;
-      gm2dShape = new nme.display.Shape();
+      super(inVP);
    }
 
    function Flush()
@@ -32,6 +32,8 @@ class NMELayer extends Layer
 
    public override function gm2dRender(inOX:Float, inOY:Float)
    {
+      inOX -= offsetX;
+      inOY -= offsetY;
       gm2dShape.x = -inOX;
       gm2dShape.y = -inOY;
 
@@ -70,6 +72,13 @@ class NMELayer extends Layer
       mXYID.push(inY-inTile.hotY);
       mXYID.push(inTile.id);
    }
+
+   override public function setVisible(inVis:Bool) : Bool
+   {
+      gm2dShape.visible = inVis;
+      return super.setVisible(inVis);
+   }
+
 
    public override function gm2dClear()
    {

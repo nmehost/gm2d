@@ -9,13 +9,15 @@ class Layer
    public var worldHeight(getWorldHeight,null):Float;
    public var viewWidth(getViewWidth,null):Float;
    public var viewHeight(getViewHeight,null):Float;
-
+   public var visible(default,setVisible):Bool;
+ 
 
    var mViewport:Viewport;
 
    function new(inVP:Viewport)
    {
       mViewport = inVP;
+      visible = true;
       offsetX = 0;
       offsetY = 0;
    }
@@ -33,6 +35,13 @@ class Layer
    public function drawTile(inTile:Tile, inX:Float, inY:Float) { }
 
    public function isPersistent() : Bool { return false; }
+
+   public function setVisible(inVis:Bool) : Bool
+   {
+      visible= inVis;
+      if (mViewport!=null) { mViewport.invalidate(); }
+      return inVis;
+   }
 
    public function clear()
    {

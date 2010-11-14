@@ -74,12 +74,14 @@ class Window extends Base
    }
 
 
-   public function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
+   public override function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
    {
-      //if (mCurrent!=null)
-      //{
-         //return mCurrent.onKeyDown(event);
-      //}
+      if (mCurrent!=null)
+      {
+         var used =  mCurrent.onKeyDown(event);
+         if (used)
+            return true;
+      }
 
 
       var code = event.keyCode;

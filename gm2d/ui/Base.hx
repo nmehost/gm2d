@@ -39,6 +39,8 @@ class Base extends gm2d.display.Sprite
 
    public function wantFocus() { return true; }
 
+   public function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool { return false; }
+
    public dynamic function onCurrentChanged(inCurrent:Bool)
    {
       if (inCurrent)

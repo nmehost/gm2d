@@ -38,7 +38,8 @@ class NMEViewport extends Viewport
    override function renderViewport()
    {
       for(layer in mLayers)
-         layer.gm2dRender(originX,originY);
+         if (layer.visible)
+            layer.gm2dRender(originX,originY);
    }
 
 }

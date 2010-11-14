@@ -40,7 +40,8 @@ class BMPViewport extends Viewport
       gm2dBitmapData.lock();
       gm2dBitmapData.fillRect(mRect,getBG());
       for(layer in mLayers)
-         layer.gm2dRender(originX,originY);
+         if (layer.visible)
+            layer.gm2dRender(originX,originY);
       gm2dBitmapData.unlock();
 
    }
