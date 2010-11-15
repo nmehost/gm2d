@@ -180,17 +180,9 @@ class Menubar extends Sprite
    {
        mWidth = inWidth;
        mHeight = inHeight;
-       var gfx = graphics;
-       gfx.clear();
+       Skin.current.renderMenubar(this,mWidth,mHeight);
        for(but in mButtons)
           but.y = (mHeight-but.height)/2;
-       renderBackground(gfx,mWidth,mHeight);
-   }
-
-   public dynamic function renderBackground(inGfx:Graphics, inW:Float, inH:Float)
-   {
-       inGfx.beginFill(0xa0a0a0);
-       inGfx.drawRect(0,0,inW,inH);
    }
 }
 
