@@ -8,7 +8,7 @@ import gm2d.text.TextFormat;
 import gm2d.ui.Layout;
 
 
-class Panel extends Sprite
+class Panel extends Widget
 {
    var mLayout:GridLayout;
    var mItemLayout:Layout;
@@ -60,7 +60,7 @@ class Panel extends Sprite
       onLaidOut();
       Layout.SetDebug(null);
    }
-   public function layout(inX:Float,inY:Float)
+   override public function layout(inX:Float,inY:Float)
    {
       mLayout.setRect(0,0,inX,inY);
       onLaidOut();
@@ -103,7 +103,7 @@ class Panel extends Sprite
       mLayout.setBorders(inL,inT,inR,inB);
    }
 
-   public function addUI(inItem:gm2d.ui.Base)
+   public function addUI(inItem:gm2d.ui.Widget)
    {
       mLayoutDirty = true;
       addChild(inItem);

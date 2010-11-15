@@ -6,7 +6,7 @@ import gm2d.events.MouseEvent;
 import gm2d.ui.Button;
 
 
-class TextInput extends Base
+class TextInput extends Control
 {
    var mText:TextField;
    var mWidth:Float;

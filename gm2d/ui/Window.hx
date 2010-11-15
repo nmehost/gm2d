@@ -2,10 +2,10 @@ package gm2d.ui;
 
 import gm2d.events.MouseEvent;
 
-class Window extends Base
+class Window extends Widget
 {
-   var mCurrent:Base;
-   var mDeactive:Base;
+   var mCurrent:Widget;
+   var mDeactive:Widget;
 
    public function new()
    {
@@ -20,10 +20,10 @@ class Window extends Base
       removeEventListener(MouseEvent.MOUSE_MOVE, windowMouseMove);
    }
 
-   public function getItemList() : Array<Base>
+   public function getItemList() : Array<Widget>
    {
-      var result = new Array<Base>();
-      Base.getItemsRecurse(this,result);
+      var result = new Array<Widget>();
+      Widget.getItemsRecurse(this,result);
       return result;
    }
 
@@ -47,11 +47,11 @@ class Window extends Base
       var target:gm2d.display.DisplayObject = inEvent.target;
       while(target!=null && target!=this)
       {
-         if (Std.is(target,Base))
+         if (Std.is(target,Widget))
          {
-             var base:Base = cast target;
-             if (base.wantFocus())
-                setCurrentItem(base);
+             var widget:Widget = cast target;
+             if (widget.wantFocus())
+                setCurrentItem(widget);
              return;
          }
          target = target.parent;
@@ -61,7 +61,7 @@ class Window extends Base
 
    override public function wantFocus() { return false; }
 
-   public function setCurrentItem(inItem:gm2d.ui.Base)
+   public function setCurrentItem(inItem:gm2d.ui.Widget)
    {
       if (inItem!=mCurrent)
       {

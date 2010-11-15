@@ -10,7 +10,7 @@ import gm2d.text.TextField;
 import gm2d.geom.Rectangle;
 import gm2d.ui.Layout;
 
-class Button extends Base
+class Button extends Control
 {
    var mDisplayObj : DisplayObject;
    public var mBG : Sprite;
@@ -25,6 +25,7 @@ class Button extends Base
    var mBGLayout:Layout;
    var mMainLayout:Layout;
    var mItemLayout:Layout;
+	public var onCurrentChangedFunc:Bool->Void;
 
    public function new(inObject:DisplayObject,inOnClick:Void->Void)
    {
@@ -157,6 +158,13 @@ class Button extends Base
       return mLayout;
    }
 
+   override public function onCurrentChanged(inCurrent:Bool)
+	{
+	   if (onCurrentChangedFunc!=null)
+			onCurrentChangedFunc(inCurrent);
+		else
+		   super.onCurrentChanged(inCurrent);
+	}
 
 
    override public function activate(inDirection:Int)

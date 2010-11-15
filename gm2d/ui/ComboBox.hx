@@ -53,7 +53,7 @@ class ComboList extends Window
 
 
 
-class ComboBox extends Base
+class ComboBox extends Control
 {
    var mText:TextField;
    var mButtonX:Float;

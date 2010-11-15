@@ -76,9 +76,9 @@ class Tilemap extends Screen
    {
       mResources = inResources;
       //cpp bug
-      //mTilesheet = new Tilesheet(mResources.get("tiles"));
-      var bmp:gm2d.display.BitmapData = mResources.get("tiles");
-      mTilesheet = new Tilesheet(bmp);
+      mTilesheet = new Tilesheet(mResources.get("tiles"));
+      //var bmp:gm2d.display.BitmapData = mResources.get("tiles");
+      //mTilesheet = new Tilesheet(bmp);
       mTiles = mTilesheet.partition(32,32);
       mTiles[3].hotX = 16;
       mTiles[3].hotY = 16;

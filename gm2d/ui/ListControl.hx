@@ -4,7 +4,7 @@ import gm2d.display.DisplayObject;
 import gm2d.text.TextField;
 
 
-class ListControl extends Base
+class ListControl extends Control
 {
    var mItems:Array<DisplayObject>;
    var mItemHeight:Float;

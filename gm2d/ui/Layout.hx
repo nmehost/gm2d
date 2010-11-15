@@ -118,10 +118,10 @@ class DisplayLayout extends Layout
    {
       mObj.x = x;
       mObj.y = y;
-      if (Std.is(mObj,Base))
+      if (Std.is(mObj,Widget))
       {
-         var base:Base = cast mObj;
-         base.layout(w,h);
+         var widget:Widget = cast mObj;
+         widget.layout(w,h);
       }
       else if (mObj.scale9Grid != null)
       {

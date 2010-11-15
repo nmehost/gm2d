@@ -97,6 +97,8 @@ class BMPLayer extends Layer
 
    public override function gm2dClear()
    {
+      if (mHead!=null && mViewport!=null)
+         mViewport.invalidate();
       mHead = mLast = null;
    }
 

@@ -8,7 +8,7 @@ import gm2d.geom.Rectangle;
 import gm2d.ui.Layout;
 import gm2d.svg.SVG2Gfx;
 
-class Slider extends Base
+class Slider extends Control
 {
    var mTrack : Sprite;
    var mThumb : Sprite;

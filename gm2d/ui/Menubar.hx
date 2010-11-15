@@ -66,7 +66,7 @@ class PopupMenu extends Window
                Game.closePopup();
                if (item.onSelect!=null) item.onSelect(item);
                });
-            but.onCurrentChanged = function(inCurrent:Bool)  { if(inCurrent) me.setItem(id); }
+            but.onCurrentChangedFunc = function(inCurrent:Bool)  { if(inCurrent) me.setItem(id); }
             var l = but.getLabel();
             but.addEventListener(MouseEvent.MOUSE_OVER, function(_) me.setItem(id) );
             mButtons.push(but);
@@ -143,18 +143,7 @@ class Menubar extends Sprite
       var nx = mNextX;
       var but = Button.TextButton(inItem.gmText,function(){me.popup(pos);});
       mButtons.push(but);
-      but.onCurrentChanged = function(inCurrent:Bool) 
-      {
-         if (inCurrent)
-         {
-            var glow:gm2d.filters.BitmapFilter = new gm2d.filters.GlowFilter(0x0000ff, 1.0, 1, 1, 1, 1, false, false);
-            but.filters = [ glow ];
-         }
-         else
-            but.filters = null;
-      }
-      but.getLabel().backgroundColor = 0x4040a0;
-      but.getLabel().textColor = 0x000000;
+		Skin.current.styleMenu(but);
       but.addEventListener(MouseEvent.MOUSE_OVER, function(_) me.onMouseItem(pos) );
 
       but.x = mNextX;
