@@ -50,7 +50,7 @@ class Window extends Widget
          if (Std.is(target,Widget))
          {
              var widget:Widget = cast target;
-             if (widget.wantFocus())
+             if (widget.wantFocus)
                 setCurrentItem(widget);
              return;
          }
@@ -58,8 +58,6 @@ class Window extends Widget
       }
    }
 
-
-   override public function wantFocus() { return false; }
 
    public function setCurrentItem(inItem:gm2d.ui.Widget)
    {

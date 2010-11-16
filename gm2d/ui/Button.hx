@@ -15,12 +15,15 @@ class Button extends Control
    var mDisplayObj : DisplayObject;
    public var mBG : Sprite;
    public var down(getDown,setDown):Bool;
+	public var noFocus:Bool;
    var mCallback : Void->Void;
    var mIsDown:Bool;
    var mDownBmp:BitmapData;
    var mUpBmp:BitmapData;
    var mDownDX:Float;
    var mDownDY:Float;
+   var mCurrentDX:Float;
+   var mCurrentDY:Float;
    var mLayout:Layout;
    var mBGLayout:Layout;
    var mMainLayout:Layout;
@@ -38,6 +41,8 @@ class Button extends Control
       addChild(mBG);
       addChild(mDisplayObj);
       mDownDX = mDownDY = 0;
+      mCurrentDX = mCurrentDY = 0;
+		noFocus = false;
       var me = this;
       addEventListener(MouseEvent.CLICK, function(_) { inOnClick(); } );
       addEventListener(MouseEvent.MOUSE_DOWN, function(_) { me.setDown(true); } );
@@ -100,16 +105,17 @@ class Button extends Control
                gfx.drawRect(0,0,bmp.width,bmp.height);
             }
          }
-         if (mDownDX!=0 || mDownDY!=0)
+			var dx = mIsDown ? mDownDX : 0;
+			var dy = mIsDown ? mDownDY : 0;
+         if (dx!=mCurrentDX)
          {
-            getLayout();
-            //var layout = mDownBmp==null ? mLayout : mItemLayout;
-            var layout = mItemLayout;
-            if (mIsDown)
-               layout.setOffset(mDownDX,mDownDY);
-            else
-               layout.setOffset(0,0);
-            mLayout.setRect(x,y,width,height);
+			   mDisplayObj.x += dx-mCurrentDX;
+				mCurrentDX = dx;
+         }
+         if (dy!=mCurrentDY)
+         {
+			   mDisplayObj.y += dy-mCurrentDY;
+				mCurrentDY = dy;
          }
       }
       return mIsDown;
@@ -128,11 +134,8 @@ class Button extends Control
    public static function TextButton(inText:String,inOnClick:Void->Void)
    {
       var label = new TextField();
-      label.defaultTextFormat = Panel.labelFormat;
-      label.text = inText;
-      label.textColor = Panel.labelColor;
-      label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
-      label.selectable = false;
+		Skin.current.styleButtonText(label);
+		label.text = inText;
       //label.mouseEnabled = false;
       var result =  new Button(label,inOnClick);
       result.setDownOffsets(1,1);

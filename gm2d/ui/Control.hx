@@ -12,9 +12,8 @@ class Control extends Widget
    {
       super();
       name = "control";
+		wantFocus = true;
    }
-
-   override public function wantFocus() { return true; }
 
    override public function onCurrentChanged(inCurrent:Bool)
    {

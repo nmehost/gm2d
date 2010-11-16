@@ -15,6 +15,7 @@ import gm2d.geom.Point;
 import gm2d.ui.Window;
 import gm2d.filters.BitmapFilter;
 import gm2d.filters.DropShadowFilter;
+import gm2d.display.DisplayObject;
 
 
 class Game
@@ -448,6 +449,11 @@ class Game
        mDialogParent.mouseEnabled = false;
        mScreenParent.mouseEnabled = false;
    }
+
+   public static function moveToPopupLayer(inObject:DisplayObject)
+	{
+	   mPopupParent.addChild(inObject);
+	}
 
    public static function closePopup()
    {

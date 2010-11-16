@@ -4,18 +4,21 @@ import gm2d.filters.BitmapFilter;
 import gm2d.filters.BitmapFilterType;
 import gm2d.filters.DropShadowFilter;
 import gm2d.filters.GlowFilter;
+import gm2d.text.TextField;
 
 class Skin
 {
    public static var current:Skin = new Skin();
 
    public var textFormat:gm2d.text.TextFormat;
+	public var menuHeight:Float;
 
    public function new()
 	{
 		textFormat = new gm2d.text.TextFormat();
       textFormat.size = 16;
       textFormat.font = "Arial";
+		menuHeight = 24;
 	}
 
 	public function renderCurrent(inWidget:Widget)
@@ -28,7 +31,7 @@ class Skin
       inWidget.filters = null;
 	}
 
-   public function renderMenubar(inObject:gm2d.display.DisplayObject,inW:Float, inH:Float)
+   public function renderMenubar(inObject:gm2d.display.Sprite,inW:Float, inH:Float)
 	{
 	   var gfx = inObject.graphics;
 		gfx.clear();
@@ -46,11 +49,34 @@ class Skin
 	{
 	   inItem.getLabel().backgroundColor = 0x4040a0;
       inItem.getLabel().textColor = 0x000000;
+		inItem.onCurrentChangedFunc = function(_) { };
    }
+
+	public function styleButtonText(label:TextField)
+	{
+	   label.defaultTextFormat = textFormat;
+      label.textColor = Panel.labelColor;
+      label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
+      label.selectable = false;
+   }
+
 
 	public function styleText(inText:gm2d.text.TextField)
 	{
 	   inText.defaultTextFormat = textFormat;
 	}
+
+	public function renderMDI(inMDI:Widget)
+	{
+	   var gfx = inMDI.graphics;
+		gfx.clear();
+	   var rect = inMDI.scrollRect;
+		if (rect!=null)
+		{
+		   gfx.beginFill(0x404040);
+			gfx.drawRect(rect.x, rect.y, rect.width, rect.height );
+		}
+	}
+
 }
 

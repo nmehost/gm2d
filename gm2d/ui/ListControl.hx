@@ -24,6 +24,7 @@ class ListControl extends Control
        mItems = [];
        mChildrenClean = 0;
        mSelected = -1;
+		 wantFocus = false;
    }
 
    public function addItem(inItem:DisplayObject)
@@ -51,8 +52,6 @@ class ListControl extends Control
       t.height = 20;
       addItem(t);
    }
-
-   override public function wantFocus() { return false; }
 
    public function select(inIndex:Int)
    {

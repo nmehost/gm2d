@@ -1,0 +1,4 @@
+-main SampleApp
+-neko SampleApp.n
+-lib nme
+-cp ../..

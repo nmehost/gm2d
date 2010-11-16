@@ -5,12 +5,14 @@ import gm2d.display.DisplayObjectContainer;
 
 class Widget extends gm2d.display.Sprite
 {
+   public var wantFocus:Bool;
    //var highlightColour:Int;
 
    public function new()
    {
       super();
       name = "item";
+		wantFocus = false;
       //highlightColour = 0x0000ff;
    }
 
@@ -24,15 +26,13 @@ class Widget extends gm2d.display.Sprite
          if (Std.is(child,Widget))
          {
             var child:Widget = cast child;
-            if (child.wantFocus())
+            if (child.wantFocus)
                outList.push(child);
          }
          if (Std.is(child,DisplayObjectContainer))
            getItemsRecurse(cast child, outList);
       }
    }
-
-   public function wantFocus() { return false; }
 
    public function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool { return false; }
 

@@ -5,6 +5,7 @@ import gm2d.Game;
 import gm2d.display.BitmapData;
 import gm2d.display.Graphics;
 import gm2d.display.Sprite;
+import gm2d.display.DisplayObjectContainer;
 import gm2d.text.TextField;
 import gm2d.events.MouseEvent;
 import gm2d.text.TextFieldAutoSize;
@@ -120,6 +121,7 @@ class Menubar extends Sprite
    var mHeight:Float;
    var mNextX:Float;
    var mCurrentItem:Int;
+	var mNormalParent:DisplayObjectContainer;
 
    var mItems:Array<MenuItem>;
    var mButtons:Array<Button>;
@@ -131,8 +133,8 @@ class Menubar extends Sprite
       mButtons = [];
       mNextX = 2;
       mCurrentItem = -1;
+		mNormalParent = null;
    }
-
 
    public function add(inItem:MenuItem)
    {
@@ -163,11 +165,21 @@ class Menubar extends Sprite
       mCurrentItem = inPos;
       mButtons[mCurrentItem].getLabel().background = true;
       mButtons[mCurrentItem].getLabel().textColor = 0xffffff;
+		if (mNormalParent==null)
+		{
+		   mNormalParent = parent;
+			Game.moveToPopupLayer(this);
+		}
       Game.popup( new PopupMenu(mItems[inPos],this), mButtons[inPos].x, mHeight );
    }
 
    public function closeMenu(inItem:MenuItem)
    {
+	   if (mNormalParent!=null)
+		{
+		   mNormalParent.addChildAt(this,0);
+			mNormalParent = null;
+		}
       if (mCurrentItem>=0 && mItems[mCurrentItem]==inItem)
       {
          mButtons[mCurrentItem].getLabel().background = false;
