@@ -28,7 +28,7 @@ class App extends Screen
 
    public function addPane(inPane:Pane, inPos:Int)
    {
-      
+      mMDI.addPane(inPane);
    }
 
    function doLayout()

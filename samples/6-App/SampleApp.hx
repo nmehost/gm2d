@@ -13,7 +13,7 @@ class SampleApp extends App
 
       var item = new Sprite();
       var gfx = item.graphics;
-      gfx.beginFill(0xffffff);
+      gfx.beginFill(0x0000);
       gfx.drawRect(0,0,200,200);
       gfx.beginFill(0xff0000);
       gfx.drawCircle(100,100,100);

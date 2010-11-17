@@ -10,21 +10,21 @@ class Pane
    public static var RESIZABLE = 0x0001;
 
 
-   var mTitle:String;
-   var mObject:DisplayObject;
+   public var title(default,null):String;
+   public var displayObject(default,null):DisplayObject;
+   public var bestWidth:Float;
+   public var bestHeight:Float;
    var mFlags:Int;
    var mMinSizeX:Float;
    var mMinSizeY:Float;
-   var mBestSizeX:Float;
-   var mBestSizeY:Float;
 
    public function new(inObj:DisplayObject, inTitle:String, inFlags:Int)
    {
-       mObject = inObj;
-       mTitle = inTitle;
+       displayObject = inObj;
+       title = inTitle;
        mFlags = inFlags;
-       mBestSizeX = mObject.width;
-       mBestSizeY = mObject.height;
+       bestWidth = displayObject.width;
+       bestHeight = displayObject.height;
        mMinSizeX = 0;
        mMinSizeY = 0;
    }
