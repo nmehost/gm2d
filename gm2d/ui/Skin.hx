@@ -7,6 +7,7 @@ import gm2d.filters.GlowFilter;
 import gm2d.display.Sprite;
 import gm2d.display.BitmapData;
 import gm2d.display.Bitmap;
+import gm2d.display.Shape;
 import gm2d.text.TextField;
 import gm2d.geom.Point;
 import gm2d.geom.Rectangle;
@@ -18,6 +19,9 @@ class Skin
    public var textFormat:gm2d.text.TextFormat;
    public var menuHeight:Float;
    public var mBitmaps:Array< Array<BitmapData> >;
+
+	var mDrawing:Shape;
+	var mText:TextField;
 
    public function new()
    {
@@ -81,7 +85,7 @@ class Skin
       inText.defaultTextFormat = textFormat;
    }
 
-   public function renderMDI(inMDI:Widget)
+   public function renderMDI(inMDI:Sprite)
    {
       var gfx = inMDI.graphics;
       gfx.clear();
@@ -194,5 +198,55 @@ class Skin
 
       outHitBoxes.add( new Rectangle(0,0,inW,title_h), HitBoxes.ACT_DRAG );
    }
+
+   static var tab_height = 22;
+
+   function initGfx()
+	{
+	   if (mDrawing==null)
+		   mDrawing = new Shape();
+		if (mText==null)
+		{
+		   mText = new TextField();
+		   styleLabelText(mText);
+		}
+	}
+
+	public function getTabHeight() { return tab_height; }
+	public function renderTabs(inArea:BitmapData,inPanes:Array<Pane> )
+	{
+	   initGfx();
+		var w = inArea.width;
+	   var gfx = mDrawing.graphics;
+		gfx.clear();
+		var mtx = new gm2d.geom.Matrix();
+
+      mtx.createGradientBox(tab_height,tab_height,Math.PI * 0.5);
+      var cols:Array<Int> = [ 0xa0a090, 0x404040, 0x606070];
+      var alphas:Array<Float> = [1.0, 1.0, 1.0];
+      var ratio:Array<Int> = [0, 128, 255];
+      gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
+		gfx.drawRect(0,0,w,tab_height);
+		inArea.draw(mDrawing);
+
+      var x = 2.0;
+		var trans = new gm2d.geom.Matrix();
+		for(pane in inPanes)
+		{
+		   mText.text = pane.title;
+			var tw = mText.textWidth;
+			// TODO: not quite working on NME?
+		   gfx.clear();
+         gfx.lineStyle(1,0xf0f0e0);
+		   gfx.beginFill(0xa0a090);
+			gfx.drawRoundRect(x,0,tw,tab_height-2,3,3);
+		   inArea.draw(mDrawing);
+
+			trans.tx = x;
+		   inArea.draw(mText,trans);
+			x+=tw+2;
+		}
+
+	}
 }
 

@@ -34,6 +34,12 @@ class SampleApp extends App
       edit.add( new MenuItem("Copy") );
       edit.add( new MenuItem("Paste") );
       bar.add( edit );
+      var view = new MenuItem("View");
+      view.add( new MenuItem("New", onViewNew) );
+		#if cpp
+      view.add( new MenuItem("Debug Trace Panes", onViewDebugTracePanes) );
+		#end
+      bar.add( view );
    }
 
    function onExit(_)
@@ -43,6 +49,25 @@ class SampleApp extends App
       #end
    }
 
+	function onViewNew(_)
+	{
+	   var item = new Sprite();
+      var gfx = item.graphics;
+		var col = Std.int(Math.random()*0xffffff);
+      gfx.beginFill(0x0000);
+      gfx.drawRect(0,0,200,200);
+      gfx.beginFill(col);
+      gfx.drawCircle(100,100,100);
+      addPane( new Pane(item,"View:"+col,Pane.RESIZABLE), Pane.POS_OVER );
+
+	}
+
+	function onViewDebugTracePanes(_)
+	{
+	   #if cpp
+		cpp.vm.Gc.trace(Pane);
+		#end
+	}
 
 
    static public function main()
