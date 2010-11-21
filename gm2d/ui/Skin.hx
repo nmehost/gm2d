@@ -21,8 +21,8 @@ class Skin
    public var menuHeight:Float;
    public var mBitmaps:Array< Array<BitmapData> >;
 
-	var mDrawing:Shape;
-	var mText:TextField;
+   var mDrawing:Shape;
+   var mText:TextField;
 
    public function new()
    {
@@ -174,7 +174,7 @@ class Skin
       var x = inW - borders;
       for(but in 0 ... MiniButton.COUNT)
       {
-         var bmp = getButtonBitmap(but,outHitBoxes.buttonState[but]);
+         var bmp = getButtonBitmap(but,pane.buttonState[but]);
          if (bmp!=null) 
          {
             var bitmap = outHitBoxes.bitmaps[but];
@@ -194,60 +194,63 @@ class Skin
             bitmap.x = x;
 
             outHitBoxes.add( new Rectangle(bitmap.x,bitmap.y,bmp.width,bmp.height),
-				         HitAction.BUTTON(pane,but) );
+                     HitAction.BUTTON(pane,but) );
          }
       }
 
-      outHitBoxes.add( new Rectangle(0,0,inW,title_h), HitAction.DRAG );
+      outHitBoxes.add( new Rectangle(0,0,inW,title_h), TITLE(pane) );
    }
 
    static var tab_height = 24;
 
    function initGfx()
-	{
-	   if (mDrawing==null)
-		   mDrawing = new Shape();
-		if (mText==null)
-		{
-		   mText = new TextField();
-		   styleLabelText(mText);
-		}
-	}
+   {
+      if (mDrawing==null)
+         mDrawing = new Shape();
+      if (mText==null)
+      {
+         mText = new TextField();
+         styleLabelText(mText);
+      }
+   }
 
-	public function getTabHeight() { return tab_height; }
-	public function renderTabs(inArea:BitmapData,inPanes:Array<Pane>, inCurrent:Pane )
-	{
-	   initGfx();
-		var w = inArea.width;
-	   var gfx = mDrawing.graphics;
-		gfx.clear();
-		var mtx = new gm2d.geom.Matrix();
+   public function getTabHeight() { return tab_height; }
+   public function renderTabs(inArea:BitmapData,inPanes:Array<Pane>, inCurrent:Pane, outHitBoxes:HitBoxes )
+   {
+      initGfx();
+      var w = inArea.width;
+      var gfx = mDrawing.graphics;
+      gfx.clear();
+      var mtx = new gm2d.geom.Matrix();
 
       mtx.createGradientBox(tab_height,tab_height,Math.PI * 0.5);
       var cols:Array<Int> = [ 0x404040, 0xa0a090];
       var alphas:Array<Float> = [1.0, 1.0];
       var ratio:Array<Int> = [0, 255];
       gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
-		gfx.drawRect(0,0,w,tab_height);
-		inArea.draw(mDrawing);
+      gfx.drawRect(0,0,w,tab_height);
+      inArea.draw(mDrawing);
 
-		var trans = new gm2d.geom.Matrix();
-		trans.tx = 2;
-		trans.ty = 2;
-		for(pane in inPanes)
-		{
-		   mText.text = pane.title;
-			var tw = mText.textWidth + 4;
-		   gfx.clear();
+      outHitBoxes.clear();
+
+      var trans = new gm2d.geom.Matrix();
+      trans.tx = 2;
+      trans.ty = 2;
+      for(pane in inPanes)
+      {
+         mText.text = pane.title;
+         var tw = mText.textWidth + 4;
+         gfx.clear();
          gfx.lineStyle(1,0xf0f0e0);
-		   gfx.beginFill(pane==inCurrent ? 0xe0e0d0 : 0xa0a090);
-			gfx.drawRoundRect(0.5,0.5,tw,tab_height+2,3,3);
-		   inArea.draw(mDrawing,trans);
-			trans.tx += 2;
-		   inArea.draw(mText,trans);
-			trans.tx+=tw+2;
-		}
+         gfx.beginFill(pane==inCurrent ? 0xe0e0d0 : 0xa0a090);
+         gfx.drawRoundRect(0.5,0.5,tw,tab_height+2,3,3);
+         inArea.draw(mDrawing,trans);
+         outHitBoxes.add(new Rectangle(trans.tx,0,tw,tab_height), TITLE(pane) );
+         trans.tx += 2;
+         inArea.draw(mText,trans);
+         trans.tx+=tw+2;
+      }
 
-	}
+   }
 }
 

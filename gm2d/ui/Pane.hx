@@ -13,10 +13,11 @@ class Pane
    public var displayObject(default,null):DisplayObject;
    public var bestWidth:Float;
    public var bestHeight:Float;
+   public var buttonState(default,null):Array<Int>;
    var mFlags:Int;
    var mMinSizeX:Float;
    var mMinSizeY:Float;
-	var dock:IDock;
+   var dock:IDock;
 
    public function new(inObj:DisplayObject, inTitle:String, inFlags:Int)
    {
@@ -27,28 +28,31 @@ class Pane
       bestHeight = displayObject.height;
       mMinSizeX = 0;
       mMinSizeY = 0;
-		dock = null;
+      dock = null;
+      buttonState = [ 0,0,0 ];
    }
 
-	public function raise()
-	{
-	   // TODO: broadcast event
-	   if (dock!=null)
-		   dock.raise(this);
-	}
+   public function raise()
+   {
+      // TODO: broadcast event
+      if (dock!=null)
+         dock.raise(this);
+   }
+
+   public dynamic function layout(inW:Float, inH:Float) { }
 
 
-	public function close(inForce:Bool = false)
-	{
-	   gm2dSetDock(null);
-	}
+   public function close(inForce:Bool = false)
+   {
+      gm2dSetDock(null);
+   }
 
-	public function gm2dSetDock(inDock:IDock)
-	{
-	   if (dock!=null && dock!=inDock)
-		   dock.remove(this);
-		dock = inDock;
-	}
+   public function gm2dSetDock(inDock:IDock)
+   {
+      if (dock!=null && dock!=inDock)
+         dock.remove(this);
+      dock = inDock;
+   }
 
 
 }

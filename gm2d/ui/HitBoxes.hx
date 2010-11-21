@@ -3,6 +3,8 @@ package gm2d.ui;
 import gm2d.geom.Rectangle;
 import gm2d.geom.Point;
 import gm2d.display.Bitmap;
+import gm2d.display.Sprite;
+import gm2d.events.MouseEvent;
 
 class ResizeFlag
 {
@@ -24,9 +26,10 @@ class MiniButton
 enum HitAction
 {
    NONE;
-   DRAG;
    REDRAW;
+   DRAG(pane:Pane);
    BUTTON(pane:Pane,button:Int);
+   TITLE(pane:Pane);
 }
 
 class HitBox
@@ -46,18 +49,50 @@ class HitBoxes
    public static var BUT_STATE_OVER = 1;
    public static var BUT_STATE_DOWN = 2;
 
-   public var buttonState:Array<Int>;
    public var bitmaps:Array<Bitmap>;
-
+   var mCallback:HitAction->Void;
+   var mObject:Sprite;
    var rects:Array<HitBox>;
+   var mDownX:Float;
+   var mDownY:Float;
+   var mMoved:Bool;
+   var mDownPane:Pane;
 
 
-   public function new()
+   public function new(inObject:Sprite,inCallback:HitAction->Void)
    {
       rects = [];
-      buttonState = [0,0,0];
       bitmaps = [];
+
+      mObject = inObject;
+      mCallback = inCallback;
+      mDownPane = null;
+      inObject.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+      inObject.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+      inObject.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+      inObject.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
    }
+
+   function onMouseDown(event)
+   {
+      var obj:gm2d.display.DisplayObject = event.target;
+      if (obj==mObject)
+         onDown(event.localX, event.localY);
+   }
+
+   function onMouseUp(event)
+   {
+      var obj:gm2d.display.DisplayObject = event.target;
+      if (obj==mObject)
+         onUp(event.localX, event.localY);
+   }
+
+   function onMouseMove(event) { onMove(event.localX, event.localY); }
+
+   function onMouseOut(event) { onMove(-100,-100); }
+
+
+
    public function clear() { rects = []; }
 
    public function add(rect:Rectangle, action:HitAction)
@@ -65,80 +100,96 @@ class HitBoxes
       rects.push( new HitBox(rect,action) );
    }
 
-	function buttonID(inAction:HitAction) : Int
-	{
-	   switch(inAction)
-		{
-			case BUTTON(_,id): return id;
-			default:
-		}
-		return -1;
-	}
-
-   public function onDown(inX:Float, inY:Float) : HitAction
+   function buttonID(inAction:HitAction) : Int
    {
+      switch(inAction)
+      {
+         case BUTTON(_,id): return id;
+         default:
+      }
+      return -1;
+   }
+
+   public function onDown(inX:Float, inY:Float)
+   {
+      mDownX = inX;
+      mDownY = inY;
+      mMoved = false;
+      mDownPane = null;
       for(r in rects)
          if (r.rect.contains(inX,inY))
-			   switch(r.action)
-				{
-				   case BUTTON(pane,id) :
-                  buttonState[id] = BUT_STATE_DOWN;
-                  return HitAction.REDRAW;
-					default:
-                  return r.action;
+            switch(r.action)
+            {
+               case BUTTON(pane,id) :
+                  pane.buttonState[id] = BUT_STATE_DOWN;
+                  mCallback(HitAction.REDRAW);
+               case TITLE(pane) :
+                  mDownPane = pane;
+                  mCallback(r.action);
+               default:
             }
-
-      return HitAction.NONE;
    }
 
 
-   public function onUp(inX:Float, inY:Float) : HitAction
+   public function onUp(inX:Float, inY:Float)
    {
+      mDownPane = null;
+      mMoved = false;
       for(r in rects)
          if (r.rect.contains(inX,inY))
          {
-			   switch(r.action)
-				{
-				   case BUTTON(pane,id):
-                  if (buttonState[id]==BUT_STATE_DOWN)
+            switch(r.action)
+            {
+               case BUTTON(pane,id):
+                  if (pane.buttonState[id]==BUT_STATE_DOWN)
+
                   {
-                     buttonState[id]=BUT_STATE_OVER;
-                     return r.action;
+                     pane.buttonState[id]=BUT_STATE_OVER;
                   }
-				   default:
+               default:
             }
+            mCallback(r.action);
          }
-      return HitAction.NONE;
    }
 
 
-   public function onMove(inX:Float, inY:Float) : Bool
+   public function onMove(inX:Float, inY:Float)
    {
       var result = false;
-      var on = -1;
 
-      for(i in 0...rects.length)
-         if (rects[i].rect.contains(inX,inY))
-         {
-            on = i;
-            if (buttonState[i]==BUT_STATE_UP)
-            {
-                buttonState[i] = BUT_STATE_OVER;
-                result = true;
-            }
-            break;
-         }
-      for(i in 0...buttonState.length)
+      for(rect in rects)
       {
-         if (i!=on)
-            if (buttonState[i]!=BUT_STATE_UP)
-            {
-               buttonState[i] = BUT_STATE_UP;
-               result = true;
-            }
+         switch(rect.action)
+         {
+            case BUTTON(pane,id):
+               if (rect.rect.contains(inX,inY))
+               {
+                  if (pane.buttonState[id]==BUT_STATE_UP)
+                  {
+                      pane.buttonState[id] = BUT_STATE_OVER;
+                      result = true;
+                  }
+               }
+               else if (pane.buttonState[id]!=BUT_STATE_UP)
+               {
+                   pane.buttonState[id] = BUT_STATE_UP;
+                   result = true;
+               }
+            default:
+         }
       }
 
-      return result;
+      var moved = (mDownPane!=null) && (!mMoved) && (Math.abs(inX-mDownX)>5 || Math.abs(inY-mDownY)>5);
+      if (moved)
+      {
+         mMoved = true;
+         if (mDownPane!=null)
+            mCallback(DRAG(mDownPane));
+         mDownPane = null;
+      }
+
+      if (result)
+         mCallback(REDRAW);
    }
 
 
