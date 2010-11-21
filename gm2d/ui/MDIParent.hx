@@ -9,6 +9,7 @@ import gm2d.text.TextField;
 //import gm2d.ui.HitBoxes;
 import gm2d.geom.Point;
 import gm2d.events.MouseEvent;
+import gm2d.ui.HitBoxes;
 
 class MDIChildFrame extends Sprite
 {
@@ -41,7 +42,7 @@ class MDIChildFrame extends Sprite
       mClientWidth = pane.bestWidth;
       mClientHeight = pane.bestHeight;
       //pane.displayObject.scrollRect = new Rectangle(20,20,mClientWidth, mClientHeight);
-      Skin.current.renderFrame(this,mClientWidth,mClientHeight,mHitBoxes);
+      Skin.current.renderFrame(this,inPane,mClientWidth,mClientHeight,mHitBoxes);
       addChild(pane.displayObject);
       inMDI.clientArea.addChild(this);
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
@@ -56,15 +57,16 @@ class MDIChildFrame extends Sprite
       if (obj==this)
       {
 			pane.raise();
-         var action = mHitBoxes.onDown(event.localX, event.localY);
-         if (action == HitBoxes.ACT_DRAG)
-         {
-            stage.addEventListener(MouseEvent.MOUSE_UP,onEndDrag);
-            mDragStage = stage;
-            startDrag();
-         }
-         else if (action == HitBoxes.ACT_REDRAW)
-            redraw();
+         switch(mHitBoxes.onDown(event.localX, event.localY))
+			{
+			   case DRAG:
+               stage.addEventListener(MouseEvent.MOUSE_UP,onEndDrag);
+               mDragStage = stage;
+               startDrag();
+            case REDRAW:
+               redraw();
+				default:
+			}
       }
    }
 
@@ -74,11 +76,15 @@ class MDIChildFrame extends Sprite
       var obj:gm2d.display.DisplayObject = event.target;
       if (obj==this)
       {
-         var action = mHitBoxes.onUp(event.localX, event.localY);
-         if (action != HitBoxes.ACT_NONE)
-         {
-            redraw();
-            inAction(action);
+         switch(mHitBoxes.onUp(event.localX, event.localY))
+			{
+			   case NONE:
+			   case BUTTON(pane,id):
+	             if (id==MiniButton.CLOSE)
+		             pane.close(false);
+               redraw();
+				default:
+               redraw();
          }
       }
    }
@@ -101,7 +107,7 @@ class MDIChildFrame extends Sprite
 
    function redraw()
    {
-      Skin.current.renderFrame(this,mClientWidth,mClientHeight,mHitBoxes);
+      Skin.current.renderFrame(this,pane,mClientWidth,mClientHeight,mHitBoxes);
    }
 
    function onEndDrag(_)
@@ -109,13 +115,6 @@ class MDIChildFrame extends Sprite
       mDragStage.removeEventListener(MouseEvent.MOUSE_UP,onEndDrag);
       stopDrag();
    }
-
-	function inAction(inAction:Int)
-	{
-	   if (inAction==HitBoxes.ACT_CLOSE)
-		   pane.close(false);
-	}
-
 
    public function setPosition(inX:Float, inY:Float)
    {
@@ -144,6 +143,17 @@ class MDIParent extends Widget, implements IDock
 		mChildren = [];
 		mPanes = [];
    }
+
+	public function getCurrent() : Pane
+	{
+	   if (mChildren.length==0)
+		   return null;
+		var obj = clientArea.getChildAt( mChildren.length-1 );
+		var child:MDIChildFrame = cast obj;
+		if (child==null)
+		   return null;
+		return child.pane;
+	}
 
    override public function layout(inW:Float,inH:Float):Void
    {
@@ -195,7 +205,7 @@ class MDIParent extends Widget, implements IDock
 	function redrawTabs()
 	{
 	   if (mTabArea.bitmapData!=null)
-         Skin.current.renderTabs(mTabArea.bitmapData,mPanes);
+         Skin.current.renderTabs(mTabArea.bitmapData,mPanes,getCurrent());
 	}
 
    // IDock interface
@@ -205,6 +215,7 @@ class MDIParent extends Widget, implements IDock
 		if (idx>=0 && clientArea.getChildIndex(mChildren[idx])<mChildren.length-1)
 		{
 	      clientArea.setChildIndex(mChildren[idx], mChildren.length-1);
+			redrawTabs();
 		}
 	}
 

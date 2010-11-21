@@ -11,6 +11,7 @@ import gm2d.display.Shape;
 import gm2d.text.TextField;
 import gm2d.geom.Point;
 import gm2d.geom.Rectangle;
+import gm2d.ui.HitBoxes;
 
 class Skin
 {
@@ -103,19 +104,19 @@ class Skin
       var shape = new gm2d.display.Shape();
       var gfx = shape.graphics;
       gfx.lineStyle(1,0xffffff);
-      if (inButton==HitBoxes.BUT_CLOSE)
+      if (inButton==MiniButton.CLOSE)
       {
          gfx.moveTo(3,3);
          gfx.lineTo(12,12);
          gfx.moveTo(12,3);
          gfx.lineTo(3,12);
       }
-      if (inButton==HitBoxes.BUT_MINIMIZE)
+      if (inButton==MiniButton.MINIMIZE)
       {
          gfx.moveTo(3,12);
          gfx.lineTo(12,12);
       }
-      if (inButton==HitBoxes.BUT_MAXIMIZE)
+      if (inButton==MiniButton.MAXIMIZE)
       {
          gfx.drawRect(3,3,11,11);
       }
@@ -151,7 +152,7 @@ class Skin
    {
       return new Point(borders,borders+title_h);
    }
-   public function renderFrame(inObj:Sprite, inW:Float, inH:Float,outHitBoxes:HitBoxes)
+   public function renderFrame(inObj:Sprite, pane:Pane, inW:Float, inH:Float,outHitBoxes:HitBoxes)
    {
       var gfx = inObj.graphics;
       gfx.clear();
@@ -171,7 +172,7 @@ class Skin
       outHitBoxes.clear();
 
       var x = inW - borders;
-      for(but in 0 ... HitBoxes.BUT_COUNT)
+      for(but in 0 ... MiniButton.COUNT)
       {
          var bmp = getButtonBitmap(but,outHitBoxes.buttonState[but]);
          if (bmp!=null) 
@@ -192,14 +193,15 @@ class Skin
             x-= bitmap.width;
             bitmap.x = x;
 
-            outHitBoxes.add( new Rectangle(bitmap.x,bitmap.y,bmp.width,bmp.height), but );
+            outHitBoxes.add( new Rectangle(bitmap.x,bitmap.y,bmp.width,bmp.height),
+				         HitAction.BUTTON(pane,but) );
          }
       }
 
-      outHitBoxes.add( new Rectangle(0,0,inW,title_h), HitBoxes.ACT_DRAG );
+      outHitBoxes.add( new Rectangle(0,0,inW,title_h), HitAction.DRAG );
    }
 
-   static var tab_height = 22;
+   static var tab_height = 24;
 
    function initGfx()
 	{
@@ -213,7 +215,7 @@ class Skin
 	}
 
 	public function getTabHeight() { return tab_height; }
-	public function renderTabs(inArea:BitmapData,inPanes:Array<Pane> )
+	public function renderTabs(inArea:BitmapData,inPanes:Array<Pane>, inCurrent:Pane )
 	{
 	   initGfx();
 		var w = inArea.width;
@@ -222,29 +224,28 @@ class Skin
 		var mtx = new gm2d.geom.Matrix();
 
       mtx.createGradientBox(tab_height,tab_height,Math.PI * 0.5);
-      var cols:Array<Int> = [ 0xa0a090, 0x404040, 0x606070];
-      var alphas:Array<Float> = [1.0, 1.0, 1.0];
-      var ratio:Array<Int> = [0, 128, 255];
+      var cols:Array<Int> = [ 0x404040, 0xa0a090];
+      var alphas:Array<Float> = [1.0, 1.0];
+      var ratio:Array<Int> = [0, 255];
       gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
 		gfx.drawRect(0,0,w,tab_height);
 		inArea.draw(mDrawing);
 
-      var x = 2.0;
 		var trans = new gm2d.geom.Matrix();
+		trans.tx = 2;
+		trans.ty = 2;
 		for(pane in inPanes)
 		{
 		   mText.text = pane.title;
-			var tw = mText.textWidth;
-			// TODO: not quite working on NME?
+			var tw = mText.textWidth + 4;
 		   gfx.clear();
          gfx.lineStyle(1,0xf0f0e0);
-		   gfx.beginFill(0xa0a090);
-			gfx.drawRoundRect(x,0,tw,tab_height-2,3,3);
-		   inArea.draw(mDrawing);
-
-			trans.tx = x;
+		   gfx.beginFill(pane==inCurrent ? 0xe0e0d0 : 0xa0a090);
+			gfx.drawRoundRect(0.5,0.5,tw,tab_height+2,3,3);
+		   inArea.draw(mDrawing,trans);
+			trans.tx += 2;
 		   inArea.draw(mText,trans);
-			x+=tw+2;
+			trans.tx+=tw+2;
 		}
 
 	}

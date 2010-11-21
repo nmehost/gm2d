@@ -4,37 +4,44 @@ import gm2d.geom.Rectangle;
 import gm2d.geom.Point;
 import gm2d.display.Bitmap;
 
+class ResizeFlag
+{
+   public static inline var E = 0x0010;
+   public static inline var W = 0x0020;
+   public static inline var N = 0x0040;
+   public static inline var S = 0x0080;
+}
+
+class MiniButton
+{
+   public static inline var CLOSE    = 0;
+   public static inline var MINIMIZE = 1;
+   public static inline var MAXIMIZE = 2;
+
+   public static inline var COUNT = 3;
+}
+
+enum HitAction
+{
+   NONE;
+   DRAG;
+   REDRAW;
+   BUTTON(pane:Pane,button:Int);
+}
+
 class HitBox
 {
-   public function new(inRect:Rectangle, inAction:Int)
+   public function new(inRect:Rectangle, inAction:HitAction)
    {
       rect = inRect;
       action = inAction;
    }
    public var rect:Rectangle;
-   public var action:Int;
+   public var action:HitAction;
 }
 
 class HitBoxes
 {
-   public static var ACT_NONE     = -1;
-   public static var ACT_CLOSE    = 0;
-   public static var ACT_MINIMIZE = 1;
-   public static var ACT_MAXIMIZE = 2;
-   public static var ACT_DRAG     = 3;
-   public static var ACT_REDRAW   = 4;
-
-   public static var ACT_RESIZE_E = 0x0010;
-   public static var ACT_RESIZE_W = 0x0020;
-   public static var ACT_RESIZE_N = 0x0040;
-   public static var ACT_RESIZE_S = 0x0080;
-
-
-   public static var BUT_CLOSE = 0;
-   public static var BUT_MINIMIZE = 1;
-   public static var BUT_MAXIMIZE = 2;
-   public static var BUT_COUNT = 3;
-
    public static var BUT_STATE_UP = 0;
    public static var BUT_STATE_OVER = 1;
    public static var BUT_STATE_DOWN = 2;
@@ -53,46 +60,55 @@ class HitBoxes
    }
    public function clear() { rects = []; }
 
-   public function add(rect:Rectangle, action:Int)
+   public function add(rect:Rectangle, action:HitAction)
    {
       rects.push( new HitBox(rect,action) );
    }
 
-   public function onDown(inX:Float, inY:Float) : Int
+	function buttonID(inAction:HitAction) : Int
+	{
+	   switch(inAction)
+		{
+			case BUTTON(_,id): return id;
+			default:
+		}
+		return -1;
+	}
+
+   public function onDown(inX:Float, inY:Float) : HitAction
    {
       for(r in rects)
          if (r.rect.contains(inX,inY))
-         {
-            if (r.action>=0 && r.action<BUT_COUNT)
-            {
-               buttonState[r.action] = BUT_STATE_DOWN;
-               return ACT_REDRAW;
+			   switch(r.action)
+				{
+				   case BUTTON(pane,id) :
+                  buttonState[id] = BUT_STATE_DOWN;
+                  return HitAction.REDRAW;
+					default:
+                  return r.action;
             }
 
-            return r.action;
-         }
-
-      return ACT_NONE;
+      return HitAction.NONE;
    }
 
 
-   public function onUp(inX:Float, inY:Float) : Int
+   public function onUp(inX:Float, inY:Float) : HitAction
    {
       for(r in rects)
          if (r.rect.contains(inX,inY))
          {
-            if (r.action>=0 && r.action<BUT_COUNT)
-            {
-               if (buttonState[r.action]==BUT_STATE_DOWN)
-               {
-                  buttonState[r.action]=BUT_STATE_OVER;
-                  return r.action;
-               }
-               break;
+			   switch(r.action)
+				{
+				   case BUTTON(pane,id):
+                  if (buttonState[id]==BUT_STATE_DOWN)
+                  {
+                     buttonState[id]=BUT_STATE_OVER;
+                     return r.action;
+                  }
+				   default:
             }
          }
-
-      return ACT_NONE;
+      return HitAction.NONE;
    }
 
 
