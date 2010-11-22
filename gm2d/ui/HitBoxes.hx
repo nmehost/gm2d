@@ -19,8 +19,10 @@ class MiniButton
    public static inline var CLOSE    = 0;
    public static inline var MINIMIZE = 1;
    public static inline var MAXIMIZE = 2;
+   public static inline var RESTORE = 3;
+   public static inline var POPUP = 4;
 
-   public static inline var COUNT = 3;
+   public static inline var COUNT = 5;
 }
 
 enum HitAction
@@ -57,6 +59,7 @@ class HitBoxes
    var mDownY:Float;
    var mMoved:Bool;
    var mDownPane:Pane;
+   public var buttonState(default,null):Array<Int>;
 
 
    public function new(inObject:Sprite,inCallback:HitAction->Void)
@@ -67,6 +70,7 @@ class HitBoxes
       mObject = inObject;
       mCallback = inCallback;
       mDownPane = null;
+      buttonState = [0,0,0,0,0];
       inObject.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
       inObject.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
       inObject.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
@@ -121,7 +125,8 @@ class HitBoxes
             switch(r.action)
             {
                case BUTTON(pane,id) :
-                  pane.buttonState[id] = BUT_STATE_DOWN;
+                  var states = pane==null ? buttonState : pane.buttonState;
+                  states[id] = BUT_STATE_DOWN;
                   mCallback(HitAction.REDRAW);
                case TITLE(pane) :
                   mDownPane = pane;
@@ -141,10 +146,10 @@ class HitBoxes
             switch(r.action)
             {
                case BUTTON(pane,id):
-                  if (pane.buttonState[id]==BUT_STATE_DOWN)
-
+                  var states = pane==null ? buttonState : pane.buttonState;
+                  if (states[id]==BUT_STATE_DOWN)
                   {
-                     pane.buttonState[id]=BUT_STATE_OVER;
+                     states[id]=BUT_STATE_OVER;
                   }
                default:
             }
@@ -162,17 +167,18 @@ class HitBoxes
          switch(rect.action)
          {
             case BUTTON(pane,id):
+               var states = pane==null ? buttonState : pane.buttonState;
                if (rect.rect.contains(inX,inY))
                {
-                  if (pane.buttonState[id]==BUT_STATE_UP)
+                  if (states[id]==BUT_STATE_UP)
                   {
-                      pane.buttonState[id] = BUT_STATE_OVER;
+                      states[id] = BUT_STATE_OVER;
                       result = true;
                   }
                }
-               else if (pane.buttonState[id]!=BUT_STATE_UP)
+               else if (states[id]!=BUT_STATE_UP)
                {
-                   pane.buttonState[id] = BUT_STATE_UP;
+                   states[id] = BUT_STATE_UP;
                    result = true;
                }
             default:

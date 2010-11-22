@@ -1,6 +1,7 @@
 package gm2d.ui;
 
 import gm2d.display.DisplayObject;
+import gm2d.geom.Rectangle;
 
 
 class Pane
@@ -14,6 +15,8 @@ class Pane
    public var bestWidth:Float;
    public var bestHeight:Float;
    public var buttonState(default,null):Array<Int>;
+   public var gm2dMinimized:Bool;
+   public var gm2dMDIRect:Rectangle;
    var mFlags:Int;
    var mMinSizeX:Float;
    var mMinSizeY:Float;
@@ -30,6 +33,7 @@ class Pane
       mMinSizeY = 0;
       dock = null;
       buttonState = [ 0,0,0 ];
+      gm2dMinimized = false;
    }
 
    public function raise()

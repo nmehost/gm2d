@@ -116,11 +116,22 @@ class Skin
          gfx.moveTo(3,12);
          gfx.lineTo(12,12);
       }
-      if (inButton==MiniButton.MAXIMIZE)
+      else if (inButton==MiniButton.MAXIMIZE)
       {
          gfx.drawRect(3,3,11,11);
       }
- 
+      else if (inButton==MiniButton.RESTORE)
+      {
+         gfx.drawRect(3,3,6,6);
+         gfx.drawRect(8,8,6,6);
+      }
+      else if (inButton==MiniButton.POPUP)
+      {
+         gfx.moveTo(5,7);
+         gfx.lineTo(11,7);
+         gfx.lineTo(8,10);
+         gfx.lineTo(5,7);
+      }
       if (inState==HitBoxes.BUT_STATE_DOWN)
       {
          // todo: why does this not work in flash - matrix?
@@ -172,7 +183,7 @@ class Skin
       outHitBoxes.clear();
 
       var x = inW - borders;
-      for(but in 0 ... MiniButton.COUNT)
+      for(but in [ MiniButton.CLOSE, MiniButton.MINIMIZE, MiniButton.MAXIMIZE ] )
       {
          var bmp = getButtonBitmap(but,pane.buttonState[but]);
          if (bmp!=null) 
@@ -215,7 +226,11 @@ class Skin
    }
 
    public function getTabHeight() { return tab_height; }
-   public function renderTabs(inArea:BitmapData,inPanes:Array<Pane>, inCurrent:Pane, outHitBoxes:HitBoxes )
+   public function renderTabs(inArea:BitmapData,
+                              inPanes:Array<Pane>,
+                              inCurrent:Pane,
+                              outHitBoxes:HitBoxes,
+                              inIsMaximized:Bool  )
    {
       initGfx();
       var w = inArea.width;
@@ -232,6 +247,28 @@ class Skin
       inArea.draw(mDrawing);
 
       outHitBoxes.clear();
+
+
+      var buts = [ MiniButton.POPUP ];
+      if (inIsMaximized)
+         buts.push( MiniButton.RESTORE );
+      var x = inArea.width - 4;
+      for(but in buts)
+      {
+         var bmp = getButtonBitmap(but,outHitBoxes.buttonState[but]);
+         if (bmp!=null) 
+         {
+            x-= bmp.width;
+            var y = (tab_height-bmp.height)/2;
+
+            inArea.copyPixels( bmp, new Rectangle(0,0,bmp.width,bmp.height), new Point(x,y), null, null, true );
+
+            outHitBoxes.add( new Rectangle(x,y,bmp.width,bmp.height), HitAction.BUTTON(null,but) );
+         }
+      }
+
+
+
 
       var trans = new gm2d.geom.Matrix();
       trans.tx = 2;
