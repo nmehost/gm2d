@@ -127,6 +127,7 @@ class Skin
       }
       else if (inButton==MiniButton.POPUP)
       {
+         gfx.beginFill(0xffffff);
          gfx.moveTo(5,7);
          gfx.lineTo(11,7);
          gfx.lineTo(8,10);
@@ -163,19 +164,27 @@ class Skin
    {
       return new Point(borders,borders+title_h);
    }
-   public function renderFrame(inObj:Sprite, pane:Pane, inW:Float, inH:Float,outHitBoxes:HitBoxes)
+   public function renderFrame(inObj:Sprite, pane:Pane, inW:Float, inH:Float,outHitBoxes:HitBoxes,inIsCurrent:Bool)
    {
       var gfx = inObj.graphics;
       gfx.clear();
 
-      var mtx = new gm2d.geom.Matrix();
-      mtx.createGradientBox(title_h+borders,title_h+borders,Math.PI * 0.5);
-      var cols:Array<Int> = [0xf0f0e0, 0xe0e0d0, 0xa0a090];
-      var alphas:Array<Float> = [1.0, 1.0, 1.0];
-      var ratio:Array<Int> = [0, 128, 255];
-      gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
+		if (inIsCurrent)
+		{
+         var mtx = new gm2d.geom.Matrix();
+         mtx.createGradientBox(title_h+borders,title_h+borders,Math.PI * 0.5);
+         var cols:Array<Int> = [0xf0f0e0, 0xe0e0d0, 0xa0a090];
+         var alphas:Array<Float> = [1.0, 1.0, 1.0];
+         var ratio:Array<Int> = [0, 128, 255];
+         gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
+         gfx.lineStyle(1,0xf0f0e0);
+		}
+		else
+		{
+		   gfx.beginFill(0xa0a090);
+         gfx.lineStyle(1,0xa0a090);
+		}
 
-      gfx.lineStyle(1,0xf0f0e0);
       gfx.drawRoundRect(0.5,0.5,inW+borders*2, inH+borders*2+title_h, 3,3 );
       gfx.endFill();
       gfx.drawRect(borders-0.5,title_h+borders-0.5,inW+1, inH+1 );

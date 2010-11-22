@@ -10,6 +10,7 @@ import gm2d.text.TextField;
 import gm2d.geom.Point;
 import gm2d.events.MouseEvent;
 import gm2d.ui.HitBoxes;
+import gm2d.Game;
 
 class MDIChildFrame extends Sprite
 {
@@ -23,11 +24,13 @@ class MDIChildFrame extends Sprite
    var mClientHeight:Float;
    var mClientOffset:Point;
    var mDragStage:gm2d.display.Stage;
+	var mIsCurrent:Bool;
 
-   public function new(inPane:Pane, inMDI:MDIParent )
+   public function new(inPane:Pane, inMDI:MDIParent, inIsCurrent:Bool )
    {
       super();
       mTitle = new TextField();
+		mIsCurrent = inIsCurrent;
       addChild(mTitle);
       Skin.current.styleLabelText(mTitle);
       mTitle.text = inPane.title;
@@ -58,10 +61,19 @@ class MDIChildFrame extends Sprite
       mClientWidth = rect.width;
       mClientHeight = rect.height;
       //pane.displayObject.scrollRect = new Rectangle(20,20,mClientWidth, mClientHeight);
-      Skin.current.renderFrame(this,inPane,mClientWidth,mClientHeight,mHitBoxes);
+      Skin.current.renderFrame(this,inPane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
       addChild(pane.displayObject);
       inMDI.clientArea.addChild(this);
    }
+
+	public function setCurrent(inIsCurrent:Bool)
+	{
+	   if (mIsCurrent!=inIsCurrent)
+		{
+		   mIsCurrent = inIsCurrent;
+         Skin.current.renderFrame(this,pane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
+		}
+	}
 
    public function destroy()
    {
@@ -97,7 +109,7 @@ class MDIChildFrame extends Sprite
 
    function redraw()
    {
-      Skin.current.renderFrame(this,pane,mClientWidth,mClientHeight,mHitBoxes);
+      Skin.current.renderFrame(this,pane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
    }
 
    function onEndDrag(_)
@@ -188,7 +200,7 @@ class MDIParent extends Widget, implements IDock
          {
             if (!pane.gm2dMinimized)
             {
-               var frame = new MDIChildFrame(pane,this);
+               var frame = new MDIChildFrame(pane,this,pane==max);
                mChildren.push(frame);
             }
          }
@@ -237,7 +249,7 @@ class MDIParent extends Widget, implements IDock
       if (mMaximizedPane==null)
       {
          inPane.gm2dMinimized = false;
-         var child = new MDIChildFrame(inPane,this);
+         var child = new MDIChildFrame(inPane,this,true);
          mChildren.push(child);
          redrawTabs();
       }
@@ -264,9 +276,21 @@ class MDIParent extends Widget, implements IDock
 
    function redrawTabs()
    {
+	   var current = getCurrent();
+	   for(child in mChildren)
+		   child.setCurrent(child.pane==current);
+		  
       if (mTabArea.bitmapData!=null)
-         Skin.current.renderTabs(mTabArea.bitmapData,mPanes,getCurrent(),mHitBoxes, mMaximizedPane!=null);
+         Skin.current.renderTabs(mTabArea.bitmapData,mPanes,current,mHitBoxes, mMaximizedPane!=null);
    }
+
+	function showPaneMenu()
+	{
+	   var menu = new MenuItem("Tabs");
+		for(pane in mPanes)
+		   menu.add( new MenuItem(pane.title, function(_)  pane.raise() ) );
+		popup( new PopupMenu(menu), clientWidth-50,mTabHeight);
+	}
 
    function onHitBox(inAction:HitAction)
    {
@@ -284,6 +308,11 @@ class MDIParent extends Widget, implements IDock
                pane.close(false);
             else if (id==MiniButton.RESTORE)
                restore();
+            else if (id==MiniButton.POPUP)
+				{
+			      if (mPanes.length>0)
+			         showPaneMenu();
+				}
             redrawTabs();
          case REDRAW:
             redrawTabs();

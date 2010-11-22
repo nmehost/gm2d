@@ -1,8 +1,11 @@
 import gm2d.ui.App;
 import gm2d.ui.Menubar;
+import gm2d.ui.MenuItem;
 import gm2d.ui.Pane;
 import gm2d.display.Sprite;
 import gm2d.Game;
+
+import systools.Dialogs;
 
 class SampleApp extends App
 {
@@ -24,7 +27,7 @@ class SampleApp extends App
    {
       var bar = menubar;
       var file = new MenuItem("File");
-      file.add( new MenuItem("Load") );
+      file.add( new MenuItem("Load", onLoad) );
       file.add( new MenuItem("Save") );
       file.add( new MenuItem("Save As") );
       file.add( new MenuItem("Exit",onExit) );
@@ -60,6 +63,27 @@ class SampleApp extends App
       gfx.drawCircle(100,100,100);
       addPane( new Pane(item,"View:"+col,Pane.RESIZABLE), Pane.POS_OVER );
 
+	}
+
+	function onLoad(_)
+	{
+	#if systools
+	#if neko
+	neko.vm.Thread.create( function() {
+	   var filters: FILEFILTERS = 
+			{ count: 2
+			, descriptions: ["Text files", "JPEG files"]
+			, extensions: ["*.txt","*.jpg;*.jpeg"]			
+			};		
+		var result = Dialogs.openFile
+			( "Select a file please!"
+			, "Please select one or more files, so we can see if this method works"
+			, filters 
+			);
+		trace(result);		
+		} );
+	#end
+	#end
 	}
 
 	function onViewDebugTracePanes(_)

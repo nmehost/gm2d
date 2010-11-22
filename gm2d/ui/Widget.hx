@@ -1,6 +1,7 @@
 package gm2d.ui;
 
 import gm2d.display.DisplayObjectContainer;
+import gm2d.geom.Point;
 
 
 class Widget extends gm2d.display.Sprite
@@ -41,6 +42,12 @@ class Widget extends gm2d.display.Sprite
    public function activate(inDirection:Int) { }
 
    public function onCurrentChanged(inCurrent:Bool) { }
+
+   public function popup(inPopup:Window,inX:Float,inY:Float,inShadow:Bool=true)
+   {
+	   var pos = localToGlobal( new Point(inX,inY) );
+		gm2d.Game.popup(inPopup,pos.x,pos.y,inShadow);
+   }
 
 
    public function setCurrent()

@@ -443,8 +443,20 @@ class Game
        }
        mCurrentPopup = inPopup;
        mPopupParent.addChild(inPopup);
-       inPopup.x = inX;
-       inPopup.y = inY;
+		 var pos = mPopupParent.localToGlobal( new Point(inX+inPopup.width,inY+inPopup.height) );
+		 if (pos.x>mPopupParent.stage.stageWidth)
+		    inX -= (pos.x-mPopupParent.stage.stageWidth) / mPopupParent.scaleX;
+		 if (pos.y>mPopupParent.stage.stageHeight)
+		    inY -= (pos.y-mPopupParent.stage.stageHeight) / mPopupParent.scaleY;
+
+		 var pos = mPopupParent.localToGlobal( new Point(inX,inY) );
+		 if (pos.x<0)
+		    inX += -pos.x/mPopupParent.scaleX;
+		 if (pos.y<0)
+		    inY += -pos.y/mPopupParent.scaleY;
+		 inPopup.x = inX;
+		 inPopup.y = inY;
+
        mPopupParent.visible = true;
        mDialogParent.mouseEnabled = false;
        mScreenParent.mouseEnabled = false;
