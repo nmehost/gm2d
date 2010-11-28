@@ -39,9 +39,9 @@ class SampleApp extends App
       bar.add( edit );
       var view = new MenuItem("View");
       view.add( new MenuItem("New", onViewNew) );
-		#if cpp
+      #if cpp
       view.add( new MenuItem("Debug Trace Panes", onViewDebugTracePanes) );
-		#end
+      #end
       bar.add( view );
    }
 
@@ -52,46 +52,46 @@ class SampleApp extends App
       #end
    }
 
-	function onViewNew(_)
-	{
-	   var item = new Sprite();
+   function onViewNew(_)
+   {
+      var item = new Sprite();
       var gfx = item.graphics;
-		var col = Std.int(Math.random()*0xffffff);
+      var col = Std.int(Math.random()*0xffffff);
       gfx.beginFill(0x0000);
       gfx.drawRect(0,0,200,200);
       gfx.beginFill(col);
       gfx.drawCircle(100,100,100);
       addPane( new Pane(item,"View:"+col,Pane.RESIZABLE), Pane.POS_OVER );
 
-	}
+   }
 
-	function onLoad(_)
-	{
-	#if systools
-	#if neko
-	neko.vm.Thread.create( function() {
-	   var filters: FILEFILTERS = 
-			{ count: 2
-			, descriptions: ["Text files", "JPEG files"]
-			, extensions: ["*.txt","*.jpg;*.jpeg"]			
-			};		
-		var result = Dialogs.openFile
-			( "Select a file please!"
-			, "Please select one or more files, so we can see if this method works"
-			, filters 
-			);
-		trace(result);		
-		} );
-	#end
-	#end
-	}
+   function onLoad(_)
+   {
+   #if systools
+   #if neko
+   neko.vm.Thread.create( function() {
+      var filters: FILEFILTERS = 
+         { count: 2
+         , descriptions: ["Text files", "JPEG files"]
+         , extensions: ["*.txt","*.jpg;*.jpeg"]         
+         };      
+      var result = Dialogs.openFile
+         ( "Select a file please!"
+         , "Please select one or more files, so we can see if this method works"
+         , filters 
+         );
+      trace(result);      
+      } );
+   #end
+   #end
+   }
 
-	function onViewDebugTracePanes(_)
-	{
-	   #if cpp
-		cpp.vm.Gc.trace(Pane);
-		#end
-	}
+   function onViewDebugTracePanes(_)
+   {
+      #if cpp
+      cpp.vm.Gc.trace(Pane);
+      #end
+   }
 
 
    static public function main()

@@ -1,11 +1,14 @@
 package gm2d.ui;
 import gm2d.display.BitmapData;
+import gm2d.display.Bitmap;
 import gm2d.text.TextField;
 import gm2d.blit.Tile;
 import gm2d.blit.Tilesheet;
 import gm2d.filters.BitmapFilter;
 import gm2d.filters.GlowFilter;
 import gm2d.geom.Rectangle;
+import gm2d.geom.Point;
+import flash.display.BitmapDataChannel;
 
 class TileInfo
 {
@@ -35,7 +38,7 @@ class BitmapFont
       packing = 0;
    }
 
-   public static function create(inFont:String, inHeight:Float=12, inCol=0x000000, inLeftToRight:Bool=true)
+   public static function createFilters(inFont:String, inHeight:Float, inCol, inLeftToRight:Bool,inFilters:Array<BitmapFilter>, inMask:BitmapData )
    {
       var fmt = new gm2d.text.TextFormat();
       fmt.size = inHeight;
@@ -45,10 +48,7 @@ class BitmapFont
       tf.defaultTextFormat = fmt;
       tf.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
 
-      var filters:Array<BitmapFilter> = [];
-      filters.push( new GlowFilter(0xff0000,1,6,6,2,1) );
-
-      return new BitmapFont(inHeight,  inLeftToRight, function(font,ch)
+      return new BitmapFont(Std.int(inHeight*1.5),  inLeftToRight, function(font,ch)
          {
             tf.text = String.fromCharCode(ch);
             var w = Std.int(tf.textWidth)+5;
@@ -57,23 +57,45 @@ class BitmapFont
             tf.filters = null;
             bmp.draw(tf);
             var rect = bmp.getColorBoundsRect( gm2d.RGB.BLACK, gm2d.RGB.CLEAR, false ); // Not clear
+            if (inMask!=null)
+            {
+               var r = new Rectangle(0,0,bmp.width,bmp.height);
+               var p = new Point(0,0);
+               inMask.copyChannel(bmp,r,p, BitmapDataChannel.ALPHA, BitmapDataChannel.ALPHA);
+               bmp.copyPixels(inMask,r,p);
+            }
+
             if (rect.width==0 || rect.height==0)
-               font.addGlyph(ch,null,0);
+               font.addGlyph(ch,null,ch!=32 ? 0 : ((h>>3)+1));
             else
             {
                var frect = rect;
-               for(filter in filters)
-                  frect = bmp.generateFilterRect(frect,filter);
+               if (inFilters!=null)
+                  for(filter in inFilters)
+                     frect = bmp.generateFilterRect(frect,filter);
                //trace(frect);
 
                var tight = new BitmapData( Std.int(frect.width), Std.int(frect.height),true, gm2d.RGB.CLEAR );
-               tf.filters = filters;
-               tight.draw(tf,new gm2d.geom.Matrix(1,0,0,1,-frect.x,-frect.y) );
+
+               var bitmap = new Bitmap(bmp);
+               bitmap.filters = inFilters;
+               tight.draw(bitmap,new gm2d.geom.Matrix(1,0,0,1,-frect.x,-frect.y) );
                var tile = font.addBitmap(ch,tight,rect.width+1);
                tile.hotX = -(frect.x-rect.x);
                tile.hotY = -frect.y;
             }
          } );
+   }
+   public static function create(inFont:String, inHeight:Float=12, inCol=0x000000, inLeftToRight:Bool=true)
+   {
+      var filters:Array<BitmapFilter> = [];
+      filters.push( new GlowFilter(0xff0000,1,3,3,3,3) );
+
+      var h = Std.int( Math.ceil(inHeight) );
+      var bmp:BitmapData = null;
+      bmp  = new BitmapData(h,h,true, gm2d.RGB.RED );
+
+      return createFilters(inFont,inHeight,inCol,inLeftToRight,filters, bmp);
    }
 
    // Extract a font from a set of rectangles surrounded by bright pink, such as

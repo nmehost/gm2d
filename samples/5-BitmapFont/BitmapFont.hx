@@ -41,8 +41,10 @@ class BitmapFont extends Screen
       text.type = TextFieldType.INPUT;
       addChild(text);
 
+      var font = gm2d.ui.BitmapFont.create("Arial", 20, 0xffffff);
+
       var text = new BitmapText(font,"Hello2");
-      text.layout(200,font.height);
+      text.layout(200,32);
       text.x = 100;
       text.y = 200;
       text.type = TextFieldType.INPUT;

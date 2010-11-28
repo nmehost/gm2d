@@ -11,7 +11,7 @@ import gm2d.blit.Layer;
 import gm2d.blit.Tile;
 
 
-class BitmapText extends Base
+class BitmapText extends Control
 {
    var mViewport:Viewport;
    var mLayer:Layer;
@@ -43,7 +43,7 @@ class BitmapText extends Base
       mLayer = mViewport.createLayer();
       mFont = inFont;
       mOnChange = onUpdate;
-      mInput = false;
+      wantFocus = mInput = false;
       mInsertPos = 0;
       mSelStart = mSelEnd = 0;
       selectable = true;
@@ -54,14 +54,12 @@ class BitmapText extends Base
 
       setText(inVal);
       mCharPos = [];
+   }
 
-      var occ = onCurrentChanged;
-      var me = this;
-      onCurrentChanged = function(inCurrent:Bool)
-      {
-         occ(inCurrent);
-         me.setCaretState(inCurrent);
-      };
+   override function onCurrentChanged(inCurrent:Bool)
+   {
+      super.onCurrentChanged(inCurrent);
+      setCaretState(inCurrent);
    }
 
    public function setCaret(inCharCode:Int)
@@ -71,8 +69,6 @@ class BitmapText extends Base
          renderCaret();
    }
 
-
-   public override function wantFocus() { return mInput; }
 
    function ClearSelection()
    {
@@ -322,7 +318,7 @@ class BitmapText extends Base
    public function getType() { return mInput ? TextFieldType.INPUT : TextFieldType.DYNAMIC;}
    public function setType(inType:TextFieldType)
    {
-      mInput = inType==TextFieldType.INPUT;
+      wantFocus = mInput = inType==TextFieldType.INPUT;
       return inType;
    }
 

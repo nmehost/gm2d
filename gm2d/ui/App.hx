@@ -28,7 +28,11 @@ class App extends Screen
 
    public function addPane(inPane:Pane, inPos:Int)
    {
-      mMDI.addPane(inPane);
+      if (inPos==Pane.POS_OVER)
+         mMDI.addPane(inPane);
+      else
+      {
+      }
    }
 
    function doLayout()
