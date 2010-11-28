@@ -8,7 +8,7 @@ import gm2d.filters.BitmapFilter;
 import gm2d.filters.GlowFilter;
 import gm2d.geom.Rectangle;
 import gm2d.geom.Point;
-import flash.display.BitmapDataChannel;
+import gm2d.display.BitmapDataChannel;
 
 class TileInfo
 {
@@ -61,8 +61,9 @@ class BitmapFont
             {
                var r = new Rectangle(0,0,bmp.width,bmp.height);
                var p = new Point(0,0);
-               inMask.copyChannel(bmp,r,p, BitmapDataChannel.ALPHA, BitmapDataChannel.ALPHA);
-               bmp.copyPixels(inMask,r,p);
+               bmp.copyChannel(inMask,r,p, BitmapDataChannel.RED, BitmapDataChannel.RED );
+               bmp.copyChannel(inMask,r,p, BitmapDataChannel.GREEN, BitmapDataChannel.GREEN );
+               bmp.copyChannel(inMask,r,p, BitmapDataChannel.BLUE, BitmapDataChannel.BLUE );
             }
 
             if (rect.width==0 || rect.height==0)
@@ -89,13 +90,25 @@ class BitmapFont
    public static function create(inFont:String, inHeight:Float=12, inCol=0x000000, inLeftToRight:Bool=true)
    {
       var filters:Array<BitmapFilter> = [];
-      filters.push( new GlowFilter(0xff0000,1,3,3,3,3) );
+      filters.push( new GlowFilter(0x000000,1,3,3,3) );
 
       var h = Std.int( Math.ceil(inHeight) );
       var bmp:BitmapData = null;
-      bmp  = new BitmapData(h,h,true, gm2d.RGB.RED );
+      bmp  = new BitmapData(h,Std.int(h*1.5),true, gm2d.RGB.YELLOW );
 
-      return createFilters(inFont,inHeight,inCol,inLeftToRight,filters, bmp);
+		var shape = new gm2d.display.Shape();
+		var gfx = shape.graphics;
+		var mtx = new gm2d.geom.Matrix();
+		mtx.createGradientBox(inHeight,inHeight,Math.PI*0.5,0,inHeight*0.25);
+
+		var cols:Array<Int> = [0xff0000, 0xffffff, 0xffff00 ];
+      var alphas:Array<Float> = [1.0, 1.0, 1.0];
+      var ratio:Array<Int> = [0, 128, 255];
+      gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
+      gfx.drawRect(0,0,inHeight,inHeight*1.5);
+		bmp.draw(shape);
+
+      return createFilters(inFont,inHeight,0x000000,inLeftToRight,filters, bmp);
    }
 
    // Extract a font from a set of rectangles surrounded by bright pink, such as

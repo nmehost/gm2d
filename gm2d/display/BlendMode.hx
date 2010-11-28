@@ -7,4 +7,3 @@ typedef BlendMode = nme.display.BlendMode;
 #end
 
 
-

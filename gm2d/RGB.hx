@@ -9,6 +9,7 @@ class RGB
    public static var RED = RGBA(0xff0000,0xff);
    public static var GREEN = RGBA(0x00ff00,0xff);
    public static var BLUE = RGBA(0x0000ff,0xff);
+   public static var YELLOW = RGBA(0xffff00,0xff);
 
    public static function RGBA(inRGB:Int, inA:Int = 0xff)
    {
