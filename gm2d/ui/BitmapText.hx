@@ -9,10 +9,13 @@ import gm2d.ui.Button;
 import gm2d.blit.Viewport;
 import gm2d.blit.Layer;
 import gm2d.blit.Tile;
+import gm2d.Timer;
 
 
 class BitmapText extends Control
 {
+   static var mCopyBuffer:String = "";
+
    var mViewport:Viewport;
    var mLayer:Layer;
    var mCaretLayer:Layer;
@@ -29,6 +32,9 @@ class BitmapText extends Control
    var mCaretTile:Tile;
    var mSelectionOverlay:Shape;
    var mCharPos:Array<Float>;
+   var mScrollPos:Float;
+   var mCurrent:Bool;
+   var mTimer:Timer;
 
    // TextField-like API
    public var text(getText,setText):String;
@@ -47,6 +53,7 @@ class BitmapText extends Control
       mInsertPos = 0;
       mSelStart = mSelEnd = 0;
       selectable = true;
+      mScrollPos = 0;
 
       addChild(mViewport);
 
@@ -54,12 +61,42 @@ class BitmapText extends Control
 
       setText(inVal);
       mCharPos = [];
+      mCurrent = false;
    }
 
    override function onCurrentChanged(inCurrent:Bool)
    {
       super.onCurrentChanged(inCurrent);
+      mCurrent = inCurrent;
       setCaretState(inCurrent);
+      if (inCurrent && mInput)
+      {
+         if (mTimer==null)
+         {
+            mTimer = new Timer(500);
+            mTimer.run = onTimer;
+         }
+      }
+      else
+      {
+         if (mTimer!=null)
+            mTimer.stop();
+         mTimer = null;
+      }
+   }
+
+   function onTimer()
+   {
+      if (mCurrent && mInput)
+      {
+         if (mCaretLayer!=null)
+            mCaretLayer.visible = !mCaretLayer.visible;
+      }
+      else if (mTimer!=null)
+      {
+         mTimer.stop();
+         mTimer = null;
+      }
    }
 
    public function setCaret(inCharCode:Int)
@@ -173,12 +210,12 @@ class BitmapText extends Control
             mInsertPos = mText.length;
             OnMoveKeyEnd();
          }
-         /*
-          Cut + Paste
+         // Cut + Paste
          else if ( (key==Keyboard.INSERT && shift) || ascii==22)
          {
             DeleteSelection();
-            var str = Manager.getClipboardString();
+            // TODO: make system-wide
+            var str = mCopyBuffer;
             if (str!=null && str!="")
             {
                mText = mText.substr(0,mInsertPos) + str + mText.substr(mInsertPos);
@@ -189,30 +226,36 @@ class BitmapText extends Control
          {
             if (mSelEnd > mSelStart && mSelStart>=0)
             {
-               Manager.setClipboardString( mText.substr(mSelStart,mSelEnd-mSelStart) );
+               // TODO: make system-wide
+               mCopyBuffer = mText.substr(mSelStart,mSelEnd-mSelStart);
                if (ascii!=3)
                   DeleteSelection();
             }
          }
-         */
 
          else if (key==Keyboard.DELETE || key==Keyboard.BACKSPACE)
          {
             if (mSelEnd> mSelStart && mSelStart>=0)
+            {
                DeleteSelection();
+            }
             else
             {
-               if (key==Keyboard.BACKSPACE && mInsertPos>0)
-                  mInsertPos--;
-               var l = mText.length;
-               if (mInsertPos>l)
+               /* diff between delete and backspace on mac
+                  if (key==Keyboard.DELETE || mInsertPos>0) */
                {
-                  if (l>0)
-                     mText = mText.substr(0,l-1);
-               }
-               else
-               {
-                   mText = mText.substr(0,mInsertPos) + mText.substr(mInsertPos+1);
+                  if (key==Keyboard.BACKSPACE && mInsertPos>0 )
+                     mInsertPos--;
+                  var l = mText.length;
+                  if (mInsertPos>l)
+                  {
+                     if (l>0)
+                        mText = mText.substr(0,l-1);
+                  }
+                  else
+                  {
+                      mText = mText.substr(0,mInsertPos) + mText.substr(mInsertPos+1);
+                  }
                }
             }
          }
@@ -262,12 +305,12 @@ class BitmapText extends Control
       mText = inText;
       ClearSelection();
       mInsertPos = mText.length;
-      RebuildText();
+      RebuildText(true);
       return mText;
    }
 
 
-   function RebuildText()
+   function RebuildText(inScrollToEnd:Bool = false)
    {
       mLayer.clear();
       var x = 0.0;
@@ -282,16 +325,59 @@ class BitmapText extends Control
          x += mFont.getAdvance(code);
       }
       mCharPos.push(x);
+      var w = mViewport.viewWidth;
+      var edge = w/8;
 
-      if (mCaretLayer!=null && mCaretLayer.visible && mInsertPos>=0)
-         mCaretLayer.offsetX = mCharPos[mInsertPos];
+      if (x<=w)
+         mScrollPos = 0;
+      else if (mScrollPos>x-w)
+         mScrollPos = x-w;
+      else if (inScrollToEnd)
+      {
+         mScrollPos = x-w;
+         if (mInput)
+           mScrollPos += edge;
+      }
+
+      
+      var selected =  selectable && (mSelStart<mSelEnd);
+
+      if ( selected || mInput )
+      {
+         if (x<w)
+            mScrollPos = 0;
+         else
+         {
+            var show = selected ? (mSelStart==mSelectionAnchor ? mSelEnd : mSelStart) : mInsertPos;
+            var show_x = mCharPos[show];
+         
+
+            var current = show_x - mScrollPos;
+            if (current<edge)
+            {
+               mScrollPos = show_x - edge;
+               if (mScrollPos<0) mScrollPos = 0;
+            }
+            else if (current>w - edge)
+            {
+               mScrollPos =  show_x - w + edge;
+               if (mScrollPos>x-w+edge) mScrollPos = x-w+edge;
+            }
+         }
+      }
+
+      mLayer.offsetX = -mScrollPos;
+
+
+      if (mCaretLayer!=null && mCurrent && mInsertPos>=0)
+         mCaretLayer.offsetX = mCharPos[mInsertPos] - mScrollPos;
 
       var want_selection = false;
-      if (selectable && (mSelStart<mSelEnd))
+      if (selected)
       {
-         var x0 = mCharPos[mSelStart];
+         var x0 = mCharPos[mSelStart] - mScrollPos;
          if (x0<0) x0 = 0;
-         var x1 = mCharPos[mSelEnd];
+         var x1 = mCharPos[mSelEnd] - mScrollPos;
          if (x1>mViewport.viewWidth) x1 = mViewport.viewWidth;
 
          if (x1>x0)
@@ -319,6 +405,7 @@ class BitmapText extends Control
    public function setType(inType:TextFieldType)
    {
       wantFocus = mInput = inType==TextFieldType.INPUT;
+      RebuildText(true);
       return inType;
    }
 
