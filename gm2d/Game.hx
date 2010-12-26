@@ -109,8 +109,8 @@ class Game
       parent.addChild(mPopupParent);
       parent.addChild(mFPSControl);
 
-      if (pixelAccurate)
-         parent.stage.scaleMode = gm2d.display.StageScaleMode.NO_SCALE;
+      //if (pixelAccurate)
+      parent.stage.scaleMode = gm2d.display.StageScaleMode.NO_SCALE;
 
       parent.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown );
       parent.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp );
@@ -201,9 +201,11 @@ class Game
       if (mCurrentScreen!=null)
       {
          var mode = mCurrentScreen.getScaleMode();
+			/*
          mScreenParent.stage.scaleMode =
            (mode==ScreenScaleMode.PIXEL_PERFECT || mode==ScreenScaleMode.TOPLEFT_UNSCALED) ?
            StageScaleMode.NO_SCALE  : StageScaleMode.SHOW_ALL;
+			  */
          
          mScreenParent.addChild(mCurrentScreen);
          mCurrentScreen.onActivate(true);
@@ -223,21 +225,22 @@ class Game
       var sw = stage.stageWidth / initWidth;
       var sh = stage.stageHeight / initHeight;
       scale = sw < sh ? sw : sh;
+		var graphics_scale = scale;
 
 
       if (mCurrentScreen!=null)
       {
          var mode = mCurrentScreen.getScaleMode();
-         if (mode!=ScreenScaleMode.TOPLEFT_UNSCALED)
+         if (mode==ScreenScaleMode.TOPLEFT_UNSCALED)
          {
             mScreenParent.x = 0;
             mScreenParent.y = 0;
             scale =1.0;
          }
-         else if (mode!=ScreenScaleMode.PIXEL_PERFECT)
+         else if (mode==ScreenScaleMode.PIXEL_PERFECT)
          {
-            mScreenParent.x = ((stage.stageWidth  - initWidth*scale)/2)/scale;
-            mScreenParent.y = ((stage.stageHeight - initHeight*scale)/2)/scale;
+            mScreenParent.x = Std.int((stage.stageWidth  - initWidth*scale)/2);
+            mScreenParent.y = Std.int((stage.stageHeight - initHeight*scale)/2);
             scale =1.0;
          }
          else
@@ -247,6 +250,8 @@ class Game
             mScreenParent.x = x0;
             mScreenParent.y = y0;
          }
+         mScreenParent.scaleX = scale;
+         mScreenParent.scaleY = scale;
          mDialogParent.x = mScreenParent.x;
          mDialogParent.y = mScreenParent.y;
          mDialogParent.scaleX = scale;
@@ -255,7 +260,8 @@ class Game
          mPopupParent.y = mScreenParent.y;
          mPopupParent.scaleX = scale;
          mPopupParent.scaleY = scale;
-         mCurrentScreen.scaleScreen(scale);
+
+         mCurrentScreen.scaleScreen(graphics_scale);
       }
    }
 
