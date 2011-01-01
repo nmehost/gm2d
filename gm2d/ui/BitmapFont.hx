@@ -19,11 +19,10 @@ class TileInfo
 
 typedef Factory = BitmapFont -> Int -> Void;
 
-class BitmapFont
+class BitmapFont extends gm2d.blit.Tilesheets
 {
    var mGlyphs : Array<TileInfo>;
    var mFactory:Factory;
-   var mConstructTilesheet:Tilesheet;
 
    public var height(default,null):Float;
    public var leftToRight:Bool;
@@ -31,6 +30,7 @@ class BitmapFont
 
    public function new(inNominalHeight:Float, inLeftToRight:Bool = true, ?inFactory:Factory )
    {
+	   super();
       mGlyphs = [];
       height = inNominalHeight;
       mFactory = inFactory;
@@ -230,35 +230,9 @@ class BitmapFont
       mGlyphs[inGlyph] = new TileInfo(inTile,inAdvance);
    }
 
-   function NextPOT(inVal:Int)
-   {
-      var result = 1;
-      while(result<inVal)
-         result<<=1;
-      return result;
-   }
-
    public function addBitmap(inGlyph:Int,inData:BitmapData,inAdvance:Float)
    {
-      var tile:Tile = null;
-      for(pass in 0...2)
-      {
-         if (mConstructTilesheet==null)
-         {
-            var w = NextPOT(inData.width * 10);
-            if (w>512) w = 512;
-            if (w<inData.width) w = inData.width;
-            var h = NextPOT(inData.height * 10);
-            if (h>512) h = 512;
-            if (h<inData.height) h = inData.height;
-            mConstructTilesheet = Tilesheet.create(w,h,Tilesheet.BORDERS_TRANSPARENT);
-         }
-         tile = mConstructTilesheet.addTile(inData);
-         if (tile==null)
-            mConstructTilesheet = null;
-         else
-            break;
-      }
+      var tile = addData(inData);
       mGlyphs[inGlyph] = new TileInfo(tile,inAdvance);
       return tile;
    }

@@ -12,7 +12,7 @@ class Tile
    public function new(inSheet:Tilesheet, inRect:Rectangle)
    {
       sheet = inSheet;
-      rect = inRect.clone();
+      rect = inRect==null ? new Rectangle(0,0,inSheet.width, inSheet.height) : inRect.clone();
       id = sheet.gm2dAllocTile(this);
       hotX = hotY = 0;
    }

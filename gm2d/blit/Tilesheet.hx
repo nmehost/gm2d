@@ -17,6 +17,9 @@ class Tilesheet
 
    public var tileCount(getTileCount,null):Int;
 
+	public var width(getWidth,null):Int;
+	public var height(getHeight,null):Int;
+
    static public inline var BORDERS_NONE        = 0x00;
    static public inline var BORDERS_TRANSPARENT = 0x01;
    static public inline var BORDERS_DUPLICATE   = 0x02;
@@ -138,6 +141,9 @@ class Tilesheet
       }
       return result;
    }
+
+	inline public function getWidth() : Int { return gm2dData.width; }
+	inline public function getHeight() : Int { return gm2dData.height; }
 
    function getTileCount() { return mTiles.length; }
 }
