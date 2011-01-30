@@ -24,7 +24,7 @@ class App extends Screen
       doLayout();
    }
 
-   override public function getScaleMode():ScreenScaleMode { return ScreenScaleMode.PIXEL_PERFECT; }
+   override public function getScaleMode():ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
 
    public function addPane(inPane:Pane, inPos:Int)
    {

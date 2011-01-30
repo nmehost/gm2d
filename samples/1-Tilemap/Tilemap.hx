@@ -83,7 +83,7 @@ class Tilemap extends Screen
       mTiles[3].hotX = 16;
       mTiles[3].hotY = 16;
 
-      mViewport = gm2d.blit.Viewport.create(400, 300, false, 0xff0000);
+      mViewport = gm2d.blit.Viewport.create(400, 300);
       mViewport.worldWidth = 640*2;
       mViewport.worldHeight = 640*2;
       mViewport.x = 40;
@@ -173,7 +173,6 @@ class Tilemap extends Screen
       Game.showFPS = true;
       Game.fpsColor = 0xffffff;
       Game.backgroundColor = 0x202040;
-      Game.iPhoneOrientation = 90;
       Game.create(function() new Tilemap());
    }
 }

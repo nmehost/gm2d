@@ -122,6 +122,7 @@ class HitBoxes
       mDownPane = null;
       for(r in rects)
          if (r.rect.contains(inX,inY))
+         {
             switch(r.action)
             {
                case BUTTON(pane,id) :
@@ -133,6 +134,7 @@ class HitBoxes
                   mCallback(r.action);
                default:
             }
+         }
    }
 
 

@@ -72,7 +72,6 @@ class Dialog extends Screen
       Game.showFPS = true;
       Game.fpsColor = 0x000000;
       Game.backgroundColor = 0xa0a0ff;
-      Game.iPhoneOrientation = 90;
       Game.create(function() new Dialog());
    }
 }

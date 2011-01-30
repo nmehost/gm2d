@@ -44,8 +44,8 @@ class BitmapFont extends Screen
       var font = gm2d.ui.BitmapFont.create("edmunds", 48, 0xffffff);
 
       var text = new BitmapText(font,"Hello2");
-      text.layout(200,font.height);
-      text.x = 100;
+      text.layout(400,font.height);
+      text.x = 10;
       text.y = 200;
       text.type = TextFieldType.INPUT;
       addChild(text);
@@ -64,7 +64,6 @@ class BitmapFont extends Screen
       //Game.showFPS = true;
       Game.fpsColor = 0x000000;
       Game.backgroundColor = 0x400000;
-      Game.iPhoneOrientation = 90;
       Game.create(function() new BitmapFont());
    }
 }

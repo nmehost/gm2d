@@ -28,7 +28,7 @@ class Button extends Control
    var mBGLayout:Layout;
    var mMainLayout:Layout;
    var mItemLayout:Layout;
-	public var onCurrentChangedFunc:Bool->Void;
+   public var onCurrentChangedFunc:Bool->Void;
 
    public function new(inObject:DisplayObject,inOnClick:Void->Void)
    {

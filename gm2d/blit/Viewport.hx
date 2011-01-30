@@ -24,19 +24,24 @@ class Viewport extends Sprite
    public var worldWidth:Float;
    public var worldHeight:Float;
 
+
+   inline public static var BG_TRANSPARENT = 0;
+   inline public static var BG_DONT_CARE = 1;
+   inline public static var BG_OPAQUE = 2;
+
    var mRect:Rectangle;
 
    public static function create(inWidth:Int, inHeight:Int,
-        inTransparent:Bool=false,inBackground:Int=0xffffff,inForceSoftware:Bool = false)
+        inBGMode:Int=1,inBackground:Int=0xffffff,inForceSoftware:Bool = false)
             : Viewport
    {
       #if flash
-      return new BMPViewport(inWidth,inHeight,inTransparent,inBackground);
+      return new BMPViewport(inWidth,inHeight,inBGMode==BG_TRANSPARENT,inBackground);
       #else
       if (inForceSoftware || !gm2d.Lib.isOpenGL)
-         return new BMPViewport(inWidth,inHeight,inTransparent,inBackground);
+         return new BMPViewport(inWidth,inHeight,inBGMode==BG_TRANSPARENT,inBackground);
       else
-         return new NMEViewport(inWidth,inHeight,inTransparent,inBackground);
+         return new NMEViewport(inWidth,inHeight,inBGMode!=BG_OPAQUE,inBackground);
       #end
    }
 
@@ -54,6 +59,8 @@ class Viewport extends Sprite
       
 
       mRect = new Rectangle(0,0,viewWidth,viewHeight);
+
+      mouseEnabled = false;
 
       mLayers = [];
       mDirty = false;

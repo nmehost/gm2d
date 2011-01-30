@@ -45,7 +45,6 @@ class Svg extends Screen
       Game.showFPS = true;
       Game.fpsColor = 0xffffff;
       Game.backgroundColor = 0x202040;
-      Game.iPhoneOrientation = 90;
       Game.create(function() new Svg());
    }
 }

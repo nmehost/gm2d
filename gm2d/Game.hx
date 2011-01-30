@@ -25,7 +25,7 @@ class Game
    static public var useHardware = true;
    static public var isResizable = true;
    static public var frameRate = 30.0;
-   static public var iPhoneOrientation:Null<Int> = null;
+   static public var screenOrientation:Null<Int> = null;
    static public var showFPS(getShowFPS,setShowFPS):Bool;
    static public var fpsColor(getFPSColor,setFPSColor):Int;
    static public var backgroundColor = 0xffffff;
@@ -71,14 +71,11 @@ class Game
    #else
      var w = initWidth;
      var h = initHeight;
-     #if (testOrientation)
-     if (iPhoneOrientation==90 || iPhoneOrientation==270 ||
-          (iPhoneOrientation==null && initWidth>initHeight ))
+     if (screenOrientation==90 || screenOrientation==270)
      {
         w = initHeight;
         h = initWidth;
      }
-     #end
 
      nme.Lib.create(function() { init(); inOnLoaded(); },
           w,h,frameRate,backgroundColor,
@@ -120,17 +117,26 @@ class Game
       parent.stage.addEventListener("mouseDown", onMouseDown);
       parent.stage.addEventListener("mouseUp", onMouseUp);
 
-      #if (iphone || testOrientation)
-      var o = iPhoneOrientation==null ? (initWidth>initHeight ? 90:0) : iPhoneOrientation;
-      switch(o)
+      var sw = parent.stage.stageWidth;
+      var sh = parent.stage.stageHeight;
+      if (screenOrientation==null)
+      {
+         #if (iphone || android)
+            screenOrientation  = (initWidth>initHeight) == (sw>sh) ? 0 : 90;
+         #else
+            screenOrientation = 0;
+         #end
+      }
+
+
+      switch(screenOrientation)
       {
          case 0:
-         case 90:  parent.rotation=90; parent.x=initHeight;
-         case 180: parent.rotation=180; parent.x=initWidth; parent.y=initHeight;
-         case 270: parent.rotation=270; parent.y=initWidth;
-         default: throw("Unsupported orientation :" + iPhoneOrientation);
+         case 90:  parent.rotation=90; parent.x=sw;
+         case 180: parent.rotation=180; parent.x=sw; parent.y=sh;
+         case 270: parent.rotation=270; parent.y=sw;
+         default: throw("Unsupported orientation :" + screenOrientation);
       }
-      #end
    }
 
    public static function isKeyDown(inCode:Int) { return mKeyDown[inCode]; } 
@@ -217,47 +223,69 @@ class Game
       mLastEnter = haxe.Timer.stamp();
       mLastStep = mLastEnter;
    }
+  
+   static function isRotated() : Bool
+   {
+      return (screenOrientation==90 || screenOrientation==270);
+   }
+
+   static function stageWidth()
+   {
+      var s = mCurrentScreen.stage;
+      return (screenOrientation==90 || screenOrientation==270) ? s.stageHeight : s.stageWidth;
+   }
+
+   static function stageHeight()
+   {
+      var s = mCurrentScreen.stage;
+      return (screenOrientation==90 || screenOrientation==270) ? s.stageWidth : s.stageHeight;
+   }
+
 
    static function updateScale()
    {
       var scale = 1.0;
       var stage = mCurrentScreen.stage;
-      var sw = stage.stageWidth / initWidth;
-      var sh = stage.stageHeight / initHeight;
+      var stage_width = stageWidth();
+      var stage_height = stageHeight();
+
+      var sw = stage_width / initWidth;
+      var sh = stage_height / initHeight;
       scale = sw < sh ? sw : sh;
 		var graphics_scale = scale;
-
 
       if (mCurrentScreen!=null)
       {
          var mode = mCurrentScreen.getScaleMode();
+         var px = 0;
+         var py = 0;
          if (mode==ScreenScaleMode.TOPLEFT_UNSCALED)
          {
-            mScreenParent.x = 0;
-            mScreenParent.y = 0;
             scale =1.0;
          }
          else if (mode==ScreenScaleMode.PIXEL_PERFECT)
          {
-            mScreenParent.x = Std.int((stage.stageWidth  - initWidth*scale)/2);
-            mScreenParent.y = Std.int((stage.stageHeight - initHeight*scale)/2);
             scale =1.0;
+            px = Std.int((stage_width  - initWidth*scale)/2);
+            py = Std.int((stage_height - initHeight*scale)/2);
          }
          else
          {
-            var x0 = (stage.stageWidth  - initWidth*scale)/2;
-            var y0 = (stage.stageHeight - initHeight*scale)/2;
-            mScreenParent.x = x0;
-            mScreenParent.y = y0;
+            px = Std.int( (stage_width  - initWidth*scale)/2);
+            py = Std.int( (stage_height - initHeight*scale)/2);
          }
+
+         mScreenParent.x = px;
+         mScreenParent.y = py;
+
          mScreenParent.scaleX = scale;
          mScreenParent.scaleY = scale;
-         mDialogParent.x = mScreenParent.x;
-         mDialogParent.y = mScreenParent.y;
+         mDialogParent.x = px;
+         mDialogParent.y = py;
          mDialogParent.scaleX = scale;
          mDialogParent.scaleY = scale;
-         mPopupParent.x = mScreenParent.x;
-         mPopupParent.y = mScreenParent.y;
+         mPopupParent.x = px;
+         mPopupParent.y = py;
          mPopupParent.scaleX = scale;
          mPopupParent.scaleY = scale;
 
@@ -302,6 +330,7 @@ class Game
          {
             mCurrentScreen.updateDelta(now-mLastEnter);
             mLastEnter = now;
+            mCurrentScreen.render(0.0);
          }
          else
          {
@@ -451,9 +480,9 @@ class Game
        mPopupParent.addChild(inPopup);
 		 var pos = mPopupParent.localToGlobal( new Point(inX+inPopup.width,inY+inPopup.height) );
 		 if (pos.x>mPopupParent.stage.stageWidth)
-		    inX -= (pos.x-mPopupParent.stage.stageWidth) / mPopupParent.scaleX;
+		    inX -= (pos.x-stageWidth()) / mPopupParent.scaleX;
 		 if (pos.y>mPopupParent.stage.stageHeight)
-		    inY -= (pos.y-mPopupParent.stage.stageHeight) / mPopupParent.scaleY;
+		    inY -= (pos.y-stageHeight()) / mPopupParent.scaleY;
 
 		 var pos = mPopupParent.localToGlobal( new Point(inX,inY) );
 		 if (pos.x<0)

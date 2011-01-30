@@ -45,7 +45,7 @@ class BitmapText extends Control
    public function new(inFont:BitmapFont, inVal="", ?onUpdate:String->Void)
    {
       super();
-      mViewport = Viewport.create(50,50, true, 0xffffff, false );
+      mViewport = Viewport.create(50,50, Viewport.BG_TRANSPARENT, 0xffffff, false );
       mLayer = mViewport.createLayer();
       mFont = inFont;
       mOnChange = onUpdate;

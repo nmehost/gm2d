@@ -89,7 +89,7 @@ class Particles extends Screen
       for(tile in mTiles)
          tile.hotX = tile.hotY = 0;
 
-      mViewport = gm2d.blit.Viewport.create(400, 300, true, 0x000000);
+      mViewport = gm2d.blit.Viewport.create(400, 300, gm2d.blit.Viewport.BG_DONT_CARE, 0x000000);
       mViewport.x = 40;
       mViewport.y = 10;
       addChild(mViewport);
@@ -150,7 +150,6 @@ class Particles extends Screen
       Game.showFPS = true;
       Game.fpsColor = 0xffffff;
       Game.backgroundColor = 0x202040;
-      Game.iPhoneOrientation = 90;
       Game.create(function() new Particles());
    }
 }
