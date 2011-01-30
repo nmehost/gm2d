@@ -26,6 +26,7 @@ class Game
    static public var isResizable = true;
    static public var frameRate = 30.0;
    static public var screenOrientation:Null<Int> = null;
+   static public var rotation:Int = 0;
    static public var showFPS(getShowFPS,setShowFPS):Bool;
    static public var fpsColor(getFPSColor,setFPSColor):Int;
    static public var backgroundColor = 0xffffff;
@@ -117,25 +118,34 @@ class Game
       parent.stage.addEventListener("mouseDown", onMouseDown);
       parent.stage.addEventListener("mouseUp", onMouseUp);
 
+      setStageTransform();
+   }
+
+   static function setStageTransform()
+   {
+      var parent = gm2d.Lib.current;
       var sw = parent.stage.stageWidth;
       var sh = parent.stage.stageHeight;
       if (screenOrientation==null)
       {
          #if (iphone || android)
-            screenOrientation  = (initWidth>initHeight) == (sw>sh) ? 0 : 90;
+            rotation  = (initWidth>initHeight) == (sw>sh) ? 0 : 90;
          #else
-            screenOrientation = 0;
+            rotation = 0;
          #end
       }
+      else
+         rotation = screenOrientation;
+      trace(rotation + " (" + sw + "x" + sh + ")" );
 
 
-      switch(screenOrientation)
+      switch(rotation)
       {
          case 0:
          case 90:  parent.rotation=90; parent.x=sw;
          case 180: parent.rotation=180; parent.x=sw; parent.y=sh;
          case 270: parent.rotation=270; parent.y=sw;
-         default: throw("Unsupported orientation :" + screenOrientation);
+         default: throw("Unsupported orientation :" + rotation);
       }
    }
 
@@ -226,19 +236,19 @@ class Game
   
    static function isRotated() : Bool
    {
-      return (screenOrientation==90 || screenOrientation==270);
+      return (rotation==90 || rotation==270);
    }
 
    static function stageWidth()
    {
       var s = mCurrentScreen.stage;
-      return (screenOrientation==90 || screenOrientation==270) ? s.stageHeight : s.stageWidth;
+      return isRotated() ? s.stageHeight : s.stageWidth;
    }
 
    static function stageHeight()
    {
       var s = mCurrentScreen.stage;
-      return (screenOrientation==90 || screenOrientation==270) ? s.stageWidth : s.stageHeight;
+      return isRotated() ?  s.stageWidth : s.stageHeight;
    }
 
 
@@ -573,6 +583,7 @@ class Game
 
    static function onSize(e:Event)
    {
+      setStageTransform();
       updateScale();
    }
 
