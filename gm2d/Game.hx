@@ -60,34 +60,11 @@ class Game
    static public var screen(getCurrent,null):Screen;
 
 
-   public static function create( inOnLoaded:Void->Void )
+   static public function create()
    {
       if (created) throw "Game.create : already created";
-
       created = true;
 
-   #if flash
-     init();
-     inOnLoaded();
-   #else
-     var w = initWidth;
-     var h = initHeight;
-     if (screenOrientation==90 || screenOrientation==270)
-     {
-        w = initHeight;
-        h = initWidth;
-     }
-
-     nme.Lib.create(function() { init(); inOnLoaded(); },
-          w,h,frameRate,backgroundColor,
-          (useHardware ? nme.Lib.HARDWARE : 0) | (isResizable ? nme.Lib.RESIZABLE : 0),
-          title, icon );
-   #end
-   
-   }
-
-   static function init()
-   {
       mScreenParent = new Sprite();
       mDialogParent = new Sprite();
       mPopupParent = new Sprite();
