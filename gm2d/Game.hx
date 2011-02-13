@@ -20,8 +20,8 @@ import gm2d.display.DisplayObject;
 
 class Game
 {
-   static public var initWidth = 480;
-   static public var initHeight = 320;
+   static public var initWidth = 320;
+   static public var initHeight = 240;
    static public var useHardware = true;
    static public var isResizable = true;
    static public var frameRate = 30.0;
@@ -62,6 +62,8 @@ class Game
 
    static public function create()
    {
+	   initWidth = nme.Lib.initWidth;
+	   initHeight = nme.Lib.initHeight;
       if (created) throw "Game.create : already created";
       created = true;
 
@@ -103,7 +105,7 @@ class Game
       var parent = gm2d.Lib.current;
       var sw = parent.stage.stageWidth;
       var sh = parent.stage.stageHeight;
-      if (screenOrientation==null)
+      //if (screenOrientation==null)
       {
          #if (iphone || android)
             rotation  = (initWidth>initHeight) == (sw>sh) ? 0 : 90;
@@ -111,10 +113,9 @@ class Game
             rotation = 0;
          #end
       }
-      else
-         rotation = screenOrientation;
+      //else
+         //rotation = screenOrientation;
       trace(rotation + " (" + sw + "x" + sh + ")" );
-
 
       switch(rotation)
       {
@@ -231,18 +232,18 @@ class Game
 
    static function updateScale()
    {
-      var scale = 1.0;
-      var stage = mCurrentScreen.stage;
-      var stage_width = stageWidth();
-      var stage_height = stageHeight();
-
-      var sw = stage_width / initWidth;
-      var sh = stage_height / initHeight;
-      scale = sw < sh ? sw : sh;
-		var graphics_scale = scale;
-
       if (mCurrentScreen!=null)
       {
+         var scale = 1.0;
+         var stage = mCurrentScreen.stage;
+         var stage_width = stageWidth();
+         var stage_height = stageHeight();
+   
+         var sw = stage_width / initWidth;
+         var sh = stage_height / initHeight;
+         scale = sw < sh ? sw : sh;
+		   var graphics_scale = scale;
+
          var mode = mCurrentScreen.getScaleMode();
          var px = 0;
          var py = 0;

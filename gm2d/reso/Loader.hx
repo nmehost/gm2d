@@ -115,14 +115,11 @@ class Loader
       loader.addEventListener(flash.events.SecurityErrorEvent.SECURITY_ERROR, OnError);
       loader.load(new URLRequest(inFilename));
    #else
-       #if neko
-       var xml_data = neko.io.File.getContent(inFilename);
-       #elseif cpp
-       var xml_data = haxe.Resource.getString(inFilename);
-       //trace("Got reso data : " + inFilename + " = " + xml_data.length );
-       if (xml_data==null)
-          xml_data = cpp.io.File.getContent(inFilename);
-       #end
+       var xml_data = nme.utils.ByteArray.readFile(inFilename).asString();
+       trace("Got reso data : " + inFilename + " = " + xml_data.length );
+
+       //if (xml_data==null)
+          //xml_data = cpp.io.File.getContent(inFilename);
        if (xml_data.length < 1)
           throw ("Could not find file:" + inFilename);
        var xml = Xml.parse(xml_data);
