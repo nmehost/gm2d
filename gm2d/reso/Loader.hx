@@ -116,7 +116,7 @@ class Loader
       loader.load(new URLRequest(inFilename));
    #else
        var xml_data = nme.utils.ByteArray.readFile(inFilename).asString();
-       trace("Got reso data : " + inFilename + " = " + xml_data.length );
+       //trace("Got reso data : " + inFilename + " = " + xml_data.length );
 
        //if (xml_data==null)
           //xml_data = cpp.io.File.getContent(inFilename);

@@ -25,7 +25,6 @@ class Game
    static public var useHardware = true;
    static public var isResizable = true;
    static public var frameRate = 30.0;
-   static public var screenOrientation:Null<Int> = null;
    static public var rotation:Int = 0;
    static public var showFPS(getShowFPS,setShowFPS):Bool;
    static public var fpsColor(getFPSColor,setFPSColor):Int;
@@ -105,17 +104,14 @@ class Game
       var parent = gm2d.Lib.current;
       var sw = parent.stage.stageWidth;
       var sh = parent.stage.stageHeight;
-      //if (screenOrientation==null)
-      {
-         #if (iphone || android)
-            rotation  = (initWidth>initHeight) == (sw>sh) ? 0 : 90;
-         #else
-            rotation = 0;
-         #end
-      }
-      //else
-         //rotation = screenOrientation;
-      trace(rotation + " (" + sw + "x" + sh + ")" );
+
+      #if (iphone || android)
+         rotation  = (initWidth>initHeight) == (sw>sh) ? 0 : 90;
+      #else
+         rotation = 0;
+      #end
+
+      //trace(rotation + " (" + sw + "x" + sh + ")" );
 
       switch(rotation)
       {
@@ -253,9 +249,9 @@ class Game
          }
          else if (mode==ScreenScaleMode.PIXEL_PERFECT)
          {
-            scale =1.0;
             px = Std.int((stage_width  - initWidth*scale)/2);
             py = Std.int((stage_height - initHeight*scale)/2);
+            scale =1.0;
          }
          else
          {
