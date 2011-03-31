@@ -12,6 +12,7 @@ class Screen extends gm2d.ui.Window
 
    public function new()
    {
+	   Game.create();
       mPaused = false;
       name = "Screen";
       super();

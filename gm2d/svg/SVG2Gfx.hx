@@ -189,7 +189,7 @@ class SVG2Gfx
     {
        var svg =  inXML.firstElement();
        if (svg==null || svg.nodeName!="svg")
-          throw "Not an SVG file\n";
+          throw "Not an SVG file (" + svg + ")";
 
        mGrads = new GradHash();
 

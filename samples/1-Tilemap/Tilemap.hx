@@ -68,7 +68,7 @@ class Tilemap extends Screen
    {
       super();
       var loader = new gm2d.reso.Loader();
-      loader.loadBitmap("Tiles.png","tiles");
+      loader.loadBitmap("Tiles.png");
       loader.Process(onLoaded);
    }
 
@@ -76,7 +76,7 @@ class Tilemap extends Screen
    {
       mResources = inResources;
       //cpp bug
-      mTilesheet = new Tilesheet(mResources.get("tiles"));
+      mTilesheet = new Tilesheet(mResources.get("Tiles.png"));
       //var bmp:gm2d.display.BitmapData = mResources.get("tiles");
       //mTilesheet = new Tilesheet(bmp);
       mTiles = mTilesheet.partition(32,32);
@@ -168,12 +168,9 @@ class Tilemap extends Screen
 
    static public function main()
    {
-      Game.useHardware = true;
-      Game.title = "Tilemap";
       Game.showFPS = true;
       Game.fpsColor = 0xffffff;
-      Game.backgroundColor = 0x202040;
-      Game.create(function() new Tilemap());
+		new Tilemap();
    }
 }
 

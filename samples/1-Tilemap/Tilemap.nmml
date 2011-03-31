@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+  <app
+     file="Tilemap"
+     title="GM2D Tilemap"
+     package="com.gm2d.tilemap"
+     version="1.0"
+     company="GM2D" 
+	  main="Tilemap"
+  />
+
+  <window
+      width="480"
+		height="320"
+		orientation="landscape"
+		fps="60"
+		background="0x202040"
+      resizeable="true"
+		hardware="true"
+	/>
+
+	<assets>
+	 <asset name="Tiles.png"/>
+	</assets>
+
+  
+  <classpath name="../.." />
+  <haxelib name="nme" />
+
+  <ndll name="nme" haxelib="nme" nekoapi="1"/>
+
+</project>

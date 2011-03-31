@@ -61,10 +61,16 @@ class Game
 
    static public function create()
    {
+	   if (created)
+		   return;
+
+      #if nme
 	   initWidth = nme.Lib.initWidth;
 	   initHeight = nme.Lib.initHeight;
-      if (created) throw "Game.create : already created";
-      created = true;
+		#else
+	   initWidth = flash.Lib.current.stage.stageWidth;
+	   initHeight = flash.Lib.current.stage.stageHeight;
+		#end
 
       mScreenParent = new Sprite();
       mDialogParent = new Sprite();
@@ -361,7 +367,7 @@ class Game
       #if nme
       var stage = nme.Lib.current.stage;
       stage.displayState = Type.enumEq(stage.displayState,StageDisplayState.NORMAL) ?
-       StageDisplayState.FULL_SCREEN : StageDisplayState.NORMAL;
+      StageDisplayState.FULL_SCREEN : StageDisplayState.NORMAL;
       #end
    }
 
