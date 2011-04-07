@@ -96,8 +96,7 @@ class Loader
        loader.contentLoaderInfo.addEventListener(gm2d.events.IOErrorEvent.IO_ERROR, OnError);
        loader.contentLoaderInfo.addEventListener(gm2d.events.SecurityErrorEvent.SECURITY_ERROR, OnError);
        loader.load(urlReq);
-   #else
-   #end
+      #end
    }
 
    public function LoadXML(inFilename:String, inResourceName:String,?inTransform:Dynamic)

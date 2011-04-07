@@ -23,7 +23,7 @@ class BitmapFont extends Screen
       super();
 
       var loader = new gm2d.reso.Loader();
-      loader.loadBitmapResource("font");
+      loader.loadBitmap("Edmunds.png","font");
       loader.Process(onLoaded);
       makeCurrent();
    }
@@ -58,13 +58,10 @@ class BitmapFont extends Screen
 
    static public function main()
    {
-      gm2d.Lib.debug = false;
-      Game.useHardware = true;
-      Game.title = "BitmapFont";
       //Game.showFPS = true;
       Game.fpsColor = 0x000000;
       Game.backgroundColor = 0x400000;
-      Game.create(function() new BitmapFont());
+      new BitmapFont();
    }
 }
 

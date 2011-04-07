@@ -66,13 +66,10 @@ class Dialog extends Screen
 
    static public function main()
    {
-      gm2d.Lib.debug = false;
-      Game.useHardware = true;
-      Game.title = "Dialog";
+      //gm2d.Lib.debug = false;
       Game.showFPS = true;
       Game.fpsColor = 0x000000;
-      Game.backgroundColor = 0xa0a0ff;
-      Game.create(function() new Dialog());
+      new Dialog();
    }
 }
 

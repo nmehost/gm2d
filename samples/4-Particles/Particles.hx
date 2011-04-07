@@ -145,12 +145,10 @@ class Particles extends Screen
 
    static public function main()
    {
-      Game.useHardware = true;
-      Game.title = "Particles";
       Game.showFPS = true;
       Game.fpsColor = 0xffffff;
       Game.backgroundColor = 0x202040;
-      Game.create(function() new Particles());
+      new Particles();
    }
 }
 

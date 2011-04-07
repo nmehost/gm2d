@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+  <app
+     file="BitmapFont"
+     title="GM2D BitmapFont"
+     package="com.gm2d.bitmapfont"
+     version="1.0"
+     company="GM2D" 
+	  main="BitmapFont"
+  />
+
+  <window
+      width="480"
+		height="320"
+		orientation="landscape"
+		fps="60"
+		background="0x202040"
+      resizeable="true"
+		hardware="true"
+	/>
+
+	<assets>
+	 <asset name="Edmunds.png"/>
+	 <asset name="edmunds.ttf"/>
+	</assets>
+
+  
+  <classpath name="../.." />
+  <haxelib name="nme" />
+
+  <ndll name="nme" haxelib="nme" nekoapi="1"/>
+  <ndll name="std" />
+  <ndll name="regexp" />
+
+</project>

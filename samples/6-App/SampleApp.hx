@@ -5,7 +5,9 @@ import gm2d.ui.Pane;
 import gm2d.display.Sprite;
 import gm2d.Game;
 
+#if systools
 import systools.Dialogs;
+#end
 
 class SampleApp extends App
 {
@@ -96,11 +98,8 @@ class SampleApp extends App
 
    static public function main()
    {
-      Game.useHardware = true;
-      Game.title = "Data";
-      //Game.showFPS = true;
       Game.fpsColor = 0x000000;
       Game.backgroundColor = 0xffffff;
-      Game.create(function() new SampleApp());
+      new SampleApp();
    }
 }

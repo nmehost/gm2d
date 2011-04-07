@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+  <app
+     file="ParticlesTest"
+     title="GM2D Particles"
+     package="com.gm2d.particles"
+     version="1.0"
+     company="GM2D" 
+	  main="Particles"
+  />
+
+  <window
+      width="480"
+		height="320"
+		orientation="landscape"
+		fps="60"
+		background="0x202040"
+      resizeable="true"
+		hardware="true"
+	/>
+
+	<assets>
+	 <asset name="Blobs.png"/>
+	</assets>
+
+  
+  <classpath name="../.." />
+  <haxelib name="nme" />
+
+  <ndll name="nme" haxelib="nme" nekoapi="1"/>
+  <ndll name="std" />
+  <ndll name="regexp" />
+
+</project>
