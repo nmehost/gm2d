@@ -2,12 +2,12 @@
 <project>
 
   <app
-     file="Tilemap"
-     title="GM2D Tilemap"
-     package="com.gm2d.tilemap"
+     file="SvgTest"
+     title="GM2D SVG"
+     package="com.gm2d.svg"
      version="1.0"
      company="GM2D" 
-	  main="Tilemap"
+	  main="Svg"
   />
 
   <window
@@ -21,7 +21,7 @@
 	/>
 
 	<assets>
-	 <asset name="Tiles.png"/>
+	 <asset name="tiger.svg"/>
 	</assets>
 
   

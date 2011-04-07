@@ -19,6 +19,7 @@ class Svg extends Screen
       var loader = new gm2d.reso.Loader();
       loader.loadSVG("tiger.svg","svg");
       loader.Process(onLoaded);
+		cacheAsBitmap = true;
    }
 
    function onLoaded(inResources:Hash<Dynamic>)
@@ -40,12 +41,9 @@ class Svg extends Screen
 
    static public function main()
    {
-      Game.useHardware = false;
-      Game.title = "Svg";
       Game.showFPS = true;
       Game.fpsColor = 0xffffff;
-      Game.backgroundColor = 0x202040;
-      Game.create(function() new Svg());
+      new Svg();
    }
 }
 
