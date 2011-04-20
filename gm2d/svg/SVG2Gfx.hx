@@ -613,11 +613,6 @@ class SVG2Gfx
              var scale = Math.sqrt(m.a*m.a + m.c*m.c);
              var sw = inPath.stroke_width*scale;
              var a = inPath.stroke_alpha;
-             if (sw<1 && sw>0)
-             {
-                a *= Math.sqrt(sw);
-                sw = 1;
-             }
              mGfx.lineStyle( sw, inPath.stroke_colour,
                              a, false,LineScaleMode.NORMAL,
                              inPath.stroke_caps,inPath.joint_style,

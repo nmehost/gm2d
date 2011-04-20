@@ -115,19 +115,71 @@ class CubicSegment extends PathSegment
    override public function prevCX() { return cx2; }
    override public function prevCY() { return cy2; }
 
+   function Interp(a:Float, b:Float, frac:Float)
+   {
+      return a + (b-a)*frac;
+   }
+
    override public function Draw(inGfx:Graphics,ioContext:RenderContext)
    {
-      var tx = ioContext.lastX;
-      var ty = ioContext.lastY;
+      // Transformed endpoints/controlpoints
+      var tx0 = ioContext.lastX;
+      var ty0 = ioContext.lastY;
+
+      var tx1 = ioContext.transX(cx1,cx1);
+      var ty1 = ioContext.transY(cy1,cy1);
+      var tx2 = ioContext.transX(cx2,cy2);
+      var ty2 = ioContext.transY(cx2,cy2);
+
       ioContext.setLast(x,y);
-      var tx1 = ioContext.lastX;
-      var ty1 = ioContext.lastY;
+      var tx3 = ioContext.lastX;
+      var ty3 = ioContext.lastY;
 
-      var tcx1 = ioContext.transX(cx1,cx1);
-      var tcy1 = ioContext.transY(cy1,cy1);
-      var tcx2 = ioContext.transX(cx2,cy2);
-      var tcy2 = ioContext.transY(cx2,cy2);
+      // from http://www.timotheegroleau.com/Flash/articles/cubic_bezier/bezier_lib.as
 
+      var pa_x = Interp(tx0,tx1,0.75);
+      var pa_y = Interp(ty0,ty1,0.75);
+      var pb_x = Interp(tx3,tx2,0.75);
+      var pb_y = Interp(ty3,ty2,0.75);
+
+	   // get 1/16 of the [P3, P0] segment
+	   var dx = (tx3 - tx0)/16;
+	   var dy = (ty3 - ty0)/16;
+	
+	   // calculates control point 1
+	   var pcx_1 = Interp(tx0, tx1, 3/8);
+	   var pcy_1 = Interp(ty0, ty1, 3/8);
+	
+	   // calculates control point 2
+	   var pcx_2 = Interp(pa_x, pb_x, 3/8) - dx;
+	   var pcy_2 = Interp(pa_y, pb_y, 3/8) - dy;
+	
+	   // calculates control point 3
+	   var pcx_3 = Interp(pb_x, pa_x, 3/8) + dx;
+	   var pcy_3 = Interp(pb_y, pa_y, 3/8) + dy;
+	
+	   // calculates control point 4
+	   var pcx_4 = Interp(tx3, tx2, 3/8);
+	   var pcy_4 = Interp(ty3, ty2, 3/8);
+	
+	   // calculates the 3 anchor points
+	   var pax_1 = (pcx_1+pcx_2) * 0.5;
+	   var pay_1 = (pcy_1+pcy_2) * 0.5;
+
+	   var pax_2 = (pa_x+pb_x) * 0.5;
+	   var pay_2 = (pa_y+pb_y) * 0.5;
+
+	   var pax_3 = (pcx_3+pcx_4) * 0.5;
+	   var pay_3 = (pcy_3+pcy_4) * 0.5;
+
+	   // draw the four quadratic subsegments
+	   inGfx.curveTo(pcx_1, pcy_1, pax_1, pay_1);
+	   inGfx.curveTo(pcx_2, pcy_2, pax_2, pay_2);
+	   inGfx.curveTo(pcx_3, pcy_3, pax_3, pay_3);
+	   inGfx.curveTo(pcx_4, pcy_4, tx3, ty3);
+
+
+      /*
        var dx1 = tcx1-tx;
        var dy1 = tcy1-ty;
        var dx2 = tcx2-tcx1;
@@ -135,7 +187,9 @@ class CubicSegment extends PathSegment
        var dx3 = tx-tcx2;
        var dy3 = ty-tcy2;
        var len = Math.sqrt(dx1*dx1+dy1*dy1 + dx2*dx2+dy2*dy2 + dx3*dx3+dy3*dy3);
-       var steps = Math.round(len*0.4);
+       var steps = Math.round(len);
+       if (steps<2)
+          steps = 2;
 
        if (steps>1)
        {
@@ -154,6 +208,7 @@ class CubicSegment extends PathSegment
           }
        }
        inGfx.lineTo(tx1,ty1);
+      */
    }
    override public function GetExtent(inMatrix:Matrix,ioRect:Rectangle)
    {
@@ -203,14 +258,18 @@ class ArcSegment extends PathSegment
        if (rx<0) rx = -rx;
        if (ry<0) ry = -ry;
 
+       // See:  http://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
        var p = phi*Math.PI/180.0;
        var cos = Math.cos(p);
        var sin = Math.sin(p);
+
+       // Step 1, compute x', y'
        var dx = (x1-x)*0.5;
        var dy = (y1-y)*0.5;
        var x1_ = cos*dx + sin*dy;
        var y1_ = -sin*dx + cos*dy;
 
+       // Step 2, compute cx', cy'
        var rx2 = rx*rx;
        var ry2 = ry*ry;
        var x1_2 = x1_*x1_;
@@ -227,13 +286,14 @@ class ArcSegment extends PathSegment
        var cx_ = s*rx*y1_/ry;
        var cy_ = -s*ry*x1_/rx;
 
+       // Step 3, compute cx,cy from cx',cy'
        // Something not quite right here.
-       // See:  http://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
+
        var xm = (x1+x)*0.5;
        var ym = (y1+y)*0.5;
 
-       var cx = cos*cx_ + sin*cy_ + xm;
-       var cy = -sin*cx_ + cos*cy_ + ym;
+       var cx = cos*cx_ - sin*cy_ + xm;
+       var cy = sin*cx_ + cos*cy_ + ym;
 
        var theta = Math.atan2( (y1_-cy_)/ry, (x1_-cx_)/rx );
        var dtheta = Math.atan2( (-y1_-cy_)/ry, (-x1_-cx_)/rx ) - theta;
@@ -244,25 +304,45 @@ class ArcSegment extends PathSegment
           dtheta-=2.0*Math.PI;
 
 
-       // axis, at theta = 0;
-       //
-       // p =  [ M ] [ + centre ] [ rotate phi ] [ rx 0 ] [ cos(theta),sin(theta) ]t
-       //                                        [ 0 ry ]
-       //   = [ a c tx ] [ cos*rx  sin*ry cx ]  [ cos(theta), sin(theta) 1 ]t;
-       //     [ b d ty ] [-sin*rx  cos*ry cy ]
-       //     [ 0 0 1  ] [ 0       0       1 ]
-       //
        var m = ioContext.matrix;
-       if (m==null) m = new Matrix();
-       var ta = m.a*cos*rx - m.c*sin*rx;
-       var tc = m.a*sin*ry + m.c*cos*ry;
-       var tx = m.a*cx     + m.c*cy + m.tx;
+       //    var px = cx+cos*rx;
+       //    var py = cy+sin*ry;
+       //    m.a*px+m.c*py+m.tx    m.b*px+m.d*py+m.ty
+       //  Combined
+       //    x = m.a(cx+cos*rx) + m.c(cy+sin*ry) + m.tx
+       //      = m.a*rx * cos +  m.c*ry*sin + m.a*cx+m.c*cy + m.tx
+       //      = Txc cos +  Txc sin + Tx0
+       //    y = m.b(cx+cos*rx) + m.d(cy+sin*ry) + m.ty
+       //      = m.b*rx * cos +  m.d*ry*sin + m.b*cx+m.d*cy + m.ty
+       //      = Tyc cos +  Tys sin + Ty0
+       //
 
-       var tb = m.b*cos*rx - m.d*sin*rx;
-       var td = m.b*sin*ry + m.d*cos*ry;
-       var ty = m.b*cx     + m.d*cy + m.ty;
+       var Txc:Float;
+       var Txs:Float;
+       var Tx0:Float;
+       var Tyc:Float;
+       var Tys:Float;
+       var Ty0:Float;
+       if (m!=null)
+       {
+          Txc = m.a*rx;
+          Txs = m.c*ry;
+          Tx0 = m.a*cx + m.c*cy + m.tx;
+          Tyc = m.b*rx;
+          Tys = m.d*ry;
+          Ty0 = m.b*cx + m.d*cy + m.ty;
+       }
+       else
+       {
+          Txc = rx;
+          Txs = 0;
+          Tx0 = cx+m.tx;
+          Tyc = 0;
+          Tys = ry;
+          Ty0 = cy+m.ty;
+       }
 
-       var len = Math.abs(dtheta)*Math.sqrt(ta*ta + tb*tb + tc*tc + td*td);
+       var len = Math.abs(dtheta)*Math.sqrt(Txc*Txc + Txs*Txs + Tyc*Tyc + Tys*Tys);
        var steps = Math.round(len);
 
        if (steps>1)
@@ -273,7 +353,7 @@ class ArcSegment extends PathSegment
              var c = Math.cos(theta);
              var s = Math.sin(theta);
              theta+=dtheta;
-             inGfx.lineTo( ta*c + tb*s + tx, tc*c + td*s + ty );
+             inGfx.lineTo(Txc*c + Txs*s + Tx0,   Tyc*c + Tys*s + Ty0);
           }
        }
        inGfx.lineTo(ioContext.lastX, ioContext.lastY);
