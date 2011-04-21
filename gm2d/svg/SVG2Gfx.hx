@@ -188,8 +188,8 @@ class SVG2Gfx
     public function new(inXML:Xml)
     {
        var svg =  inXML.firstElement();
-       if (svg==null || svg.nodeName!="svg")
-          throw "Not an SVG file (" + svg + ")";
+       if (svg==null || (svg.nodeName!="svg" && svg.nodeName!="svg:svg" ) )
+          throw "Not an SVG file (" + (svg==null ? "null" : svg.nodeName) + ")";
 
        mGrads = new GradHash();
 
@@ -209,6 +209,9 @@ class SVG2Gfx
        for(element in svg.elements())
        {
           var name = element.nodeName;
+          if (name.substr(0,4)=="svg:")
+             name = name.substr(4);
+
           if (name=="defs")
              LoadDefs(element);
           else if (name=="g")
@@ -312,6 +315,8 @@ class SVG2Gfx
           for(def in inXML.elements())
           {
              var name = def.nodeName;
+             if (name.substr(0,4)=="svg:")
+                name = name.substr(4);
              if (name=="linearGradient")
                 LoadGradient(def,GradientType.LINEAR,pass==1);
              else if (name=="radialGradient")
@@ -557,15 +562,18 @@ class SVG2Gfx
 
        for(el in inG.elements())
        {
-          if (el.nodeName=="g")
+          var name = el.nodeName;
+          if (name.substr(0,4)=="svg:")
+             name = name.substr(4);
+          if (name=="g")
           {
              g.children.push( DisplayGroup(LoadGroup(el,matrix, styles)) );
           }
-          else if (el.nodeName=="path")
+          else if (name=="path")
           {
              g.children.push( DisplayPath( LoadPath(el,matrix, styles, false) ) );
           }
-          else if (el.nodeName=="rect")
+          else if (name=="rect")
           {
              g.children.push( DisplayPath( LoadPath(el,matrix, styles, true) ) );
           }
