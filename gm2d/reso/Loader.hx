@@ -70,6 +70,12 @@ class Loader
 		   inAsResource = inResoName;
 
       var bytes = haxe.Resource.getBytes(inResoName);
+      #if flash
+      #if nme_install_tool
+      if (bytes==null)
+         bytes=ApplicationMain.getAsset(inResoName);
+      #end
+      #end
 		if (bytes!=null)
 		{
 		   loadBitmapBytes(bytes,inAsResource);
