@@ -5,6 +5,7 @@ import gm2d.ui.Dialog;
 import gm2d.events.MouseEvent;
 import gm2d.events.KeyboardEvent;
 import gm2d.ui.Keyboard;
+import gm2d.reso.Resources;
 
 class Screen extends gm2d.ui.Window
 {
@@ -41,8 +42,10 @@ class Screen extends gm2d.ui.Window
 
    // These are not static, even though they could be.
    // This allows non-static function to see them
-   function resource(inName:String) { return Game.resource(inName); }
+   var reso(getResources,null):Resources;
+   function getResources() { return Game.resource; }
    function freeResource(inName:String) { return Game.freeResource(inName); }
+
    function setScreen(inName:String) { return Game.setScreen(inName); }
    function showDialog(inName:String) { Game.showDialog(inName); }
 

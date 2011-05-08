@@ -9,7 +9,6 @@ import gm2d.events.KeyboardEvent;
 import gm2d.events.MouseEvent;
 import gm2d.text.TextField;
 import gm2d.ui.Dialog;
-import gm2d.reso.Loader;
 import gm2d.reso.Resources;
 import gm2d.geom.Point;
 import gm2d.ui.Window;
@@ -53,7 +52,7 @@ class Game
    static var mScreenMap:Hash<Screen> = new Hash<Screen>();
    static var mDialogMap:Hash<Dialog> = new Hash<Dialog>();
    static var mKeyDown = new Array<Bool>();
-   static var mResources = new Hash<Dynamic>();
+   static var mResources = new Resources();
    static var mPopupFilters:Array<BitmapFilter>;
 
    static public var screen(getCurrent,null):Screen;
@@ -514,12 +513,9 @@ class Game
    }
 
 
-   public static function setResources(inResources:Resources) { mResources = inResources; }
-
-   public static function resource(inName:String) { return mResources.get(inName); }
-
-
-   public static function freeResource(inName:String) { return mResources.remove(inName); }
+   public static var resource(getResources,null):Resources;
+   static function getResources():Resources { return mResources; }
+   public static function freeResource(inName:String) { mResources.free(inName); }
 
 
 
