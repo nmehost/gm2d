@@ -1,0 +1,4 @@
+-main RenderToImage
+-neko RenderToImage.n
+-lib nme
+-cp ../..
