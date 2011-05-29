@@ -22,6 +22,7 @@ class RenderToImage
       var scale:Null<Float> = null;
       var alpha = 0xff;
       var bg = 0xffffff;
+      var quality = 0.75;
 
       #if neko
       var args = neko.Sys.args();
@@ -45,6 +46,7 @@ class RenderToImage
                case "scale" : scale = Std.parseFloat(args[i++]);
                case "alpha" : alpha = Std.parseInt(args[i++]);
                case "bg" : bg = Std.parseInt(args[i++]);
+               case "quality" : quality = Std.parseFloat(args[i++]);
             }
          }
          else
@@ -100,11 +102,11 @@ class RenderToImage
       if (oy!=null)
          shape.y = oy;
 
-      var bmp = new BitmapData(bmp_w,bmp_h, alpha<255, {a:255, rgb:bg} );
+      var bmp = new BitmapData(bmp_w,bmp_h, alpha<255, {a:alpha, rgb:bg} );
 
       bmp.draw(shape);
 
-      var bytes = bmp.encode(BitmapData.PNG);
+      var bytes = bmp.encode(neko.io.Path.extension(out_file),quality);
 
       bytes.writeFile(out_file);
       
