@@ -22,15 +22,9 @@ class BitmapFont extends Screen
    {
       super();
 
-      var loader = new gm2d.reso.Loader();
-      loader.loadBitmap("Edmunds.png","font");
-      loader.Process(onLoaded);
       makeCurrent();
-   }
 
-   function onLoaded(inResources:Hash<Dynamic>)
-   {
-      var bmp:BitmapData = inResources.get("font");
+      var bmp:BitmapData = ApplicationMain.getAsset("Edmunds.png");
       var font = gm2d.ui.BitmapFont.createFromActiveRects(bmp,0x20);
       font.packing = -3;
 

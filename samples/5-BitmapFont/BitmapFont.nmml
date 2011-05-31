@@ -21,8 +21,8 @@
 	/>
 
 	<assets>
-	 <asset name="Edmunds.png"/>
-	 <asset name="edmunds.ttf"/>
+	 <image name="Edmunds.png"/>
+	 <font name="edmunds.ttf"/>
 	</assets>
 
   

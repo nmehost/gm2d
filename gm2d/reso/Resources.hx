@@ -21,7 +21,7 @@ class Resources
       #if flash
       var result:Dynamic = ApplicationMain.getAsset(inAssetName);
       #else
-      var result = null
+      var result = null;
       #end
       if  (inCache) mLoaded.set(inAssetName,result);
 
