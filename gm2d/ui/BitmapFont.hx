@@ -44,6 +44,15 @@ class BitmapFont extends gm2d.blit.Tilesheets
       fmt.size = inHeight;
       fmt.font = inFont;
       var tf = new TextField( );
+      #if flash
+      for(f in flash.text.Font.enumerateFonts(false) )
+         if (f.fontName == inFont )
+         {
+            tf.embedFonts = true;
+            break;
+         }
+      #end
+
       tf.textColor = inCol;
       tf.defaultTextFormat = fmt;
       tf.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
