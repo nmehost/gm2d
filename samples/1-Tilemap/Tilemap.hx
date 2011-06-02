@@ -12,7 +12,6 @@ import gm2d.ui.Keyboard;
 
 class Tilemap extends Screen
 {
-   var mResources:Hash<Dynamic>;
    var mTilesheet:Tilesheet;
    var mTiles:Array<Tile>;
    var mViewport:gm2d.blit.Viewport;
@@ -67,18 +66,9 @@ class Tilemap extends Screen
    function new()
    {
       super();
-      var loader = new gm2d.reso.Loader();
-      loader.loadBitmap("Tiles.png");
-      loader.Process(onLoaded);
-   }
-
-   function onLoaded(inResources:Hash<Dynamic>)
-   {
-      mResources = inResources;
-      //cpp bug
-      mTilesheet = new Tilesheet(mResources.get("Tiles.png"));
-      //var bmp:gm2d.display.BitmapData = mResources.get("tiles");
-      //mTilesheet = new Tilesheet(bmp);
+      gm2d.ui.Mouse.hide();
+      var bmp = ApplicationMain.getAsset("Tiles.png");
+      mTilesheet = new Tilesheet(bmp);
       mTiles = mTilesheet.partition(32,32);
       mTiles[3].hotX = 16;
       mTiles[3].hotY = 16;
@@ -117,14 +107,6 @@ class Tilemap extends Screen
       mPlayerLayer.addTile(mTiles[3],mPlayerX,mPlayerY);
 
       makeCurrent();
-      /*
-      flash.Lib.current.stage.addEventListener( flash.events.MouseEvent.CLICK, function(_)
-        {
-           flash.Lib.current.stage.fullScreenSourceRect = new flash.geom.Rectangle(0,0,480,320);
-           flash.Lib.current.stage.displayState = flash.display.StageDisplayState.FULL_SCREEN;
-           
-        } );
-      */
    }
 
    public function canMove(inX:Float, inY:Float)

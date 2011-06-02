@@ -21,7 +21,7 @@
 	/>
 
 	<assets>
-	 <asset name="Tiles.png"/>
+	 <image name="Tiles.png"/>
 	</assets>
 
   
