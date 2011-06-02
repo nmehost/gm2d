@@ -9,7 +9,6 @@ import gm2d.events.KeyboardEvent;
 import gm2d.events.MouseEvent;
 import gm2d.text.TextField;
 import gm2d.ui.Dialog;
-import gm2d.reso.Resources;
 import gm2d.geom.Point;
 import gm2d.ui.Window;
 import gm2d.filters.BitmapFilter;
@@ -32,6 +31,7 @@ class Game
    static public var icon(default,setIcon):String;
    static public var pixelAccurate:Bool = false;
    static public var toggleFullscreenOnAltEnter:Bool = true;
+   static public var mapEscapeToBack:Bool = true;
 
    static var mCurrentScreen:Screen;
    static var mCurrentDialog:Dialog;
@@ -52,7 +52,6 @@ class Game
    static var mScreenMap:Hash<Screen> = new Hash<Screen>();
    static var mDialogMap:Hash<Dialog> = new Hash<Dialog>();
    static var mKeyDown = new Array<Bool>();
-   static var mResources = new Resources();
    static var mPopupFilters:Array<BitmapFilter>;
 
    static public var screen(getCurrent,null):Screen;
@@ -62,6 +61,7 @@ class Game
    {
 	   if (created)
 		   return;
+      created = true;
 
       #if nme
 	   initWidth = nme.Lib.initWidth;
@@ -75,8 +75,9 @@ class Game
       mDialogParent = new Sprite();
       mPopupParent = new Sprite();
       mDialogParent.visible = true;
+
       mFPSControl = new TextField();
-      mFPSControl.text = "1.0 FPS";
+      mFPSControl.text = "FPS: ---";
       mFPSControl.selectable = false;
       mFPSControl.mouseEnabled = false;
       mFPSControl.x = 10;
@@ -205,6 +206,14 @@ class Game
          mScreenParent.addChild(mCurrentScreen);
          mCurrentScreen.onActivate(true);
          updateScale();
+
+         if (mCurrentDialog==null)
+         {
+            if (mCurrentScreen.wantsCursor())
+               gm2d.ui.Mouse.show();
+            else
+               gm2d.ui.Mouse.hide();
+         }
 
          mCurrentScreen.setRunning(mCurrentDialog==null);
       }
@@ -376,6 +385,15 @@ class Game
       if (toggleFullscreenOnAltEnter && event.keyCode==13 && event.altKey)
          toggleFullscreen();
 
+      if (mapEscapeToBack && event.keyCode==27 )
+      {
+         if (mCurrentDialog!=null)
+            mCurrentDialog.goBack();
+         else if (mCurrentScreen!=null)
+            mCurrentScreen.goBack();
+         return;
+      }
+
       var used = false;
       if (mCurrentDialog!=null)
           used = mCurrentDialog.onKeyDown(event);
@@ -511,12 +529,6 @@ class Game
       nme.Lib.close();
       #end
    }
-
-
-   public static var resource(getResources,null):Resources;
-   static function getResources():Resources { return mResources; }
-   public static function freeResource(inName:String) { mResources.free(inName); }
-
 
 
    public static function isDown(inCode:Int) : Bool { return mKeyDown[inCode]; }

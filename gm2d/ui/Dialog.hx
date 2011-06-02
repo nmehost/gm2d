@@ -69,6 +69,8 @@ class Dialog extends Window
       stage.addEventListener(gm2d.events.MouseEvent.MOUSE_UP, doneDrag);
    }
 
+   public function goBack() { Game.closeDialog(); }
+
    public function getBackground() { return mBG.graphics; }
    public function getPanel() { return mPanel; }
    public dynamic function renderBackground(inW:Float,inH:Float)

@@ -2,53 +2,80 @@ package gm2d.reso;
 
 class Resources
 {
-   var mLoaded:Hash<Dynamic>;
+   static var mLoaded = new Hash<Dynamic>();
 
-   public function new()
-   {
-      mLoaded = new Hash<Dynamic>();
-   }
-
-   public function loadBitmap(inAssetName:String, inCache=false) : gm2d.display.BitmapData
+   static public function loadAsset(inAssetName:String, inCache=false) : Dynamic
    {
       if (mLoaded.exists(inAssetName)) return mLoaded.get(inAssetName);
-      return null;
-   }
-
-   public function loadBytes(inAssetName:String, inCache=false) : haxe.io.Bytes
-   {
-      if (mLoaded.exists(inAssetName)) return mLoaded.get(inAssetName);
-      #if flash
-      var result:Dynamic = ApplicationMain.getAsset(inAssetName);
-      #else
-      var result = null;
-      #end
+      var result = ApplicationMain.getAsset(inAssetName);
+      if (result==null)
+         throw "Missing asset: " + inAssetName;
       if  (inCache) mLoaded.set(inAssetName,result);
-
       return result;
    }
 
-   public function loadString(inAssetName:String, inCache=false) : String
+
+   static public function loadBitmap(inAssetName:String, inCache=false) : gm2d.display.BitmapData
    {
-      return null;
+      return loadAsset(inAssetName,inCache);
+   }
+
+   static public function loadBytes(inAssetName:String, inCache=false) : gm2d.utils.ByteArray
+   {
+      return loadAsset(inAssetName,inCache);
+   }
+
+   static public function loadString(inAssetName:String, inCache=false) : String
+   {
+      var bytes = loadBytes(inAssetName,false);
+      if (bytes==null)
+         return null;
+      #if nme
+      var result = bytes.asString();
+      #else
+      var result = bytes.toString();
+      #end
+      if (inCache)
+         mLoaded.set(inAssetName,result);
+      return result;
+   }
+
+   static public function loadXml(inAssetName:String, inCache=false) : Xml
+   {
+      var str = loadString(inAssetName,false);
+      if (str==null)
+         return null;
+      var xml:Xml = Xml.parse(str);
+      if (xml==null)
+         return null;
+      if (inCache)
+         mLoaded.set(inAssetName,xml);
+      return xml;
+   }
+
+   static public function loadSvg(inAssetName:String, inCache=false) : gm2d.svg.SVG2Gfx
+   {
+      var xml:Xml = loadXml(inAssetName,false);
+      if (xml==null)
+         return null;
+      var svg = new gm2d.svg.SVG2Gfx(xml);
+      if (inCache)
+         mLoaded.set(inAssetName,svg);
+      return svg;
    }
 
 
-   public function loadSound(inAssetName:String, inCache=false) : gm2d.media.Sound
+   static public function loadSound(inAssetName:String, inCache=false) : gm2d.media.Sound
    {
-      return null;
+      return loadAsset(inAssetName,inCache);
    }
 
 
-   public function loadMusic(inAssetName:String, inCache=false) : gm2d.media.Sound
+   static public function free(inResource:String)
    {
-      return null;
+      if (mLoaded.exists(inResource))
+         mLoaded.remove(inResource);
    }
-
-   public function free(inResource:String)
-   {
-   }
-
-
 }
+
 
