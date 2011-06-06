@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+  <app
+     file="SwfTest"
+     title="GM2D SWF"
+     package="com.gm2d.swf"
+     version="1.0"
+     company="GM2D" 
+	  main="SwfTest"
+  />
+
+  <window
+      width="800"
+		height="600"
+		orientation="landscape"
+		fps="10"
+		background="0xffffff"
+      resizeable="true"
+		hardware="true"
+	/>
+
+	<assets>
+	 <asset name="tests/AdvancedLines.swf"/>
+	 <asset name="tests/Text.swf"/>
+	 <asset name="tests/GradientFillMotion.swf"/>
+	 <asset name="tests/ShapeMorph.swf"/>
+	</assets>
+
+  
+  <classpath name="../.." />
+  <haxelib name="nme" />
+
+  <ndll name="nme" haxelib="nme" nekoapi="1"/>
+  <ndll name="std" />
+  <ndll name="regexp" />
+
+</project>

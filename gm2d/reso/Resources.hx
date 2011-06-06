@@ -1,5 +1,7 @@
 package gm2d.reso;
 
+import gm2d.utils.IDataInput;
+
 class Resources
 {
    static var mLoaded = new Hash<Dynamic>();
@@ -22,8 +24,20 @@ class Resources
 
    static public function loadBytes(inAssetName:String, inCache=false) : gm2d.utils.ByteArray
    {
-      return loadAsset(inAssetName,inCache);
+      return loadAsset(inAssetName,inCache).getData();
    }
+
+   static public function loadIDataInput(inAssetName:String, inCache=false) : IDataInput
+   {
+      #if flash
+      var bytes : flash.utils.ByteArray = loadBytes(inAssetName,inCache);
+      return bytes;
+      #else
+      var bytes = loadBytes(inAssetName,inCache);
+      return new IDataInput(new haxe.io.BytesInput(bytes.getBytes()));
+      #end
+   }
+
 
    static public function loadString(inAssetName:String, inCache=false) : String
    {
