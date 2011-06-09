@@ -122,12 +122,22 @@ class CubicSegment extends PathSegment
 
    override public function Draw(inGfx:Graphics,ioContext:RenderContext)
    {
+      /*
+      ioContext.setLast(x,y);
+      var tx3 = ioContext.lastX;
+      var ty3 = ioContext.lastY;
+	   var use_x = (cx1+cx2)/2;
+      var use_y = (cy1+cy2)/2;
+	   inGfx.curveTo(ioContext.transX(use_x,use_y), ioContext.transY(use_x,use_y), tx3, ty3);
+      return;
+      */
+
       // Transformed endpoints/controlpoints
       var tx0 = ioContext.lastX;
       var ty0 = ioContext.lastY;
 
-      var tx1 = ioContext.transX(cx1,cx1);
-      var ty1 = ioContext.transY(cy1,cy1);
+      var tx1 = ioContext.transX(cx1,cy1);
+      var ty1 = ioContext.transY(cx1,cy1);
       var tx2 = ioContext.transX(cx2,cy2);
       var ty2 = ioContext.transY(cx2,cy2);
 
@@ -177,7 +187,6 @@ class CubicSegment extends PathSegment
 	   inGfx.curveTo(pcx_2, pcy_2, pax_2, pay_2);
 	   inGfx.curveTo(pcx_3, pcy_3, pax_3, pay_3);
 	   inGfx.curveTo(pcx_4, pcy_4, tx3, ty3);
-
 
       /*
        var dx1 = tcx1-tx;
@@ -343,7 +352,10 @@ class ArcSegment extends PathSegment
        }
 
        var len = Math.abs(dtheta)*Math.sqrt(Txc*Txc + Txs*Txs + Tyc*Tyc + Tys*Tys);
+       // TODO: Do as series of quadratics ...
+       len *= 5;
        var steps = Math.round(len);
+       
 
        if (steps>1)
        {

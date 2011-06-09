@@ -1,10 +1,7 @@
 import gm2d.display.Sprite;
-import gm2d.blit.Tilesheet;
-import gm2d.blit.Tile;
-import gm2d.blit.Layer;
-import gm2d.blit.Grid;
 import gm2d.Game;
 import gm2d.Screen;
+import gm2d.reso.Resources;
 
 import gm2d.ui.Keyboard;
 
@@ -16,23 +13,17 @@ class Svg extends Screen
    function new()
    {
       super();
-      var loader = new gm2d.reso.Loader();
-      loader.loadSVG("tiger.svg","svg");
-      loader.Process(onLoaded);
-		cacheAsBitmap = true;
-   }
 
-   function onLoaded(inResources:Hash<Dynamic>)
-   {
-      mResources = inResources;
-      var svg:gm2d.svg.SVG2Gfx = mResources.get("svg");
+      var svg = Resources.loadSvg("tiger.svg");
 
 		var shape = svg.CreateShape();
-		//shape.cacheAsBitmap = true;
+      shape.scaleX = shape.scaleY = 0.5;
+		shape.cacheAsBitmap = true;
 		addChild(shape);
-
       makeCurrent();
    }
+
+   override public function getScaleMode() { return gm2d.ScreenScaleMode.TOPLEFT_SCALED; }
 
    override public function updateDelta(inDT:Float)
    {
