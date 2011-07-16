@@ -24,30 +24,21 @@ class Resources
 
    static public function loadBytes(inAssetName:String, inCache=false) : gm2d.utils.ByteArray
    {
-      return loadAsset(inAssetName,inCache).getData();
-   }
-
-   static public function loadIDataInput(inAssetName:String, inCache=false) : IDataInput
-   {
-      #if flash
-      var bytes : flash.utils.ByteArray = loadBytes(inAssetName,inCache);
-      return bytes;
-      #else
-      var bytes = loadBytes(inAssetName,inCache);
-      return new IDataInput(new haxe.io.BytesInput(bytes.getBytes()));
-      #end
+      return loadAsset(inAssetName,inCache);
    }
 
 
    static public function loadString(inAssetName:String, inCache=false) : String
    {
+      if (mLoaded.exists(inAssetName))
+         return mLoaded.get(inAssetName);
       var bytes = loadBytes(inAssetName,false);
       if (bytes==null)
          return null;
-      #if nme
-      var result = bytes.asString();
+      #if flash
+      var result = bytes.readUTF();
       #else
-      var result = bytes.toString();
+      var result = bytes.asString();
       #end
       if (inCache)
          mLoaded.set(inAssetName,result);
