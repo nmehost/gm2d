@@ -46,19 +46,10 @@ class SWFStream
 
       if (sig=="CWS")
       {
-         #if flash
-         var buffer = new flash.utils.ByteArray();
+         var buffer = new gm2d.utils.ByteArray();
          mStream.readBytes(buffer);
          buffer.uncompress();
          mStream = buffer;
-         #else
-         var bytes = mStream.readAll();
-            #if neko
-            mStream = new IDataInput( new haxe.io.BytesInput( neko.zip.Uncompress.run(bytes) ) );
-            #else
-            mStream = new IDataInput( new haxe.io.BytesInput( cpp.zip.Uncompress.run(bytes) ) );
-            #end
-         #end
       }
 
       mStream.endian = gm2d.utils.Endian.LITTLE_ENDIAN;
@@ -69,9 +60,6 @@ class SWFStream
    }
 
    public function close() {
-   #if neko
-      mStream.close();
-   #end
       mStream = null;
    }
 
@@ -334,7 +322,7 @@ class SWFStream
 
    public function ReadColorTransform()
    {
-      var result = new flash.geom.ColorTransform();
+      var result = new gm2d.geom.ColorTransform();
 
       var has_add = ReadBool();
       var has_mult = ReadBool();
@@ -389,26 +377,19 @@ class SWFStream
       }
    }
 
-   public function ReadBytes(inSize:Int) : haxe.io.Bytes
+   public function ReadBytes(inSize:Int) : gm2d.utils.ByteArray
    {
-   #if flash
-       var bytes = new flash.utils.ByteArray();
+       var bytes = new gm2d.utils.ByteArray();
        mStream.readBytes(bytes,0,inSize);
-       var buffer = haxe.io.Bytes.ofData(bytes);
-   #else
-       var buffer = mStream.readBytes(inSize);
-   #end
        mTagRead += inSize;
-       return buffer;
+       return bytes;
    }
-   #if flash
-   public function readFlashBytes(inSize:Int) : flash.utils.ByteArray
+   public function readFlashBytes(inSize:Int) : gm2d.utils.ByteArray
    {
-       var bytes = new flash.utils.ByteArray();
+       var bytes = new gm2d.utils.ByteArray();
        mStream.readBytes(bytes,0,inSize);
        return bytes;
    }
-   #end
 
    public function BytesLeft() { return mTagSize - mTagRead; }
 

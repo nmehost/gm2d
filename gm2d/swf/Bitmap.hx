@@ -38,13 +38,8 @@ class Bitmap
          var h = inStream.ReadUI16();
          var table_size = fmt==3 ? (inStream.ReadByte()+1) : 0;
          
-         #if flash
          var buffer:flash.utils.ByteArray = inStream.readFlashBytes(inStream.BytesLeft());
          buffer.uncompress();
-         #else
-         var buffer = inStream.ReadBytes( inStream.BytesLeft() );
-         buffer = gm2d.utils.Uncompress.run(buffer);
-         #end
 
          if (inVersion==2)
          {
@@ -62,12 +57,8 @@ class Bitmap
       }
       else
       {
-         var buffer:haxe.io.Bytes = null;
-         #if flash
-         var alpha:flash.utils.ByteArray = null;
-         #else
-         var alpha:haxe.io.Bytes = null;
-         #end
+         var buffer:ByteArray = null;
+         var alpha:ByteArray = null;
    
          if (inVersion==2)
          {
@@ -79,13 +70,8 @@ class Bitmap
             var size = inStream.ReadInt();
             buffer = inStream.ReadBytes(size);
 
-            #if flash
             alpha = inStream.readFlashBytes(inStream.BytesLeft());
             alpha.uncompress();
-            #else
-            alpha = inStream.ReadBytes( inStream.BytesLeft() );
-            alpha = gm2d.utils.Uncompress.run(alpha);
-            #end
          }
    
    
@@ -94,7 +80,7 @@ class Bitmap
             mAlpha = alpha;
             if (mAlpha!=null)
                mLoader.addEventListener(flash.events.Event.COMPLETE, AddAlpha );
-            mLoader.loadBytes(buffer.getData());
+            mLoader.loadBytes(buffer);
          #else
             mBitmap = BitmapData.loadFromHaxeBytes(buffer,alpha);
          #end

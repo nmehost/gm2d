@@ -20,8 +20,8 @@ class SwfTest extends Screen
          for(x in 0...2)
          {
             gfx.drawRect(x*320+1, y*240+1, 318, 238 );
-            var swf = new SWF( Resources.loadIDataInput("tests/"
-                      + test[idx++] + ".swf") );
+            var data = Resources.loadBytes("tests/" + test[idx++] + ".swf");
+            var swf = new SWF(data);
             var obj = swf.createInstance();
             obj.cacheAsBitmap = true;
             obj.x = x*320;
