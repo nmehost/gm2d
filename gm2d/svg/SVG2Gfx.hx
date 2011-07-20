@@ -591,6 +591,8 @@ class SVG2Gfx
        if (mFilter!=null && !mFilter(inPath.name,mGroupPath))
           return;
 
+       if (inPath.segments.length==0)
+           return;
        var px = 0.0;
        var py = 0.0;
 
@@ -599,6 +601,13 @@ class SVG2Gfx
 
        if (mGfx!=null)
        {
+          // Move to avoid the case of:
+          //  1. finish drawing line on last path
+          //  2. set fill=something
+          //  3. move (this draws in the fill)
+          //  4. continue with "real" drawing
+          mGfx.moveTo(inPath.segments[0].x, inPath.segments[0].y );
+
           switch(inPath.fill)
           {
              case FillGrad(grad):
@@ -608,13 +617,13 @@ class SVG2Gfx
              case FillSolid(colour):
                 mGfx.beginFill(colour,inPath.fill_alpha);
              case FillNone:
-                mGfx.endFill();
+                //mGfx.endFill();
           }
 
 
           if (inPath.stroke_colour==null)
           {
-             mGfx.lineStyle();
+             //mGfx.lineStyle();
           }
           else
           {
@@ -642,6 +651,8 @@ class SVG2Gfx
           context.matrix = m;
           for(segment in inPath.segments)
              segment.Draw(mGfx, context);
+          mGfx.endFill();
+          mGfx.lineStyle();
        }
 
     }

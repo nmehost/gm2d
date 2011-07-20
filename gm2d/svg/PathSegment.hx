@@ -6,8 +6,8 @@ import gm2d.display.Graphics;
 
 class PathSegment
 {
-   var x:Float;
-   var y:Float;
+   public var x:Float;
+   public var y:Float;
 
    public function new(inX:Float,inY:Float)
    {

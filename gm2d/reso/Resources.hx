@@ -30,15 +30,13 @@ class Resources
 
    static public function loadString(inAssetName:String, inCache=false) : String
    {
-      if (mLoaded.exists(inAssetName))
-         return mLoaded.get(inAssetName);
       var bytes = loadBytes(inAssetName,false);
       if (bytes==null)
          return null;
-      #if flash
-      var result = bytes.readUTF();
-      #else
+      #if nme
       var result = bytes.asString();
+      #else
+      var result = bytes.toString();
       #end
       if (inCache)
          mLoaded.set(inAssetName,result);
