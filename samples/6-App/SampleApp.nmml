@@ -20,8 +20,6 @@
 		hardware="true"
 	/>
 
-	<assets>
-	</assets>
 
   
   <classpath name="../.." />

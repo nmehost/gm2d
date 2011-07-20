@@ -75,15 +75,8 @@ class Particles extends Screen
    {
       super();
       mParticles = [];
-      var loader = new gm2d.reso.Loader();
-      loader.loadBitmap("Blobs.png","blobs");
-      loader.Process(onLoaded);
-   }
 
-   function onLoaded(inResources:Hash<Dynamic>)
-   {
-      mResources = inResources;
-      var bmp:gm2d.display.BitmapData = mResources.get("blobs");
+      var bmp:gm2d.display.BitmapData = gm2d.reso.Resources.loadBitmap("Blobs.png");
       mTilesheet = new Tilesheet(bmp);
       mTiles = mTilesheet.partition(16,16);
       for(tile in mTiles)

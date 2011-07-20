@@ -15,7 +15,6 @@ class Svg extends Screen
       super();
 
       var svg = Resources.loadSvg("tiger.svg");
-
 		var shape = svg.CreateShape();
       shape.scaleX = shape.scaleY = 0.5;
 		shape.cacheAsBitmap = true;

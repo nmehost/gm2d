@@ -1,3 +1,4 @@
+import gm2d.reso.Resources;
 import gm2d.display.Sprite;
 import gm2d.blit.Tilesheet;
 import gm2d.blit.Tile;
@@ -19,30 +20,16 @@ class Dialog extends Screen
    {
       super();
 
-      var loader = new gm2d.reso.Loader();
-      loader.loadSVG("bg.svg","background");
-      loader.loadSVG("slider.svg","slider");
-      loader.Process(onLoaded);
-      makeCurrent();
-		var s = stage;
-		s.addEventListener( MouseEvent.CLICK, function (e)
-		{
-		   var t : gm2d.display.DisplayObject = e.target;
-		   if ( t==s)
-            Game.showDialog("Settings");
-		} );
-   }
+      Game.setCurrentScreen(this);
 
-   function onLoaded(inResources:Hash<Dynamic>)
-   {
       var settings = new gm2d.ui.Dialog(300,200);
-      var bg:SVG2Gfx = inResources.get("background");
+      var bg:SVG2Gfx = Resources.loadSvg("bg.svg");
       settings.SetSVGBackground( bg );
 
       var panel =settings.panel;
 
       panel.addLabel("Music Volume");
-      var sl:SVG2Gfx = inResources.get("slider");
+      var sl:SVG2Gfx =  Resources.loadSvg("slider.svg");
       panel.addUI(gm2d.ui.Slider.SkinnedSlider(sl,null,0,100,50,OnMusic) );
 
       var but = Button.TextButton("Ok", function() { Game.closeDialog(); } );
@@ -55,6 +42,15 @@ class Dialog extends Screen
 
       Game.addDialog("Settings",settings);
       var dlg = Game.showDialog("Settings");
+
+		var s = stage;
+		s.addEventListener( MouseEvent.CLICK, function (e)
+		{
+		   var t : gm2d.display.DisplayObject = e.target;
+		   if ( t==s)
+            Game.showDialog("Settings");
+		} );
+
    }
 
    function OnMusic(inVal) { trace(inVal); }

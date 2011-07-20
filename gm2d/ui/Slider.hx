@@ -86,7 +86,6 @@ class Slider extends Control
    }
    function OnTrack(_)
    {
-   trace("Track !");
       if (!mSliding)
       {
          mSliding = true;

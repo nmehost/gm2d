@@ -20,6 +20,10 @@
 		hardware="true"
 	/>
 
+   <preloader name="NMEPreloader" />
+
+   <icon name="../icon.svg" />
+
 	<assets>
 	 <image name="Tiles.png"/>
 	</assets>
