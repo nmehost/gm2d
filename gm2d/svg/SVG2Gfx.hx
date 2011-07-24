@@ -497,8 +497,8 @@ class SVG2Gfx
 
        if (inIsRect)
        {
-          var x = Std.parseFloat(inPath.get("x"));
-          var y = Std.parseFloat(inPath.get("y"));
+          var x = inPath.exists("x") ? Std.parseFloat(inPath.get("x")) : 0;
+          var y = inPath.exists("y") ? Std.parseFloat(inPath.get("y")) : 0;
           var w = Std.parseFloat(inPath.get("width"));
           var h = Std.parseFloat(inPath.get("height"));
           var rx = inPath.exists("rx") ? Std.parseFloat(inPath.get("rx")) : 0.0;
@@ -536,7 +536,7 @@ class SVG2Gfx
        }
        else
        {
-          var d = inPath.get("d");
+          var d = inPath.exists("points") ? ("M" + inPath.get("points") + "z" ) : inPath.get("d");
           for(segment in mPathParser.parse(d) )
              path.segments.push(segment);
        }
@@ -576,6 +576,10 @@ class SVG2Gfx
           else if (name=="rect")
           {
              g.children.push( DisplayPath( LoadPath(el,matrix, styles, true) ) );
+          }
+          else if (name=="polygon")
+          {
+             g.children.push( DisplayPath( LoadPath(el,matrix, styles, false) ) );
           }
           else
           {
