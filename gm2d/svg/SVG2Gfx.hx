@@ -602,15 +602,20 @@ class SVG2Gfx
 
        var m:Matrix  = inPath.matrix.clone();
        m.concat(mMatrix);
+       var context:RenderContext = null;
+
 
        if (mGfx!=null)
        {
+          context = new RenderContext();
+          context.matrix = m;
+
           // Move to avoid the case of:
           //  1. finish drawing line on last path
           //  2. set fill=something
           //  3. move (this draws in the fill)
           //  4. continue with "real" drawing
-          mGfx.moveTo(inPath.segments[0].x, inPath.segments[0].y );
+          inPath.segments[0].Draw(mGfx, context);
 
           switch(inPath.fill)
           {
@@ -651,8 +656,6 @@ class SVG2Gfx
        }
        else
        {
-          var context = new RenderContext();
-          context.matrix = m;
           for(segment in inPath.segments)
              segment.Draw(mGfx, context);
           mGfx.endFill();
