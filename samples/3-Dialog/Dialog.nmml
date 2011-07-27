@@ -2,7 +2,7 @@
 <project>
 
   <app
-     file="DialofTest"
+     file="DialogTest"
      title="GM2D Dialog"
      package="com.gm2d.dialog"
      version="1.0"
@@ -19,6 +19,8 @@
       resizeable="true"
 		hardware="true"
 	/>
+
+  <icon name="../icon.svg" />
 
 	<assets>
 	 <asset name="bg.svg"/>
