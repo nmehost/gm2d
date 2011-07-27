@@ -13,7 +13,7 @@ import gm2d.text.TextFormatAlign;
 
 class SWFStream
 {
-   var mStream:IDataInput;
+   var mStream:ByteArray;
    var mVersion:Int;
    var mByteBuf:Int;
    var mBitPos:Int;
@@ -23,7 +23,7 @@ class SWFStream
    var mPushTagSize:Int;
    var mPushTagRead:Int;
 
-   public function new(inStream:IDataInput)
+   public function new(inStream:ByteArray)
    {
       mStream = inStream;
       var sig0 = String.fromCharCode(mStream.readUnsignedByte());

@@ -10,7 +10,7 @@ import gm2d.swf.StaticText;
 import gm2d.swf.Font;
 
 import gm2d.display.BitmapData;
-import gm2d.utils.IDataInput;
+import gm2d.utils.ByteArray;
 
 import gm2d.geom.Rectangle;
 
@@ -27,7 +27,7 @@ class SWF
    var mVersion:Int;
 
 
-   public function new(inStream:IDataInput)
+   public function new(inStream:ByteArray)
    {
       mStream = new SWFStream(inStream);
 
