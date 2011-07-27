@@ -20,6 +20,9 @@
 		hardware="true"
 	/>
 
+   <icon name="../icon.svg" />
+
+
 	<assets>
 	 <asset name="Blobs.png"/>
 	</assets>

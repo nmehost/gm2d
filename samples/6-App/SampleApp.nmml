@@ -10,6 +10,8 @@
 	  main="SampleApp"
   />
 
+  <icon name="../icon.svg" />
+
   <window
       width="480"
 		height="320"

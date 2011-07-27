@@ -20,6 +20,8 @@
 		hardware="true"
 	/>
 
+   <icon name="../icon.svg" />
+
 	<assets>
 	 <image name="Edmunds.png"/>
 	 <font name="edmunds.ttf"/>

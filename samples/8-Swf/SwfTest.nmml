@@ -20,6 +20,9 @@
 		hardware="true"
 	/>
 
+   <icon name="../icon.svg" />
+
+
 	<assets>
 	 <asset name="tests/AdvancedLines.swf"/>
 	 <asset name="tests/Text.swf"/>

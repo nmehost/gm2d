@@ -1,0 +1,11 @@
+<project name="gm2d" url="http://code.google.com/p/gm2d/" license="BSD">
+    <user name="gamehaxe"/>
+    <tag v="cross"/>
+    <tag v="flash"/>
+    <tag v="nme"/>
+    <tag v="game"/>
+    <tag v="svg"/>
+    <description>GM2D helper classes for rapid game making in 2D.</description>
+    <version name="1.0">Initial release, including tilemaps, bitmap fonts, svg and swf renderers.</version>
+</project>
+
