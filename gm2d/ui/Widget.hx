@@ -49,13 +49,29 @@ class Widget extends gm2d.display.Sprite
 		gm2d.Game.popup(inPopup,pos.x,pos.y,inShadow);
    }
 
+   public function clearCurrent()
+   {
+      var p = parent;
+      while(p!=null)
+      {
+         if (Std.is(p,Window))
+         {
+            var window : Window = cast p;
+            window.setCurrentItem(null);
+            return;
+         }
+         p = p.parent;
+      }
+   }
+
+
 
    public function setCurrent()
    {
       var p = parent;
       while(p!=null)
       {
-         trace(p);
+         //trace(p);
          if (Std.is(p,Window))
          {
             var window : Window = cast p;

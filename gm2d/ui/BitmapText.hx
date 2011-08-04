@@ -76,6 +76,7 @@ class BitmapText extends Control
             mTimer = new Timer(500);
             mTimer.run = onTimer;
          }
+         stage.showKeyboard(true);
       }
       else
       {
@@ -170,6 +171,13 @@ class BitmapText extends Control
       var code = event.keyCode;
       if (code == Keyboard.DOWN || code==Keyboard.TAB || code==Keyboard.UP)
          return false;
+
+      if (code==Keyboard.ENTER)
+      {
+         stage.showKeyboard(false);
+         // Set current to "next" ?
+         clearCurrent();
+      }
 
       var key = event.keyCode;
       //trace(key);
@@ -281,7 +289,8 @@ class BitmapText extends Control
    function renderCaret()
    {
       mCaretLayer.clear();
-      mCaretLayer.addTile(mCaretTile,0,0);
+      if (mCaretTile!=null)
+         mCaretLayer.addTile(mCaretTile,0,0);
    }
 
    public function setCaretState(inCurrent:Bool)

@@ -32,6 +32,7 @@
   <haxelib name="nme" />
 
   <ndll name="nme" haxelib="nme" nekoapi="1"/>
+  <ndll name="zlib" />
   <ndll name="std" />
   <ndll name="regexp" />
 
