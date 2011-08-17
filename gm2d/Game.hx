@@ -117,14 +117,16 @@ class Game
          rotation = 0;
       #end
 
-      //trace(rotation + " (" + sw + "x" + sh + ")" );
+      // trace("SET Stage Transform : " + rotation );
+      // trace("    Stage size      : " + sw + "," + sh );
+      // trace("    Init  size      : " + initWidth + "," + initHeight );
 
       switch(rotation)
       {
-         case 0:
-         case 90:  parent.rotation=90; parent.x=sw;
-         case 180: parent.rotation=180; parent.x=sw; parent.y=sh;
-         case 270: parent.rotation=270; parent.y=sw;
+         case 0:   parent.rotation=0;   parent.x=0;   parent.y = 0;
+         case 90:  parent.rotation=90;  parent.x=sw;  parent.y = 0;
+         case 180: parent.rotation=180; parent.x=sw;  parent.y=sh;
+         case 270: parent.rotation=270; parent.x = 0; parent.y=sw;
          default: throw("Unsupported orientation :" + rotation);
       }
    }
