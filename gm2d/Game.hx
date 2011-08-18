@@ -280,10 +280,13 @@ class Game
 
          mScreenParent.scaleX = scale;
          mScreenParent.scaleY = scale;
-         mDialogParent.x = px;
-         mDialogParent.y = py;
-         mDialogParent.scaleX = scale;
-         mDialogParent.scaleY = scale;
+
+         var dlgScale = mCurrentScreen.stage.dpiScale;
+         mDialogParent.x = Std.int( (stage_width  - initWidth*dlgScale)/2);
+         mDialogParent.y = Std.int( (stage_height - initHeight*dlgScale)/2);
+         mDialogParent.scaleX = dlgScale;
+         mDialogParent.scaleY = dlgScale;
+
          mPopupParent.x = px;
          mPopupParent.y = py;
          mPopupParent.scaleX = scale;
