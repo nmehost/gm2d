@@ -281,7 +281,11 @@ class Game
          mScreenParent.scaleX = scale;
          mScreenParent.scaleY = scale;
 
+         #if flash
+         var dlgScale = 1.0;
+         #else
          var dlgScale = mCurrentScreen.stage.dpiScale;
+         #end
          mDialogParent.x = Std.int( (stage_width  - initWidth*dlgScale)/2);
          mDialogParent.y = Std.int( (stage_height - initHeight*dlgScale)/2);
          mDialogParent.scaleX = dlgScale;
