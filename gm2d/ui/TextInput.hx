@@ -8,6 +8,7 @@ import gm2d.ui.Button;
 
 class TextInput extends Control
 {
+   public var text(getText,setText):String;
    var mText:TextField;
    var mWidth:Float;
    static var boxHeight = 22;
@@ -35,7 +36,36 @@ class TextInput extends Control
    public function setText(inText:String)
    {
        mText.text = inText;
+       return inText;
    }
+   public function parseInt() : Int
+   {
+      return Std.parseInt( mText.text );
+    }
+
+   override public function onCurrentChanged(inCurrent:Bool)
+   {
+      super.onCurrentChanged(inCurrent);
+      stage.focus = inCurrent ? mText : null;
+   }
+
+
+   public override function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
+   {
+      #if flash
+      var code:UInt = event.keyCode;
+      #else
+      var code:Int = event.keyCode;
+      #end
+
+      // Let these ones thought to the keeper...
+      if (code==Keyboard.DOWN || code==Keyboard.UP || code==Keyboard.TAB)
+         return false;
+      return true;
+   }
+
+
+   public function getText() { return mText.text; }
 
    public override function layout(inW:Float, inH:Float)
    {
