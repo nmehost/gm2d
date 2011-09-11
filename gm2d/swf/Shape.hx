@@ -11,6 +11,63 @@ import gm2d.swf.SWF;
 typedef RenderFunc = Graphics -> Void;
 typedef RenderFuncList = Array<RenderFunc>;
 
+class ShapeEdge
+{
+   public function new() {}
+
+   public function connects(next:ShapeEdge)
+   {
+       return fillStyle==next.fillStyle && Math.abs(x1-next.x0)<0.00001 &&
+                                           Math.abs(y1-next.y0)<0.00001;
+   }
+   public function asCommand()
+   {
+      //trace("lineTo(" + x1 + "," + y1 + ")");
+      if (isQuadratic)
+         return function(gfx:Graphics) gfx.curveTo(cx,cy,x1,y1);
+      else
+         return function(gfx:Graphics) gfx.lineTo(x1,y1);
+   }
+   public function dump()
+   {
+      trace(x0 + "," + y0 + " -> " + x1 + "," + y1 + " (" + fillStyle + ")" );
+   }
+
+
+   public static function line(style:Int, x0:Float, y0:Float, x1:Float, y1:Float)
+   {
+      var result = new ShapeEdge();
+      result.fillStyle = style;
+      result.x0 = x0;
+      result.y0 = y0;
+      result.x1 = x1;
+      result.y1 = y1;
+      result.isQuadratic = false;
+      return result;
+   }
+   public static function curve(style:Int, x0:Float, y0:Float, cx:Float, cy:Float, x1:Float, y1:Float)
+   {
+      var result = new ShapeEdge();
+      result.fillStyle = style;
+      result.x0 = x0;
+      result.y0 = y0;
+      result.cx = cx;
+      result.cy = cy;
+      result.x1 = x1;
+      result.y1 = y1;
+      result.isQuadratic = true;
+      return result;
+   }
+
+   public var fillStyle:Int;
+   public var x0:Float;
+   public var y0:Float;
+   public var x1:Float;
+   public var y1:Float;
+   public var isQuadratic:Bool;
+   public var cx:Float;
+   public var cy:Float;
+}
 
 class Shape
 {
@@ -19,6 +76,7 @@ class Shape
    var mHasNonScaled:Bool;
    var mHasScaled:Bool;
    var mCommands:RenderFuncList;
+   var mFillStyles:RenderFuncList;
    var mSWF:SWF;
    var mWaitingLoader:Bool;
 
@@ -42,7 +100,6 @@ class Shape
       mWaitingLoader = false;
       // trace(mBounds);
 
-
       if (inVersion==4)
       {
          inStream.AlignBits();
@@ -58,7 +115,7 @@ class Shape
          mHasScaled = mHasNonScaled = true;
       }
 
-      var fill_styles = ReadFillStyles(inStream,inVersion);
+      mFillStyles = ReadFillStyles(inStream,inVersion);
       var line_styles = ReadLineStyles(inStream,inVersion);
 
       inStream.AlignBits();
@@ -72,8 +129,12 @@ class Shape
       var pen_x = 0.0;
       var pen_y = 0.0;
 
-      var current_fill = -1;
+      var current_fill0 = -1;
+      var current_fill1 = -1;
+
       var current_line = -1;
+      var edges = new RenderFuncList();
+      var fills = new Array<ShapeEdge>();
 
       while(true)
       {
@@ -87,16 +148,18 @@ class Shape
             var new_fill_style0 = inStream.ReadBool();
             var move_to = inStream.ReadBool();
 
-            //trace("new_styles : " + new_styles);
-            //trace("new_line_style : " + new_line_style);
-            //trace("new_fill_style0 : " + new_fill_style0);
-            //trace("new_fill_style1 : " + new_fill_style1);
-            //trace("move_to : " + move_to);
+             //trace("new_styles : " + new_styles);
+             //trace("new_line_style : " + new_line_style);
+             //trace("new_fill_style0 : " + new_fill_style0);
+             //trace("new_fill_style1 : " + new_fill_style1);
+             //trace("move_to : " + move_to);
    
             // End-of-shape - Done !
             if (!move_to && !new_styles && !new_line_style && 
                     !new_fill_style1 && !new_fill_style0 )
+            {
                break;
+            }
  
             if (inVersion!=2 && inVersion!=3)
             {
@@ -110,39 +173,24 @@ class Shape
             if (move_to)
             {
                var bits = inStream.Bits(5);
-               pen_x = inStream.Twips(bits);
-               pen_y = inStream.Twips(bits);
-               var px = pen_x;
-               var py = pen_y;
-               //trace("Move : " + pen_x + "," + pen_y);
-               mCommands.push( function(g:Graphics) { g.moveTo(px,py);} );
+               var px = inStream.Twips(bits);
+               var py = inStream.Twips(bits);
+               //trace("Move : " + px + "," + py + "(" + current_fill0 + "," + current_fill1 + ")" );
+               edges.push( function(g:Graphics) { g.moveTo(px,py);} );
+               pen_x = px;
+               pen_y = py;
             }
    
             if (new_fill_style0)
             {
-               var fill_style = inStream.Bits(fill_bits);
-               var styles = fill_styles;
-               if (fill_style>=styles.length)
-                   throw("Invalid fill style");
-               if (fill_style!=current_fill)
-               {
-                  mCommands.push( styles[fill_style] );
-                  current_fill = fill_style;
-               }
+               current_fill0 = inStream.Bits(fill_bits);
+               //trace(" fill0 : " + current_fill0);
             }
-   
+
             if (new_fill_style1)
             {
-               var fill_style = inStream.Bits(fill_bits);
-               if (fill_style>=fill_styles.length)
-                   throw("Invalid fill style");
-           
-               if (fill_style!=current_fill)
-               {
-                  var func = fill_styles[fill_style];
-                  mCommands.push( func );
-                  current_fill = fill_style;
-               }
+               current_fill1 = inStream.Bits(fill_bits);
+               //trace(" fill1 : " + current_fill1);
             }
    
             if (new_line_style)
@@ -151,26 +199,37 @@ class Shape
                if (line_style>=line_styles.length)
                    throw("Invalid line style: " + line_style + "/" +
                        line_styles.length + " (" + line_bits + ")");
-               if (line_style != current_line)
-               {
-                  var func =  line_styles[line_style];
-                  mCommands.push(func);
-                  current_line = line_style;
-               }
+               var func =  line_styles[line_style];
+               edges.push(func);
+               current_line = line_style;
+               //trace("Line style " + current_line);
             }
-   
+ 
+            // Hmmm - do this, or just flush fills?
+            if (new_styles)
+            {
+               FlushCommands(edges,fills);
+               if (edges.length>0)
+                  edges = [];
+               if (fills.length>0)
+                  fills = [];
+            }
+ 
+  
             if (new_styles)
             {
                //trace("New fill styles !");
-               fill_styles = ReadFillStyles(inStream,inVersion);
+               mFillStyles = ReadFillStyles(inStream,inVersion);
                line_styles = ReadLineStyles(inStream,inVersion);
                fill_bits = inStream.Bits(4);
                line_bits = inStream.Bits(4);
                current_line = -1;
-               current_fill = -1;
-               //trace("fill_bits : " + fill_bits);
-               //trace("line_bits : " + line_bits);
+               current_fill0 = -1;
+               current_fill1 = -1;
             }
+
+           //trace("fill_bits : " + fill_bits);
+            //trace("line_bits : " + line_bits);
          }
          // edge ..
          else
@@ -178,21 +237,34 @@ class Shape
             // straight
             if (inStream.ReadBool())
             {
+               var px = pen_x;
+               var py = pen_y;
+
                var delta_bits = inStream.Bits(4) + 2;
                if (inStream.ReadBool())
                {
-                  pen_x += inStream.Twips(delta_bits);
-                  pen_y += inStream.Twips(delta_bits);
+                  px += inStream.Twips(delta_bits);
+                  py += inStream.Twips(delta_bits);
                }
                else if (inStream.ReadBool())
-                  pen_y += inStream.Twips(delta_bits);
+                  py += inStream.Twips(delta_bits);
                else
-                  pen_x += inStream.Twips(delta_bits);
+                  px += inStream.Twips(delta_bits);
    
-               var px = pen_x;
-               var py = pen_y;
-               //trace("Line to : " + px + "," + py );
-               mCommands.push( function(g:Graphics) { g.lineTo(px,py);} );
+               if (current_line>0)
+                  edges.push( function(g:Graphics) { g.lineTo(px,py);} );
+               else
+                  edges.push( function(g:Graphics) { g.moveTo(px,py);} );
+
+               //trace("Line to : " + px + "," + py  + " (" + current_fill0 + "," + current_fill1 + ")" );
+               if (current_fill0>0)
+                 fills.push(ShapeEdge.line(current_fill0,pen_x,pen_y,px,py));
+
+               if (current_fill1>0)
+                 fills.push(ShapeEdge.line(current_fill1,px,py,pen_x,pen_y));
+
+               pen_x = px;
+               pen_y = py;
             }
             // Curved ...
             else
@@ -204,17 +276,81 @@ class Shape
                var py = cy + inStream.Twips(delta_bits);
                // Can't push "pen_x/y" in closure because it uses a reference
                //  to the member variable, not a copy of the current value.
+
+               //trace("Curve to : " + px + "," + py  + " (" + current_fill0 + "," + current_fill1 + ")" );
+               if (current_line>0)
+                  edges.push( function(g:Graphics) { g.curveTo(cx,cy,px,py);} );
+               if (current_fill0>0)
+                 fills.push(ShapeEdge.curve(current_fill0,pen_x,pen_y,cx,cy,px,py));
+               if (current_fill1>0)
+                 fills.push(ShapeEdge.curve(current_fill1,px,py,cx,cy,pen_x,pen_y));
+ 
                pen_x = px;
                pen_y = py;
-               //trace("Curve to : " + px + "," + py );
-               mCommands.push( function(g:Graphics) { g.curveTo(cx,cy,px,py);} );
             }
          }
       }
+      FlushCommands(edges,fills);
 
       mSWF = null;
 
       // Render( new gm2d.display.DebugGfx());
+   }
+
+   function FlushCommands(edges:RenderFuncList, fills:Array<ShapeEdge>)
+   {
+      var left = fills.length;
+      while(left>0)
+      {
+         var first = fills[0];
+         fills[0] = fills[--left];
+         if (first.fillStyle>=mFillStyles.length)
+            throw("Invalid fill style");
+         //if (first.connects(first))
+           //continue;
+         //trace("Loop start : " + first.x0 + "," + first.y0);
+         //trace("Fill style: " + first.fillStyle);
+         mCommands.push(mFillStyles[first.fillStyle]);
+         var mx = first.x0;
+         var my = first.y0;
+         //trace("moveTo(" + mx + "," + my + ")");
+         mCommands.push(function(gfx:Graphics) gfx.moveTo(mx,my));
+         mCommands.push(first.asCommand());
+         var prev = first;
+         var loop = false;
+         while(!loop)
+         {
+            //trace("seeking " + prev.x1 + "," + prev.y1 + "   " + prev.fillStyle);
+            var found = false;
+            for(i in 0...left)
+            {
+               //trace(" check " + fills[i].x0 + "," + fills[i].y0 + "   " + fills[i].fillStyle);
+               if (prev.connects(fills[i]))
+               {
+                  prev = fills[i];
+                  fills[i] = fills[--left];
+                  mCommands.push(prev.asCommand());
+                  found = true;
+                  if (prev.connects(first))
+                     loop = true;
+                  break;
+               }
+            }
+            if (!found)
+            {
+               trace("Remaining:");
+               for(f in 0...left)
+                  fills[f].dump();
+              throw("Dangling fill : " + prev.x1 + "," + prev.y1 + "  " + prev.fillStyle);
+              break;
+            }
+         }
+      }
+      if (fills.length>0)
+         mCommands.push( function(gfx:Graphics) gfx.endFill() );
+      mCommands = mCommands.concat(edges);
+      if (edges.length>0)
+         mCommands.push(function(gfx:Graphics) gfx.lineStyle() );
    }
 
    public function Render(inGraphics:Graphics)
@@ -242,6 +378,7 @@ class Shape
          if (fill==ftSolid)
          {
             var RGB = inStream.ReadRGB();
+            // trace("FILL " + i + " = " + RGB );
             var A = inVersion >= 3 ? (inStream.ReadByte()/255.0) : 1.0;
             result.push( function(g:Graphics) { g.beginFill(RGB,A); } );
          }
@@ -398,7 +535,7 @@ class Shape
                                          
                }
                else
-                  throw("Unknown fillstyle");
+                  throw("Unknown fillStyle");
 
             }
             else
