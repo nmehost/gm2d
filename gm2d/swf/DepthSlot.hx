@@ -45,23 +45,26 @@ class DepthSlot
 
    public function FindClosestFrame(inHintFrame:Int,inFrame:Int)
    {
+      var last = inHintFrame;
       var n = mAttribs.length;
-      if (inHintFrame>=0)
-         inHintFrame = 0;
-      if (inHintFrame>0)
+      if (last>=mAttribs.length)
+         last = 0;
+      else if (last>0)
       {
-         if ( mAttribs[inHintFrame-1].mFrame > inFrame)
-            inHintFrame = 0;
+         if ( mAttribs[last-1].mFrame > inFrame)
+            last = 0;
       }
 
-      for(i in inHintFrame...n)
+      for(i in last...n)
       {
          if (mAttribs[i].mFrame > inFrame)
-            return inHintFrame;
-         inHintFrame = i;
+         {
+            return last;
+         }
+         last = i;
       }
       
-      return 0;
+      return last;
    }
 
 
