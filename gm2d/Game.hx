@@ -63,7 +63,7 @@ class Game
 		   return;
       created = true;
 
-      #if nme
+      #if !flash
 	   initWidth = nme.Lib.initWidth;
 	   initHeight = nme.Lib.initHeight;
 		#else
@@ -117,9 +117,9 @@ class Game
          rotation = 0;
       #end
 
-      // trace("SET Stage Transform : " + rotation );
-      // trace("    Stage size      : " + sw + "," + sh );
-      // trace("    Init  size      : " + initWidth + "," + initHeight );
+      //trace("SET Stage Transform : " + rotation );
+      //trace("    Stage size      : " + sw + "," + sh );
+      //trace("    Init  size      : " + initWidth + "," + initHeight );
 
       switch(rotation)
       {
@@ -534,7 +534,7 @@ class Game
 
    public static function close()
    {
-      #if nme
+      #if !flash
       nme.Lib.close();
       #end
    }

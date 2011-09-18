@@ -33,7 +33,7 @@ class Resources
       var bytes = loadBytes(inAssetName,false);
       if (bytes==null)
          return null;
-      #if nme
+      #if !flash
       var result = bytes.asString();
       #else
       var result = bytes.toString();
