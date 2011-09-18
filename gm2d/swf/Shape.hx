@@ -86,8 +86,8 @@ class Shape
    static var ftRadialF= 0x13;
    static var ftBitmapRepeatSmooth  = 0x40;
    static var ftBitmapClippedSmooth = 0x41;
-   static var ftBitmapRepeat = 0x42;
-   static var ftBitmapClipped= 0x43;
+   static var ftBitmapRepeat        = 0x42;
+   static var ftBitmapClipped       = 0x43;
 
 
    public function new(inSWF:SWF, inStream:SWFStream, inVersion:Int)
@@ -213,12 +213,8 @@ class Shape
                   edges = [];
                if (fills.length>0)
                   fills = [];
-            }
- 
-  
-            if (new_styles)
-            {
-               //trace("New fill styles !");
+
+               inStream.AlignBits();
                mFillStyles = ReadFillStyles(inStream,inVersion);
                line_styles = ReadLineStyles(inStream,inVersion);
                fill_bits = inStream.Bits(4);
@@ -366,10 +362,8 @@ class Shape
    {
       var result:RenderFuncList = [];
 
-
       // Special null fill-style
       result.push( function(g:Graphics) { g.endFill(); } );
-
 
       var n = inStream.ReadArraySize(true);
       for(i in 0...n)
@@ -383,7 +377,7 @@ class Shape
             result.push( function(g:Graphics) { g.beginFill(RGB,A); } );
          }
          // Gradient
-         else if ( (fill & 0x10) !=0 )
+         else if (fill==ftLinear || fill==ftRadial || fill==ftRadialF )
          {
             var matrix = inStream.ReadMatrix();
             inStream.AlignBits();
@@ -409,13 +403,13 @@ class Shape
                                    
          }
          // Bitmap
-         else if ( (fill & 0x40)!=0)
+         else if (fill==ftBitmapRepeatSmooth || fill==ftBitmapClippedSmooth ||
+                  fill==ftBitmapRepeat || fill==ftBitmapClipped )
          {
-            var id = inStream.ReadID();
-            var bitmap = mSWF.GetBitmap(id);
-
-
             inStream.AlignBits();
+            var id = inStream.ReadID();
+            // trace("Bitmap Fill : 0x" + StringTools.hex(fill) + "  " + id);
+
             var matrix = inStream.ReadMatrix();
             // Not too sure about these.
             // A scale of (20,20) is 1 pixel-per-unit.
@@ -423,12 +417,15 @@ class Shape
             matrix.b *= 0.05;
             matrix.c *= 0.05;
             matrix.d *= 0.05;
+            //trace("mtx : " + matrix.a + " " + matrix.c + " " + matrix.tx );
+            //trace("      " + matrix.b + " " + matrix.d + " " + matrix.ty );
 
             inStream.AlignBits();
             var repeat = fill == ftBitmapRepeat || fill==ftBitmapRepeatSmooth;
             var smooth = fill == ftBitmapRepeatSmooth||
                          fill ==ftBitmapClippedSmooth;
 
+            var bitmap = mSWF.GetBitmap(id);
             if (bitmap!=null)
             {
                result.push( function(g:Graphics) {
@@ -455,7 +452,10 @@ class Shape
 
                g.beginBitmapFill(bitmap,matrix,repeat,smooth); } );
             }
-
+         }
+         else
+         {
+            throw("Unknown fill style : 0x" + StringTools.hex(fill) );
          }
       }
       return result;

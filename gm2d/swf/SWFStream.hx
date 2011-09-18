@@ -13,12 +13,12 @@ import gm2d.text.TextFormatAlign;
 
 class SWFStream
 {
-   var mStream:ByteArray;
-   var mVersion:Int;
-   var mByteBuf:Int;
-   var mBitPos:Int;
-   var mTagSize:Int;
-   var mTagRead:Int;
+   public var mStream:ByteArray;
+   public var mVersion:Int;
+   public var mByteBuf:Int;
+   public var mBitPos:Int;
+   public var mTagSize:Int;
+   public var mTagRead:Int;
 
    var mPushTagSize:Int;
    var mPushTagRead:Int;
@@ -236,6 +236,12 @@ class SWFStream
       mTagRead+=4;
       return mStream.readInt();
    }
+   public function ReadFloat() : Float
+   {
+      mTagRead+=4;
+      return mStream.readInt();
+   }
+
 
    public function ReadByte() : Int
    {
@@ -299,6 +305,12 @@ class SWFStream
    {
       return Bits(inBits,true) / 65536.0;
    }
+   public function ReadFixed() : Float
+   {
+      var frac = ReadUI16()/65536.0;
+      return ReadUI16() + frac;
+   }
+
 
    public function ReadMatrix()
    {
@@ -320,25 +332,37 @@ class SWFStream
       return result;
    }
 
-   public function ReadColorTransform()
+   public function ReadColorTransform(withAlpha:Bool)
    {
+      AlignBits();
       var result = new gm2d.geom.ColorTransform();
 
       var has_add = ReadBool();
       var has_mult = ReadBool();
       var bits = Bits(4);
+      if (!has_add && !has_mult)
+      {
+         AlignBits();
+         return null;
+      }
+
       if (has_mult)
       {
-         result.redMultiplier = Bits(bits,true);
-         result.greenMultiplier = Bits(bits,true);
-         result.blueMultiplier = Bits(bits,true);
+         result.redMultiplier = Bits(bits,true)/256.0;
+         result.greenMultiplier = Bits(bits,true)/256.0;
+         result.blueMultiplier = Bits(bits,true)/256.0;
+         if (withAlpha)
+            result.alphaMultiplier = Bits(bits,true)/256.0;
       }
       if (has_add)
       {
-         result.redOffset = Bits(bits,true);
-         result.greenOffset = Bits(bits,true);
-         result.blueOffset = Bits(bits,true);
+         result.redOffset = Bits(bits,true)/256.0;
+         result.greenOffset = Bits(bits,true)/256.0;
+         result.blueOffset = Bits(bits,true)/256.0;
+         if (withAlpha)
+            result.alphaOffset = Bits(bits,true)/256.0;
       }
+      AlignBits();
 
       return result;
    }
@@ -350,7 +374,6 @@ class SWFStream
       var data = mStream.readUnsignedShort();
       var tag = data >> 6;
       var length = data & 0x3f;
-   
       if (tag>=Tags.LAST)
          return 0;
    
@@ -388,6 +411,7 @@ class SWFStream
    {
        var bytes = new gm2d.utils.ByteArray();
        mStream.readBytes(bytes,0,inSize);
+       mTagRead += inSize;
        return bytes;
    }
 

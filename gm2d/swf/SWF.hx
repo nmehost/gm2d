@@ -23,6 +23,7 @@ class SWF
    var mFrameRate : Float;
    var mBackground : Int;
    var mDictionary:Array<Character>;
+   var mSymbols:Hash<Int>;
    var mMain:Sprite;
    var mVersion:Int;
 
@@ -35,8 +36,9 @@ class SWF
       mFrameRate = mStream.FrameRate();
       var count = mStream.Frames();
       mDictionary = [];
+      mSymbols = new Hash<Int>();
 
-      mMain = new Sprite(this,count);
+      mMain = new Sprite(this,0,count);
 
 
       var count:Array<Int> = [];
@@ -48,6 +50,7 @@ class SWF
       var tag = 0;
       while( (tag=mStream.BeginTag())!=0 )
       {
+         //trace( Tags.string(tag) + "  x  " + mStream.mTagSize );
          count[tag]++;
          switch(tag)
          {
@@ -121,12 +124,22 @@ class SWF
             case Tags.CSMTextSettings:
                // todo:
 
+            case Tags.DoAction:
+               // todo:
+
+            case Tags.DoABC2:
+               // todo:
+
+
             case Tags.FileAttributes:
+               ReadFileAttributes();
                // Do nothing
-			   
-			case Tags.DefineEditText:
+
+            case Tags.DefineEditText:
                DefineEditText(1);
 
+            case Tags.SymbolClass:
+               SymbolClass();
 
             default:
                trace("Unknown tag:" + Tags.string(tag));
@@ -139,7 +152,7 @@ class SWF
        for(i in 0...Tags.LAST)
          if (count[i]!=0)
             trace( Tags.string(i) + " = " + count[i] );
-      */
+       */
 
       mStream.close();
       mStream = null;
@@ -153,6 +166,28 @@ class SWF
       return result;
    }
 
+   public function createSymbolInstance(inName:String) : Dynamic
+   {
+      if (!mSymbols.exists(inName))
+         return null;
+      switch( GetCharacter(mSymbols.get(inName)) )
+      {
+         case charSprite(sprite) :
+            var result = new gm2d.swf.MovieClip();
+            result.CreateFromSWF(sprite);
+            return result;
+
+         case charBitmap(bits) :
+            return bits.GetBitmap();
+
+         default:
+            return null;
+      }
+
+      return null;
+   }
+
+
    public function GetBackground() { return mBackground; }
    public function GetFrameRate() { return mFrameRate; }
    public function Width() { return Std.int(mRect.width); }
@@ -165,6 +200,26 @@ class SWF
          throw "Invalid character ID (" + inID + ")";
       return result;
    }
+
+   function ReadFileAttributes()
+   {
+      var flags = mStream.ReadByte();
+      var zero = mStream.ReadByte();
+      zero = mStream.ReadByte();
+      zero = mStream.ReadByte();
+   }
+
+   function SymbolClass()
+   {
+      var n = mStream.ReadUI16();
+      for(i in 0...n)
+      {
+         var id = mStream.ReadUI16();
+         var str = mStream.ReadString();
+         mSymbols.set(str,id);
+      }
+   }
+
 
    function CreatePlaceholderBitmap(inID:Int)
    {
@@ -182,6 +237,12 @@ class SWF
 
    public function GetBitmap(inID:Int) : gm2d.display.BitmapData
    {
+      if (inID==0xffff)
+         return null;
+
+      if (mDictionary[inID]==null)
+         throw("Bitmap not defined: " + inID);
+
       //if (mDictionary[inID]==null)
          //return CreatePlaceholderBitmap(inID);
 
@@ -196,6 +257,7 @@ class SWF
    function DefineShape(inVersion:Int)
    {
       var shape_id = mStream.ReadID();
+      //trace("Define shape " + shape_id);
       mDictionary[shape_id] = charShape(
           new Shape(this,mStream,inVersion) );
    }
@@ -227,6 +289,7 @@ class SWF
    function DefineBitmap(inLossless:Bool,inVersion:Int)
    {
       var shape_id = mStream.ReadID();
+      //trace("Define bitmap : " + shape_id);
       mDictionary[shape_id] = charBitmap(
          new Bitmap(mStream,inLossless,inVersion) );
    }
@@ -242,19 +305,23 @@ class SWF
    public function DefineSprite()
    {
       var id = mStream.ReadID();
+      //trace("Define sprite " + id);
       var frames = mStream.Frames();
       mStream.PushTag();
 
-      var sprite = new Sprite(this,frames);
+      var sprite = new Sprite(this,id,frames);
 
       var tag=0;
+      var fid = 1;
       while( (tag=mStream.BeginTag())!=0 )
       {
+         //trace("sub tag:" + Tags.string(tag) );
          switch(tag)
          {
             case Tags.FrameLabel:
                sprite.LabelFrame(mStream.ReadString());
             case Tags.ShowFrame:
+               //trace(" frame:" + (fid++));
                sprite.ShowFrame();
 
             case Tags.PlaceObject:
@@ -268,6 +335,10 @@ class SWF
                sprite.RemoveObject(mStream,1);
             case Tags.RemoveObject2:
                sprite.RemoveObject(mStream,2);
+            case Tags.DoAction:
+               // not implemented
+            default:
+               trace("Unknown sub tag: " +  Tags.string(tag) );
          }
          mStream.EndTag();
       }
