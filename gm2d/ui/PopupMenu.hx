@@ -64,7 +64,7 @@ class PopupMenu extends Window
       var gfx = graphics;
       gfx.clear();
       gfx.beginFill(0xffffff);
-      gfx.drawRoundRect(0.5,0.5,mWidth,mHeight+5,6);
+      gfx.drawRect(0.5,0.5,mWidth,mHeight+5);
       if (mButtons.length>inIDX)
       {
          gfx.beginFill(0x4040a0);
@@ -73,7 +73,7 @@ class PopupMenu extends Window
       }
       gfx.endFill();
       gfx.lineStyle(1,0x000000);
-      gfx.drawRoundRect(0.5,0.5,mWidth,mHeight+5,6);
+      gfx.drawRect(0.5,0.5,mWidth,mHeight+5);
    }
 
    public override function destroy()

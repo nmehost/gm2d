@@ -27,9 +27,9 @@ class Skin
    public function new()
    {
       textFormat = new gm2d.text.TextFormat();
-      textFormat.size = 16;
+      textFormat.size = 12;
       textFormat.font = "Arial";
-      menuHeight = 24;
+      menuHeight = 22;
       mBitmaps = [];
       for(state in  HitBoxes.BUT_STATE_UP...HitBoxes.BUT_STATE_DOWN+1)
          mBitmaps[state] = [];
@@ -52,7 +52,7 @@ class Skin
       var mtx = new gm2d.geom.Matrix();
       mtx.createGradientBox(inH,inH,Math.PI * 0.5);
       var cols:Array<Int> = [0xf0f0e0, 0xe0e0d0, 0xa0a090];
-      var alphas:Array<Float> = [0.8, 0.8, 0.8];
+      var alphas:Array<Float> = [1.0, 1.0, 1.0];
       var ratio:Array<Int> = [0, 128, 255];
       gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
       gfx.drawRect(0,0,inW,inH);
@@ -164,6 +164,11 @@ class Skin
    {
       return new Point(borders,borders+title_h);
    }
+   public function getMiniWinClientOffset() : Point
+   {
+      return new Point(borders,borders);
+   }
+
    public function renderFrame(inObj:Sprite, pane:Pane, inW:Float, inH:Float,outHitBoxes:HitBoxes,inIsCurrent:Bool)
    {
       var gfx = inObj.graphics;
@@ -221,6 +226,24 @@ class Skin
       outHitBoxes.add( new Rectangle(0,0,inW,title_h), TITLE(pane) );
    }
 
+
+
+   public function renderMiniWin(inObj:Sprite, pane:Pane, inW:Float, inH:Float,outHitBoxes:HitBoxes)
+   {
+      var gfx = inObj.graphics;
+      gfx.clear();
+
+      gfx.beginFill(0xa0a090);
+      gfx.lineStyle(1,0xa0a090);
+
+      gfx.drawRoundRect(0.5,0.5,inW+borders*2, inH+borders*2, 3,3 );
+      gfx.endFill();
+      gfx.drawRect(borders-0.5,borders-0.5,inW+1, inH+1 );
+
+      outHitBoxes.clear();
+   }
+
+
    static var tab_height = 24;
 
    function initGfx()
@@ -248,7 +271,7 @@ class Skin
       var mtx = new gm2d.geom.Matrix();
 
       mtx.createGradientBox(tab_height,tab_height,Math.PI * 0.5);
-      var cols:Array<Int> = [ 0x404040, 0xa0a090];
+      var cols:Array<Int> = [ 0xe0e0d0, 0xa0a090];
       var alphas:Array<Float> = [1.0, 1.0];
       var ratio:Array<Int> = [0, 255];
       gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );

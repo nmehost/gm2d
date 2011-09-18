@@ -62,6 +62,7 @@ class BitmapText extends Control
       setText(inVal);
       mCharPos = [];
       mCurrent = false;
+      needsSoftKeyboard = true;
    }
 
    override function onCurrentChanged(inCurrent:Bool)
@@ -76,7 +77,7 @@ class BitmapText extends Control
             mTimer = new Timer(500);
             mTimer.run = onTimer;
          }
-         stage.showKeyboard(true);
+         //requestSoftKeyboard();
       }
       else
       {
@@ -174,7 +175,7 @@ class BitmapText extends Control
 
       if (code==Keyboard.ENTER)
       {
-         stage.showKeyboard(false);
+         //stage.showKeyboard(false);
          // Set current to "next" ?
          clearCurrent();
       }

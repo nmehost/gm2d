@@ -8,7 +8,8 @@ class Pane
 {
    public static var POS_OVER = 0;
 
-   public static var RESIZABLE = 0x0001;
+   public static var RESIZABLE     = 0x0001;
+   public static var TOOLBAR       = 0x0002;
 
    public var title(default,null):String;
    public var displayObject(default,null):DisplayObject;
@@ -35,6 +36,8 @@ class Pane
       buttonState = [ 0,0,0 ];
       gm2dMinimized = false;
    }
+
+   public function isToolbar() { return (mFlags & TOOLBAR) > 0; }
 
    public function raise()
    {

@@ -29,7 +29,12 @@ class App extends Screen
    public function addPane(inPane:Pane, inPos:Int)
    {
       if (inPos==Pane.POS_OVER)
-         mMDI.addPane(inPane);
+      {
+         if (inPane.isToolbar())
+            new MiniWin(inPane,this);
+         else
+            mMDI.addPane(inPane);
+      }
       else
       {
       }
