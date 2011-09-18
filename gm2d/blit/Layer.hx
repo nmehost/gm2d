@@ -30,7 +30,7 @@ class Layer
 
    public function addTile(inTile:Tile, inX:Float, inY:Float) { }
 
-   dynamic public function dynamicRender(inOX:Float, inOY:Float) : Void;
+   dynamic public function dynamicRender(inOX:Float, inOY:Float) : Void { }
 
    public function drawTile(inTile:Tile, inX:Float, inY:Float) { }
 
