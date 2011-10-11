@@ -104,7 +104,7 @@ class MovieClip extends MovieClipBase
    public function play( ) : Void { mPlaying = true; }
 
    #if !flash override #end
-   public function stop( ) : Void { mPlaying = true; }
+   public function stop( ) : Void { mPlaying = false; }
 
 
    static var count = 0;
