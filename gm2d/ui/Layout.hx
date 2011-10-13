@@ -52,7 +52,7 @@ class Layout
       mBBottom = inB;
       return this;
    }
-  public function add(inLayout:Layout) : Layout
+   public function add(inLayout:Layout) : Layout
    {
       throw "Can't add to this layout";
       return null;

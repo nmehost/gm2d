@@ -96,10 +96,10 @@ class ComboBox extends Control
        mOptions = inOptions==null ? [] : inOptions.copy();
        addChild(mText);
        var me = this;
-       addEventListener(MouseEvent.CLICK, function(ev)  if (ev.localX > me.mButtonX) me.popup()  );
+       addEventListener(MouseEvent.CLICK, function(ev)  if (ev.localX > me.mButtonX) me.doPopup()  );
    }
 
-   function popup()
+   function doPopup()
    {
       var pop = new ComboList(this, mWidth, mOptions);
       var pos = this.localToGlobal( new gm2d.geom.Point(0,0) );

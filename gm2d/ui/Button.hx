@@ -83,9 +83,15 @@ class Button extends Control
    {
       mUpBmp = inUpBmp;
       mDownBmp = inDownBmp;
+      var w = mUpBmp!=null ? mUpBmp.width : mDownBmp==null? mDownBmp.width : 32;
+      var h = mUpBmp!=null ? mUpBmp.height : mDownBmp==null? mDownBmp.height : 32;
+      var layout = getLayout();
+      mMainLayout.setBestSize(w,h);
+      mBGLayout.setBestSize(w,h);
       mDownDX = inDownDX;
       mDownDY = inDownDY;
       mIsDown = !mIsDown;
+      mItemLayout.setRect(0,0,w,h);
       down = !mIsDown;
    }
    public function getDown() : Bool { return mIsDown; }
