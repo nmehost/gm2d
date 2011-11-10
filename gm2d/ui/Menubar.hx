@@ -1,11 +1,13 @@
 package gm2d.ui;
 
+import gm2d.display.DisplayObjectContainer;
+
+#if (!waxe || nme_menu)
 import gm2d.Screen;
 import gm2d.Game;
 import gm2d.display.BitmapData;
 import gm2d.display.Graphics;
 import gm2d.display.Sprite;
-import gm2d.display.DisplayObjectContainer;
 import gm2d.text.TextField;
 import gm2d.events.MouseEvent;
 import gm2d.text.TextFieldAutoSize;
@@ -22,9 +24,11 @@ class Menubar extends Sprite
    var mItems:Array<MenuItem>;
    var mButtons:Array<Button>;
 
-   public function new()
+   public function new(inParent:DisplayObjectContainer)
    {
       super();
+      if (inParent!=null)
+         inParent.addChild(this);
       mItems = [];
       mButtons = [];
       mNextX = 2;
@@ -84,14 +88,68 @@ class Menubar extends Sprite
       }
    }
 
-   public function layout(inWidth:Float, inHeight:Float)
+   public function layout(inWidth:Float) : Float
    {
        mWidth = inWidth;
-       mHeight = inHeight;
+       mHeight = Skin.current.menuHeight;
        Skin.current.renderMenubar(this,mWidth,mHeight);
        for(but in mButtons)
           but.y = (mHeight-but.height)/2;
+       return mHeight;
    }
 }
+
+#else
+
+import wx.Menu;
+
+
+class Menubar
+{
+   var mWxMenuBar:wx.MenuBar;
+   var mAdded:Bool;
+
+   public function new(inParent:DisplayObjectContainer)
+   {
+      mAdded = false;
+      mWxMenuBar = new wx.MenuBar();
+   }
+
+   public function layout(inWidth:Float) : Float
+   {
+      if (!mAdded)
+      {
+         mAdded = true;
+         ApplicationMain.frame.menuBar = mWxMenuBar;
+      }
+      return 0;
+   }
+
+   function addItems(inMenu:Menu,inItem:MenuItem)
+   {
+      for(child in inItem.mChildren)
+      {
+         if (child.onSelect!=null)
+         {
+            if (child.gmID<0)
+               child.gmID = wx.Lib.nextID();
+            ApplicationMain.frame.handle(child.gmID, child.onSelect);
+         }
+         inMenu.append(child.gmID, child.gmText);
+      }
+   }
+
+   public function add(inItem:MenuItem)
+   {
+      //var menu = new Menu(inItem.gmText);
+      var menu = new Menu();
+      addItems(menu,inItem);
+      mWxMenuBar.append(menu,inItem.gmText);
+   }
+
+}
+
+
+#end
 
 

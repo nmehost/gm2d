@@ -14,6 +14,7 @@ class MenuItem
       gmCheckable = false;
       gmChecked = false;
       onSelect = inOnSelect;
+      gmID = -1;
    }
    public var onSelect:MenuItem->Void;
 
@@ -30,6 +31,7 @@ class MenuItem
    public var gmIcon:BitmapData;
    public var gmCheckable:Bool;
    public var gmChecked:Bool;
-   public var gmPopup:PopupMenu;
+   public var gmID:Int;
+   //public var gmPopup:PopupMenu;
    public var mChildren:Array<MenuItem>;
 }

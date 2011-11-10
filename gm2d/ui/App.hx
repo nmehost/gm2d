@@ -48,8 +48,7 @@ class App extends Screen
       var h:Float = stage.stageHeight;
       if (menubar!=null)
       {
-         var menu_h = Skin.current.menuHeight;
-         menubar.layout(w,menu_h);
+         var menu_h = menubar.layout(w);
          y0 += menu_h;
          h -= menu_h;
       }
@@ -63,8 +62,7 @@ class App extends Screen
    {
       if (menubar==null)
       {
-         menubar = new Menubar();
-         addChild(menubar);
+         menubar = new Menubar(this);
          doLayout();
       }
       return menubar;
