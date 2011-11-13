@@ -3,9 +3,11 @@ import gm2d.ui.Menubar;
 import gm2d.ui.MenuItem;
 import gm2d.ui.Pane;
 import gm2d.display.Sprite;
+import gm2d.utils.ByteArray;
 import gm2d.Game;
+import gm2d.svg.SVG2Gfx;
 
-#if systools
+#if neko
 import systools.Dialogs;
 #end
 
@@ -16,6 +18,7 @@ class SampleApp extends App
       super();
       createMenus();
 
+/*
       var item = new Sprite();
       var gfx = item.graphics;
       gfx.beginFill(0x0000);
@@ -23,6 +26,15 @@ class SampleApp extends App
       gfx.beginFill(0xff0000);
       gfx.drawCircle(100,100,100);
       addPane( new Pane(item,"Red",Pane.RESIZABLE), Pane.POS_OVER );
+
+      var item = new Sprite();
+      var gfx = item.graphics;
+      gfx.beginFill(0x0000);
+      gfx.drawRect(0,0,200,200);
+      gfx.beginFill(0xffffff);
+      gfx.drawCircle(100,100,100);
+      addPane( new Pane(item,"Float",Pane.TOOLBAR), Pane.POS_OVER );
+      */
    }
 
    function createMenus()
@@ -49,9 +61,7 @@ class SampleApp extends App
 
    function onExit(_)
    {
-      #if nme
-      nme.Lib.close();
-      #end
+      nme.Lib.exit();
    }
 
    function onViewNew(_)
@@ -67,24 +77,45 @@ class SampleApp extends App
 
    }
 
+   function addSVGDocument(inName:String, inData:ByteArray)
+   {
+      var xml = inData.asString();
+      var svg = new SVG2Gfx(Xml.parse(xml));
+      var item = new Sprite();
+      var gfx = item.graphics;
+      svg.Render(gfx);
+      item.cacheAsBitmap = true;
+      addPane( new Pane(item,inName,Pane.RESIZABLE), Pane.POS_OVER );
+   }
+
+   function loadData(inName:String,inData:ByteArray)
+   {
+      var pos = inName.lastIndexOf(".");
+      if (pos>0)
+      {
+         var ext = inName.substr(pos+1).toLowerCase();
+         switch(ext)
+         {
+            case "svg":
+              addSVGDocument(inName, inData);
+         }
+      }
+   }
+
    function onLoad(_)
    {
-   #if systools
-   #if neko
-   neko.vm.Thread.create( function() {
-      var filters: FILEFILTERS = 
-         { count: 2
-         , descriptions: ["Text files", "JPEG files"]
-         , extensions: ["*.txt","*.jpg;*.jpeg"]         
-         };      
-      var result = Dialogs.openFile
-         ( "Select a file please!"
-         , "Please select one or more files, so we can see if this method works"
-         , filters 
-         );
-      trace(result);      
-      } );
-   #end
+   #if waxe
+      var dialog = new wx.FileDialog(null,"Select Graphics File");
+      dialog.filter="Graphics Files|*.svg;*.png;*.jpg;*.swf";
+      if (dialog.showModal())
+      {
+         var dir = dialog.directory;
+         var name = dir + "/" + dialog.file;
+         var data = ByteArray.readFile(name);
+         trace(name + " = " + (data==null ? "Null" : ""+data.length ));
+         if (data!=null)
+            loadData(name,data);
+      }
    #end
    }
 
@@ -98,7 +129,7 @@ class SampleApp extends App
 
    static public function main()
    {
-      Game.fpsColor = 0x000000;
+      //Game.fpsColor = 0x000000;
       Game.backgroundColor = 0xffffff;
       new SampleApp();
    }

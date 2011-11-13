@@ -3,32 +3,32 @@
 
   <app
      file="SampleApp"
-     title="GM2D SampleApp"
-     package="com.gm2d.sampleapp"
+     title="SampleApp"
+     package="com.gm2d.SampleApp"
      version="1.0"
      company="GM2D" 
 	  main="SampleApp"
   />
 
-  <icon name="../icon.svg" />
-
   <window
-      width="480"
-		height="320"
+      width="800"
+		height="600"
 		orientation="landscape"
-		fps="60"
-		background="0x202040"
+		fps="24"
+		background="0xffffff"
       resizeable="true"
 		hardware="true"
 	/>
 
+   <icon name="../icon.svg" />
 
-  
-  <classpath name="../.." />
+
   <haxelib name="nme" />
-  <haxelib name="systools" unless="target_flash" />
+  <haxelib name="gm2d" />
+  <haxelib name="waxe" />
 
   <ndll name="nme" haxelib="nme" nekoapi="1"/>
+  <ndll name="waxe" haxelib="waxe" />
   <ndll name="std" />
   <ndll name="zlib" />
   <ndll name="regexp" />

@@ -79,6 +79,8 @@ class PopupMenu extends Window
    public override function destroy()
    {
       super.destroy();
+      #if !waxe
       if (mBar!=null) mBar.closeMenu(mItem);
+      #end
    }
 }
