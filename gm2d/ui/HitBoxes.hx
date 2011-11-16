@@ -77,23 +77,23 @@ class HitBoxes
       inObject.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
    }
 
-   function onMouseDown(event)
+   function onMouseDown(event:MouseEvent)
    {
       var obj:gm2d.display.DisplayObject = event.target;
       if (obj==mObject)
          onDown(event.localX, event.localY);
    }
 
-   function onMouseUp(event)
+   function onMouseUp(event:MouseEvent)
    {
       var obj:gm2d.display.DisplayObject = event.target;
       if (obj==mObject)
          onUp(event.localX, event.localY);
    }
 
-   function onMouseMove(event) { onMove(event.localX, event.localY); }
+   function onMouseMove(event:MouseEvent) { onMove(event.localX, event.localY); }
 
-   function onMouseOut(event) { onMove(-100,-100); }
+   function onMouseOut(event:MouseEvent) { onMove(-100,-100); }
 
 
 

@@ -191,7 +191,7 @@ class Skin
 		}
 
       gfx.drawRoundRect(0.5,0.5,inW+borders*2, inH+borders*2+title_h, 3,3 );
-      gfx.endFill();
+		gfx.beginFill(0xffffff);
       gfx.drawRect(borders-0.5,title_h+borders-0.5,inW+1, inH+1 );
 
       outHitBoxes.clear();

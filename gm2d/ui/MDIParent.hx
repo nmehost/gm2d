@@ -60,9 +60,9 @@ class MDIChildFrame extends Sprite
       y = rect.y;
       mClientWidth = rect.width;
       mClientHeight = rect.height;
-      //pane.displayObject.scrollRect = new Rectangle(20,20,mClientWidth, mClientHeight);
       Skin.current.renderFrame(this,inPane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
       addChild(pane.displayObject);
+      pane.layout(mClientWidth,mClientHeight);
       inMDI.clientArea.addChild(this);
    }
 

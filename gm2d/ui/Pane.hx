@@ -46,7 +46,13 @@ class Pane
          dock.raise(this);
    }
 
-   public dynamic function layout(inW:Float, inH:Float) { }
+   public dynamic function layout(inW:Float, inH:Float)
+   {
+      if (displayObject!=null)
+      {
+         displayObject.scrollRect = new Rectangle(0,0,inW,inH);
+      }
+   }
 
 
    public function close(inForce:Bool = false)

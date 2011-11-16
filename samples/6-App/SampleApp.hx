@@ -7,10 +7,6 @@ import gm2d.utils.ByteArray;
 import gm2d.Game;
 import gm2d.svg.SVG2Gfx;
 
-#if neko
-import systools.Dialogs;
-#end
-
 class SampleApp extends App
 {
    public function new()
@@ -18,15 +14,7 @@ class SampleApp extends App
       super();
       createMenus();
 
-/*
-      var item = new Sprite();
-      var gfx = item.graphics;
-      gfx.beginFill(0x0000);
-      gfx.drawRect(0,0,200,200);
-      gfx.beginFill(0xff0000);
-      gfx.drawCircle(100,100,100);
-      addPane( new Pane(item,"Red",Pane.RESIZABLE), Pane.POS_OVER );
-
+      /*
       var item = new Sprite();
       var gfx = item.graphics;
       gfx.beginFill(0x0000);
