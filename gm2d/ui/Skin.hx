@@ -11,6 +11,7 @@ import gm2d.display.Shape;
 import gm2d.text.TextField;
 import gm2d.geom.Point;
 import gm2d.geom.Rectangle;
+import gm2d.geom.Matrix;
 import gm2d.ui.HitBoxes;
 
 class Skin
@@ -104,6 +105,7 @@ class Skin
       var shape = new gm2d.display.Shape();
       var gfx = shape.graphics;
       gfx.lineStyle(1,0xffffff);
+      var matrix = new Matrix();
       if (inButton==MiniButton.CLOSE)
       {
          gfx.moveTo(3,3);
@@ -135,8 +137,7 @@ class Skin
       }
       if (inState==HitBoxes.BUT_STATE_DOWN)
       {
-         // todo: why does this not work in flash - matrix?
-         shape.x = shape.y = 1;
+         matrix.tx = matrix.ty = 1;
       }
 
       if (inState!=HitBoxes.BUT_STATE_UP)
@@ -146,7 +147,7 @@ class Skin
          shape.filters = [ glow ];
       }
         
-      bmp.draw(shape);
+      bmp.draw(shape,matrix);
       return bmp;
    }
 
@@ -168,8 +169,13 @@ class Skin
    {
       return new Point(borders,borders);
    }
+   public function getMinFrameWidth() : Float
+   {
+      return 80;
+   }
 
-   public function renderFrame(inObj:Sprite, pane:Pane, inW:Float, inH:Float,outHitBoxes:HitBoxes,inIsCurrent:Bool)
+   public function renderFrame(inObj:Sprite, pane:Pane, inW:Float, inH:Float,
+             outHitBoxes:HitBoxes,inIsCurrent:Bool)
    {
       var gfx = inObj.graphics;
       gfx.clear();
@@ -223,10 +229,77 @@ class Skin
          }
       }
 
+      var titleBmp = outHitBoxes.bitmaps[MiniButton.TITLE];
+      if (titleBmp==null)
+      {
+         titleBmp = new Bitmap();
+         titleBmp.x = borders;
+         titleBmp.y = borders;
+         inObj.addChild(titleBmp);
+         outHitBoxes.bitmaps[MiniButton.TITLE] = titleBmp;
+      }
+
+      titleBmp.bitmapData = renderText(pane.title, x-borders,  title_h-borders*2);
+
       outHitBoxes.add( new Rectangle(0,0,inW,title_h), TITLE(pane) );
    }
 
+   public function renderText(inText:String, inWidth:Float, inHeight:Float)
+   {
+      mText.text = inText;
+      var text_size = mText.textWidth;
+      var tw = Std.int(Math.min(text_size+0.99,inWidth));
+      if (inText=="" || tw<1)
+         return null;
+      var bmp = new BitmapData(tw,Std.int(inHeight),true, #if neko { a:0, rgb:0 } #else 0 #end );
+      if (tw>=text_size)
+      {
+         bmp.draw(mText);
+      }
+      else
+      {
+         mText.text = "...";
+         var space = inWidth-mText.textWidth;
 
+         var len = inText.length;
+         
+         var last_break = Std.int(Math.max( Math.max( inText.lastIndexOf("\\"),
+                                   inText.lastIndexOf("/")), inText.lastIndexOf(" ") ) );
+         var last_dot = inText.lastIndexOf(".");
+         if (last_break>0 && last_dot>last_break)
+         {
+            // See if the whole last bit fits...
+            mText.text = inText.substr(last_break+1);
+            // No - drop the extension
+            if (mText.textWidth>space)
+               inText = inText.substr(0,last_dot);
+         }
+
+         var min = 1;
+         var max = inText.length-1;
+         while(min+1<max)
+         {
+            var mid = (min+max)>>1;
+            mText.text = inText.substr(mid);
+            var diff =  mText.textWidth-space;
+            if (diff==0)
+            {
+               min = mid;
+               break;
+            }
+            else if (diff<0)
+               max = mid;
+            else
+               min = mid;
+         }
+         mText.text = "..." + inText.substr(min);
+         
+         bmp.draw( mText);
+      }
+
+      return bmp;
+   }
+   
 
    public function renderMiniWin(inObj:Sprite, pane:Pane, inW:Float, inH:Float,outHitBoxes:HitBoxes)
    {
@@ -319,7 +392,6 @@ class Skin
          inArea.draw(mText,trans);
          trans.tx+=tw+2;
       }
-
    }
 }
 

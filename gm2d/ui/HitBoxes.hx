@@ -21,8 +21,9 @@ class MiniButton
    public static inline var MAXIMIZE = 2;
    public static inline var RESTORE = 3;
    public static inline var POPUP = 4;
-
    public static inline var COUNT = 5;
+
+   public static inline var TITLE = 6;
 }
 
 enum HitAction

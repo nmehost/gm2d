@@ -18,7 +18,6 @@ class MDIChildFrame extends Sprite
 
    static var mNextChildPos = 0;
    var mMDI : MDIParent;
-   var mTitle : TextField;
    var mHitBoxes:HitBoxes;
    var mClientWidth:Float;
    var mClientHeight:Float;
@@ -29,13 +28,7 @@ class MDIChildFrame extends Sprite
    public function new(inPane:Pane, inMDI:MDIParent, inIsCurrent:Bool )
    {
       super();
-      mTitle = new TextField();
 		mIsCurrent = inIsCurrent;
-      addChild(mTitle);
-      Skin.current.styleLabelText(mTitle);
-      mTitle.text = inPane.title;
-      mTitle.y = 2;
-      mTitle.x = 2;
       pane = inPane;
       mHitBoxes = new HitBoxes(this, onHitBox);
       mMDI = inMDI;
@@ -58,7 +51,8 @@ class MDIChildFrame extends Sprite
       pane.displayObject.y = mClientOffset.y;
       x = rect.x;
       y = rect.y;
-      mClientWidth = rect.width;
+      mClientWidth = Math.max(rect.width,Skin.current.getMinFrameWidth());
+
       mClientHeight = rect.height;
       Skin.current.renderFrame(this,inPane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
       addChild(pane.displayObject);
