@@ -177,8 +177,14 @@ class Skin
    public function renderFrame(inObj:Sprite, pane:Pane, inW:Float, inH:Float,
              outHitBoxes:HitBoxes,inIsCurrent:Bool)
    {
+      outHitBoxes.clear();
+
       var gfx = inObj.graphics;
       gfx.clear();
+
+      var w = inW+borders*2;
+      var h = inH+borders*2+title_h;
+
 
 		if (inIsCurrent)
 		{
@@ -196,11 +202,23 @@ class Skin
          gfx.lineStyle(1,0xa0a090);
 		}
 
-      gfx.drawRoundRect(0.5,0.5,inW+borders*2, inH+borders*2+title_h, 3,3 );
+      gfx.drawRoundRect(0.5,0.5,w, h, 3,3 );
+
+      if (pane.resizeable())
+      {
+         gfx.endFill();
+         for(o in 0...4)
+         {
+            var dx = (o+2)*3;
+            gfx.moveTo(w-dx,h);
+            gfx.lineTo(w,h-dx);
+         }
+         outHitBoxes.add( new Rectangle(w-12,h-12,12,12), HitAction.RESIZE(pane, ResizeFlag.S|ResizeFlag.E) );
+      }
+
 		gfx.beginFill(0xffffff);
       gfx.drawRect(borders-0.5,title_h+borders-0.5,inW+1, inH+1 );
 
-      outHitBoxes.clear();
 
       var x = inW - borders;
       for(but in [ MiniButton.CLOSE, MiniButton.MINIMIZE, MiniButton.MAXIMIZE ] )

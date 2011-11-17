@@ -19,11 +19,14 @@ class MDIChildFrame extends Sprite
    static var mNextChildPos = 0;
    var mMDI : MDIParent;
    var mHitBoxes:HitBoxes;
-   var mClientWidth:Float;
-   var mClientHeight:Float;
+   var mClientWidth:Int;
+   var mClientHeight:Int;
    var mClientOffset:Point;
    var mDragStage:gm2d.display.Stage;
+   var mResizeHandle:Sprite;
 	var mIsCurrent:Bool;
+   var mSizeX0:Int;
+   var mSizeY0:Int;
 
    public function new(inPane:Pane, inMDI:MDIParent, inIsCurrent:Bool )
    {
@@ -51,13 +54,22 @@ class MDIChildFrame extends Sprite
       pane.displayObject.y = mClientOffset.y;
       x = rect.x;
       y = rect.y;
-      mClientWidth = Math.max(rect.width,Skin.current.getMinFrameWidth());
-
-      mClientHeight = rect.height;
-      Skin.current.renderFrame(this,inPane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
+      mClientWidth = Std.int(Math.max(rect.width,Skin.current.getMinFrameWidth()));
+      mClientHeight = Std.int(rect.height);
+      mSizeX0 = mClientWidth;
+      mSizeY0 = mClientHeight;
       addChild(pane.displayObject);
-      pane.layout(mClientWidth,mClientHeight);
       inMDI.clientArea.addChild(this);
+
+      setClientSize(mClientWidth,mClientHeight);
+   }
+
+   public function setClientSize(inW:Int, inH:Int)
+   {
+      mClientWidth = Std.int(Math.max(inW,Skin.current.getMinFrameWidth()));
+      mClientHeight = Std.int(Math.max(inH,1));
+      Skin.current.renderFrame(this,pane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
+      pane.layout(mClientWidth,mClientHeight);
    }
 
 	public function setCurrent(inIsCurrent:Bool)
@@ -92,6 +104,15 @@ class MDIChildFrame extends Sprite
             redraw();
          case REDRAW:
             redraw();
+         case RESIZE(pane,flags):
+            stage.addEventListener(MouseEvent.MOUSE_UP,onEndDrag);
+            stage.addEventListener(MouseEvent.MOUSE_MOVE,onUpdateSize);
+            mDragStage = stage;
+            mResizeHandle = new Sprite();
+            mSizeX0 = mClientWidth;
+            mSizeY0 = mClientHeight;
+            addChild(mResizeHandle);
+            mResizeHandle.startDrag();
          default:
       }
    }
@@ -109,8 +130,26 @@ class MDIChildFrame extends Sprite
    function onEndDrag(_)
    {
       mDragStage.removeEventListener(MouseEvent.MOUSE_UP,onEndDrag);
-      stopDrag();
+      if (mResizeHandle!=null)
+      {
+         mDragStage.removeEventListener(MouseEvent.MOUSE_MOVE,onUpdateSize);
+         removeChild(mResizeHandle);
+         mResizeHandle.stopDrag();
+         mResizeHandle = null;
+      }
+      else
+         stopDrag();
       saveRect();
+   }
+
+   function onUpdateSize(_)
+   {
+      if (mResizeHandle!=null)
+      {
+         var cw = Std.int(mResizeHandle.x + mSizeX0 );
+         var ch = Std.int(mResizeHandle.y + mSizeY0  );
+         setClientSize(cw,ch);
+      }
    }
 
    public function setPosition(inX:Float, inY:Float)

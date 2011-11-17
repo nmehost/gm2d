@@ -39,6 +39,11 @@ class Pane
 
    public function isToolbar() { return (mFlags & TOOLBAR) > 0; }
 
+   public function resizeable()
+   {
+      return (mFlags & RESIZABLE) > 0;
+   }
+
    public function raise()
    {
       // TODO: broadcast event

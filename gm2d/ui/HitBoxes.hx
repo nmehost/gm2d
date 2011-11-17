@@ -33,6 +33,7 @@ enum HitAction
    DRAG(pane:Pane);
    BUTTON(pane:Pane,button:Int);
    TITLE(pane:Pane);
+   RESIZE(pane:Pane,flags:Int);
 }
 
 class HitBox
@@ -60,6 +61,7 @@ class HitBoxes
    var mDownY:Float;
    var mMoved:Bool;
    var mDownPane:Pane;
+   var mResizeFlags:Int;
    public var buttonState(default,null):Array<Int>;
 
 
@@ -71,6 +73,7 @@ class HitBoxes
       mObject = inObject;
       mCallback = inCallback;
       mDownPane = null;
+      mResizeFlags = 0;
       buttonState = [0,0,0,0,0];
       inObject.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
       inObject.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
@@ -133,6 +136,8 @@ class HitBoxes
                case TITLE(pane) :
                   mDownPane = pane;
                   mCallback(r.action);
+               case RESIZE(pane,flags) :
+                  mCallback(r.action);
                default:
             }
          }
@@ -142,6 +147,7 @@ class HitBoxes
    public function onUp(inX:Float, inY:Float)
    {
       mDownPane = null;
+      mResizeFlags = 0;
       mMoved = false;
       for(r in rects)
          if (r.rect.contains(inX,inY))
