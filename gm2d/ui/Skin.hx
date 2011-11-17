@@ -362,7 +362,9 @@ class Skin
       var mtx = new gm2d.geom.Matrix();
 
       mtx.createGradientBox(tab_height,tab_height,Math.PI * 0.5);
-      var cols:Array<Int> = [ 0xe0e0d0, 0xa0a090];
+
+      //var cols:Array<Int> = [ 0xe0e0d0, 0xa0a090];
+      var cols:Array<Int> = [ 0xa0a090, 0x909080];
       var alphas:Array<Float> = [1.0, 1.0];
       var ratio:Array<Int> = [0, 255];
       gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
@@ -390,9 +392,6 @@ class Skin
          }
       }
 
-
-
-
       var trans = new gm2d.geom.Matrix();
       trans.tx = 2;
       trans.ty = 2;
@@ -401,7 +400,8 @@ class Skin
          mText.text = pane.title;
          var tw = mText.textWidth + 4;
          gfx.clear();
-         gfx.lineStyle(1,0xf0f0e0);
+         //gfx.lineStyle(1,0xf0f0e0);
+         gfx.lineStyle(1,0x404040);
          gfx.beginFill(pane==inCurrent ? 0xe0e0d0 : 0xa0a090);
          gfx.drawRoundRect(0.5,0.5,tw,tab_height+2,3,3);
          inArea.draw(mDrawing,trans);
@@ -410,6 +410,11 @@ class Skin
          inArea.draw(mText,trans);
          trans.tx+=tw+2;
       }
+
+      gfx.clear();
+      gfx.beginFill(0xe0e0d0);
+      gfx.drawRect(0,tab_height-2,w,8);
+      inArea.draw(mDrawing);
    }
 }
 
