@@ -6,6 +6,7 @@ import gm2d.display.Sprite;
 import gm2d.utils.ByteArray;
 import gm2d.Game;
 import gm2d.svg.SVG2Gfx;
+import gm2d.ui.FileOpen;
 
 class SampleApp extends App
 {
@@ -80,33 +81,24 @@ class SampleApp extends App
 
    function loadData(inName:String,inData:ByteArray)
    {
-      var pos = inName.lastIndexOf(".");
-      if (pos>0)
+      if (inName!=null && inData!=null)
       {
-         var ext = inName.substr(pos+1).toLowerCase();
-         switch(ext)
+         var pos = inName.lastIndexOf(".");
+         if (pos>0)
          {
-            case "svg":
-              addSVGDocument(inName, inData);
+            var ext = inName.substr(pos+1).toLowerCase();
+            switch(ext)
+            {
+               case "svg":
+                 addSVGDocument(inName, inData);
+            }
          }
       }
    }
 
    function onLoad(_)
    {
-   #if waxe
-      var dialog = new wx.FileDialog(null,"Select Graphics File");
-      dialog.filter="Graphics Files|*.svg;*.png;*.jpg;*.swf";
-      if (dialog.showModal())
-      {
-         var dir = dialog.directory;
-         var name = dir + "/" + dialog.file;
-         var data = ByteArray.readFile(name);
-         trace(name + " = " + (data==null ? "Null" : ""+data.length ));
-         if (data!=null)
-            loadData(name,data);
-      }
-   #end
+      gm2d.ui.FileOpen.load("Select Graphics File", loadData, "Graphics Files|*.svg;*.png;*.jpg;*.swf");
    }
 
    function onViewDebugTracePanes(_)
