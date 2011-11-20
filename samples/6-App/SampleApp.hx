@@ -49,7 +49,9 @@ class SampleApp extends App
 
    function onExit(_)
    {
+   #if !flash
       nme.Lib.exit();
+   #end
    }
 
    function onViewNew(_)
@@ -67,7 +69,7 @@ class SampleApp extends App
 
    function addSVGDocument(inName:String, inData:ByteArray)
    {
-      var xml = inData.asString();
+      var xml = inData.readUTFBytes(inData.length);
       var svg = new SVG2Gfx(Xml.parse(xml));
       var item = new Sprite();
       var gfx = item.graphics;

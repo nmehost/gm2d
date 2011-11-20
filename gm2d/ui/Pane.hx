@@ -12,6 +12,7 @@ class Pane
    public static var TOOLBAR       = 0x0002;
 
    public var title(default,null):String;
+   public var shortTitle(default,null):String;
    public var displayObject(default,null):DisplayObject;
    public var bestWidth:Float;
    public var bestHeight:Float;
@@ -23,10 +24,21 @@ class Pane
    var mMinSizeY:Float;
    var dock:IDock;
 
-   public function new(inObj:DisplayObject, inTitle:String, inFlags:Int)
+   public function new(inObj:DisplayObject, inTitle:String, inFlags:Int, ?inShortTitle:String)
    {
       displayObject = inObj;
       title = inTitle;
+      if (inShortTitle==null)
+      {
+         var lastPart = inTitle.lastIndexOf("/");
+         lastPart = Std.int(Math.max(inTitle.lastIndexOf("\\",lastPart),lastPart));
+         shortTitle = title.substr(lastPart+1);
+         /*
+         var dot = shortTitle.lastIndexOf(".");
+         if (dot>0)
+            shortTitle = shortTitle.substr(0,dot);
+         */
+      }
       mFlags = inFlags;
       bestWidth = displayObject.width;
       bestHeight = displayObject.height;

@@ -21,6 +21,7 @@ class Skin
    public var textFormat:gm2d.text.TextFormat;
    public var menuHeight:Float;
    public var mBitmaps:Array< Array<BitmapData> >;
+   public var centerTitle:Bool;
 
    var mDrawing:Shape;
    var mText:TextField;
@@ -32,6 +33,7 @@ class Skin
       textFormat.font = "Arial";
       menuHeight = 22;
       mBitmaps = [];
+      centerTitle = true;
       for(state in  HitBoxes.BUT_STATE_UP...HitBoxes.BUT_STATE_DOWN+1)
          mBitmaps[state] = [];
    }
@@ -257,19 +259,29 @@ class Skin
          outHitBoxes.bitmaps[MiniButton.TITLE] = titleBmp;
       }
 
-      titleBmp.bitmapData = renderText(pane.title, x-borders,  title_h-borders*2);
+      titleBmp.bitmapData = renderText(pane.title,pane.shortTitle,x-borders,  title_h-borders*2);
+
+      if (centerTitle)
+         titleBmp.x = Std.int((x-borders-titleBmp.width)/2);
 
       outHitBoxes.add( new Rectangle(0,0,inW,title_h), TITLE(pane) );
    }
 
-   public function renderText(inText:String, inWidth:Float, inHeight:Float)
+   public function renderText(inText:String, inAltText:String,inWidth:Float, inHeight:Float)
    {
       mText.text = inText;
       var text_size = mText.textWidth;
+      if (text_size>inWidth)
+      {
+         mText.text = inAltText;
+         text_size = mText.textWidth;
+      }
+
       var tw = Std.int(Math.min(text_size+0.99,inWidth));
       if (inText=="" || tw<1)
          return null;
       var bmp = new BitmapData(tw,Std.int(inHeight),true, #if neko { a:0, rgb:0 } #else 0 #end );
+
       if (tw>=text_size)
       {
          bmp.draw(mText);
@@ -279,26 +291,18 @@ class Skin
          mText.text = "...";
          var space = inWidth-mText.textWidth;
 
-         var len = inText.length;
+         var text = inAltText;
+         var len = text.length;
          
-         var last_break = Std.int(Math.max( Math.max( inText.lastIndexOf("\\"),
-                                   inText.lastIndexOf("/")), inText.lastIndexOf(" ") ) );
-         var last_dot = inText.lastIndexOf(".");
-         if (last_break>0 && last_dot>last_break)
-         {
-            // See if the whole last bit fits...
-            mText.text = inText.substr(last_break+1);
-            // No - drop the extension
-            if (mText.textWidth>space)
-               inText = inText.substr(0,last_dot);
-         }
-
+         // Left align...
+         var min=0;
+         /*
          var min = 1;
-         var max = inText.length-1;
+         var max = text.length-1;
          while(min+1<max)
          {
             var mid = (min+max)>>1;
-            mText.text = inText.substr(mid);
+            mText.text = text.substr(mid);
             var diff =  mText.textWidth-space;
             if (diff==0)
             {
@@ -310,7 +314,8 @@ class Skin
             else
                min = mid;
          }
-         mText.text = "..." + inText.substr(min);
+         */
+         mText.text = "..." + text.substr(min);
          
          bmp.draw( mText);
       }
@@ -397,7 +402,7 @@ class Skin
       trans.ty = 2;
       for(pane in inPanes)
       {
-         mText.text = pane.title;
+         mText.text = pane.shortTitle;
          var tw = mText.textWidth + 4;
          gfx.clear();
          //gfx.lineStyle(1,0xf0f0e0);
