@@ -29,40 +29,55 @@ class FileHandler
       inRef.addEventListener(Event.SELECT, selectHandler);
     }
 
+    function showProgress(inName:String, inSize:Float) { }
+    function updateProgress() { }
+    function closeProgress() { }
+
     function cancelHandler(event:Event):Void
     {
-       trace("cancelHandler: " + event);
+       closeProgress();
+       onResult(fileReference.name,null);
+       //trace("cancelHandler: " + event);
     }
 
     function completeHandler(event:Event):Void
     {
-       trace("completeHandler: " + event);
+       closeProgress();
+       onResult(fileReference.name,fileReference.data);
+       //trace("completeHandler: " + event);
     }
 
     function ioErrorHandler(event:IOErrorEvent):Void
     {
-       trace("ioErrorHandler: " + event);
+       closeProgress();
+       onResult(fileReference.name,null);
+       //trace("ioErrorHandler: " + event);
     }
 
     function openHandler(event:Event):Void
     {
-       trace("openHandler: " + event);
+       //trace("openHandler: " + event);
     }
 
     function progressHandler(event:ProgressEvent):Void
     {
+       updateProgress();
        var file:FileReference = cast event.target;
-       trace("progressHandler name=" + file.name + " bytesLoaded=" + event.bytesLoaded + " bytesTotal=" + event.bytesTotal);
+
+       //trace("progressHandler name=" + file.name + " bytesLoaded=" + event.bytesLoaded + " bytesTotal=" + event.bytesTotal);
     }
 
     function securityErrorHandler(event:SecurityErrorEvent):Void
     {
-       trace("securityErrorHandler: " + event);
+       closeProgress();
+       onResult(null,null);
+       //trace("securityErrorHandler: " + event);
     }
 
     function selectHandler(event:Event):Void
     {
-       trace("selectHandler: name=" + fileReference.name);
+       //trace("selectHandler: name=" + fileReference.name);
+       showProgress(fileReference.name, fileReference.size);
        fileReference.load();
     }
 }
