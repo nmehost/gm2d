@@ -22,7 +22,7 @@ class Dialog extends Screen
 
       Game.setCurrentScreen(this);
 
-      var settings = new gm2d.ui.Dialog(300,200);
+      var settings = new gm2d.ui.Dialog("Settings",300,200);
       var bg:SVG2Gfx = Resources.loadSvg("bg.svg");
       settings.SetSVGBackground( bg );
 

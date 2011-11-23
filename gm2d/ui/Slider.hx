@@ -19,6 +19,9 @@ class Slider extends Control
    var mX0:Float;
    var mX1:Float;
    var mLength:Float;
+   var mPrefW:Null<Float>;
+   var mPrefH:Null<Float>;
+   var mDisplayLayout:Layout;
 
    public function new(inTrack:Sprite,inThumb:Sprite,
                        inText:DisplayObject,inMin:Float,inMax:Float,inPos:Float,
@@ -50,6 +53,7 @@ class Slider extends Control
          mThumb.addEventListener(MouseEvent.MOUSE_DOWN, OnTrack );
       }
       SetPos(inPos);
+      mDisplayLayout = new DisplayLayout(this);
    }
 
    function OnTrackDone(_)
@@ -112,15 +116,20 @@ class Slider extends Control
 
       var rect = inSkin.GetExtent(null,
                      function(name,groups) { return groups[0]==".Active"; },true );
-      if (rect!=null)
-         return new Slider(track,thumb,null, inMin,inMax,inPos,inOnChange,rect.left,rect.right);
 
-      return new Slider(track,thumb,null, inMin,inMax,inPos,inOnChange);
+      var result:Slider = null;
+      if (rect!=null)
+         result =  new Slider(track,thumb,null, inMin,inMax,inPos,inOnChange,rect.left,rect.right);
+      else
+         result =  new Slider(track,thumb,null, inMin,inMax,inPos,inOnChange);
+
+      result.getLayout().setBestSize(inSkin.width,inSkin.height);
+      return result;
    }
 
-   public function getLayout() : Layout
+   override public function getLayout() : Layout
    {
-      return new DisplayLayout(this);
+      return mDisplayLayout;
    }
 
 /*

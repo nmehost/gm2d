@@ -25,7 +25,7 @@ class Panel extends Widget
    public static var panelColor = 0xe0e0d0;
    public static var buttonColor = 0xf0f0f0;
 
-   public function new(?inForceWidth:Null<Float>, ?inForceHeight:Null<Float>)
+   public function new(?inForceWidth:Null<Float>, ?inForceHeight:Null<Float>,?inTitleLayout:Layout)
    {
       super();
 
@@ -41,30 +41,35 @@ class Panel extends Widget
       mItemLayout = new GridLayout(2,"items");
       mButtonLayout = new GridLayout(null,"buttons");
       mButtonLayout.setSpacing(10,0);
+      if (inTitleLayout!=null)
+         mLayout.add(inTitleLayout);
       mLayout.add(mItemLayout);
       mLayout.add(mButtonLayout);
       mLayout.setRowStretch(1,0);
       if (mDebug!=null)
          addChild(mDebug);
-
    }
 
    public function doLayout()
    {
       mLayoutDirty = false;
       if (mDebug!=null)
-         Layout.SetDebug(mDebug.graphics);
+      {
+         removeChild(mDebug);
+         addChild(mDebug);
+         Layout.setDebug(mDebug);
+      }
       //trace("DoLayout:" + mForceWidth + "," + mForceHeight);
       mLayout.calcSize(mForceWidth,mForceHeight);
       mLayout.setRect(0,0,mLayout.width,mLayout.height);
       onLaidOut();
-      Layout.SetDebug(null);
+      Layout.setDebug(null);
    }
    override public function layout(inX:Float,inY:Float)
    {
       mLayout.setRect(0,0,inX,inY);
       onLaidOut();
-      Layout.SetDebug(null);
+      Layout.setDebug(null);
    }
 
    public function setButtonBGs(inRenderer:gm2d.display.Graphics->Float->Float->Void, inExtraX=10.0, inExtraY=5.0)
@@ -81,7 +86,7 @@ class Panel extends Widget
    }
 
 
-   public function getLayout() { return mLayout; }
+   override public function getLayout() : Layout { return mLayout; }
 
    public dynamic function onLaidOut() { }
 
@@ -107,12 +112,13 @@ class Panel extends Widget
    {
       mLayoutDirty = true;
       addChild(inItem);
-      mItemLayout.add( new DisplayLayout(inItem) );
+      mItemLayout.add( inItem.getLayout() );
    }
    public function addButton(inButton:gm2d.ui.Button)
    {
       mLayoutDirty = true;
       addChild(inButton);
+      // inButton.setBG( Skin.current.renderButton, w+inExtraX,h+inExtraY);
       mButtons.push(inButton);
       mButtonLayout.add( inButton.getLayout() );
    }

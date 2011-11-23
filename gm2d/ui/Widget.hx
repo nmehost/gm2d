@@ -2,6 +2,7 @@ package gm2d.ui;
 
 import gm2d.display.DisplayObjectContainer;
 import gm2d.geom.Point;
+import gm2d.ui.Layout;
 
 
 class Widget extends gm2d.display.Sprite
@@ -34,6 +35,8 @@ class Widget extends gm2d.display.Sprite
            getItemsRecurse(cast child, outList);
       }
    }
+
+   public function getLayout() : Layout { return new DisplayLayout(this); }
 
    public function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool { return false; }
 

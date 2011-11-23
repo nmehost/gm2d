@@ -1,7 +1,9 @@
 package gm2d.ui;
 
 import gm2d.display.DisplayObject;
+import gm2d.display.Graphics;
 import gm2d.text.TextField;
+import gm2d.geom.Point;
 
 // --- Layout -------------------------------------------
 
@@ -28,6 +30,7 @@ class Layout
    public var mDebugCol:Int;
 
    static var mDebug:gm2d.display.Graphics;
+   static var mDebugObject:gm2d.display.Shape;
 
    public function new()
    {
@@ -42,7 +45,11 @@ class Layout
       { throw "setRect - not implemented"; }
    public function setSpacing(inX:Float,inY:Float) : Layout { return this; }
 
-   static public function SetDebug(inGfx:gm2d.display.Graphics) { mDebug = inGfx; }
+   static public function setDebug(inObj:gm2d.display.Shape)
+   {
+      mDebugObject = inObj;
+      mDebug = mDebugObject==null ? null : mDebugObject.graphics;
+   }
 
    public function setBorders(inL:Float,inT:Float,inR:Float,inB:Float) : Layout
    {
@@ -163,13 +170,17 @@ class DisplayLayout extends Layout
        
       setObjRect(x,y,w,h);
 
-      if (Layout.mDebug!=null)
+      if (Layout.mDebug!=null && mObj!=null && mObj.parent!=null)
       {
-         Layout.mDebug.lineStyle(2,mDebugCol);
-         Layout.mDebug.drawRect(inX,inY,inW,inH);
-         //Layout.mDebug.lineStyle(1,0x00ff00);
-         //Layout.mDebug.drawRect(mObj.x,mObj.y,mObj.width,mObj.height);
+         var pos = Layout.mDebugObject.globalToLocal( mObj.parent.localToGlobal( new Point(x,y) ) );
+         renderDebug(pos,w,h);
       }
+   }
+
+   public function renderDebug(pos:Point, w:Float, h:Float)
+   {
+     Layout.mDebug.lineStyle(2,mDebugCol);
+     Layout.mDebug.drawRect(pos.x,pos.y,w,h);
    }
 
    public override function getBestWidth(?inHeight:Null<Float>) : Float { return mOWidth; }
@@ -184,16 +195,22 @@ class TextLayout extends DisplayLayout
       super(inObj,inAlign);
       mOWidth = inPrefWidth==null ? inObj.textWidth : inPrefWidth;
       mOHeight =  inPrefHeight==null ? inObj.textHeight : inPrefHeight;
-      mDebugCol = 0xff00ff;
+      mDebugCol = 0x00ff00;
    }
+
+   override public function renderDebug(pos:Point, w:Float, h:Float)
+   {
+     var text:TextField = cast mObj;
+     Layout.mDebug.lineStyle(2,mDebugCol);
+     Layout.mDebug.drawRect(pos.x,pos.y,text.textWidth,text.textHeight);
+   }
+
 
    override function setObjRect(x:Float,y:Float,w:Float,h:Float)
    {
       var text:TextField = cast mObj;
-      text.x = x;
-      text.y = y;
-      //text.width = w;
-      //text.height = h;
+      text.x = x - 2;
+      text.y = y - 2;
    }
 }
 

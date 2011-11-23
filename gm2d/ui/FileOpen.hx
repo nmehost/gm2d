@@ -1,5 +1,6 @@
 package gm2d.ui;
 import gm2d.utils.ByteArray;
+import gm2d.ui.ProgressDialog;
 
 #if flash
 
@@ -29,7 +30,11 @@ class FileHandler
       inRef.addEventListener(Event.SELECT, selectHandler);
     }
 
-    function showProgress(inName:String, inSize:Float) { }
+    function showProgress(inName:String, inSize:Float)
+    {
+       var dlg = new ProgressDialog(inName,inSize);
+       gm2d.Game.doShowDialog(dlg,true);
+    }
     function updateProgress() { }
     function closeProgress() { }
 

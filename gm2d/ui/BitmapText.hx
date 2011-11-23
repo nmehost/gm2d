@@ -62,7 +62,9 @@ class BitmapText extends Control
       setText(inVal);
       mCharPos = [];
       mCurrent = false;
+      #if !flash
       needsSoftKeyboard = true;
+      #end
    }
 
    override function onCurrentChanged(inCurrent:Bool)

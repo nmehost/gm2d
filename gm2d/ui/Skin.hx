@@ -8,6 +8,7 @@ import gm2d.display.Sprite;
 import gm2d.display.BitmapData;
 import gm2d.display.Bitmap;
 import gm2d.display.Shape;
+import gm2d.display.Graphics;
 import gm2d.text.TextField;
 import gm2d.geom.Point;
 import gm2d.geom.Rectangle;
@@ -22,6 +23,8 @@ class Skin
    public var menuHeight:Float;
    public var mBitmaps:Array< Array<BitmapData> >;
    public var centerTitle:Bool;
+   public var buttonBorderX:Float;
+   public var buttonBorderY:Float;
 
    var mDrawing:Shape;
    var mText:TextField;
@@ -34,6 +37,8 @@ class Skin
       menuHeight = 22;
       mBitmaps = [];
       centerTitle = true;
+      buttonBorderX = 10;
+      buttonBorderY = 5;
       for(state in  HitBoxes.BUT_STATE_UP...HitBoxes.BUT_STATE_DOWN+1)
          mBitmaps[state] = [];
    }
@@ -81,12 +86,28 @@ class Skin
    {
       styleLabelText(label);
       label.mouseEnabled = true;
+      //label.border = true;
+      //label.borderColor = 0x000000;
    }
 
 
    public function styleText(inText:gm2d.text.TextField)
    {
       inText.defaultTextFormat = textFormat;
+   }
+
+
+   public function renderButton(inGfx:Graphics, inWidth:Float, inHeight:Float)
+   {
+      inGfx.clear();
+      inGfx.beginFill(0xf0f0e0);
+      inGfx.lineStyle(1,0x000000);
+      inGfx.drawRoundRect(0.5,0.5,inWidth,inHeight,6,6);
+   }
+
+   public function renderDialog(inGfx:Graphics, inWidth:Float, inHeight:Float)
+   {
+      renderButton(inGfx,inWidth,inHeight);
    }
 
    public function renderMDI(inMDI:Sprite)
@@ -282,9 +303,13 @@ class Skin
          return null;
       var bmp = new BitmapData(tw,Std.int(inHeight),true, #if neko { a:0, rgb:0 } #else 0 #end );
 
+      var mtx = new Matrix();
+      mtx.tx = -2;
+      mtx.ty = -2;
+
       if (tw>=text_size)
       {
-         bmp.draw(mText);
+         bmp.draw(mText,mtx);
       }
       else
       {
@@ -317,7 +342,7 @@ class Skin
          */
          mText.text = "..." + text.substr(min);
          
-         bmp.draw( mText);
+         bmp.draw( mText, mtx );
       }
 
       return bmp;

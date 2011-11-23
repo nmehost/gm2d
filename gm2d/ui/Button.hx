@@ -30,7 +30,7 @@ class Button extends Control
    var mItemLayout:Layout;
    public var onCurrentChangedFunc:Bool->Void;
 
-   public function new(inObject:DisplayObject,inOnClick:Void->Void)
+   public function new(inObject:DisplayObject,inOnClick:Void->Void,inSkinBG= false)
    {
       super();
       name = "button";
@@ -47,6 +47,14 @@ class Button extends Control
       addEventListener(MouseEvent.CLICK, function(_) { inOnClick(); } );
       addEventListener(MouseEvent.MOUSE_DOWN, function(_) { me.setDown(true); } );
       addEventListener(MouseEvent.MOUSE_UP, function(_) { me.setDown(false); } );
+
+      if (inSkinBG)
+      {
+         var layout = getLayout();
+         setBG(Skin.current.renderButton,
+             layout.getBestWidth()+Skin.current.buttonBorderX,
+             layout.getBestHeight()+Skin.current.buttonBorderY);
+      }
    }
 
    public function getLabel() : TextField
@@ -137,19 +145,19 @@ class Button extends Control
       return result;
    }
 
-   public static function TextButton(inText:String,inOnClick:Void->Void)
+   public static function TextButton(inText:String,inOnClick:Void->Void,inSkinBG=false)
    {
       var label = new TextField();
 		Skin.current.styleButtonText(label);
 		label.text = inText;
       //label.mouseEnabled = false;
-      var result =  new Button(label,inOnClick);
+      var result =  new Button(label,inOnClick,inSkinBG);
       result.setDownOffsets(1,1);
       return result;
    }
 
 
-   public function getLayout() : Layout
+   override public function getLayout() : Layout
    {
       if (mLayout==null)
       {

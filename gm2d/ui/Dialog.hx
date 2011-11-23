@@ -44,7 +44,7 @@ class Dialog extends Window
          f.push( new DropShadowFilter(2,45,0xffffff,1,0,0,1) );
          mTitle.filters = f;
 
-         mBG.addChild(mTitle);
+         addChild(mTitle);
       }
       mPanel = new Panel(inForceWidth,inForceHeight);
       addChild(mPanel);
@@ -76,15 +76,14 @@ class Dialog extends Window
    public dynamic function renderBackground(inW:Float,inH:Float)
    {
       var gfx = getBackground();
-      gfx.lineStyle(1,0x000000);
-      gfx.drawRoundRect(0.5,0.5,inW,inH,10,10);
-      gfx.beginFill(Panel.panelColor);
-      if (mTitle!=null)
-         mTitle.x = (inW - mTitle.textWidth)/2;
+      Skin.current.renderDialog(gfx,inW,inH);
    }
+
    public function doLayout()
    {
       panel.doLayout();
+      if (mTitle!=null)
+        mTitle.x = (mLayout.width - mTitle.textWidth)/2 - 2;
       if (renderBackground!=null)
          renderBackground(mLayout.width,mLayout.height);
    }
