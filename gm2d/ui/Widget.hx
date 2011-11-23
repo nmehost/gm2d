@@ -8,6 +8,7 @@ import gm2d.ui.Layout;
 class Widget extends gm2d.display.Sprite
 {
    public var wantFocus:Bool;
+   var mLayout:Layout;
    //var highlightColour:Int;
 
    public function new()
@@ -36,7 +37,17 @@ class Widget extends gm2d.display.Sprite
       }
    }
 
-   public function getLayout() : Layout { return new DisplayLayout(this); }
+   public function createLayout() : Layout
+   {
+      return new DisplayLayout(this);
+   }
+
+   public function getLayout() : Layout
+   {
+      if (mLayout==null)
+         mLayout = createLayout();
+      return mLayout;
+   }
 
    public function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool { return false; }
 

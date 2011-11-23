@@ -15,11 +15,13 @@ class FileHandler
 {
    var onResult:String->ByteArray->Void;
    var fileReference:FileReference;
+   var progressDialog:ProgressDialog;
 
    public function new(inRef:FileReference,inOnResult:String->ByteArray->Void)
    {
       fileReference = inRef;
       onResult = inOnResult;
+      progressDialog = null;
 
       inRef.addEventListener(Event.CANCEL, cancelHandler);
       inRef.addEventListener(Event.COMPLETE, completeHandler);
@@ -32,11 +34,22 @@ class FileHandler
 
     function showProgress(inName:String, inSize:Float)
     {
-       var dlg = new ProgressDialog(inName,inSize);
-       gm2d.Game.doShowDialog(dlg,true);
+       if (progressDialog==null)
+       {
+          progressDialog = new ProgressDialog(inName,"Upload",inSize, 
+            function() { fileReference.cancel(); closeProgress(); } );
+          gm2d.Game.doShowDialog(progressDialog,true);
+          progressDialog.update(10000);
+       }
     }
-    function updateProgress() { }
-    function closeProgress() { }
+    function closeProgress()
+    {
+       if (progressDialog!=null)
+       {
+          progressDialog = null;
+          Game.closeDialog();
+       }
+    }
 
     function cancelHandler(event:Event):Void
     {
@@ -66,8 +79,8 @@ class FileHandler
 
     function progressHandler(event:ProgressEvent):Void
     {
-       updateProgress();
-       var file:FileReference = cast event.target;
+       if (progressDialog!=null)
+          progressDialog.update(event.bytesLoaded);
 
        //trace("progressHandler name=" + file.name + " bytesLoaded=" + event.bytesLoaded + " bytesTotal=" + event.bytesTotal);
     }
@@ -81,7 +94,6 @@ class FileHandler
 
     function selectHandler(event:Event):Void
     {
-       //trace("selectHandler: name=" + fileReference.name);
        showProgress(fileReference.name, fileReference.size);
        fileReference.load();
     }

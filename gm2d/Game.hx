@@ -462,6 +462,7 @@ class Game
          mCurrentDialog = null;
          if (mCurrentScreen!=null && inDialog==null)
             mCurrentScreen.setRunning(true);
+         mScreenParent.mouseEnabled = true;
       }
 
       mCurrentDialog = inDialog;
@@ -470,6 +471,7 @@ class Game
       {
          if (mCurrentScreen!=null)
             mCurrentScreen.setRunning(false);
+         mScreenParent.mouseEnabled = false;
          mDialogParent.addChild(mCurrentDialog);
          mCurrentDialog.onAdded();
          mCurrentDialog.doLayout();

@@ -3,10 +3,14 @@ import gm2d.ui.Menubar;
 import gm2d.ui.MenuItem;
 import gm2d.ui.Pane;
 import gm2d.display.Sprite;
+import gm2d.display.Bitmap;
 import gm2d.utils.ByteArray;
 import gm2d.Game;
 import gm2d.svg.SVG2Gfx;
+import gm2d.swf.SWF;
 import gm2d.ui.FileOpen;
+import gm2d.display.Loader;
+import gm2d.events.Event;
 
 class SampleApp extends App
 {
@@ -37,7 +41,7 @@ class SampleApp extends App
       bar.add( file );
       var edit = new MenuItem("Edit");
       edit.add( new MenuItem("Cut") );
-      edit.add( new MenuItem("Copy") );
+      edit.add( new MenuItem("Copy", onTest) );
       edit.add( new MenuItem("Paste") );
       bar.add( edit );
       var view = new MenuItem("View");
@@ -68,6 +72,13 @@ class SampleApp extends App
 
    }
 
+   function onTest(_)
+   {
+      var progressDialog = new gm2d.ui.ProgressDialog("Test","Progress",100, 
+            function() { Game.closeDialog(); } );
+      Game.doShowDialog(progressDialog,true);
+   }
+
    function addSVGDocument(inName:String, inData:ByteArray)
    {
       var xml = inData.readUTFBytes(inData.length);
@@ -78,6 +89,25 @@ class SampleApp extends App
       item.cacheAsBitmap = true;
       addPane( new Pane(item,inName,Pane.RESIZABLE), Pane.POS_OVER );
    }
+
+   function addSWFDocument(inName:String, inData:ByteArray)
+   {
+      var swf = new SWF(inData);
+      var obj = swf.createInstance();
+      obj.cacheAsBitmap = true;
+      var pane = new Pane(obj,inName,Pane.RESIZABLE);
+      pane.bestWidth = swf.Width();
+      pane.bestHeight = swf.Height();
+
+      addPane( pane, Pane.POS_OVER );
+   }
+
+
+   function addImageDocument(inName:String, inBitmap:Bitmap)
+   {
+      addPane( new Pane(inBitmap,inName,Pane.RESIZABLE), Pane.POS_OVER );
+   }
+
 
    function loadData(inName:String,inData:ByteArray)
    {
@@ -91,6 +121,18 @@ class SampleApp extends App
             {
                case "svg":
                  addSVGDocument(inName, inData);
+
+               case "png","jpg":
+                 var loader:Loader = new Loader();
+                 loader.contentLoaderInfo.addEventListener(Event.COMPLETE, 
+                   function(_) {
+                     var bitmap:Bitmap = cast loader.content;
+                     addImageDocument(inName,bitmap);
+                 } );
+                 loader.loadBytes(inData);
+
+               case "swf":
+                 addSWFDocument(inName, inData);
             }
          }
       }

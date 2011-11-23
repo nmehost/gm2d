@@ -24,7 +24,6 @@ class Button extends Control
    var mDownDY:Float;
    var mCurrentDX:Float;
    var mCurrentDY:Float;
-   var mLayout:Layout;
    var mBGLayout:Layout;
    var mMainLayout:Layout;
    var mItemLayout:Layout;
@@ -157,22 +156,21 @@ class Button extends Control
    }
 
 
-   override public function getLayout() : Layout
+   override public function createLayout() : Layout
    {
-      if (mLayout==null)
-      {
-         mLayout = new ChildStackLayout( );
-         mLayout.setBorders(0,0,0,0);
-         mLayout.add( mMainLayout = (new DisplayLayout(this)).setOrigin(0,0) );
-         mLayout.add( mBGLayout = new DisplayLayout(mBG) );
+      var layout = new ChildStackLayout( );
+      layout.setBorders(0,0,0,0);
+      layout.add( mMainLayout = (new DisplayLayout(this)).setOrigin(0,0) );
+      layout.add( mBGLayout = new DisplayLayout(mBG) );
    
-         mItemLayout = ( Std.is(mDisplayObj,TextField)) ?
-             new TextLayout(cast mDisplayObj)  : 
-             new DisplayLayout(mDisplayObj) ;
-         mLayout.add(mItemLayout);
-         mLayout.mDebugCol = 0x00ff00;
-      }
-      return mLayout;
+      mItemLayout = ( Std.is(mDisplayObj,TextField)) ?
+           new TextLayout(cast mDisplayObj)  : 
+           new DisplayLayout(mDisplayObj) ;
+
+      layout.add(mItemLayout);
+      layout.mDebugCol = 0x00ff00;
+
+      return layout;
    }
 
    override public function onCurrentChanged(inCurrent:Bool)

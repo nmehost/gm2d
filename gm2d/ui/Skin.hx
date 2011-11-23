@@ -105,6 +105,18 @@ class Skin
       inGfx.drawRoundRect(0.5,0.5,inWidth,inHeight,6,6);
    }
 
+    public function renderProgressBar(inGfx:Graphics, inWidth:Float, inHeight:Float, inFraction:Float)
+   {
+      inGfx.clear();
+      inGfx.beginFill(0xffffff);
+      inGfx.lineStyle(1,0x000000);
+      inGfx.drawRoundRect(0.5,0.5,inWidth,inHeight,6,6);
+      inGfx.lineStyle();
+      inGfx.beginFill(0x2020ff);
+      inGfx.drawRoundRect(0.5,0.5,inWidth*inFraction,inHeight,6,6);
+   }
+
+
    public function renderDialog(inGfx:Graphics, inWidth:Float, inHeight:Float)
    {
       renderButton(inGfx,inWidth,inHeight);
@@ -436,9 +448,8 @@ class Skin
          gfx.drawRoundRect(0.5,0.5,tw,tab_height+2,3,3);
          inArea.draw(mDrawing,trans);
          outHitBoxes.add(new Rectangle(trans.tx,0,tw,tab_height), TITLE(pane) );
-         trans.tx += 2;
          inArea.draw(mText,trans);
-         trans.tx+=tw+2;
+         trans.tx+=tw+4;
       }
 
       gfx.clear();

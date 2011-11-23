@@ -9,7 +9,6 @@ import gm2d.ui.Layout;
 class App extends Screen
 {
    public var menubar(getMenuBar,null):Menubar;
-   var mLayout:Layout;
    var mMDI:MDIParent;
 
    public function new()

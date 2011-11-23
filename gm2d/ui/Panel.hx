@@ -10,7 +10,7 @@ import gm2d.ui.Layout;
 
 class Panel extends Widget
 {
-   var mLayout:GridLayout;
+   var mGridLayout:GridLayout;
    var mItemLayout:Layout;
    var mButtonLayout:Layout;
    var mDebug:Shape;
@@ -36,16 +36,16 @@ class Panel extends Widget
 
 
       mDebug = gm2d.Lib.debug ? new Shape() : null;
-      mLayout = new GridLayout(1,"vertical").setColFlags(0,Layout.AlignCenterX);
-      mLayout.setSpacing(0,20);
+      mGridLayout = new GridLayout(1,"vertical").setColFlags(0,Layout.AlignCenterX);
+      mGridLayout.setSpacing(0,20);
       mItemLayout = new GridLayout(2,"items");
       mButtonLayout = new GridLayout(null,"buttons");
       mButtonLayout.setSpacing(10,0);
       if (inTitleLayout!=null)
-         mLayout.add(inTitleLayout);
-      mLayout.add(mItemLayout);
-      mLayout.add(mButtonLayout);
-      mLayout.setRowStretch(1,0);
+         mGridLayout.add(inTitleLayout);
+      mGridLayout.add(mItemLayout);
+      mGridLayout.add(mButtonLayout);
+      mGridLayout.setRowStretch(1,0);
       if (mDebug!=null)
          addChild(mDebug);
    }
@@ -60,14 +60,14 @@ class Panel extends Widget
          Layout.setDebug(mDebug);
       }
       //trace("DoLayout:" + mForceWidth + "," + mForceHeight);
-      mLayout.calcSize(mForceWidth,mForceHeight);
-      mLayout.setRect(0,0,mLayout.width,mLayout.height);
+      mGridLayout.calcSize(mForceWidth,mForceHeight);
+      mGridLayout.setRect(0,0,mGridLayout.width,mGridLayout.height);
       onLaidOut();
       Layout.setDebug(null);
    }
    override public function layout(inX:Float,inY:Float)
    {
-      mLayout.setRect(0,0,inX,inY);
+      mGridLayout.setRect(0,0,inX,inY);
       onLaidOut();
       Layout.setDebug(null);
    }
@@ -86,7 +86,7 @@ class Panel extends Widget
    }
 
 
-   override public function getLayout() : Layout { return mLayout; }
+   override public function createLayout() : Layout { return mGridLayout; }
 
    public dynamic function onLaidOut() { }
 
@@ -94,18 +94,18 @@ class Panel extends Widget
    public function getLayoutWidth()
    {
       if (mLayoutDirty) doLayout();
-      return mLayout.width;
+      return mGridLayout.width;
    }
    public function getLayoutHeight()
    {
       if (mLayoutDirty) doLayout();
-      return mLayout.height;
+      return mGridLayout.height;
    }
 
 
    public function setBorders(inL:Float,inT:Float,inR:Float,inB:Float)
    {
-      mLayout.setBorders(inL,inT,inR,inB);
+      mGridLayout.setBorders(inL,inT,inR,inB);
    }
 
    public function addUI(inItem:gm2d.ui.Widget)

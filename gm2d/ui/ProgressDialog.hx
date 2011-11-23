@@ -4,17 +4,22 @@ import gm2d.ui.Button;
 
 class ProgressDialog extends Dialog
 {
-   //var progress:ProgressBar;
+   var progress:ProgressBar;
 
-   public function new(inTitle:String, inLabel:String, inMax:Float)
+   public function new(inTitle:String, inLabel:String, inMax:Float, ?inOnCancel:Void->Void)
    {
       super(inTitle);
 
       panel.addLabel(inLabel);
-      //var progress = new ProgressBar(inMax);
-      //panel.addUI(new gm2d.ui.ProgressPar(inMax) );
+      progress = new ProgressBar(inMax);
+      panel.addUI(progress);
 
-      mPanel.addButton( Button.TextButton("Cancel", function() trace("Cancel!"), true ) );
+      if (inOnCancel!=null)
+         panel.addButton( Button.TextButton("Cancel", inOnCancel, true ) );
+   }
 
+   public function update(inValue:Float)
+   {
+      progress.update(inValue);
    }
 }

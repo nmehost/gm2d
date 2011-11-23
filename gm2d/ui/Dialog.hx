@@ -15,7 +15,6 @@ import gm2d.filters.DropShadowFilter;
 class Dialog extends Window
 {
    var mPanel:Panel;
-   var mLayout:Layout;
    var mTitle:TextField;
    var mBG:Sprite;
 
