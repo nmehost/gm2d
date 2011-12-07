@@ -135,7 +135,7 @@ class Button extends Control
    }
 
 
-   public static function BMPButton(inBitmapData:BitmapData,inX:Float, inY:Float,inOnClick:Void->Void)
+   public static function BMPButton(inBitmapData:BitmapData,inX:Float=0, inY:Float=0,?inOnClick:Void->Void)
    {
       var bmp = new Bitmap(inBitmapData);
       var result = new Button(bmp,inOnClick);
