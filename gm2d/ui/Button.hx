@@ -16,7 +16,7 @@ class Button extends Control
    public var mBG : Sprite;
    public var down(getDown,setDown):Bool;
 	public var noFocus:Bool;
-   var mCallback : Void->Void;
+   public var mCallback : Void->Void;
    var mIsDown:Bool;
    var mDownBmp:BitmapData;
    var mUpBmp:BitmapData;
@@ -29,7 +29,7 @@ class Button extends Control
    var mItemLayout:Layout;
    public var onCurrentChangedFunc:Bool->Void;
 
-   public function new(inObject:DisplayObject,inOnClick:Void->Void,inSkinBG= false)
+   public function new(inObject:DisplayObject,?inOnClick:Void->Void,inSkinBG= false)
    {
       super();
       name = "button";
@@ -184,7 +184,7 @@ class Button extends Control
 
    override public function activate(inDirection:Int)
    {
-      if (inDirection>=0)
+      if (inDirection>=0 && mCallback!=null)
         mCallback();
    }
 }

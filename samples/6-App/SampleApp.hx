@@ -18,16 +18,6 @@ class SampleApp extends App
    {
       super();
       createMenus();
-
-      /*
-      var item = new Sprite();
-      var gfx = item.graphics;
-      gfx.beginFill(0x0000);
-      gfx.drawRect(0,0,200,200);
-      gfx.beginFill(0xffffff);
-      gfx.drawCircle(100,100,100);
-      addPane( new Pane(item,"Float",Pane.TOOLBAR), Pane.POS_OVER );
-      */
    }
 
    function createMenus()

@@ -63,7 +63,7 @@ class Pane
          dock.raise(this);
    }
 
-   public dynamic function layout(inW:Float, inH:Float)
+   public function layout(inW:Float, inH:Float)
    {
       if (displayObject!=null)
       {
