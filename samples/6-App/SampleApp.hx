@@ -11,6 +11,8 @@ import gm2d.swf.SWF;
 import gm2d.ui.FileOpen;
 import gm2d.display.Loader;
 import gm2d.events.Event;
+import gm2d.ui.DockFlags;
+import gm2d.ui.IDockable;
 
 class SampleApp extends App
 {
@@ -58,7 +60,7 @@ class SampleApp extends App
       gfx.drawRect(0,0,200,200);
       gfx.beginFill(col);
       gfx.drawCircle(100,100,100);
-      addPane( new Pane(item,"View:"+col,Pane.RESIZABLE), Pane.POS_OVER );
+      addPane( new Pane(item,"View:"+col,DockFlags.RESIZABLE), DOCK_OVER );
 
    }
 
@@ -77,7 +79,7 @@ class SampleApp extends App
       var gfx = item.graphics;
       svg.Render(gfx);
       item.cacheAsBitmap = true;
-      addPane( new Pane(item,inName,Pane.RESIZABLE), Pane.POS_OVER );
+      addPane( new Pane(item,inName,DockFlags.RESIZABLE), DOCK_OVER );
    }
 
    function addSWFDocument(inName:String, inData:ByteArray)
@@ -85,17 +87,17 @@ class SampleApp extends App
       var swf = new SWF(inData);
       var obj = swf.createInstance();
       obj.cacheAsBitmap = true;
-      var pane = new Pane(obj,inName,Pane.RESIZABLE);
+      var pane = new Pane(obj,inName,DockFlags.RESIZABLE);
       pane.bestWidth = swf.Width();
       pane.bestHeight = swf.Height();
 
-      addPane( pane, Pane.POS_OVER );
+      addPane( pane, DOCK_OVER );
    }
 
 
    function addImageDocument(inName:String, inBitmap:Bitmap)
    {
-      addPane( new Pane(inBitmap,inName,Pane.RESIZABLE), Pane.POS_OVER );
+      addPane( new Pane(inBitmap,inName,DockFlags.RESIZABLE), DOCK_OVER );
    }
 
 

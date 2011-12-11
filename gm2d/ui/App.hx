@@ -4,20 +4,25 @@ import gm2d.Screen;
 import gm2d.ScreenScaleMode;
 import gm2d.ui.Skin;
 import gm2d.ui.Layout;
+import gm2d.ui.Dock;
+import gm2d.ui.IDockable;
 
 
 class App extends Screen
 {
    public var menubar(getMenuBar,null):Menubar;
+   var dock:Dock;
    var mMDI:MDIParent;
 
    public function new()
    {
       super();
 
-      mMDI = new MDIParent();
-      addChild(mMDI);
-      mLayout = new DisplayLayout( mMDI, Layout.AlignStretch );
+      mMDI = new MDIParent(this);
+
+      dock = mMDI.dock;
+
+      //mLayout = new DisplayLayout( mMDI, Layout.AlignStretch );
 
       makeCurrent();
       doLayout();
@@ -25,18 +30,9 @@ class App extends Screen
 
    override public function getScaleMode():ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
 
-   public function addPane(inPane:Pane, inPos:Int)
+   public function addPane(inPane:Pane, inPos:DockPosition,inSlot:Int=-1)
    {
-      if (inPos==Pane.POS_OVER)
-      {
-         if (inPane.isToolbar())
-            new MiniWin(inPane,this);
-         else
-            mMDI.addPane(inPane);
-      }
-      else
-      {
-      }
+      dock = dock.add(inPane,inPos,inSlot);
    }
 
    function doLayout()
@@ -52,7 +48,7 @@ class App extends Screen
          h -= menu_h;
       }
 
-      mLayout.setRect(x0,y0,w,h);
+      dock.setRect(x0,y0,w,h);
    }
 
    override public function scaleScreen(inScale:Float) { doLayout(); }

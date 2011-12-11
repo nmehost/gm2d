@@ -43,7 +43,7 @@ class Button extends Control
       mCurrentDX = mCurrentDY = 0;
 		noFocus = false;
       var me = this;
-      addEventListener(MouseEvent.CLICK, function(_) { inOnClick(); } );
+      addEventListener(MouseEvent.CLICK, function(_) { mCallback(); } );
       addEventListener(MouseEvent.MOUSE_DOWN, function(_) { me.setDown(true); } );
       addEventListener(MouseEvent.MOUSE_UP, function(_) { me.setDown(false); } );
 

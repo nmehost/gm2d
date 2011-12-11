@@ -1,16 +1,14 @@
 package gm2d.ui;
 
 import gm2d.display.DisplayObject;
+import gm2d.display.DisplayObjectContainer;
 import gm2d.geom.Rectangle;
+import gm2d.ui.IDockable;
 
 
-class Pane
+class Pane implements IDockable
 {
-   public static var POS_OVER = 0;
-
-   public static var RESIZABLE     = 0x0001;
-   public static var TOOLBAR       = 0x0002;
-
+   var        dock:Dock;
    public var title(default,null):String;
    public var shortTitle(default,null):String;
    public var displayObject(default,null):DisplayObject;
@@ -20,9 +18,10 @@ class Pane
    public var gm2dMinimized:Bool;
    public var gm2dMDIRect:Rectangle;
    var mFlags:Int;
-   var mMinSizeX:Float;
-   var mMinSizeY:Float;
-   var dock:IDock;
+   var minSizeX:Float;
+   var minSizeY:Float;
+   public var sizeX(default,null):Float;
+   public var sizeY(default,null):Float;
 
    public function new(inObj:DisplayObject, inTitle:String, inFlags:Int, ?inShortTitle:String)
    {
@@ -42,48 +41,75 @@ class Pane
       mFlags = inFlags;
       bestWidth = displayObject.width;
       bestHeight = displayObject.height;
-      mMinSizeX = 0;
-      mMinSizeY = 0;
-      dock = null;
+      minSizeX = bestWidth;
+      minSizeY = bestHeight;
+      sizeX=sizeY=0.0;
       buttonState = [ 0,0,0 ];
       gm2dMinimized = false;
    }
 
-   public function isToolbar() { return (mFlags & TOOLBAR) > 0; }
+   public function isToolbar() { return (mFlags & DockFlags.TOOLBAR) > 0; }
 
    public function resizeable()
    {
-      return (mFlags & RESIZABLE) > 0;
+      return (mFlags & DockFlags.RESIZABLE) > 0;
    }
 
    public function raise()
    {
-      // TODO: broadcast event
       if (dock!=null)
          dock.raise(this);
    }
 
-   public function layout(inW:Float, inH:Float)
+   // --- IDockable interface -------------------------------------------------
+   public function close(inForce:Bool) : Bool
+   {
+      if (dock!=null)
+         dock.remove(this);
+      return true;
+   }
+   public function setContainer(inParent:DisplayObjectContainer):Void
    {
       if (displayObject!=null)
       {
-         displayObject.scrollRect = new Rectangle(0,0,inW,inH);
+         var p = displayObject.parent;
+         if (p!=inParent)
+         {
+            if (inParent==null)
+               p.removeChild(displayObject);
+            else
+              inParent.addChild(displayObject);
+         }
       }
    }
 
 
-   public function close(inForce:Bool = false)
+   public function getDock():Dock { return dock; }
+   public function setDock(inDock:Dock):Void { dock=inDock; }
+   public function getTitle():String { return title; }
+   public function getShortTitle():String { return shortTitle; }
+   public function getFlags():Int { return mFlags; }
+   public function setFlags(inFlags:Int) : Void { mFlags=inFlags; }
+   public function getBestSize(?inPos:DockPosition):Size
    {
-      gm2dSetDock(null);
+      return new Size(100,100);
    }
-
-   public function gm2dSetDock(inDock:IDock)
+   public function getMinSize():Size { return new Size(minSizeX,minSizeY); }
+   public function buttonStates():Array<Int> { return buttonState; }
+   public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
    {
-      if (dock!=null && dock!=inDock)
-         dock.remove(this);
-      dock = inDock;
+      return new Size(w,h);
    }
-
-
+   public function setRect(x:Float,y:Float,w:Float,h:Float):Void
+   {
+      sizeX = w;
+      sizeY = w;
+      if (displayObject!=null)
+      {
+         displayObject.x = x;
+         displayObject.y = y;
+         displayObject.scrollRect = new Rectangle(0,0,w,h);
+      }
+   }
 }
 

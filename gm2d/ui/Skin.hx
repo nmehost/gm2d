@@ -209,7 +209,7 @@ class Skin
       return 80;
    }
 
-   public function renderFrame(inObj:Sprite, pane:Pane, inW:Float, inH:Float,
+   public function renderFrame(inObj:Sprite, pane:IDockable, inW:Float, inH:Float,
              outHitBoxes:HitBoxes,inIsCurrent:Bool)
    {
       outHitBoxes.clear();
@@ -239,7 +239,7 @@ class Skin
 
       gfx.drawRoundRect(0.5,0.5,w, h, 3,3 );
 
-      if (pane.resizeable())
+      if ( DockFlags.isResizeable(pane) )
       {
          gfx.endFill();
          for(o in 0...4)
@@ -258,7 +258,7 @@ class Skin
       var x = inW - borders;
       for(but in [ MiniButton.CLOSE, MiniButton.MINIMIZE, MiniButton.MAXIMIZE ] )
       {
-         var bmp = getButtonBitmap(but,pane.buttonState[but]);
+         var bmp = getButtonBitmap(but,pane.buttonStates()[but]);
          if (bmp!=null) 
          {
             var bitmap = outHitBoxes.bitmaps[but];
@@ -292,7 +292,7 @@ class Skin
          outHitBoxes.bitmaps[MiniButton.TITLE] = titleBmp;
       }
 
-      titleBmp.bitmapData = renderText(pane.title,pane.shortTitle,x-borders,  title_h-borders*2);
+      titleBmp.bitmapData = renderText(pane.getTitle(),pane.getShortTitle(),x-borders,  title_h-borders*2);
 
       if (centerTitle)
          titleBmp.x = Std.int((x-borders-titleBmp.width)/2);
@@ -392,8 +392,8 @@ class Skin
 
    public function getTabHeight() { return tab_height; }
    public function renderTabs(inArea:BitmapData,
-                              inPanes:Array<Pane>,
-                              inCurrent:Pane,
+                              inPanes:Array<IDockable>,
+                              inCurrent:IDockable,
                               outHitBoxes:HitBoxes,
                               inIsMaximized:Bool  )
    {
@@ -439,7 +439,7 @@ class Skin
       trans.ty = 2;
       for(pane in inPanes)
       {
-         mText.text = pane.shortTitle;
+         mText.text = pane.getShortTitle();
          var tw = mText.textWidth + 4;
          gfx.clear();
          //gfx.lineStyle(1,0xf0f0e0);

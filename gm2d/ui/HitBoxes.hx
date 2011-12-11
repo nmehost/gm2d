@@ -30,10 +30,10 @@ enum HitAction
 {
    NONE;
    REDRAW;
-   DRAG(pane:Pane);
-   BUTTON(pane:Pane,button:Int);
-   TITLE(pane:Pane);
-   RESIZE(pane:Pane,flags:Int);
+   DRAG(pane:IDockable);
+   BUTTON(pane:IDockable,button:Int);
+   TITLE(pane:IDockable);
+   RESIZE(pane:IDockable,flags:Int);
 }
 
 class HitBox
@@ -60,7 +60,7 @@ class HitBoxes
    var mDownX:Float;
    var mDownY:Float;
    var mMoved:Bool;
-   var mDownPane:Pane;
+   var mDownPane:IDockable;
    var mResizeFlags:Int;
    public var buttonState(default,null):Array<Int>;
 
@@ -130,7 +130,7 @@ class HitBoxes
             switch(r.action)
             {
                case BUTTON(pane,id) :
-                  var states = pane==null ? buttonState : pane.buttonState;
+                  var states = pane==null ? buttonState : pane.buttonStates();
                   states[id] = BUT_STATE_DOWN;
                   mCallback(HitAction.REDRAW);
                case TITLE(pane) :
@@ -155,7 +155,7 @@ class HitBoxes
             switch(r.action)
             {
                case BUTTON(pane,id):
-                  var states = pane==null ? buttonState : pane.buttonState;
+                  var states = pane==null ? buttonState : pane.buttonStates();
                   if (states[id]==BUT_STATE_DOWN)
                   {
                      states[id]=BUT_STATE_OVER;
@@ -176,7 +176,7 @@ class HitBoxes
          switch(rect.action)
          {
             case BUTTON(pane,id):
-               var states = pane==null ? buttonState : pane.buttonState;
+               var states = pane==null ? buttonState : pane.buttonStates();
                if (rect.rect.contains(inX,inY))
                {
                   if (states[id]==BUT_STATE_UP)

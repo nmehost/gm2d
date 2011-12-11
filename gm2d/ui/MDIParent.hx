@@ -5,16 +5,18 @@ import gm2d.display.Sprite;
 import gm2d.display.Shape;
 import gm2d.display.Bitmap;
 import gm2d.display.BitmapData;
+import gm2d.display.DisplayObjectContainer;
 import gm2d.text.TextField;
 //import gm2d.ui.HitBoxes;
 import gm2d.geom.Point;
 import gm2d.events.MouseEvent;
 import gm2d.ui.HitBoxes;
+import gm2d.ui.Dock;
 import gm2d.Game;
 
 class MDIChildFrame extends Sprite
 {
-   public var pane(default,null) : Pane;
+   public var pane(default,null) : IDockable;
 
    static var mNextChildPos = 0;
    var mMDI : MDIParent;
@@ -28,48 +30,48 @@ class MDIChildFrame extends Sprite
    var mSizeX0:Int;
    var mSizeY0:Int;
 
-   public function new(inPane:Pane, inMDI:MDIParent, inIsCurrent:Bool )
+   public function new(inPane:IDockable, inMDI:MDIParent, inIsCurrent:Bool )
    {
       super();
 		mIsCurrent = inIsCurrent;
       pane = inPane;
+      pane.setContainer(this);
       mHitBoxes = new HitBoxes(this, onHitBox);
       mMDI = inMDI;
-      addChild(inPane.displayObject);
 
-      var rect = inPane.gm2dMDIRect;
-      if (rect==null)
-      {
-         mNextChildPos += 20;
-         rect = new Rectangle(mNextChildPos,mNextChildPos, pane.bestWidth, pane.bestHeight );
-         if (rect.bottom>mMDI.clientWidth && rect.right>mMDI.clientHeight)
-         {
-            mNextChildPos = 0;
-            rect = new Rectangle(mNextChildPos,mNextChildPos, pane.bestWidth, pane.bestHeight );
-         }
-         inPane.gm2dMDIRect = rect;
-      }
-      mClientOffset = Skin.current.getFrameClientOffset();
-      pane.displayObject.x = mClientOffset.x;
-      pane.displayObject.y = mClientOffset.y;
-      x = rect.x;
-      y = rect.y;
-      mClientWidth = Std.int(Math.max(rect.width,Skin.current.getMinFrameWidth()));
-      mClientHeight = Std.int(rect.height);
+      var size = inPane.getBestSize(DOCK_OVER);
+      if (size.x<Skin.current.getMinFrameWidth())
+         size = inPane.getLayoutSize(Skin.current.getMinFrameWidth(),size.y,true);
+
+      mNextChildPos += 20;
+      if (mNextChildPos+size.x>mMDI.clientWidth || mNextChildPos+size.y>mMDI.clientHeight)
+         mNextChildPos = 0;
+      x = mNextChildPos;
+      y = mNextChildPos;
+
+      mClientWidth = Std.int(Math.max(size.x,Skin.current.getMinFrameWidth())+0.99);
+      mClientHeight = Std.int(size.y+0.99);
+      setClientSize(mClientWidth,mClientHeight);
+
       mSizeX0 = mClientWidth;
       mSizeY0 = mClientHeight;
-      addChild(pane.displayObject);
-      inMDI.clientArea.addChild(this);
 
-      setClientSize(mClientWidth,mClientHeight);
+      pane.setRect(mClientOffset.x, mClientOffset.y, mClientWidth, mClientHeight);
    }
 
    public function setClientSize(inW:Int, inH:Int)
    {
-      mClientWidth = Std.int(Math.max(inW,Skin.current.getMinFrameWidth()));
+      var minW = Skin.current.getMinFrameWidth();
+      mClientWidth = Std.int(Math.max(inW,minW));
       mClientHeight = Std.int(Math.max(inH,1));
+      var size = pane.getLayoutSize(mClientWidth,mClientHeight,true);
+      if (size.x<minW)
+         size = pane.getLayoutSize(minW,mClientHeight,true);
+      mClientWidth = Std.int(size.x);
+      mClientHeight = Std.int(size.y);
+      mClientOffset = Skin.current.getFrameClientOffset();
+      pane.setRect(mClientOffset.x, mClientOffset.y, mClientWidth, mClientHeight);
       Skin.current.renderFrame(this,pane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
-      pane.layout(mClientWidth,mClientHeight);
    }
 
 	public function setCurrent(inIsCurrent:Bool)
@@ -83,6 +85,7 @@ class MDIChildFrame extends Sprite
 
    public function destroy()
    {
+      pane.setContainer(null);
       parent.removeChild(this);
    }
 
@@ -119,7 +122,7 @@ class MDIChildFrame extends Sprite
 
    function saveRect()
    {
-      pane.gm2dMDIRect = new Rectangle(x,y,mClientWidth,mClientHeight);
+      //pane.gm2dMDIRect = new Rectangle(x,y,mClientWidth,mClientHeight);
    }
 
    function redraw()
@@ -162,21 +165,21 @@ class MDIChildFrame extends Sprite
 
 
 
-
-
-class MDIParent extends Widget, implements IDock
+class MDIParent extends Widget
 {
    var mChildren:Array<MDIChildFrame>;
-   var mPanes:Array<Pane>;
+   var mDockables:Array<IDockable>;
    public var clientArea(default,null):Sprite;
    public var clientWidth(default,null):Float;
    public var clientHeight(default,null):Float;
+   public var dock(default,null):MDIDock;
    var mTabHeight:Int;
    var mTabArea:Bitmap;
    var mHitBoxes:HitBoxes;
-   var mMaximizedPane:Pane;
+   var mMaximizedPane:IDockable;
+   var current:IDockable;
 
-   public function new()
+   public function new(inParent:DisplayObjectContainer)
    {
       super();
       clientArea = new Sprite();
@@ -185,27 +188,23 @@ class MDIParent extends Widget, implements IDock
       mTabArea = new Bitmap();
       addChild(mTabArea);
       mChildren = [];
-      mPanes = [];
+      mDockables = [];
       mMaximizedPane = null;
       clientWidth = clientHeight = 100.0;
       mTabHeight = 20;
+      dock = new MDIDock(clientArea,this);
+      inParent.addChild(this);
+      current = null;
    }
 
-   public function getCurrent() : Pane
+   public function getCurrent() : IDockable
    {
-      if (mMaximizedPane!=null)
-         return mMaximizedPane;
-      if (mChildren.length==0)
-         return null;
-      var obj = clientArea.getChildAt( mChildren.length-1 );
-      var child:MDIChildFrame = cast obj;
-      if (child==null)
-         return null;
-      return child.pane;
+      return current;
    }
   
-   public function maximize(inPane:Pane)
+   public function maximize(inPane:IDockable)
    {
+      current = inPane;
       for(child in mChildren)
          child.destroy();
       mChildren = [];
@@ -214,11 +213,8 @@ class MDIParent extends Widget, implements IDock
       if (mMaximizedPane==null)
          clientArea.graphics.clear();
       mMaximizedPane = inPane;
-      var d = inPane.displayObject;
-      d.x = 0;
-      d.y = 0;
-      clientArea.addChild(d);
-      inPane.layout(clientWidth,clientHeight);
+      inPane.setContainer(clientArea);
+      inPane.setRect(0,0,clientWidth,clientHeight);
       redrawTabs();
    }
    public function restore()
@@ -226,19 +222,20 @@ class MDIParent extends Widget, implements IDock
       mHitBoxes.buttonState[MiniButton.RESTORE] = 0;
       if (mMaximizedPane!=null)
       {
-         clientArea.removeChild(mMaximizedPane.displayObject);
-         var max = mMaximizedPane;
+         current = mMaximizedPane;
+         mMaximizedPane.setContainer(null);
          mMaximizedPane = null;
-         for(pane in mPanes)
+         for(pane in mDockables)
          {
-            if (!pane.gm2dMinimized)
+            //if ((pane.getFlags()&DockFlags.MINIMIZED)==0)
             {
-               var frame = new MDIChildFrame(pane,this,pane==max);
+               var frame = new MDIChildFrame(pane,this,pane==current);
                mChildren.push(frame);
+               clientArea.addChild(frame);
             }
          }
          doLayout();
-         max.raise();
+         current.raise();
       }
    }
 
@@ -264,7 +261,7 @@ class MDIParent extends Widget, implements IDock
          if (mMaximizedPane!=null)
          {
             clientArea.graphics.clear();
-            mMaximizedPane.layout(clientWidth,clientHeight);
+            mMaximizedPane.setRect(0,0,clientWidth,clientHeight);
          }
          else
             Skin.current.renderMDI(clientArea);
@@ -275,31 +272,33 @@ class MDIParent extends Widget, implements IDock
       redrawTabs();
    }
 
-   public function addPane(inPane:Pane)
+   public function addDockable(inPane:IDockable)
    {
-      inPane.gm2dSetDock(this);
-      mPanes.push(inPane);
+      inPane.setDock(dock);
+      mDockables.push(inPane);
       if (mMaximizedPane==null)
       {
-         inPane.gm2dMinimized = false;
+         DockFlags.setMinimized(inPane,false);
          var child = new MDIChildFrame(inPane,this,true);
          mChildren.push(child);
+         clientArea.addChild(child);
+         current = inPane;
          redrawTabs();
       }
       else
          maximize(inPane);
    }
 
-   function findPaneIndex(inPane:Pane)
+   function findPaneIndex(inPane:IDockable)
    {
-      for(idx in 0...mPanes.length)
-         if (mPanes[idx]==inPane)
+      for(idx in 0...mDockables.length)
+         if (mDockables[idx]==inPane)
             return idx;
       return -1;
    }
 
 
-   function findChildPane(inPane:Pane)
+   function findChildPane(inPane:IDockable)
    {
       for(idx in 0...mChildren.length)
          if (mChildren[idx].pane==inPane)
@@ -312,16 +311,15 @@ class MDIParent extends Widget, implements IDock
 	   var current = getCurrent();
 	   for(child in mChildren)
 		   child.setCurrent(child.pane==current);
-		  
       if (mTabArea.bitmapData!=null)
-         Skin.current.renderTabs(mTabArea.bitmapData,mPanes,current,mHitBoxes, mMaximizedPane!=null);
+         Skin.current.renderTabs(mTabArea.bitmapData,mDockables,current,mHitBoxes, mMaximizedPane!=null);
    }
 
 	function showPaneMenu()
 	{
 	   var menu = new MenuItem("Tabs");
-		for(pane in mPanes)
-		   menu.add( new MenuItem(pane.title, function(_)  pane.raise() ) );
+		for(pane in mDockables)
+		   menu.add( new MenuItem(pane.getShortTitle(), function(_)  pane.raise() ) );
 		popup( new PopupMenu(menu), clientWidth-50,mTabHeight);
 	}
 
@@ -343,7 +341,7 @@ class MDIParent extends Widget, implements IDock
                restore();
             else if (id==MiniButton.POPUP)
 				{
-			      if (mPanes.length>0)
+			      if (mDockables.length>0)
 			         showPaneMenu();
 				}
             redrawTabs();
@@ -353,8 +351,7 @@ class MDIParent extends Widget, implements IDock
       }
    }
 
-   // IDock interface
-   public function raise(inPane:Pane):Void
+   public function raise(inPane:IDockable):Void
    {
       if (mMaximizedPane!=null)
       {
@@ -363,6 +360,7 @@ class MDIParent extends Widget, implements IDock
       else
       {
          var idx = findChildPane(inPane);
+         current = inPane;
          if (idx>=0 && clientArea.getChildIndex(mChildren[idx])<mChildren.length-1)
          {
             clientArea.setChildIndex(mChildren[idx], mChildren.length-1);
@@ -371,18 +369,18 @@ class MDIParent extends Widget, implements IDock
       }
    }
 
-    public function remove(inPane:Pane):Void
+    public function remove(inPane:IDockable):Void
     {
         if (mMaximizedPane!=null)
         {
            if (mMaximizedPane==inPane)
            {
-              if (mPanes.length==1)
+              if (mDockables.length==1)
                  mMaximizedPane = null;
-              else if (mPanes[mPanes.length-1]==inPane)
-                 maximize(mPanes[mPanes.length-2]);
+              else if (mDockables[mDockables.length-1]==inPane)
+                 maximize(mDockables[mDockables.length-2]);
               else
-                 maximize(mPanes[mPanes.length-1]);
+                 maximize(mDockables[mDockables.length-1]);
            }
         }
         else
@@ -396,7 +394,7 @@ class MDIParent extends Widget, implements IDock
         }
 
         var idx = findPaneIndex(inPane);
-        mPanes.splice(idx,1);
+        mDockables.splice(idx,1);
         redrawTabs();
     }
 }

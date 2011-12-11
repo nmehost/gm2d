@@ -31,10 +31,10 @@ class Toolbar extends Pane
       items = new Array<ToolbarItem>();
       padX = 2.0;
       padY = 2.0;
-      super(root, inTitle, Pane.RESIZABLE  | Pane.TOOLBAR );
+      super(root, inTitle, DockFlags.RESIZABLE  | DockFlags.TOOLBAR );
    }
 
-   public function add(inTool:DisplayObject,?inWidth:Int, ?inHeight:Int)
+   public function addTool(inTool:DisplayObject,?inWidth:Int, ?inHeight:Int)
    {
       root.addChild(inTool);
       var w = inWidth!=null ? inWidth : inTool.width;
@@ -42,12 +42,13 @@ class Toolbar extends Pane
       items.push(new ToolbarItem(inTool,w,h));
    }
 
-   override public function layout(inW:Float, inH:Float)
+   public function layout(inW:Float, inH:Float,inDoMove:Bool, inLimitX:Bool)
    {
       var max = inW-padX;
       var x = padX;
       var y = padY;
       var row_height = 0.0;
+      var maxX = 0.0;
       for(item in items)
       {
          if (row_height>0 && x+item.w>max)
@@ -57,14 +58,32 @@ class Toolbar extends Pane
             row_height = 0;
          }
          // TODO: center-y?
-         item.win.x=x;
-         item.win.y=y;
+         if (inDoMove)
+         {
+            item.win.x=x;
+            item.win.y=y;
+         }
          if (item.h>row_height)
             row_height = item.h;
-         x+=item.w+padX*2;
+         x+=item.w+padX;
+         if (x>maxX)
+            maxX = x;
+         x+=padX;
       }
+      bestWidth = maxX;
+      bestHeight = y+row_height+padY;
    }
 
+   override public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
+   {
+      layout(w,h,false,inLimitX);
+      return new Size(bestWidth,bestHeight);
+   }
+   override public function setRect(x:Float,y:Float,w:Float,h:Float):Void
+   {
+      layout(w,h,true,true);
+      super.setRect(x,y,w,h);
+   }
 }
 
 
