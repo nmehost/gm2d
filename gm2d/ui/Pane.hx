@@ -8,7 +8,7 @@ import gm2d.ui.IDockable;
 
 class Pane implements IDockable
 {
-   var        dock:Dock;
+   var        dock:IDock;
    public var title(default,null):String;
    public var shortTitle(default,null):String;
    public var displayObject(default,null):DisplayObject;
@@ -48,25 +48,16 @@ class Pane implements IDockable
       gm2dMinimized = false;
    }
 
-   public function isToolbar() { return (mFlags & DockFlags.TOOLBAR) > 0; }
-
-   public function resizeable()
-   {
-      return (mFlags & DockFlags.RESIZABLE) > 0;
-   }
 
    public function raise()
    {
-      if (dock!=null)
-         dock.raise(this);
+      //if (parentDock!=null) parentDock.raise(this);
    }
 
    // --- IDockable interface -------------------------------------------------
-   public function close(inForce:Bool) : Bool
+   public function closeRequest(inForce:Bool) : Void
    {
-      if (dock!=null)
-         dock.remove(this);
-      return true;
+      Dock.remove(this);
    }
    public function setContainer(inParent:DisplayObjectContainer):Void
    {
@@ -84,15 +75,15 @@ class Pane implements IDockable
    }
 
 
-   public function getDock():Dock { return dock; }
-   public function setDock(inDock:Dock):Void { dock=inDock; }
+   public function getDock():IDock { return dock; }
+   public function setDock(inDock:IDock):Void { dock=inDock; }
    public function getTitle():String { return title; }
    public function getShortTitle():String { return shortTitle; }
    public function getFlags():Int { return mFlags; }
    public function setFlags(inFlags:Int) : Void { mFlags=inFlags; }
    public function getBestSize(?inPos:DockPosition):Size
    {
-      return new Size(100,100);
+      return new Size(bestWidth,bestHeight);
    }
    public function getMinSize():Size { return new Size(minSizeX,minSizeY); }
    public function buttonStates():Array<Int> { return buttonState; }

@@ -31,7 +31,7 @@ class Toolbar extends Pane
       items = new Array<ToolbarItem>();
       padX = 2.0;
       padY = 2.0;
-      super(root, inTitle, DockFlags.RESIZABLE  | DockFlags.TOOLBAR );
+      super(root, inTitle, Dock.RESIZABLE  | Dock.TOOLBAR );
    }
 
    public function addTool(inTool:DisplayObject,?inWidth:Int, ?inHeight:Int)

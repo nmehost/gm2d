@@ -11,16 +11,16 @@ import gm2d.ui.IDockable;
 class App extends Screen
 {
    public var menubar(getMenuBar,null):Menubar;
-   var dock:Dock;
+   var dock:TopLevelDock;
    var mMDI:MDIParent;
 
    public function new()
    {
       super();
 
-      mMDI = new MDIParent(this);
+      mMDI = new MDIParent();
 
-      dock = mMDI.dock;
+      dock = new TopLevelDock(this,mMDI);
 
       //mLayout = new DisplayLayout( mMDI, Layout.AlignStretch );
 
@@ -32,7 +32,7 @@ class App extends Screen
 
    public function addPane(inPane:Pane, inPos:DockPosition,inSlot:Int=-1)
    {
-      dock = dock.add(inPane,inPos,inSlot);
+      dock.addDockable(inPane,inPos,inSlot);
    }
 
    function doLayout()

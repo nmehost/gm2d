@@ -239,7 +239,7 @@ class Skin
 
       gfx.drawRoundRect(0.5,0.5,w, h, 3,3 );
 
-      if ( DockFlags.isResizeable(pane) )
+      if ( Dock.isResizeable(pane) )
       {
          gfx.endFill();
          for(o in 0...4)
