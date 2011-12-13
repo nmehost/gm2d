@@ -51,7 +51,12 @@ class TopLevelDock implements IDock
             dock.addDockable(inChild,inPos,inSlot);
          else
          {
-            throw "Not yet implemented";
+            var side = new SideDock(inPos);
+            side.setDock(this);
+            side.setContainer(container);
+            side.addDockable(root,inPos,0);
+            side.addDockable(inChild,inPos,0);
+            root = side;
          }
       }
    }

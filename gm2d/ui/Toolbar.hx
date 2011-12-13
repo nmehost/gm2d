@@ -2,6 +2,7 @@ package gm2d.ui;
 import gm2d.display.Sprite;
 import gm2d.display.BitmapData;
 import gm2d.display.DisplayObject;
+import gm2d.ui.DockPosition;
 
 import gm2d.ui.Pane;
 
@@ -73,6 +74,15 @@ class Toolbar extends Pane
       bestWidth = maxX;
       bestHeight = y+row_height+padY;
    }
+   override public function getBestSize(inPos:DockPosition):Size
+   {
+      if (inPos==DOCK_TOP || inPos==DOCK_BOTTOM)
+         layout(10000,1,false,false);
+      else
+         layout(1,10000,false,true);
+      return new Size(bestWidth,bestHeight);
+   }
+
 
    override public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
    {

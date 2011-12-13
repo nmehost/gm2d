@@ -154,7 +154,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
    // Layout
-   public function getBestSize(?inPos:DockPosition):Size { return new Size(clientWidth,clientHeight); }
+   public function getBestSize(inPos:DockPosition):Size { return new Size(clientWidth,clientHeight); }
    public function getMinSize():Size { return new Size(1,1); }
    public function getLayoutSize(w:Float,h:Float,limitX:Bool):Size { return new Size(w,h); }
    public function setRect(inX:Float,inY:Float,w:Float,h:Float):Void

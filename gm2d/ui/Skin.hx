@@ -208,6 +208,17 @@ class Skin
    {
       return 80;
    }
+   public function getSideGap() : Float
+   {
+      return 2;
+   }
+   public function getSideBorder() : Float
+   {
+      return 0;
+   }
+
+
+
 
    public function renderFrame(inObj:Sprite, pane:IDockable, inW:Float, inH:Float,
              outHitBoxes:HitBoxes,inIsCurrent:Bool)

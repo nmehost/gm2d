@@ -47,6 +47,16 @@ class Pane implements IDockable
       buttonState = [ 0,0,0 ];
       gm2dMinimized = false;
    }
+   public function removeDockable(child:IDockable):IDockable
+   {
+      if (child==this)
+         return null;
+      return this;
+   }
+   public function raiseDockable(child:IDockable):Bool
+   {
+      return child==this;
+   }
 
 
    public function raise()
@@ -81,7 +91,7 @@ class Pane implements IDockable
    public function getShortTitle():String { return shortTitle; }
    public function getFlags():Int { return mFlags; }
    public function setFlags(inFlags:Int) : Void { mFlags=inFlags; }
-   public function getBestSize(?inPos:DockPosition):Size
+   public function getBestSize(inPos:DockPosition):Size
    {
       return new Size(bestWidth,bestHeight);
    }
