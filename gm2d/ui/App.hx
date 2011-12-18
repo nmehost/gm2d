@@ -22,9 +22,8 @@ class App extends Screen
 
       dock = new TopLevelDock(this,mMDI);
 
-      //mLayout = new DisplayLayout( mMDI, Layout.AlignStretch );
-
       makeCurrent();
+
       doLayout();
    }
 

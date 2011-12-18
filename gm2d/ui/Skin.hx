@@ -262,8 +262,8 @@ class Skin
          outHitBoxes.add( new Rectangle(w-12,h-12,12,12), HitAction.RESIZE(pane, ResizeFlag.S|ResizeFlag.E) );
       }
 
-		gfx.beginFill(0xffffff);
-      gfx.drawRect(borders-0.5,title_h+borders-0.5,inW+1, inH+1 );
+		//gfx.beginFill(0xffffff);
+      //gfx.drawRect(borders-0.5,title_h+borders-0.5,inW+1, inH+1 );
 
 
       var x = inW - borders;
