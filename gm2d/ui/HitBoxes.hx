@@ -86,6 +86,11 @@ class HitBoxes
       var obj:gm2d.display.DisplayObject = event.target;
       if (obj==mObject)
          onDown(event.localX, event.localY);
+      else
+      {
+         var opos = mObject.globalToLocal( obj.localToGlobal(new Point(event.localX,event.localY)) );
+         onDown(opos.x,opos.y);
+      }
    }
 
    function onMouseUp(event:MouseEvent)
@@ -93,9 +98,24 @@ class HitBoxes
       var obj:gm2d.display.DisplayObject = event.target;
       if (obj==mObject)
          onUp(event.localX, event.localY);
+      else
+      {
+         var opos = mObject.globalToLocal( obj.localToGlobal(new Point(event.localX,event.localY)) );
+         onUp(opos.x,opos.y);
+      }
    }
 
-   function onMouseMove(event:MouseEvent) { onMove(event.localX, event.localY); }
+   function onMouseMove(event:MouseEvent)
+   {
+      var obj:gm2d.display.DisplayObject = event.target;
+      if (obj==mObject)
+         onMove(event.localX, event.localY);
+      else
+      {
+         var opos = mObject.globalToLocal( obj.localToGlobal(new Point(event.localX,event.localY)) );
+         onMove(opos.x,opos.y);
+      }
+   }
 
    function onMouseOut(event:MouseEvent) { onMove(-100,-100); }
 
