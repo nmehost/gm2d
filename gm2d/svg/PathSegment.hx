@@ -6,6 +6,12 @@ import gm2d.display.Graphics;
 
 class PathSegment
 {
+   public static inline var MOVE  = 1;
+   public static inline var DRAW  = 2;
+   public static inline var CURVE = 3;
+   public static inline var CUBIC = 4;
+   public static inline var ARC   = 5;
+
    public var x:Float;
    public var y:Float;
 
@@ -14,6 +20,7 @@ class PathSegment
       x = inX;
       y = inY;
    }
+   public function getType() : Int { return 0; }
 
    public function prevX() { return x; }
    public function prevY() { return y; }
@@ -55,6 +62,7 @@ class PathSegment
 class MoveSegment extends PathSegment
 {
    public function new(inX:Float,inY:Float) { super(inX,inY); }
+   override public function getType() : Int { return PathSegment.MOVE; }
 }
 
 
@@ -66,6 +74,7 @@ class DrawSegment extends PathSegment
       ioContext.setLast(x,y);
       inGfx.lineTo(ioContext.lastX,ioContext.lastY);
    }
+   override public function getType() : Int { return PathSegment.DRAW; }
 }
 
 class QuadraticSegment extends PathSegment
@@ -94,6 +103,7 @@ class QuadraticSegment extends PathSegment
       AddExtent(x,y,inMatrix,ioRect);
       AddExtent(cx,cy,inMatrix,ioRect);
    }
+   override public function getType() : Int { return PathSegment.CURVE; }
 }
 
 class CubicSegment extends PathSegment
@@ -225,6 +235,7 @@ class CubicSegment extends PathSegment
       AddExtent(cx1,cy1,inMatrix,ioRect);
       AddExtent(cx2,cy2,inMatrix,ioRect);
    }
+   override public function getType() : Int { return PathSegment.CUBIC; }
 }
 
 class ArcSegment extends PathSegment
@@ -370,6 +381,7 @@ class ArcSegment extends PathSegment
        }
        inGfx.lineTo(ioContext.lastX, ioContext.lastY);
    }
+   override public function getType() : Int { return PathSegment.ARC; }
 }
 
 
