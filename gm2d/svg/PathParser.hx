@@ -51,7 +51,7 @@ class PathParser {
         }
     }
 
-    public function parse( pathToParse:String ) :Array<PathSegment> {
+    public function parse( pathToParse:String, inConvertCubics:Bool ) :Array<PathSegment> {
         lastMoveX = lastMoveY = 0;
         var pos=0;
         var args = new Array<Float>();
@@ -108,15 +108,31 @@ class PathParser {
                pos++;
             }
 
+            var px:Float = 0.0;
+            var py:Float = 0.0;
             if (current_command>=0)
             {
                if (current_args==args.length)
                {
+                  if (inConvertCubics && prev!=null)
+                  {
+                     px = prev.prevX();
+                     py = prev.prevY();
+                  }
                   prev = createCommand( current_command, args );
                   if (prev==null)
                      throw "Unknown command " + String.fromCharCode(current_command) +
                         " near '" + pathToParse.substr(current_command_pos) + "'"; 
-                  segments.push(prev);
+                  if (inConvertCubics && prev.getType()==PathSegment.CUBIC)
+                  {
+                     var cubic:CubicSegment = cast prev;
+                     var quads = cubic.toQuadratics(px,py);
+                     for(q in quads)
+                        segments.push(q);
+                  }
+                  else
+                     segments.push(prev);
+
                   finished = true;
                   if (current_args==0)
                   {
@@ -210,7 +226,7 @@ class PathParser {
                 case QUADR:
                     var rx = prevX();
                     var ry = prevY();
-                    return new QuadraticSegment( a[0], a[1], a[2], a[3] );
+                    return new QuadraticSegment( a[0]+rx, a[1]+ry, a[2]+rx, a[3]+ry );
                 case SQUAD:
                     var rx = prevX();
                     var ry = prevY();

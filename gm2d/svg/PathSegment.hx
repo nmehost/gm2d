@@ -132,16 +132,6 @@ class CubicSegment extends PathSegment
 
    override public function Draw(inGfx:Graphics,ioContext:RenderContext)
    {
-      /*
-      ioContext.setLast(x,y);
-      var tx3 = ioContext.lastX;
-      var ty3 = ioContext.lastY;
-	   var use_x = (cx1+cx2)/2;
-      var use_y = (cy1+cy2)/2;
-	   inGfx.curveTo(ioContext.transX(use_x,use_y), ioContext.transY(use_x,use_y), tx3, ty3);
-      return;
-      */
-
       // Transformed endpoints/controlpoints
       var tx0 = ioContext.lastX;
       var ty0 = ioContext.lastY;
@@ -198,37 +188,57 @@ class CubicSegment extends PathSegment
 	   inGfx.curveTo(pcx_3, pcy_3, pax_3, pay_3);
 	   inGfx.curveTo(pcx_4, pcy_4, tx3, ty3);
 
-      /*
-       var dx1 = tcx1-tx;
-       var dy1 = tcy1-ty;
-       var dx2 = tcx2-tcx1;
-       var dy2 = tcy2-tcy1;
-       var dx3 = tx-tcx2;
-       var dy3 = ty-tcy2;
-       var len = Math.sqrt(dx1*dx1+dy1*dy1 + dx2*dx2+dy2*dy2 + dx3*dx3+dy3*dy3);
-       var steps = Math.round(len);
-       if (steps<2)
-          steps = 2;
-
-       if (steps>1)
-       {
-          var du = 1.0/steps;
-          var u = du;
-          for(i in 1...steps)
-          {
-             var u1 = 1.0-u;
-             var c0 = u1*u1*u1;
-             var c1 = 3*u1*u1*u;
-             var c2 = 3*u1*u*u;
-             var c3 = u*u*u;
-             u+=du;
-             inGfx.lineTo(c0*tx + c1*tcx1 + c2*tcx2 + c3*tx1,
-                          c0*ty + c1*tcy1 + c2*tcy2 + c3*ty1 );
-          }
-       }
-       inGfx.lineTo(tx1,ty1);
-      */
    }
+
+   public function toQuadratics(tx0:Float,ty0:Float) : Array<QuadraticSegment>
+   {
+      var result = new Array<QuadraticSegment>();
+      // from http://www.timotheegroleau.com/Flash/articles/cubic_bezier/bezier_lib.as
+
+      var pa_x = Interp(tx0,cx1,0.75);
+      var pa_y = Interp(ty0,cy1,0.75);
+      var pb_x = Interp(x,cx2,0.75);
+      var pb_y = Interp(y,cy2,0.75);
+
+	   // get 1/16 of the [P3, P0] segment
+	   var dx = (x - tx0)/16;
+	   var dy = (y - ty0)/16;
+	
+	   // calculates control point 1
+	   var pcx_1 = Interp(tx0, cx1, 3/8);
+	   var pcy_1 = Interp(ty0, cy1, 3/8);
+	
+	   // calculates control point 2
+	   var pcx_2 = Interp(pa_x, pb_x, 3/8) - dx;
+	   var pcy_2 = Interp(pa_y, pb_y, 3/8) - dy;
+	
+	   // calculates control point 3
+	   var pcx_3 = Interp(pb_x, pa_x, 3/8) + dx;
+	   var pcy_3 = Interp(pb_y, pa_y, 3/8) + dy;
+	
+	   // calculates control point 4
+	   var pcx_4 = Interp(x, cx2, 3/8);
+	   var pcy_4 = Interp(y, cy2, 3/8);
+	
+	   // calculates the 3 anchor points
+	   var pax_1 = (pcx_1+pcx_2) * 0.5;
+	   var pay_1 = (pcy_1+pcy_2) * 0.5;
+
+	   var pax_2 = (pa_x+pb_x) * 0.5;
+	   var pay_2 = (pa_y+pb_y) * 0.5;
+
+	   var pax_3 = (pcx_3+pcx_4) * 0.5;
+	   var pay_3 = (pcy_3+pcy_4) * 0.5;
+
+	   // draw the four quadratic subsegments
+	   result.push(new QuadraticSegment(pcx_1, pcy_1, pax_1, pay_1));
+	   result.push(new QuadraticSegment(pcx_2, pcy_2, pax_2, pay_2));
+	   result.push(new QuadraticSegment(pcx_3, pcy_3, pax_3, pay_3));
+	   result.push(new QuadraticSegment(pcx_4, pcy_4, x, y));
+      return result;
+   }
+
+
    override public function GetExtent(inMatrix:Matrix,ioRect:Rectangle)
    {
       AddExtent(x,y,inMatrix,ioRect);

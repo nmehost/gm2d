@@ -25,6 +25,7 @@ class Svg
     public var height(default,null):Float;
     public var roots(default,null):Array<Group>;
 
+    var mConvertCubics:Bool;
     var mGrads : GradHash;
     var mPathParser: PathParser;
 
@@ -35,7 +36,7 @@ class Svg
     static var mMatrixMatch = ~/matrix\((.*),(.*),(.*),(.*),(.*),(.*)\)/;
     static var mURLMatch = ~/url\(#(.*)\)/;
 
-    public function new(inXML:Xml)
+    public function new(inXML:Xml,inConvertCubics:Bool=false)
     {
        var svg =  inXML.firstElement();
        if (svg==null || (svg.nodeName!="svg" && svg.nodeName!="svg:svg" ) )
@@ -44,6 +45,8 @@ class Svg
        mGrads = new GradHash();
 
        mPathParser = new PathParser();
+
+       mConvertCubics = inConvertCubics;
 
        roots = new Array();
 
@@ -387,7 +390,7 @@ class Svg
        else
        {
           var d = inPath.exists("points") ? ("M" + inPath.get("points") + "z" ) : inPath.get("d");
-          for(segment in mPathParser.parse(d) )
+          for(segment in mPathParser.parse(d,mConvertCubics) )
              path.segments.push(segment);
        }
 

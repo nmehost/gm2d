@@ -38,9 +38,9 @@ class SVG2Gfx
     var mGroupPath : GroupPath;
     var mExtent:Rectangle;
 
-    public function new(inXML:Xml)
+    public function new(inXML:Xml,inConvertCubics:Bool = false)
     {
-       mSvg = new Svg(inXML);
+       mSvg = new Svg(inXML,inConvertCubics);
 
        width = mSvg.width;
        height = mSvg.height;
