@@ -79,8 +79,8 @@ class DrawSegment extends PathSegment
 
 class QuadraticSegment extends PathSegment
 {
-   var cx:Float;
-   var cy:Float;
+   public var cx:Float;
+   public var cy:Float;
 
    public function new(inCX:Float, inCY:Float, inX:Float, inY:Float)
    {
@@ -108,10 +108,10 @@ class QuadraticSegment extends PathSegment
 
 class CubicSegment extends PathSegment
 {
-   var cx1:Float;
-   var cy1:Float;
-   var cx2:Float;
-   var cy2:Float;
+   public var cx1:Float;
+   public var cy1:Float;
+   public var cx2:Float;
+   public var cy2:Float;
 
    public function new(inCX1:Float, inCY1:Float, inCX2:Float, inCY2:Float, inX:Float, inY:Float )
    {
