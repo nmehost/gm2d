@@ -93,6 +93,10 @@ class SideDock implements IDock, implements IDockable
    {
       var right = x+w;
       var bottom = y+h;
+      if (position==DOCK_BOTTOM)
+         y = 0;
+      else if (position==DOCK_RIGHT)
+         x = 0;
       var skin = Skin.current;
       if (horizontal)
          x+=skin.getSideBorder();
@@ -123,7 +127,8 @@ class SideDock implements IDock, implements IDockable
          {
             case DOCK_LEFT, DOCK_TOP : d.setRect(x,y,s.x,s.y);
             case DOCK_RIGHT : d.setRect(right-x-s.x,y,s.x,s.y);
-            case DOCK_BOTTOM : d.setRect(x,bottom-y-s.y,s.x,s.y);
+            case DOCK_BOTTOM :
+                d.setRect(x,bottom-y-s.y,s.x,s.y);
             default:
          }
 
@@ -157,6 +162,8 @@ class SideDock implements IDock, implements IDockable
    }
    public function addDockable(child:IDockable,inPos:DockPosition,inSlot:Int):Void
    {
+      if (inPos!=position)
+         inSlot = mDockables.length-inSlot;
       child.setDock(this);
       child.setContainer(container);
       if (inSlot>=mDockables.length)

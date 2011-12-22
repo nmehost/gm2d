@@ -149,7 +149,40 @@ class FileOpen
         ref.browse(extensions);
 
       #else
-       #error "FileOpen not supported on this platform"
+
+        var dlg = new gm2d.ui.Dialog("Enter Filename");
+        var panel = dlg.panel;
+
+        var filename="";
+
+        panel.addLabelObj("Filename:",new TextInput("",function(s) filename=s) );
+
+        panel.addButton(Button.TextButton("Ok", function()
+        {
+           Game.closeDialog();
+           if (filename!="")
+           {
+              var data = ByteArray.readFile(filename);
+              onResult(filename,data);
+           }
+           else
+              onResult("",null);
+        } ));
+        panel.addButton(Button.TextButton("Cancel", function()
+        {
+           Game.closeDialog();
+           onResult("",null);
+        }));
+        panel.setButtonBGs( function(gfx,w,h)
+        {
+           gfx.beginFill(gm2d.ui.Panel.buttonColor);
+           gfx.lineStyle(1,0x000000);
+           gfx.drawRoundRect(0.5,0.5,w,h,3,3);
+        }, 10, 5 );
+
+        dlg.doLayout();
+        Game.doShowDialog(dlg,true);
+
       #end
    }
 
