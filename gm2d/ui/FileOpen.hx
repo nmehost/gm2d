@@ -150,7 +150,7 @@ class FileOpen
 
       #else
 
-        var dlg = new gm2d.ui.Dialog("Enter Filename");
+        var dlg = new gm2d.ui.Dialog(inMessage);
         var panel = dlg.panel;
 
         var filename="";

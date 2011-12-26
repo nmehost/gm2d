@@ -323,12 +323,12 @@ class ChildStackLayout extends StackLayout
 
 class ColInfo
 {
-   public function new()
+   public function new(inStretch:Float)
    {
       mMaxWidth = 0;
       mFlags = 0;
       mWidth = 0;
-      mStretch = 1.0;
+      mStretch = inStretch;
    }
    public var mMaxWidth:Float;
    public var mWidth:Float;
@@ -338,10 +338,10 @@ class ColInfo
 
 class RowInfo
 {
-   public function new()
+   public function new(inStretch:Float)
    {
       mCols = [];
-      mStretch = 1.0;
+      mStretch = inStretch;
       mFlags = 0;
    }
    public var mCols:LayoutList;
@@ -358,24 +358,26 @@ class GridLayout extends Layout
    var mRowInfo : Array<RowInfo>;
    var mSpaceX:Float;
    var mSpaceY:Float;
+   var mDefaultStretch:Float;
    var mPos:Int;
    var mName:String;
    static var mID = 0;
 
-   public function new(?inCols:Null<Int>,?inName:String)
+   public function new(?inCols:Null<Int>,?inName:String,inDefaultStretch:Float=1.0)
    {
       super();
       mCols = inCols;
       mColInfo = [];
       mRowInfo = [];
+      mDefaultStretch = inDefaultStretch;
       if (inCols!=null)
       {
          for(i in 0...inCols)
-            mColInfo[i] = new ColInfo();
+            mColInfo[i] = new ColInfo(mDefaultStretch);
       }
       else
       {
-         mRowInfo[0] = new RowInfo();
+         mRowInfo[0] = new RowInfo(mDefaultStretch);
       }
       mName =  (inName==null) ? ("Layout:" + mID++) : inName;
       mPos = 0;
@@ -389,11 +391,11 @@ class GridLayout extends Layout
       {
          row = Std.int(mPos / mCols);
          if (row>=mRowInfo.length)
-            mRowInfo.push(new RowInfo());
+            mRowInfo.push(new RowInfo(mDefaultStretch));
       }
       else
       {
-         mColInfo.push(new ColInfo());
+         mColInfo.push(new ColInfo(mDefaultStretch));
       }
       mRowInfo[row].mCols.push(inLayout);
       mPos++;
@@ -408,14 +410,14 @@ class GridLayout extends Layout
    public function setRowStretch(inRow:Int,inStretch:Float)
    {
       if (mRowInfo[inRow]==null)
-         mRowInfo[inRow] = new RowInfo();
+         mRowInfo[inRow] = new RowInfo(mDefaultStretch);
       mRowInfo[inRow].mStretch = inStretch;
       return this;
    }
    public function setRowFlags(inRow:Int,inFlags:Int)
    {
       if (mRowInfo[inRow]==null)
-         mRowInfo[inRow] = new RowInfo();
+         mRowInfo[inRow] = new RowInfo(mDefaultStretch);
       mRowInfo[inRow].mFlags = inFlags & Layout.AlignMaskY;
       return this;
    }
@@ -423,14 +425,14 @@ class GridLayout extends Layout
    public function setColStretch(inCol:Int,inStretch:Float)
    {
       if (mColInfo[inCol]==null)
-         mColInfo[inCol] = new ColInfo();
+         mColInfo[inCol] = new ColInfo(mDefaultStretch);
       mColInfo[inCol].mStretch = inStretch;
       return this;
    }
    public function setColFlags(inCol:Int,inFlags:Int)
    {
       if (mColInfo[inCol]==null)
-         mColInfo[inCol] = new ColInfo();
+         mColInfo[inCol] = new ColInfo(mDefaultStretch);
       mColInfo[inCol].mFlags = inFlags & Layout.AlignMaskX;
       return this;
    }
