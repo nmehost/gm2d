@@ -10,6 +10,7 @@ class ListControl extends Control
    var mItemHeight:Float;
    var mSelected :Int;
    var mWidth:Float;
+   var mHeight:Float;
    var mChildrenClean :Int;
   
    static var mSelectColour = 0xd0d0f0;
@@ -21,6 +22,7 @@ class ListControl extends Control
        super();
        mItemHeight = inItemHeight;
        mWidth = inWidth;
+       mHeight = inItemHeight;
        mItems = [];
        mChildrenClean = 0;
        mSelected = -1;
@@ -83,6 +85,12 @@ class ListControl extends Control
          gfx.beginFill( (i==mSelected) ? mSelectColour : ( (i & 1) > 0 ? mOddColour: mEvenColour ) );
          gfx.drawRect(0,i*mItemHeight,mWidth,mItemHeight);
       }
+      var bottom = mItems.length*mItemHeight;
+      if (bottom<mHeight)
+      {
+         gfx.beginFill( mEvenColour );
+         gfx.drawRect(0,bottom,mWidth,mHeight-bottom);
+      }
    }
 
    public override function layout(inWidth:Float,inHeight:Float)
@@ -97,11 +105,10 @@ class ListControl extends Control
       mChildrenClean = mItems.length;
 
       mWidth = inWidth;
+      mHeight = inHeight;
       drawBG();
    }
-
-   
-   
 }
+
 
 

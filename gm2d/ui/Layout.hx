@@ -29,6 +29,8 @@ class Layout
 
    public var mDebugCol:Int;
 
+   public var mAlign:Int;
+
    static var mDebug:gm2d.display.Graphics;
    static var mDebugObject:gm2d.display.Shape;
 
@@ -37,6 +39,13 @@ class Layout
       width = height = 0.0;
       mDebugCol = 0xff0000;
       mBLeft = mBRight = mBTop = mBBottom = 0;
+      mAlign = AlignCenterX|AlignCenterY;
+   }
+
+   public function setAlignment(inAlign:Int)
+   {
+      mAlign = inAlign;
+      return this;
    }
 
    public function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void
@@ -90,7 +99,6 @@ class DisplayLayout extends Layout
    var mOY:Float;
    var mOWidth:Float;
    var mOHeight:Float;
-   var mAlign:Int;
 
    public function new(inObj:DisplayObject,inAlign:Int = 0x24, // AlignCenterX|AlignCenterY
            ?inPrefWidth:Null<Float>,?inPrefHeight:Null<Float>)
@@ -326,13 +334,11 @@ class ColInfo
    public function new(inStretch:Float)
    {
       mMaxWidth = 0;
-      mFlags = 0;
       mWidth = 0;
       mStretch = inStretch;
    }
    public var mMaxWidth:Float;
    public var mWidth:Float;
-   public var mFlags:Int;
    public var mStretch:Float;
 }
 
@@ -342,12 +348,10 @@ class RowInfo
    {
       mCols = [];
       mStretch = inStretch;
-      mFlags = 0;
    }
    public var mCols:LayoutList;
    public var mStretch:Float;
    public var mHeight:Float;
-   public var mFlags:Int;
 }
 
 
@@ -414,26 +418,12 @@ class GridLayout extends Layout
       mRowInfo[inRow].mStretch = inStretch;
       return this;
    }
-   public function setRowFlags(inRow:Int,inFlags:Int)
-   {
-      if (mRowInfo[inRow]==null)
-         mRowInfo[inRow] = new RowInfo(mDefaultStretch);
-      mRowInfo[inRow].mFlags = inFlags & Layout.AlignMaskY;
-      return this;
-   }
 
    public function setColStretch(inCol:Int,inStretch:Float)
    {
       if (mColInfo[inCol]==null)
          mColInfo[inCol] = new ColInfo(mDefaultStretch);
       mColInfo[inCol].mStretch = inStretch;
-      return this;
-   }
-   public function setColFlags(inCol:Int,inFlags:Int)
-   {
-      if (mColInfo[inCol]==null)
-         mColInfo[inCol] = new ColInfo(mDefaultStretch);
-      mColInfo[inCol].mFlags = inFlags & Layout.AlignMaskX;
       return this;
    }
 
@@ -602,7 +592,7 @@ class GridLayout extends Layout
             var h = row_h;
 
             var item = row.mCols[c];
-            switch(mColInfo[c].mFlags & Layout.AlignMaskX)
+            switch(item.mAlign & Layout.AlignMaskX)
             {
                case Layout.AlignLeft:
                   w = item.getBestWidth();
@@ -616,7 +606,7 @@ class GridLayout extends Layout
             //trace(indent + "Put " + w + " in " + col_w);
 
 
-            switch(row.mFlags & Layout.AlignMaskY)
+            switch(item.mAlign & Layout.AlignMaskY)
             {
                case Layout.AlignTop:
                   h = item.getBestHeight();
@@ -625,7 +615,7 @@ class GridLayout extends Layout
                   oy += row_h - h;
                case Layout.AlignCenterY:
                   h = item.getBestHeight();
-                  oy += (row_h - y)/2;
+                  oy += (row_h - h)/2;
             }
 
             item.setRect(ox,oy,w,h);

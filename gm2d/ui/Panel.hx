@@ -36,7 +36,7 @@ class Panel extends Widget
 
 
       mDebug = gm2d.Lib.debug ? new Shape() : null;
-      mGridLayout = new GridLayout(1,"vertical").setColFlags(0,Layout.AlignCenterX);
+      mGridLayout = new GridLayout(1,"vertical");
       mGridLayout.setSpacing(0,20);
       mItemLayout = new GridLayout(2,"items");
       mButtonLayout = new GridLayout(null,"buttons");
