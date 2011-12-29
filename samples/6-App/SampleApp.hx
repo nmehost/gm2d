@@ -7,6 +7,7 @@ import gm2d.display.Bitmap;
 import gm2d.utils.ByteArray;
 import gm2d.Game;
 import gm2d.svg.SVG2Gfx;
+import gm2d.svg.SVG2Haxe;
 import gm2d.swf.SWF;
 import gm2d.ui.FileOpen;
 import gm2d.display.Loader;
@@ -73,13 +74,20 @@ class SampleApp extends App
 
    function addSVGDocument(inName:String, inData:ByteArray)
    {
-      var xml = inData.readUTFBytes(inData.length);
-      var svg = new SVG2Gfx(Xml.parse(xml));
+      var string = inData.readUTFBytes(inData.length);
+      var xml = Xml.parse(string);
+      var svg = new SVG2Gfx(xml);
       var item = new Sprite();
       var gfx = item.graphics;
       svg.Render(gfx);
       item.cacheAsBitmap = true;
       addPane( new Pane(item,inName,Dock.RESIZABLE), DOCK_OVER );
+
+      #if neko
+      var commands = new SVG2Haxe(xml).toHaxe();
+      for(c in commands)
+         neko.Lib.println(c);
+      #end
    }
 
    function addSWFDocument(inName:String, inData:ByteArray)

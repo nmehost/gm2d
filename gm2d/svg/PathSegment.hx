@@ -34,6 +34,13 @@ class PathSegment
       ioContext.firstY = ioContext.lastY;
       inGfx.moveTo(ioContext.lastX,ioContext.lastY);
    }
+   public function toCommands(ioCommands:Array<String>,ioContext:RenderContext)
+   {
+      ioContext.setLast(x,y);
+      ioContext.firstX = ioContext.lastX;
+      ioContext.firstY = ioContext.lastY;
+      ioCommands.push("g.moveTo(" + ioContext.lastX + "," + ioContext.lastY  + ");");
+   }
 
    public function GetExtent(inMatrix:Matrix,ioRect:Rectangle)
    {
@@ -74,6 +81,12 @@ class DrawSegment extends PathSegment
       ioContext.setLast(x,y);
       inGfx.lineTo(ioContext.lastX,ioContext.lastY);
    }
+   override public function toCommands(ioCommands:Array<String>,ioContext:RenderContext)
+   {
+      ioContext.setLast(x,y);
+      ioCommands.push("g.lineTo(" + ioContext.lastX + "," +  ioContext.lastY + ");" );
+   }
+
    override public function getType() : Int { return PathSegment.DRAW; }
 }
 
@@ -96,6 +109,12 @@ class QuadraticSegment extends PathSegment
    {
       ioContext.setLast(x,y);
       inGfx.curveTo( ioContext.transX(cx,cy),ioContext.transY(cx,cy), ioContext.lastX, ioContext.lastY);
+   }
+   override public function toCommands(ioCommands:Array<String>,ioContext:RenderContext)
+   {
+      ioContext.setLast(x,y);
+      ioCommands.push("g.curveTo(" + ioContext.transX(cx,cy) + "," + ioContext.transY(cx,cy) + "," +
+                                    ioContext.lastX + "," +  ioContext.lastY + ");" );
    }
 
    override public function GetExtent(inMatrix:Matrix,ioRect:Rectangle)

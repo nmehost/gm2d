@@ -7,15 +7,29 @@ import gm2d.ScreenScaleMode;
 import gm2d.display.Sprite;
 
 
+import gm2d.display.Graphics;
+import gm2d.display.Bitmap;
+import gm2d.geom.Matrix;
+
+#if cpp
+import cpp.FileSystem;
+#elseif neko
+import neko.FileSystem;
+#end
+
 class FileOpenScreen extends Screen
 {
    var dirButtonContainer:Sprite;
    var dirButtons:Array<Button>;
    var screenLayout:Layout;
+   var message:String;
+   var filter:String;
 
    public function new(inMessage:String,inDir:String,inFilter:String)
    {
       super();
+      message = inMessage;
+      filter = inFilter;
 
 
       var top = new GridLayout(1,"vlayout",0);
@@ -45,8 +59,26 @@ class FileOpenScreen extends Screen
       top.add(dir_buttons);
       var items = new ListControl();
       addChild(items);
-      for(item in ["One", "Two", "Three", "Four"] )
-         items.addText(item);
+
+      var files = new Array<String>();
+      var dirs = new Array<String>();
+      for(item in FileSystem.readDirectory(inDir))
+      {
+         if (item.substr(0,1)!=".")
+         {
+            if (FileSystem.isDirectory(inDir + "/" + item))
+               dirs.push(item);
+            else
+               files.push(item);
+         }
+      }
+      dirs.sort(function(a,b) { return a<b ? -1 : 1; } );
+      files.sort(function(a,b) { return a<b ? -1 : 1; } );
+      for(d in dirs)
+         items.addText(d);
+      for(f in files)
+         items.addText(f);
+      
       var layout = items.getLayout();
       layout.mAlign = Layout.AlignStretch;
       top.add(layout);
@@ -74,6 +106,8 @@ class FileOpenScreen extends Screen
 
    public function setDir(inLink:String)
    {
+      var screen = new FileOpenScreen(message,inLink,filter);
+      Game.setCurrentScreen(screen);
    }
 
    override public function scaleScreen(inScale:Float)
@@ -84,6 +118,7 @@ class FileOpenScreen extends Screen
       gfx.drawRect(0,0, stage.stageWidth, stage.stageHeight);
       screenLayout.setRect(0,0, stage.stageWidth, stage.stageHeight);
    }
+
 
 }
 
