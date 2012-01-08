@@ -5,16 +5,19 @@ import gm2d.ui.Dialog;
 import gm2d.events.MouseEvent;
 import gm2d.events.KeyboardEvent;
 import gm2d.ui.Keyboard;
+import gm2d.tween.Timeline;
 
 class Screen extends gm2d.ui.Window
 {
    var mPaused:Bool;
+   public var timeline(default,null):Timeline;
 
    public function new()
    {
 	   Game.create();
       mPaused = false;
       name = "Screen";
+      timeline = new Timeline();
       super();
    }
 
@@ -33,6 +36,11 @@ class Screen extends gm2d.ui.Window
 
    public function onActivate(inActive:Bool) { }
    public function getUpdateFrequency() { return 0.0; }
+   public function updateTimeline(inDT:Float)
+   {
+      if (!mPaused)
+         timeline.update(inDT);
+   }
    public function updateDelta(inDT:Float) {  }
    public function updateFixed() {  }
    public function render(inFraction:Float) {  }

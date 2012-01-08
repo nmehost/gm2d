@@ -330,8 +330,10 @@ class Game
    static function onEnter(_)
    {
       var now = haxe.Timer.stamp();
+      var big_gap = now>mLastEnter+1.0;
       if (mCurrentScreen!=null)
       {
+         mCurrentScreen.updateTimeline(big_gap ? 0.001 : now-mLastEnter);
          var freq = mCurrentScreen.getUpdateFrequency();
          if (freq<=0)
          {
@@ -344,7 +346,7 @@ class Game
             var steps = 0;
 
             // Looks like a gap?
-            if (now>mLastEnter+1.0)
+            if (big_gap)
             {
                steps = 1;
                mLastStep = now;

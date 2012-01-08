@@ -11,25 +11,42 @@ import gm2d.display.Graphics;
 import gm2d.display.Bitmap;
 import gm2d.geom.Matrix;
 
+import gm2d.display.BitmapData;
+import gm2d.display.Bitmap;
+
 #if cpp
 import cpp.FileSystem;
 #elseif neko
 import neko.FileSystem;
 #end
 
+import nme.filesystem.File;
+import nme.utils.ByteArray;
+
 class FileOpenScreen extends Screen
 {
+   var folderIcon:BitmapData;
+   var docIcon:BitmapData;
    var dirButtonContainer:Sprite;
    var dirButtons:Array<Button>;
    var screenLayout:Layout;
    var message:String;
    var filter:String;
+   var baseDir:String;
+   var dirs: Array<String>;
+   var files:Array<String>;
+   var onResult:String->ByteArray->Void;
+   var returnScreen:Screen;
 
-   public function new(inMessage:String,inDir:String,inFilter:String)
+   public function new(inMessage:String,inDir:String,inOnResult:String->ByteArray->Void,inFilter:String,?inReturnScreen:Screen)
    {
       super();
       message = inMessage;
       filter = inFilter;
+      onResult = inOnResult;
+      returnScreen = inReturnScreen==null ? Game.screen : inReturnScreen;
+      folderIcon = new gm2d.icons.Folder().toBitmap();
+      docIcon = new gm2d.icons.Document().toBitmap();
 
 
       var top = new GridLayout(1,"vlayout",0);
@@ -39,16 +56,23 @@ class FileOpenScreen extends Screen
       var dir_buttons = new GridLayout(null,"dir button",0).setAlignment(Layout.AlignLeft);
       dir_buttons.setSpacing(2,10);
 
+      var button = Button.TextButton("All", function() setDir(""), true );
+      addChild(button);
+      dir_buttons.add(button.getLayout());
+
       inDir = inDir.split("\\").join("/");
+      baseDir = inDir;
       var parts = inDir.split("/");
       var soFar : Array<String> = [];
+      var spaceChar = "    /";
       for(part in parts)
       {
          if (part!="" || soFar.length<2)
             soFar.push(part);
          if (part!="")
          {
-            var spacer = StaticText.createLayout("/",this);
+            var spacer = StaticText.createLayout(spaceChar,this);
+            spaceChar = "/";
             dir_buttons.add(spacer);
             var link = soFar.join("/");
             var button = Button.TextButton(part, function() setDir(link), true );
@@ -57,29 +81,59 @@ class FileOpenScreen extends Screen
          }
       }
       top.add(dir_buttons);
-      var items = new ListControl();
-      addChild(items);
+      var list = new ListControl();
+      addChild(list);
 
-      var files = new Array<String>();
-      var dirs = new Array<String>();
-      for(item in FileSystem.readDirectory(inDir))
+      files = new Array<String>();
+      dirs = new Array<String>();
+      if (inDir=="")
       {
-         if (item.substr(0,1)!=".")
+         //list.addRow( [folderIcon,"Application Base"] );
+         //dir.push(File.applicationDirectory);
+         list.addRow( [folderIcon,"Documents"] );
+         dirs.push(File.documentsDirectory.nativePath);
+         list.addRow( [folderIcon,"Home"] );
+         dirs.push(File.userDirectory.nativePath);
+         list.addRow( [folderIcon,"Desktop"] );
+         dirs.push(File.desktopDirectory.nativePath);
+         list.addRow( [folderIcon,"Application Files"] );
+         dirs.push(File.applicationStorageDirectory.nativePath);
+
+         for(v in nme.filesystem.StorageVolumeInfo.getInstance().getStorageVolumes())
          {
-            if (FileSystem.isDirectory(inDir + "/" + item))
-               dirs.push(item);
-            else
-               files.push(item);
+            list.addRow( [folderIcon,v.name] );
+            dirs.push(v.rootDirectory.nativePath);
          }
       }
-      dirs.sort(function(a,b) { return a<b ? -1 : 1; } );
-      files.sort(function(a,b) { return a<b ? -1 : 1; } );
-      for(d in dirs)
-         items.addText(d);
-      for(f in files)
-         items.addText(f);
+      else
+      {
+         try
+         {
+         for(item in FileSystem.readDirectory(inDir))
+         {
+            if (item.substr(0,1)!=".")
+            {
+               if (FileSystem.isDirectory(inDir + "/" + item))
+                  dirs.push(item);
+               else
+                  files.push(item);
+            }
+         }
+         } catch (e:Dynamic) { }
+         dirs.sort(function(a,b) { return a<b ? -1 : 1; } );
+         files.sort(function(a,b) { return a<b ? -1 : 1; } );
+         for(d in dirs)
+         {
+            list.addRow( [folderIcon,d] );
+         }
+         for(f in files)
+         {
+            list.addRow( [docIcon,f] );
+         }
+      }
+      list.onSelect = onListSelect;
       
-      var layout = items.getLayout();
+      var layout = list.getLayout();
       layout.mAlign = Layout.AlignStretch;
       top.add(layout);
       top.setRowStretch(2,1);
@@ -87,27 +141,50 @@ class FileOpenScreen extends Screen
       var buttons = new GridLayout(null,"buttons",1);
       buttons.setSpacing(10,0);
 
-      var button = Button.TextButton("Ok", null, true );
-      addChild(button);
-      buttons.add(button.getLayout());
-
-      var button = Button.TextButton("Cancel", null, true );
+      var button = Button.TextButton("Cancel", function() setResult(""), true );
       addChild(button);
       buttons.add(button.getLayout());
 
       top.add(buttons);
 
       screenLayout = top;
+
+      Game.setCurrentScreen(this);
    }
 
    override public function getScaleMode() : ScreenScaleMode
       { return ScreenScaleMode.TOPLEFT_UNSCALED; }
 
+   public function onListSelect(inRow:Int)
+   {
+      if (inRow<dirs.length)
+      {
+         setDir(baseDir + "/" + dirs[inRow]);
+         return;
+      }
+      inRow -= dirs.length;
+      setResult(files[inRow]);
+   }
+
+   function setResult(inFile:String)
+   {
+      trace("Selected file: " + inFile);
+      if (inFile=="")
+        onResult(null,null);
+      var result:ByteArray = null;
+      try
+      {
+         result = ByteArray.readFile(baseDir + "/" + inFile);
+      }
+      catch(e:Dynamic) { }
+      Game.setCurrentScreen(returnScreen);
+      onResult(inFile,result);
+   }
+
 
    public function setDir(inLink:String)
    {
-      var screen = new FileOpenScreen(message,inLink,filter);
-      Game.setCurrentScreen(screen);
+      var screen = new FileOpenScreen(message,inLink,onResult,filter,returnScreen);
    }
 
    override public function scaleScreen(inScale:Float)

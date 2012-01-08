@@ -112,10 +112,10 @@ class Svg
           var base = mGrads.get(xlink.substr(1));
           if (base!=null)
           {
-             grad.cols = base.cols;
+             grad.colors = base.colors;
              grad.alphas = base.alphas;
              grad.ratios = base.ratios;
-             grad.matrix = base.matrix.clone();
+             grad.gradMatrix = base.gradMatrix.clone();
              grad.spread = base.spread;
              grad.interp = base.interp;
              grad.radius = base.radius;
@@ -142,7 +142,7 @@ class Svg
 
 
        if (inGrad.exists("gradientTransform"))
-          applyTransform(grad.matrix,inGrad.get("gradientTransform"));
+          applyTransform(grad.gradMatrix,inGrad.get("gradientTransform"));
 
 
        // todo - grad.spread = base.spread;
@@ -151,7 +151,7 @@ class Svg
        {
           var styles = getStyles(stop,null);
 
-          grad.cols.push( getColourStyle("stop-color",stop,styles,0x000000) );
+          grad.colors.push( getColourStyle("stop-color",stop,styles,0x000000) );
           grad.alphas.push( getFloatStyle("stop-opacity",stop,styles,1.0) );
           grad.ratios.push(
              Std.int( Std.parseFloat(stop.get("offset") ) * 255.0) );

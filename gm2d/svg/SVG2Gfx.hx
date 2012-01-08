@@ -21,6 +21,7 @@ import gm2d.display.LineScaleMode;
 import gm2d.svg.Grad;
 import gm2d.svg.Group;
 import gm2d.svg.FillType;
+import gm2d.gfx.Gfx;
 
 
 typedef GroupPath = Array<String>;
@@ -32,11 +33,10 @@ class SVG2Gfx
     public var height(default,null):Float;
 
     var mSvg:Svg;
-    var mGfx : Graphics;
+    var mGfx : Gfx;
     var mMatrix : Matrix;
     var mFilter : ObjectFilter;
     var mGroupPath : GroupPath;
-    var mExtent:Rectangle;
 
     public function new(inXML:Xml,inConvertCubics:Bool = false)
     {
@@ -46,7 +46,31 @@ class SVG2Gfx
        height = mSvg.height;
     }
 
-    public function RenderPath(inPath:Path)
+    public static function toHaxe(inXML:Xml,?inFilter:ObjectFilter) : Array<String>
+    {
+       return new SVG2Gfx(inXML,true).iterate(new gm2d.gfx.Gfx2Haxe(),inFilter).commands;
+    }
+
+    public static function toBytes(inXML:Xml,?inFilter:ObjectFilter) : gm2d.gfx.GfxBytes
+    {
+       return new SVG2Gfx(inXML,true).iterate(new gm2d.gfx.GfxBytes(),inFilter);
+    }
+
+
+    public function iterate<T>(inGfx:T, ?inFilter:ObjectFilter) : T
+    {
+       mGfx = cast inGfx;
+       mMatrix = new Matrix();
+       mFilter = inFilter;
+       mGroupPath = [];
+       mGfx.size(width,height);
+       for(g in mSvg.roots)
+          iterateGroup(g,true);
+       mGfx.eof();
+       return inGfx;
+    }
+
+    public function iteratePath(inPath:Path)
     {
        if (mFilter!=null && !mFilter(inPath.name,mGroupPath))
           return;
@@ -61,24 +85,25 @@ class SVG2Gfx
        var context:RenderContext = null;
 
 
-       if (mGfx!=null)
-       {
-          context = new RenderContext();
-          context.matrix = m;
+       var geomOnly = mGfx.geometryOnly();
 
+       context = new RenderContext();
+       context.matrix = m;
+
+       if (!geomOnly)
+       {
           // Move to avoid the case of:
           //  1. finish drawing line on last path
           //  2. set fill=something
           //  3. move (this draws in the fill)
           //  4. continue with "real" drawing
-          inPath.segments[0].Draw(mGfx, context);
+          inPath.segments[0].toGfx(mGfx, context);
 
           switch(inPath.fill)
           {
              case FillGrad(grad):
-                mGfx.beginGradientFill(grad.type, grad.cols, grad.alphas,
-                         grad.ratios, grad.GetMatrix(m), grad.spread, grad.interp, grad.focus );
-
+                grad.updateMatrix(m);
+                mGfx.beginGradientFill(grad);
              case FillSolid(colour):
                 mGfx.beginFill(colour,inPath.fill_alpha);
              case FillNone:
@@ -92,40 +117,32 @@ class SVG2Gfx
           }
           else
           {
+             var style = new gm2d.gfx.LineStyle();
              var scale = Math.sqrt(m.a*m.a + m.c*m.c);
-             var sw = inPath.stroke_width*scale;
-             var a = inPath.stroke_alpha;
-             mGfx.lineStyle( sw, inPath.stroke_colour,
-                             a, false,LineScaleMode.NORMAL,
-                             inPath.stroke_caps,inPath.joint_style,
-                             inPath.miter_limit);
+             style.thickness = inPath.stroke_width*scale;
+             style.alpha = inPath.stroke_alpha;
+             style.color = inPath.stroke_colour;
+             style.capsStyle = inPath.stroke_caps;
+             style.jointStyle = inPath.joint_style;
+             style.miterLimit = inPath.miter_limit;
+             mGfx.lineStyle(style);
           }
        }
 
 
-       if (mGfx==null)
-       {
-          for(segment in inPath.segments)
-             segment.GetExtent(m,mExtent);
+       for(segment in inPath.segments)
+          segment.toGfx(mGfx, context);
 
-          // switch(inPath.fill) { case FillNone: default: Finalise(); }
-       }
-       else
-       {
-          for(segment in inPath.segments)
-             segment.Draw(mGfx, context);
-          mGfx.endFill();
-          mGfx.lineStyle();
-       }
-
+       mGfx.endFill();
+       mGfx.endLineStyle();
     }
 
 
 
-    public function RenderGroup(inGroup:Group,inIgnoreDot:Bool)
+    public function iterateGroup(inGroup:Group,inIgnoreDot:Bool)
     {
        // Convention for hidden layers ...
-       if (inGroup.name!=null && mGfx!=null && inGroup.name.substr(0,1)==".")
+       if (inGroup.name!=null && inGroup.name.substr(0,1)==".")
           return;
 
        mGroupPath.push(inGroup.name);
@@ -137,18 +154,18 @@ class SVG2Gfx
           switch(child)
           {
              case DisplayGroup(group):
-                RenderGroup(group,inIgnoreDot);
+                iterateGroup(group,inIgnoreDot);
              case DisplayPath(path):
-                RenderPath(path);
+                iteratePath(path);
           }
        }
 
        mGroupPath.pop();
     }
 
-    public function Render(inGfx:Dynamic,?inMatrix:Matrix, ?inFilter:ObjectFilter )
+    public function Render(inGfx:Graphics,?inMatrix:Matrix, ?inFilter:ObjectFilter )
     {
-       mGfx = inGfx;
+       mGfx = new gm2d.gfx.GfxGraphics(inGfx);
        if (inMatrix==null)
           mMatrix = new Matrix();
        else
@@ -158,14 +175,14 @@ class SVG2Gfx
        mGroupPath = [];
 
        for(g in mSvg.roots)
-          RenderGroup(g,true);
+          iterateGroup(g,true);
     }
 
     public function GetExtent(?inMatrix:Matrix, ?inFilter:ObjectFilter, inIgnoreDot=true ) :
         Rectangle
     {
-       mGfx = null;
-       mExtent = new Rectangle(0,0,-1,-1);
+       var gfx = new gm2d.gfx.GfxExtent();
+       mGfx = gfx;
        if (inMatrix==null)
           mMatrix = new Matrix();
        else
@@ -175,9 +192,9 @@ class SVG2Gfx
        mGroupPath = [];
 
        for(g in mSvg.roots)
-          RenderGroup(g,inIgnoreDot);
+          iterateGroup(g,inIgnoreDot);
 
-       return mExtent;
+       return gfx.extent;
     }
 
     public function RenderObject(inObj:DisplayObject,inGfx:Graphics,
@@ -224,11 +241,11 @@ class SVG2Gfx
        var bmp = new gm2d.display.BitmapData(w,h,true,gm2d.RGB.CLEAR );
 
        var shape = new gm2d.display.Shape();
-       mGfx = shape.graphics;
+       mGfx = new gm2d.gfx.GfxGraphics(shape.graphics);
 
        mGroupPath = [];
        for(g in mSvg.roots)
-          RenderGroup(g,true);
+          iterateGroup(g,true);
 
       bmp.draw(shape);
       mGfx = null;
@@ -246,11 +263,11 @@ class SVG2Gfx
        var bmp = new gm2d.display.BitmapData(w,h,true,gm2d.RGB.CLEAR );
 
        var shape = new gm2d.display.Shape();
-       mGfx = shape.graphics;
+       mGfx = new gm2d.gfx.GfxGraphics(shape.graphics);
 
        mGroupPath = [];
        for(g in mSvg.roots)
-          RenderGroup(g,true);
+          iterateGroup(g,true);
 
       bmp.draw(shape);
       mGfx = null;

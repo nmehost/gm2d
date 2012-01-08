@@ -3,6 +3,7 @@ import gm2d.geom.Rectangle;
 import gm2d.geom.Matrix;
 import gm2d.geom.Point;
 import gm2d.display.Graphics;
+import gm2d.gfx.Gfx;
 
 class PathSegment
 {
@@ -27,43 +28,14 @@ class PathSegment
    public function prevCX() { return x; }
    public function prevCY() { return y; }
 
-   public function Draw(inGfx:Graphics,ioContext:RenderContext)
+   public function toGfx(inGfx:Gfx,ioContext:RenderContext)
    {
       ioContext.setLast(x,y);
       ioContext.firstX = ioContext.lastX;
       ioContext.firstY = ioContext.lastY;
-      inGfx.moveTo(ioContext.lastX,ioContext.lastY);
-   }
-   public function toCommands(ioCommands:Array<String>,ioContext:RenderContext)
-   {
-      ioContext.setLast(x,y);
-      ioContext.firstX = ioContext.lastX;
-      ioContext.firstY = ioContext.lastY;
-      ioCommands.push("g.moveTo(" + ioContext.lastX + "," + ioContext.lastY  + ");");
+      inGfx.moveTo(ioContext.lastX, ioContext.lastY);
    }
 
-   public function GetExtent(inMatrix:Matrix,ioRect:Rectangle)
-   {
-      AddExtent(x,y,inMatrix,ioRect);
-   }
-
-   function AddExtent(inX:Float, inY:Float,inMatrix:Matrix,ioExtent : Rectangle )
-   {
-      var tx = inX*inMatrix.a + inY*inMatrix.c + inMatrix.tx;
-      var ty = inY*inMatrix.b + inY*inMatrix.d + inMatrix.ty;
-
-      if (ioExtent.width<0)
-      {
-         ioExtent.x = tx;
-         ioExtent.y = ty;
-         ioExtent.width = ioExtent.height = 0;
-         return;
-      }
-      if (tx<ioExtent.left) ioExtent.left = tx;
-      if (tx>ioExtent.right) ioExtent.right = tx;
-      if (ty<ioExtent.top) ioExtent.top = ty;
-      if (ty>ioExtent.bottom) ioExtent.bottom = ty;
-   }
 }
 
 class MoveSegment extends PathSegment
@@ -76,15 +48,10 @@ class MoveSegment extends PathSegment
 class DrawSegment extends PathSegment
 {
    public function new(inX:Float, inY:Float) { super(inX,inY); }
-   override public function Draw(inGfx:Graphics,ioContext:RenderContext)
+   override public function toGfx(inGfx:Gfx,ioContext:RenderContext)
    {
       ioContext.setLast(x,y);
       inGfx.lineTo(ioContext.lastX,ioContext.lastY);
-   }
-   override public function toCommands(ioCommands:Array<String>,ioContext:RenderContext)
-   {
-      ioContext.setLast(x,y);
-      ioCommands.push("g.lineTo(" + ioContext.lastX + "," +  ioContext.lastY + ");" );
    }
 
    override public function getType() : Int { return PathSegment.DRAW; }
@@ -105,23 +72,13 @@ class QuadraticSegment extends PathSegment
    override public function prevCX() { return cx; }
    override public function prevCY() { return cy; }
 
-   override public function Draw(inGfx:Graphics,ioContext:RenderContext)
+   override public function toGfx(inGfx:Gfx,ioContext:RenderContext)
    {
       ioContext.setLast(x,y);
-      inGfx.curveTo( ioContext.transX(cx,cy),ioContext.transY(cx,cy), ioContext.lastX, ioContext.lastY);
-   }
-   override public function toCommands(ioCommands:Array<String>,ioContext:RenderContext)
-   {
-      ioContext.setLast(x,y);
-      ioCommands.push("g.curveTo(" + ioContext.transX(cx,cy) + "," + ioContext.transY(cx,cy) + "," +
-                                    ioContext.lastX + "," +  ioContext.lastY + ");" );
+      inGfx.curveTo(ioContext.transX(cx,cy) , ioContext.transY(cx,cy),
+                    ioContext.lastX , ioContext.lastY );
    }
 
-   override public function GetExtent(inMatrix:Matrix,ioRect:Rectangle)
-   {
-      AddExtent(x,y,inMatrix,ioRect);
-      AddExtent(cx,cy,inMatrix,ioRect);
-   }
    override public function getType() : Int { return PathSegment.CURVE; }
 }
 
@@ -149,7 +106,7 @@ class CubicSegment extends PathSegment
       return a + (b-a)*frac;
    }
 
-   override public function Draw(inGfx:Graphics,ioContext:RenderContext)
+   override public function toGfx(inGfx:Gfx,ioContext:RenderContext)
    {
       // Transformed endpoints/controlpoints
       var tx0 = ioContext.lastX;
@@ -258,12 +215,6 @@ class CubicSegment extends PathSegment
    }
 
 
-   override public function GetExtent(inMatrix:Matrix,ioRect:Rectangle)
-   {
-      AddExtent(x,y,inMatrix,ioRect);
-      AddExtent(cx1,cy1,inMatrix,ioRect);
-      AddExtent(cx2,cy2,inMatrix,ioRect);
-   }
    override public function getType() : Int { return PathSegment.CUBIC; }
 }
 
@@ -290,13 +241,7 @@ class ArcSegment extends PathSegment
       fS = inSweep;
    }
 
-   override public function GetExtent(inMatrix:Matrix,ioRect:Rectangle)
-   {
-      AddExtent(x,y,inMatrix,ioRect);
-      AddExtent(x1,y1,inMatrix,ioRect);
-   }
-
-   override public function Draw(inGfx:Graphics,ioContext:RenderContext)
+   override public function toGfx(inGfx:Gfx,ioContext:RenderContext)
    {
        ioContext.setLast(x,y);
        if (rx==0 || ry==0)

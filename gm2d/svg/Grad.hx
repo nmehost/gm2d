@@ -10,31 +10,28 @@ import gm2d.display.CapsStyle;
 import gm2d.display.JointStyle;
 import gm2d.display.LineScaleMode;
 
-class Grad
+class Grad extends gm2d.gfx.Gradient
 {
+   public var gradMatrix:Matrix;
+   public var radius:Float;
+   public var x1:Float;
+   public var y1:Float;
+   public var x2:Float;
+   public var y2:Float;
+
    public function new(inType:GradientType)
    {
+      super();
       type = inType;
-      cols = [];
-      alphas = [];
-      ratios = [];
-      matrix = new Matrix();
-      spread = SpreadMethod.PAD;
-      interp = InterpolationMethod.RGB;
       radius = 0.0;
-      focus = 0.0;
+      gradMatrix = new Matrix();
       x1 = 0.0;
       y1 = 0.0;
       x2 = 0.0;
       y2 = 0.0;
    }
-   public function renference_regex()
-   {
-      return ~//;
-   }
 
-
-   public function GetMatrix(inMatrix:Matrix)
+   public function updateMatrix(inMatrix:Matrix)
    {
       var dx = x2 - x1;
       var dy = y2 - y1;
@@ -60,25 +57,11 @@ class Grad
 
       mtx.rotate(theta);
       mtx.translate(x1,y1);
-      mtx.concat(matrix);
+      mtx.concat(gradMatrix);
       mtx.concat(inMatrix);
-
-      return mtx;
+      matrix = mtx;
    }
 
-   public var type:GradientType;
-   public var cols:Array<Int>;
-   public var alphas:Array<Float>;
-   public var ratios:Array<Int>;
-   public var matrix: Matrix;
-   public var spread: SpreadMethod;
-   public var interp:InterpolationMethod;
-   public var radius:Float;
-   public var focus:Float;
-   public var x1:Float;
-   public var y1:Float;
-   public var x2:Float;
-   public var y2:Float;
 
 }
 
