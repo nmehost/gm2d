@@ -65,7 +65,11 @@ class GfxBytes extends Gfx
    {
       if (baseCoder==null)
          baseCoder = new BaseCode(haxe.io.Bytes.ofString(base64));
+      #if flash
+      var bytes:ByteArray = baseCoder.decodeBytes(haxe.io.Bytes.ofString(inString)).getData();
+      #else
       var bytes = ByteArray.fromBytes( baseCoder.decodeBytes(haxe.io.Bytes.ofString(inString)) );
+      #end
       bytes.uncompress();
       return new GfxBytes(bytes);
    }
@@ -188,7 +192,7 @@ class GfxBytes extends Gfx
       buffer.writeByte(grad.colors.length);
       for(i in 0...grad.colors.length)
       {
-          writeRGB(grad.colors[i]==null ? 0 : Std.int(grad.colors[i]));
+          writeRGB(#if neko grad.colors[i]==null ? 0 : #end Std.int(grad.colors[i]));
           pushClipped(grad.alphas[i]*255.0);
           pushClipped(grad.ratios[i]);
       }
