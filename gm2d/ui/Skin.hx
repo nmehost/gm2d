@@ -1,5 +1,6 @@
 package gm2d.ui;
 
+import gm2d.ui.HitBoxes;
 import gm2d.filters.BitmapFilter;
 import gm2d.filters.BitmapFilterType;
 import gm2d.filters.DropShadowFilter;
@@ -13,11 +14,10 @@ import gm2d.text.TextField;
 import gm2d.geom.Point;
 import gm2d.geom.Rectangle;
 import gm2d.geom.Matrix;
-import gm2d.ui.HitBoxes;
 
 class Skin
 {
-   public static var current:Skin = new Skin();
+   public static var current(getCurrent,setCurrent):Skin;
 
    public var textFormat:gm2d.text.TextFormat;
    public var menuHeight:Float;
@@ -42,6 +42,19 @@ class Skin
       for(state in  HitBoxes.BUT_STATE_UP...HitBoxes.BUT_STATE_DOWN+1)
          mBitmaps[state] = [];
    }
+
+   public static function getCurrent():Skin
+   {
+      if (current==null)
+         current = new Skin();
+      return current;
+   }
+   public static function setCurrent(skin:Skin):Skin
+   {
+      current = skin;
+      return current;
+   }
+
 
    public function renderCurrent(inWidget:Widget)
    {
