@@ -60,6 +60,9 @@ class FileOpenScreen extends Screen
       addChild(button);
       dir_buttons.add(button.getLayout());
 
+      if (inDir=="")
+         inDir = File.documentsDirectory.nativePath;
+
       inDir = inDir.split("\\").join("/");
       baseDir = inDir;
       var parts = inDir.split("/");

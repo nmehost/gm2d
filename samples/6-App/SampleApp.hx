@@ -141,7 +141,13 @@ class SampleApp extends App
 
    function onLoad(_)
    {
+      #if waxe || flash
       gm2d.ui.FileOpen.load("Select Graphics File", loadData, "Graphics Files|*.svg;*.png;*.jpg;*.swf");
+      #else
+      var fo = new gm2d.ui.FileOpenScreen("Select Graphics File", "", loadData, "Graphics Files|*.svg;*.png;*.jpg;*.swf");
+      Game.setCurrentScreen(fo);
+      #end
+
    }
 
    function onViewDebugTracePanes(_)
