@@ -39,6 +39,9 @@ class PathParser {
     static var UNKNOWN = -1;
     static var SEPARATOR = -2;
     static var FLOAT = -3;
+    static var FLOAT_SIGN = -4;
+    static var FLOAT_DOT = -5;
+    static var FLOAT_EXP = -6;
 
 
 
@@ -76,14 +79,44 @@ class PathParser {
             {
                pos++;
             }
-            else if( command==FLOAT )
+            else if( command<=FLOAT )
             {
                var end = pos+1;
+               var e_pos = -1;
+               var seen_dot = command == FLOAT_DOT;
+               if (command==FLOAT_EXP)
+               {
+                  e_pos = 0;
+                  seen_dot = true;
+               }
                while(end<pathToParse.length)
                {
                   var ch = pathToParse.charCodeAt(end);
-                  if (ch<0 || ch>127 || sCommandArgs[ch]!=FLOAT )
+                  var code =  ch<0 || ch>127 ? UNKNOWN :sCommandArgs[ch];
+                  if (code>FLOAT )
                      break;
+                  if (code==FLOAT_DOT && seen_dot)
+                     break;
+                  if (e_pos>0)
+                  {
+                     if (code==FLOAT_SIGN)
+                     {
+                        if (e_pos>0)
+                           break;
+                     }
+                     else if (code!=FLOAT)
+                        break;
+                     e_pos++;
+                  }
+                  else if (code==FLOAT_EXP)
+                  {
+                     if (e_pos>=0)
+                        break;
+                     e_pos = 0;
+                     seen_dot = true;
+                  }
+                  else if (code==FLOAT_SIGN)
+                    break;
                   end++;
                }
                if (current_command<0)
@@ -176,10 +209,10 @@ class PathParser {
            case "C": return 6;
            case "A": return 7;
            case "\t","\n"," ","\r","," : return SEPARATOR;
-           case "-" : return FLOAT;
-           case "+" : return FLOAT;
-           case "E" : return FLOAT;
-           case "." : return FLOAT;
+           case "-" : return FLOAT_SIGN;
+           case "+" : return FLOAT_SIGN;
+           case "E" : return FLOAT_EXP;
+           case "." : return FLOAT_DOT;
        }
 
        return UNKNOWN;
@@ -204,9 +237,9 @@ class PathParser {
                     return new MoveSegment(lastMoveX, lastMoveY);
                 case LINE:  return new DrawSegment( a[0], a[1] );
                 case LINER: return new DrawSegment( a[0]+prevX(), a[1]+prevY() );
-                case HLINE:  return new DrawSegment( a[0], 0 );
+                case HLINE:  return new DrawSegment( a[0], prevY() );
                 case HLINER: return new DrawSegment( a[0]+prevX(), prevY());
-                case VLINE:  return new DrawSegment( 0, a[0] );
+                case VLINE:  return new DrawSegment( prevX(), a[0] );
                 case VLINER: return new DrawSegment( prevX(), a[0]+prevY());
                 case CUBIC:
                     return new CubicSegment( a[0], a[1], a[2], a[3], a[4], a[5] );
@@ -243,6 +276,7 @@ class PathParser {
                     return new ArcSegment( rx,ry, a[0], a[1], a[2], a[3]!=0., a[4]!=0., a[5]+rx, a[6]+ry );
                 case CLOSE:
                     return new DrawSegment(lastMoveX, lastMoveY);
+
                 case CLOSER:
                     return new DrawSegment(lastMoveX, lastMoveY);
             }

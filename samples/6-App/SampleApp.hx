@@ -138,6 +138,14 @@ class SampleApp extends App
          }
       }
    }
+   #if (cpp || neko)
+   public function openFile(inFilename:String)
+   {
+      var bytes = nme.utils.ByteArray.readFile(inFilename);
+      if (bytes!=null)
+         loadData(inFilename,bytes);
+   }
+   #end
 
    function onLoad(_)
    {
@@ -162,6 +170,11 @@ class SampleApp extends App
    {
       //Game.fpsColor = 0x000000;
       Game.backgroundColor = 0xffffff;
-      new SampleApp();
+      var app = new SampleApp();
+      #if (neko||cpp)
+      var args = #if neko neko #else cppp #end .Sys.args();
+      if (args.length>0)
+         app.openFile(args[0]);
+      #end
    }
 }

@@ -243,6 +243,8 @@ class ArcSegment extends PathSegment
 
    override public function toGfx(inGfx:Gfx,ioContext:RenderContext)
    {
+       if (x1==x && y1==y)
+          return;
        ioContext.setLast(x,y);
        if (rx==0 || ry==0)
        {

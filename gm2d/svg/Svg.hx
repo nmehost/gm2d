@@ -29,12 +29,16 @@ class Svg
     var mGrads : GradHash;
     var mPathParser: PathParser;
 
+    static var SIN45:Float = 0.70710678118654752440084436210485;
+    static var TAN22:Float = 0.4142135623730950488016887242097;
+
     static var mStyleSplit = ~/;/g;
     static var mStyleValue = ~/\s*(.*)\s*:\s*(.*)\s*/;
     static var mTranslateMatch = ~/translate\((.*),(.*)\)/;
     static var mScaleMatch = ~/scale\((.*)\)/;
     static var mMatrixMatch = ~/matrix\((.*),(.*),(.*),(.*),(.*),(.*)\)/;
     static var mURLMatch = ~/url\(#(.*)\)/;
+    static var defaultFill = FillSolid(0x000000);
 
     public function new(inXML:Xml,inConvertCubics:Bool=false)
     {
@@ -299,7 +303,7 @@ class Svg
    {
       var s = getStyle(inKey,inNode,inStyles,"");
       if (s=="")
-         return FillNone;
+         return defaultFill;
 
       if (s.charAt(0)=='#')
          return FillSolid( Std.parseInt( "0x" + s.substr(1) ) );
@@ -323,7 +327,7 @@ class Svg
 
 
 
-    public function loadPath(inPath:Xml, matrix:Matrix,inStyles:Styles,inIsRect:Bool) : Path
+    public function loadPath(inPath:Xml, matrix:Matrix,inStyles:Styles,inIsRect:Bool,inIsEllipse:Bool) : Path
     {
        if (inPath.exists("transform"))
        {
@@ -387,6 +391,28 @@ class Svg
              path.segments.push( new DrawSegment(x,y+ry) );
            }
        }
+       else if (inIsEllipse)
+       {
+          var x = inPath.exists("cx") ? Std.parseFloat(inPath.get("cx")) : 0;
+          var y = inPath.exists("cy") ? Std.parseFloat(inPath.get("cy")) : 0;
+
+          var w = inPath.exists("rx") ? Std.parseFloat(inPath.get("rx")) : 0.0;
+          var w_ = w*SIN45;
+          var cw_ = w*TAN22;
+          var h = inPath.exists("ry") ? Std.parseFloat(inPath.get("ry")) : 0.0;
+          var h_ = h*SIN45;
+          var ch_ = h*TAN22;
+
+          path.segments.push( new MoveSegment(x+w,y) );
+          path.segments.push( new QuadraticSegment(x+w,  y+ch_, x+w_, y+h_) );
+          path.segments.push( new QuadraticSegment(x+cw_,y+h,   x,    y+h) );
+          path.segments.push( new QuadraticSegment(x-cw_,y+h,   x-w_, y+h_) );
+          path.segments.push( new QuadraticSegment(x-w,  y+ch_, x-w,  y) );
+          path.segments.push( new QuadraticSegment(x-w,  y-ch_, x-w_, y-h_) );
+          path.segments.push( new QuadraticSegment(x-cw_,y-h,   x,    y-h) );
+          path.segments.push( new QuadraticSegment(x+cw_,y-h,   x+w_, y-h_) );
+          path.segments.push( new QuadraticSegment(x+w,  y-ch_, x+w,  y) );
+       }
        else
        {
           var d = inPath.exists("points") ? ("M" + inPath.get("points") + "z" ) : inPath.get("d");
@@ -424,15 +450,19 @@ class Svg
           }
           else if (name=="path")
           {
-             g.children.push( DisplayPath( loadPath(el,matrix, styles, false) ) );
+             g.children.push( DisplayPath( loadPath(el,matrix, styles, false, false) ) );
           }
           else if (name=="rect")
           {
-             g.children.push( DisplayPath( loadPath(el,matrix, styles, true) ) );
+             g.children.push( DisplayPath( loadPath(el,matrix, styles, true, false) ) );
           }
           else if (name=="polygon")
           {
-             g.children.push( DisplayPath( loadPath(el,matrix, styles, false) ) );
+             g.children.push( DisplayPath( loadPath(el,matrix, styles, false, false) ) );
+          }
+          else if (name=="ellipse")
+          {
+             g.children.push( DisplayPath( loadPath(el,matrix, styles, false, true) ) );
           }
           else
           {
