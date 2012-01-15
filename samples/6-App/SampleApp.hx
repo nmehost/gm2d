@@ -80,7 +80,11 @@ class SampleApp extends App
       var gfx = item.graphics;
       svg.Render(gfx);
       item.cacheAsBitmap = true;
-      addPane( new Pane(item,inName,Dock.RESIZABLE), DOCK_OVER );
+      var pane = new Pane(item,inName,Dock.RESIZABLE);
+      pane.bestWidth = svg.width;
+      pane.bestHeight = svg.height;
+      
+      addPane( pane, DOCK_OVER );
 
       #if neko
       var commands = SVG2Gfx.toHaxe(xml);
@@ -172,7 +176,7 @@ class SampleApp extends App
       Game.backgroundColor = 0xffffff;
       var app = new SampleApp();
       #if (neko||cpp)
-      var args = #if neko neko #else cppp #end .Sys.args();
+      var args = #if neko neko #else cpp #end .Sys.args();
       if (args.length>0)
          app.openFile(args[0]);
       #end

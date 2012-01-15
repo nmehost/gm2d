@@ -19,11 +19,10 @@ import gm2d.svg.FillType;
 typedef Styles = Hash<String>;
 
 
-class Svg
+class Svg extends Group
 {
     public var width(default,null):Float;
     public var height(default,null):Float;
-    public var roots(default,null):Array<Group>;
 
     var mConvertCubics:Bool;
     var mGrads : GradHash;
@@ -42,6 +41,7 @@ class Svg
 
     public function new(inXML:Xml,inConvertCubics:Bool=false)
     {
+       super();
        var svg =  inXML.firstElement();
        if (svg==null || (svg.nodeName!="svg" && svg.nodeName!="svg:svg" ) )
           throw "Not an SVG file (" + (svg==null ? "null" : svg.nodeName) + ")";
@@ -52,8 +52,6 @@ class Svg
 
        mConvertCubics = inConvertCubics;
 
-       roots = new Array();
-
        width = getFloatStyle("width",svg,null,0.0);
        height = getFloatStyle("height",svg,null,0.0);
        if (width==0 && height==0)
@@ -63,19 +61,7 @@ class Svg
        else if (height==0)
           height = width;
 
-       for(element in svg.elements())
-       {
-          var name = element.nodeName;
-          if (name.substr(0,4)=="svg:")
-             name = name.substr(4);
-
-          if (name=="defs")
-             loadDefs(element);
-          else if (name=="g")
-          {
-             roots.push( loadGroup(element,new Matrix(), null)  );
-          }
-       }
+       loadGroup(this,svg,new Matrix(), null);
 
        //trace("SVG:");
        //for(g in roots)
@@ -423,9 +409,8 @@ class Svg
        return path;
     }
 
-    public function loadGroup(inG:Xml, matrix:Matrix,inStyles:Styles) : Group
+    public function loadGroup(g:Group, inG:Xml, matrix:Matrix,inStyles:Styles) : Group
     {
-       var g = new Group();
        if (inG.exists("transform"))
        {
           matrix = matrix.clone();
@@ -444,9 +429,12 @@ class Svg
           var name = el.nodeName;
           if (name.substr(0,4)=="svg:")
              name = name.substr(4);
-          if (name=="g")
+
+          if (name=="defs")
+             loadDefs(el);
+          else if (name=="g")
           {
-             g.children.push( DisplayGroup(loadGroup(el,matrix, styles)) );
+             g.children.push( DisplayGroup(loadGroup(new Group(),el,matrix, styles)) );
           }
           else if (name=="path")
           {

@@ -64,8 +64,7 @@ class SVG2Gfx
        mFilter = inFilter;
        mGroupPath = [];
        mGfx.size(width,height);
-       for(g in mSvg.roots)
-          iterateGroup(g,true);
+       iterateGroup(mSvg,true);
        mGfx.eof();
        return inGfx;
     }
@@ -174,8 +173,7 @@ class SVG2Gfx
        mFilter = inFilter;
        mGroupPath = [];
 
-       for(g in mSvg.roots)
-          iterateGroup(g,true);
+       iterateGroup(mSvg,true);
     }
 
     public function GetExtent(?inMatrix:Matrix, ?inFilter:ObjectFilter, inIgnoreDot=true ) :
@@ -191,8 +189,7 @@ class SVG2Gfx
        mFilter = inFilter;
        mGroupPath = [];
 
-       for(g in mSvg.roots)
-          iterateGroup(g,inIgnoreDot);
+       iterateGroup(mSvg,inIgnoreDot);
 
        return gfx.extent;
     }
@@ -244,8 +241,7 @@ class SVG2Gfx
        mGfx = new gm2d.gfx.GfxGraphics(shape.graphics);
 
        mGroupPath = [];
-       for(g in mSvg.roots)
-          iterateGroup(g,true);
+       iterateGroup(mSvg,true);
 
       bmp.draw(shape);
       mGfx = null;
@@ -266,8 +262,7 @@ class SVG2Gfx
        mGfx = new gm2d.gfx.GfxGraphics(shape.graphics);
 
        mGroupPath = [];
-       for(g in mSvg.roots)
-          iterateGroup(g,true);
+       iterateGroup(mSvg,true);
 
       bmp.draw(shape);
       mGfx = null;
