@@ -18,6 +18,9 @@ class Layout
    public static var AlignCenterY  = 0x0020;
    public static var AlignMaskX    = AlignLeft | AlignRight | AlignCenterX;
    public static var AlignMaskY    = AlignTop | AlignBottom | AlignCenterY;
+   public static var AlignCenter   = AlignCenterX | AlignCenterY;
+   public static var AlignPixel    = 0x0100;
+   public static var AlignHalfPixel= 0x0200;
 
    public var mBLeft:Float;
    public var mBTop:Float;
@@ -131,8 +134,21 @@ class DisplayLayout extends Layout
 
    function setObjRect(x:Float,y:Float,w:Float,h:Float)
    {
-      mObj.x = x;
-      mObj.y = y;
+      if (mAlign & Layout.AlignPixel > 0)
+      {
+         mObj.x = Std.int(x);
+         mObj.y = Std.int(y);
+      }
+      else if (mAlign & Layout.AlignHalfPixel > 0)
+      {
+         mObj.x = Std.int(x) + 0.5;
+         mObj.y = Std.int(y) + 0.5;
+      }
+      else
+      {
+         mObj.x = x;
+         mObj.y = y;
+      }
       if (Std.is(mObj,Widget))
       {
          var widget:Widget = cast mObj;

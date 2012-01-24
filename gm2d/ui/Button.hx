@@ -29,6 +29,8 @@ class Button extends Control
    var mItemLayout:Layout;
    public var onCurrentChangedFunc:Bool->Void;
 
+   static public var BMPButtonFont = "Arial";
+
    public function new(inObject:DisplayObject,?inOnClick:Void->Void,inSkinBG= false)
    {
       super();
@@ -56,6 +58,7 @@ class Button extends Control
       }
    }
 
+
    public function getLabel() : TextField
    { 
       if (Std.is(mDisplayObj,TextField))
@@ -68,6 +71,14 @@ class Button extends Control
       inSVG.RenderSprite(mBG);
       mBG.width = inW;
       mBG.height = inH;
+   }
+
+   public function setBGRenderer(inRenderer:gm2d.display.Graphics->Float->Float->Void)
+   {
+      var layout = getLayout();
+      setBG(inRenderer,
+          layout.getBestWidth()+Skin.current.buttonBorderX,
+          layout.getBestHeight()+Skin.current.buttonBorderY);
    }
 
    public function setBG(inRenderer:gm2d.display.Graphics->Float->Float->Void,inW:Float, inH:Float)
@@ -155,6 +166,28 @@ class Button extends Control
       return result;
    }
 
+   public static function BMPTextButton(inBitmapData:BitmapData,inText:String,?inOnClick:Void->Void)
+   {
+      var sprite = new Sprite();
+      var bmp = new Bitmap(inBitmapData);
+      sprite.addChild(bmp);
+      var text = new TextField();
+      var textFormat = new gm2d.text.TextFormat();
+      textFormat.size = Std.int(inBitmapData.height*0.4);
+      textFormat.font = BMPButtonFont;
+      text.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
+      text.selectable = false;
+      text.mouseEnabled = false;
+      text.defaultTextFormat = textFormat;
+      text.text = inText;
+      sprite.addChild(text);
+      text.x = bmp.width+ 10;
+      text.y = (bmp.height - text.textHeight)/2;
+      var result = new Button(sprite,inOnClick);
+      var layout = result.getLayout();
+      layout.setBestSize(text.x + text.textWidth, bmp.height);
+      return result;
+   }
 
    override public function createLayout() : Layout
    {
