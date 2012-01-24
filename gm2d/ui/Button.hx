@@ -58,6 +58,11 @@ class Button extends Control
       }
    }
 
+   public function getItemLayout()
+   {
+      getLayout();
+      return mItemLayout;
+   }
 
    public function getLabel() : TextField
    { 
@@ -184,7 +189,7 @@ class Button extends Control
       text.x = bmp.width+ 10;
       text.y = (bmp.height - text.textHeight)/2;
       var result = new Button(sprite,inOnClick);
-      var layout = result.getLayout();
+      var layout = result.getItemLayout();
       layout.setBestSize(text.x + text.textWidth, bmp.height);
       return result;
    }
