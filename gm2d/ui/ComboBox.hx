@@ -22,7 +22,7 @@ class ComboList extends Window
          mOptions.push("");
 
       for(o in mOptions)
-         mList.addText(o,false);
+         mList.addRow([o]);
       addChild(mList);
       var gfx = graphics;
       gfx.lineStyle(1,0x000000);

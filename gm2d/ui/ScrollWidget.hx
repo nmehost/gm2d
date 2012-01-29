@@ -45,7 +45,7 @@ class ScrollWidget extends Control
       speedY = new TimeAverage(0.2);
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
    }
-   function setScrollRange(inControlWidth:Float, inWindowWidth:Float,
+   public function setScrollRange(inControlWidth:Float, inWindowWidth:Float,
                            inControlHeight:Float, inWindowHeight:Float)
    {
        windowWidth = inWindowWidth;
