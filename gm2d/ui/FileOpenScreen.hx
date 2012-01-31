@@ -61,7 +61,7 @@ class FileOpenScreen extends Screen
       var dir_buttons = new GridLayout(null,"dir button",0).setAlignment(Layout.AlignLeft);
       dir_buttons.setSpacing(2,10);
 
-      var button = Button.TextButton("All", function() setDir(""), true );
+      var button = Button.TextButton("All", function() setDir(null), true );
       addChild(button);
       dir_buttons.add(button.getLayout());
 
@@ -74,24 +74,27 @@ class FileOpenScreen extends Screen
             inDir = File.documentsDirectory.nativePath;
       }
 
-      inDir = inDir.split("\\").join("/");
-      baseDir = inDir;
-      var parts = inDir.split("/");
-      var soFar : Array<String> = [];
-      var spaceChar = "    /";
-      for(part in parts)
+      if (inDir!=null)
       {
-         if (part!="" || soFar.length<2)
-            soFar.push(part);
-         if (part!="")
+         inDir = inDir.split("\\").join("/");
+         baseDir = inDir;
+         var parts = inDir.split("/");
+         var soFar : Array<String> = [];
+         var spaceChar = "    /";
+         for(part in parts)
          {
-            var spacer = StaticText.createLayout(spaceChar,this);
-            spaceChar = "/";
-            dir_buttons.add(spacer);
-            var link = soFar.join("/");
-            var button = Button.TextButton(part, function() setDir(link), true );
-            addChild(button);
-            dir_buttons.add(button.getLayout());
+            if (part!="" || soFar.length<2)
+               soFar.push(part);
+            if (part!="")
+            {
+               var spacer = StaticText.createLayout(spaceChar,this);
+               spaceChar = "/";
+               dir_buttons.add(spacer);
+               var link = soFar.join("/");
+               var button = Button.TextButton(part, function() setDir(null), true );
+               addChild(button);
+               dir_buttons.add(button.getLayout());
+            }
          }
       }
       top.add(dir_buttons);
@@ -100,8 +103,9 @@ class FileOpenScreen extends Screen
 
       files = new Array<String>();
       dirs = new Array<String>();
-      if (inDir=="")
+      if (inDir==null)
       {
+         baseDir = "";
          //list.addRow( [folderIcon,"Application Base"] );
          //dir.push(File.applicationDirectory);
          list.addRow( [folderIcon,"Documents"] );
@@ -173,7 +177,10 @@ class FileOpenScreen extends Screen
    {
       if (inRow<dirs.length)
       {
-         setDir(baseDir + "/" + dirs[inRow]);
+         if (baseDir=="")
+            setDir(dirs[inRow]);
+         else
+            setDir(baseDir + "/" + dirs[inRow]);
          return;
       }
       inRow -= dirs.length;
