@@ -16,12 +16,15 @@ import gm2d.display.Bitmap;
 
 #if cpp
 import cpp.FileSystem;
+import cpp.io.Path;
 #elseif neko
 import neko.FileSystem;
+import neko.io.Path;
 #end
 
 import nme.filesystem.File;
 import nme.utils.ByteArray;
+import nme.net.SharedObject;
 
 class FileOpenScreen extends Screen
 {
@@ -34,6 +37,7 @@ class FileOpenScreen extends Screen
    var filter:String;
    var baseDir:String;
    var dirs: Array<String>;
+   var filterList: Array<String>;
    var files:Array<String>;
    var onResult:String->ByteArray->Void;
    var returnScreen:Screen;
@@ -42,6 +46,7 @@ class FileOpenScreen extends Screen
    {
       super();
       message = inMessage;
+      
       filter = inFilter;
       onResult = inOnResult;
       returnScreen = inReturnScreen==null ? Game.screen : inReturnScreen;
@@ -61,7 +66,13 @@ class FileOpenScreen extends Screen
       dir_buttons.add(button.getLayout());
 
       if (inDir=="")
-         inDir = File.documentsDirectory.nativePath;
+      {
+         var def = SharedObject.getLocal("fileOpen");
+         if (def!=null && Reflect.hasField(def.data,inMessage))
+            inDir = Reflect.field(def.data,inMessage);
+         else
+            inDir = File.documentsDirectory.nativePath;
+      }
 
       inDir = inDir.split("\\").join("/");
       baseDir = inDir;
@@ -171,17 +182,27 @@ class FileOpenScreen extends Screen
 
    function setResult(inFile:String)
    {
-      trace("Selected file: " + inFile);
+      //trace("Selected file: " + inFile);
       if (inFile=="")
         onResult(null,null);
-      var result:ByteArray = null;
-      try
+      else
       {
-         result = ByteArray.readFile(baseDir + "/" + inFile);
+         var def = SharedObject.getLocal("fileOpen");
+         if (def!=null)
+         {
+            Reflect.setField(def.data, message, baseDir);
+            def.flush();
+         }
+
+         var result:ByteArray = null;
+         try
+         {
+            result = ByteArray.readFile(baseDir + "/" + inFile);
+         }
+         catch(e:Dynamic) { }
+         Game.setCurrentScreen(returnScreen);
+         onResult(inFile,result);
       }
-      catch(e:Dynamic) { }
-      Game.setCurrentScreen(returnScreen);
-      onResult(inFile,result);
    }
 
 
