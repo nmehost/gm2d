@@ -32,13 +32,13 @@ class Viewport extends Sprite
    var mRect:Rectangle;
 
    public static function create(inWidth:Int, inHeight:Int,
-        inBGMode:Int=1,inBackground:Int=0xffffff,inForceSoftware:Bool = false)
+        inBGMode:Int=1,inBackground:Int=0xffffff,inForceSoftware:Bool = false,inForceNME:Bool=false)
             : Viewport
    {
       #if flash
       return new BMPViewport(inWidth,inHeight,inBGMode==BG_TRANSPARENT,inBackground);
       #else
-      if (inForceSoftware || !gm2d.Lib.isOpenGL)
+      if (inForceSoftware || (!gm2d.Lib.isOpenGL && !inForceNME) )
          return new BMPViewport(inWidth,inHeight,inBGMode==BG_TRANSPARENT,inBackground);
       else
          return new NMEViewport(inWidth,inHeight,inBGMode!=BG_OPAQUE,inBackground);

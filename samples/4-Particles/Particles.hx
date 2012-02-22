@@ -89,6 +89,7 @@ class Particles extends Screen
 
       mParticleLayer = mViewport.createLayer();
       mParticleLayer.dynamicRender = renderParticles;
+      mParticleLayer.blendAdd = true;
 
       mText = new TextField();
       mText.textColor = 0xffffff;

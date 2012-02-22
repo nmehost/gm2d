@@ -1,5 +1,6 @@
 package gm2d.blit;
 
+import nme.display.Graphics;
 
 class NMELayer extends Layer
 {
@@ -19,7 +20,7 @@ class NMELayer extends Layer
    {
       if (mXYID.length>0)
       {
-         gm2dShape.graphics.drawTiles(mCurrentSheet.gm2dSheet,mXYID);
+         gm2dShape.graphics.drawTiles(mCurrentSheet.gm2dSheet,mXYID,blendAdd?Graphics.TILE_BLEND_ADD:0);
          mCurrentSheet = null;
          mXYID = [];
       }

@@ -10,6 +10,7 @@ class Layer
    public var viewWidth(getViewWidth,null):Float;
    public var viewHeight(getViewHeight,null):Float;
    public var visible(default,setVisible):Bool;
+   public var blendAdd:Bool;
  
 
    var mViewport:Viewport;
@@ -20,6 +21,7 @@ class Layer
       visible = true;
       offsetX = 0;
       offsetY = 0;
+      blendAdd = false;
    }
 
    public function gm2dRender(inOX:Float, inOY:Float) { }
