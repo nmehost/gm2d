@@ -97,11 +97,11 @@ class PathParser {
                      break;
                   if (code==FLOAT_DOT && seen_dot)
                      break;
-                  if (e_pos>0)
+                  if (e_pos>=0)
                   {
                      if (code==FLOAT_SIGN)
                      {
-                        if (e_pos>0)
+                        if (e_pos!=0)
                            break;
                      }
                      else if (code!=FLOAT)
@@ -211,7 +211,7 @@ class PathParser {
            case "\t","\n"," ","\r","," : return SEPARATOR;
            case "-" : return FLOAT_SIGN;
            case "+" : return FLOAT_SIGN;
-           case "E" : return FLOAT_EXP;
+           case "E","e" : return FLOAT_EXP;
            case "." : return FLOAT_DOT;
        }
 
