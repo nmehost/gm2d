@@ -92,10 +92,10 @@ class Dialog extends Window
       inSVG.Render(gfx,null,null);
 
       var all  = inSVG.GetExtent(null, null);
-      var scale9 = inSVG.GetExtent(null, function(_,groups) { return groups[0]==".scale9"; } );
+      var scale9 = inSVG.GetExtent(null, function(_,groups) { return groups[1]==".scale9"; } );
       if (scale9!=null)
          mBG.scale9Grid = scale9;
-      var interior = inSVG.GetExtent(null, function(_,groups) { return groups[0]==".interior"; } );
+      var interior = inSVG.GetExtent(null, function(_,groups) { return groups[1]==".interior"; } );
       if (interior == null)
          interior = scale9;
 

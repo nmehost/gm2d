@@ -198,7 +198,7 @@ class SVG2Gfx
                     ?inMatrix:Matrix,?inFilter:ObjectFilter)
     {
        Render(inGfx,inMatrix,inFilter);
-       var rect = GetExtent(inMatrix, function(_,groups) { return groups[0]==".scale9"; } );
+       var rect = GetExtent(inMatrix, function(_,groups) { return groups[1]==".scale9"; } );
 		 // TODO:
 		 /*
        if (rect!=null)

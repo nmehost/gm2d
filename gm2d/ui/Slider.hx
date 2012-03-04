@@ -107,13 +107,13 @@ class Slider extends Control
              inMin:Float,inMax:Float,inPos:Float,inOnChange:Float->Void)
    {
       var track = new Sprite();
-      inSkin.RenderSprite(track,null, function(name,groups) { return groups[0]=="Track"; } );
+      inSkin.RenderSprite(track,null, function(name,groups) { return groups[1]=="Track"; } );
 
       var thumb = new Sprite();
-      inSkin.RenderSprite(thumb,null, function(name,groups) { return groups[0]=="Thumb"; } );
+      inSkin.RenderSprite(thumb,null, function(name,groups) { return groups[1]=="Thumb"; } );
 
       var rect = inSkin.GetExtent(null,
-                     function(name,groups) { return groups[0]==".Active"; },true );
+                     function(name,groups) { return groups[1]==".Active"; },true );
 
       var result:Slider = null;
       if (rect!=null)

@@ -10,16 +10,14 @@ class GfxExtent extends Gfx
    public function new()
    {
      super();
-     extent = new Rectangle(0,0,-1,-1);
+     extent = null;
    }
 
    function addExtent(inX:Float, inY:Float)
    {
-      if (extent.width<0)
+      if (extent==null)
       {
-         extent.x = inX;
-         extent.y = inY;
-         extent.width = extent.height = 0;
+         extent = new Rectangle(inX,inY,0,0);
          return;
       }
       if (inX<extent.left) extent.left = inX;
