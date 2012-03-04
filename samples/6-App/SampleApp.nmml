@@ -25,10 +25,10 @@
 
   <haxelib name="nme" />
   <haxelib name="gm2d" />
-  <!-- <haxelib name="waxe" unless="target_flash" /> -->
+  <haxelib name="waxe" if="waxe" />
 
   <ndll name="nme" haxelib="nme" nekoapi="1"/>
-  <ndll name="waxe" haxelib="waxe" unless="target_flash" />
+  <ndll name="waxe" haxelib="waxe" if="waxe" />
   <ndll name="std" />
   <ndll name="zlib" />
   <ndll name="regexp" />

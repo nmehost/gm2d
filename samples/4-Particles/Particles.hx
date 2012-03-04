@@ -128,7 +128,7 @@ class Particles extends Screen
       }
 
       mParticles = alive;
-      for(p in 0...10)
+      for(p in 0...50)
          mParticles.push( new Particle(mViewport.mouseX, mViewport.mouseY) );
 
       mText.text = "Particles: " + mParticles.length;
