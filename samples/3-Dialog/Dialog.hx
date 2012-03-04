@@ -43,13 +43,13 @@ class Dialog extends Screen
       Game.addDialog("Settings",settings);
       var dlg = Game.showDialog("Settings");
 
-		var s = stage;
-		s.addEventListener( MouseEvent.CLICK, function (e)
-		{
-		   var t : gm2d.display.DisplayObject = e.target;
-		   if ( t==s)
+      var s = stage;
+      s.addEventListener( MouseEvent.CLICK, function (e:MouseEvent)
+      {
+         var t : gm2d.display.DisplayObject = e.target;
+         if (t==s)
             Game.showDialog("Settings");
-		} );
+      } );
 
    }
 
