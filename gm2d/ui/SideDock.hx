@@ -1,7 +1,9 @@
 package gm2d.ui;
 
 import gm2d.display.DisplayObjectContainer;
+import gm2d.display.Sprite;
 import gm2d.ui.DockPosition;
+import gm2d.geom.Rectangle;
 
 
 class SideDock implements IDock, implements IDockable
@@ -9,6 +11,8 @@ class SideDock implements IDock, implements IDockable
    var horizontal:Bool;
    var parentDock:IDock;
    var mDockables:Array<IDockable>;
+   var mRect:Rectangle;
+   var mPositions:Array<Float>;
    var container:DisplayObjectContainer;
    var position:DockPosition;
    var flags:Int;
@@ -19,6 +23,8 @@ class SideDock implements IDock, implements IDockable
       position = inPos;
       horizontal = inPos==DOCK_LEFT || inPos==DOCK_RIGHT;
       mDockables = [];
+      mPositions = [];
+      mRect = new Rectangle();
    }
    
    // Hierarchy
@@ -41,9 +47,9 @@ class SideDock implements IDock, implements IDockable
    function addPadding(size:Size) : Size
    {
       if (horizontal)
-         size.x += (mDockables.length-1) + Skin.current.getSideGap() + Skin.current.getSideBorder()*2;
+         size.x += (mDockables.length-1) + Skin.current.getResizeBarWidth();
       else
-         size.y += (mDockables.length-1) + Skin.current.getSideGap() + Skin.current.getSideBorder()*2;
+         size.y += (mDockables.length-1) + Skin.current.getResizeBarWidth();
       return size;
    }
    public function getBestSize(inPos:DockPosition):Size
@@ -66,6 +72,14 @@ class SideDock implements IDock, implements IDockable
  
      return addPadding(best);
    }
+   public function wantsResize(inHorizontal:Bool,inMove:Int):Bool
+   {
+      for(dock in mDockables)
+         if (!dock.wantsResize(inHorizontal,inMove))
+            return false;
+      return true;
+   }
+
    public function getMinSize():Size
    {
       var min = new Size(0,0);
@@ -93,63 +107,107 @@ class SideDock implements IDock, implements IDockable
    {
       var right = x+w;
       var bottom = y+h;
-      if (position==DOCK_BOTTOM)
-         y = 0;
-      else if (position==DOCK_RIGHT)
-         x = 0;
       var skin = Skin.current;
-      if (horizontal)
-         x+=skin.getSideBorder();
-      else
-         y+=skin.getSideBorder();
       var pad = addPadding(new Size(0,0));
       w-=pad.x;
       h-=pad.y;
+      var barSize = skin.getResizeBarWidth();
+      if (horizontal)
+         w-= barSize * (mDockables.length-1);
+      else
+         h-= barSize * (mDockables.length-1);
 
-      var total = 0;
-      var sizes = new Array<Int>();
-      for(d in mDockables)
+      mRect = new Rectangle(x,y,w,h);
+
+      mPositions = [];
+      mPositions.push( horizontal ? x : y );
+
+      while(true)
       {
-         var s = d.getBestSize(position);
-         var size = Std.int(horizontal ? s.x : s.y);
-         sizes.push(size);
-         total += size;
-      }
+         var total = 0;
+         var sizes = new Array<Int>();
 
-      var extra = (horizontal ? w : h)-total;
-      var idx = 0;
-      for(d in mDockables)
-      {
-         var dim = sizes[idx];
-         var size = dim + extra/(mDockables.length-idx);
-         var s = d.getLayoutSize(horizontal?size:w, horizontal?h:size, !horizontal);
-         switch(position)
+         for(d in mDockables)
          {
-            case DOCK_LEFT, DOCK_TOP : d.setRect(x,y,s.x,s.y);
-            case DOCK_RIGHT : d.setRect(right-x-s.x,y,s.x,s.y);
-            case DOCK_BOTTOM :
-                d.setRect(x,bottom-y-s.y,s.x,s.y);
-            default:
+            var s = d.getBestSize(position);
+            var size = Std.int(horizontal ? s.x : s.y);
+            sizes.push(size);
+            total += size;
          }
 
-         if (horizontal)
+         var extra = Std.int((horizontal ? w : h)-total);
+         var stretchers = 0;
+         if (extra!=0)
+            for(d in mDockables)
+               if (d.wantsResize(horizontal,extra))
+                  stretchers ++;
+
+         var idx = 0;
+         var orig_extra = extra;
+         for(d in mDockables)
          {
-            size = s.x;
-            x+=s.x + skin.getSideGap();
+            var dim = sizes[idx];
+            var size = dim;
+            var item_extra = stretchers>0 ? Std.int( extra/stretchers + 0.5 ) : 0;
+            if ( item_extra!=0 && d.wantsResize(horizontal,item_extra))
+            {
+               size += item_extra;
+               stretchers--;
+            }
+
+            var s = d.getLayoutSize(horizontal?size:w, horizontal?h:size, !horizontal);
+            d.setRect(x,y,s.x,s.y);
+
+            if (horizontal)
+            {
+               size = Std.int(s.x+0.5);
+               x+=size + barSize;
+            }
+            else
+            {
+               size = Std.int(s.y+0.5);
+               y+=size + barSize;
+            }
+            mPositions.push( horizontal ? x : y );
+            extra -= size - dim;
+            idx++;
          }
-         else
-         {
-            size = s.y;
-            y+=s.y + skin.getSideGap();
-         }
-         extra -= size - dim;
-         idx++;
+         if (extra==orig_extra)
+            break;
+         break;
       }
+      //trace("horizontal :" + mRect + "   " + horizontal + mPositions );
+      setChromeDirty();
    }
 
    function doLayout()
    {
    }
+
+   public function renderChrome(inContainer:Sprite):Void
+   {
+      for(d in 0...mDockables.length)
+      {
+         var pane = mDockables[d].asPane();
+         if (pane!=null)
+         {
+            var gfx = inContainer.graphics;
+            var p0 = mPositions[d];
+            var p1 = mPositions[d+1];
+            gfx.beginFill(Panel.panelColor);
+            if (horizontal)
+               gfx.drawRect( p0, mRect.y, p1-p0, mRect.height );
+            else
+               gfx.drawRect( mRect.x, p0, mRect.width, p1-p0 );
+         }
+         else
+            mDockables[d].renderChrome(inContainer);
+      }
+
+      //trace("horizontal :" + mRect + "   " + horizontal + mPositions );
+   }
+
+   public function asPane() : Pane { return null; }
 
 
    // --- IDock -----------------------------------------
@@ -213,6 +271,12 @@ class SideDock implements IDock, implements IDockable
         }
       return false;
    }
+   public function setChromeDirty():Void
+   {
+      if (parentDock!=null)
+         parentDock.setChromeDirty();
+   }
+
 
 }
 

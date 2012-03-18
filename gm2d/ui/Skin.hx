@@ -103,6 +103,14 @@ class Skin
       //label.borderColor = 0x000000;
    }
 
+/*
+   public function stylePane(inGfx:Graphics, inRect:Rectangle)
+   {
+      inGfx.clear();
+      inGfx.beginFill(Panel.panelColor);
+      inGfx.drawRect(inRect.x, inRect.y, inRect.w, inRect.h );
+   }
+*/
 
    public function styleText(inText:gm2d.text.TextField)
    {
@@ -221,7 +229,7 @@ class Skin
    {
       return 80;
    }
-   public function getSideGap() : Float
+   public function getResizeBarWidth() : Float
    {
       return 2;
    }
@@ -321,6 +329,7 @@ class Skin
       if (centerTitle)
          titleBmp.x = Std.int((x-borders-titleBmp.width)/2);
 
+      //trace("Title : " + inW + "x"  + title_h );
       outHitBoxes.add( new Rectangle(0,0,inW,title_h), TITLE(pane) );
    }
 

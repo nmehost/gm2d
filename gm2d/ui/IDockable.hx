@@ -2,6 +2,7 @@ package gm2d.ui;
 
 import gm2d.ui.Pane;
 import gm2d.display.DisplayObjectContainer;
+import gm2d.display.Sprite;
 
 
 interface IDockable
@@ -15,6 +16,9 @@ interface IDockable
    public function removeDockable(child:IDockable):IDockable;
    public function raiseDockable(child:IDockable):Bool;
 
+   public function asPane():Pane;
+   public function renderChrome(inBackground:Sprite):Void;
+
    // Display
    public function getTitle():String;
    public function getShortTitle():String;
@@ -26,5 +30,6 @@ interface IDockable
    public function getMinSize():Size;
    public function getLayoutSize(w:Float,h:Float,limitX:Bool):Size;
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void;
+   public function wantsResize(inHorizontal:Bool,inMove:Int):Bool;
 }
 

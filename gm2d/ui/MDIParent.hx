@@ -37,6 +37,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    {
       super();
       clientArea = new Sprite();
+      clientArea.name = "Client area";
       clientWidth = 100;
       clientHeight = 100;
       mHitBoxes = new HitBoxes(this,onHitBox);
@@ -163,6 +164,29 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       y = inY;
       layout(w,h);
    }
+
+   public function wantsResize(inHorizontal:Bool,inMove:Int):Bool
+   {
+      if (inMove>=0)
+         return true;
+
+      if (inHorizontal)
+         return clientWidth>1;
+      else
+         return clientHeight>1;
+   }
+
+   public function setChromeDirty():Void
+   {
+      // Do nothing for now...
+   }
+
+   public function renderChrome(inBackground:Sprite):Void
+   {
+   }
+
+   public function asPane() : Pane { return null; }
+
 
 
    // ---------------------------------------------------------------------------
@@ -409,6 +433,7 @@ class MDIChildFrame extends Sprite
             stage.addEventListener(MouseEvent.MOUSE_MOVE,onUpdateSize);
             mDragStage = stage;
             mResizeHandle = new Sprite();
+            mResizeHandle.name = "Resize handle";
             mSizeX0 = mClientWidth;
             mSizeY0 = mClientHeight;
             addChild(mResizeHandle);

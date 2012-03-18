@@ -1,31 +1,50 @@
 package gm2d.ui;
 
 import gm2d.display.DisplayObjectContainer;
+import gm2d.display.Sprite;
 import gm2d.ui.DockPosition;
 
 
 class TopLevelDock implements IDock
 {
    var root:IDockable;
+   var backgroundContainer:Sprite;
    var container:DisplayObjectContainer;
    var mdi:MDIParent;
+   var chromeDirty:Bool;
 
    public function new(inContainer:DisplayObjectContainer,?inMDI:MDIParent)
    {
       mdi = inMDI;
       container = inContainer;
+      backgroundContainer = new Sprite();
+      container.addChild(backgroundContainer);
+      chromeDirty = true;
       if (inMDI!=null)
       {
          root = mdi;
          mdi.setDock(this);
          mdi.setContainer(container);
       }
+      container.addEventListener(gm2d.events.Event.RENDER, updateChrome);
    }
 
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
       if (root!=null)
          root.setRect(x,y,w,h);
+   }
+
+   public function updateChrome(_)
+   {
+      if (chromeDirty)
+      {
+         chromeDirty = false;
+         backgroundContainer.graphics.clear();
+         while(backgroundContainer.numChildren>0)
+            backgroundContainer.removeChildAt(0);
+         root.renderChrome(backgroundContainer);
+      }
    }
 
 
@@ -87,6 +106,12 @@ class TopLevelDock implements IDock
       if (dock!=null)
          dock.raiseDockable(child);
       return false;
+   }
+   public function setChromeDirty():Void
+   {
+      chromeDirty = true;
+      if (container.stage!=null)
+         container.stage.invalidate();
    }
 
 }

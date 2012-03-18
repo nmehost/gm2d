@@ -3,6 +3,7 @@ package gm2d.ui;
 import gm2d.display.DisplayObject;
 import gm2d.display.DisplayObjectContainer;
 import gm2d.geom.Rectangle;
+import gm2d.display.Sprite;
 import gm2d.ui.IDockable;
 
 
@@ -105,6 +106,22 @@ class Pane implements IDockable
    {
       return new Size(w,h);
    }
+   public function wantsResize(inHorizontal:Bool,inMove:Int):Bool
+   {
+      if ( Dock.isToolbar(this) )
+         return false;
+      if (inHorizontal)
+      {
+        if (inMove<0 && sizeX <= minSizeX)
+           return false;
+      }
+      else
+      {
+        if (inMove<0 && sizeY <= minSizeY)
+           return false;
+      }
+      return true;
+   }
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
       sizeX = w;
@@ -118,5 +135,13 @@ class Pane implements IDockable
       if (onLayout!=null)
          onLayout();
    }
+
+   public function renderChrome(inBackground:Sprite):Void
+   {
+   }
+
+   public function asPane() : Pane { return this; }
+
+
 }
 
