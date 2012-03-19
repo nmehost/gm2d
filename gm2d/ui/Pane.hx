@@ -19,8 +19,8 @@ class Pane implements IDockable
    public var gm2dMinimized:Bool;
    public var gm2dMDIRect:Rectangle;
    var mFlags:Int;
-   var minSizeX:Float;
-   var minSizeY:Float;
+   public var minSizeX:Float;
+   public var minSizeY:Float;
    public var sizeX(default,null):Float;
    public var sizeY(default,null):Float;
    public var scrollX(default,null):Float;
@@ -109,7 +109,9 @@ class Pane implements IDockable
    public function wantsResize(inHorizontal:Bool,inMove:Int):Bool
    {
       if ( Dock.isToolbar(this) )
-         return false;
+      {
+         return inMove>0;
+      }
       if (inHorizontal)
       {
         if (inMove<0 && sizeX <= minSizeX)

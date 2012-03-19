@@ -165,17 +165,6 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       layout(w,h);
    }
 
-   public function wantsResize(inHorizontal:Bool,inMove:Int):Bool
-   {
-      if (inMove>=0)
-         return true;
-
-      if (inHorizontal)
-         return clientWidth>1;
-      else
-         return clientHeight>1;
-   }
-
    public function setChromeDirty():Void
    {
       // Do nothing for now...

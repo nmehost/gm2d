@@ -117,6 +117,11 @@ class Skin
       inText.defaultTextFormat = textFormat;
    }
 
+   public function getDockedPaneChromeRect() : Rectangle
+   {
+       return new Rectangle(2,22,4,24);
+   }
+
 
    public function renderButton(inGfx:Graphics, inWidth:Float, inHeight:Float)
    {

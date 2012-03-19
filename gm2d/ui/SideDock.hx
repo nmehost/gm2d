@@ -13,6 +13,7 @@ class SideDock implements IDock, implements IDockable
    var mDockables:Array<IDockable>;
    var mRect:Rectangle;
    var mPositions:Array<Float>;
+   var mSizes:Array<Float>;
    var container:DisplayObjectContainer;
    var position:DockPosition;
    var flags:Int;
@@ -20,10 +21,11 @@ class SideDock implements IDock, implements IDockable
    public function new(inPos:DockPosition)
    {
       flags = 0;
-      position = inPos;
       horizontal = inPos==DOCK_LEFT || inPos==DOCK_RIGHT;
+      position = horizontal ? DOCK_LEFT : DOCK_TOP;
       mDockables = [];
       mPositions = [];
+      mSizes = [];
       mRect = new Rectangle();
    }
    
@@ -47,10 +49,17 @@ class SideDock implements IDock, implements IDockable
    function addPadding(size:Size) : Size
    {
       if (horizontal)
-         size.x += (mDockables.length-1) + Skin.current.getResizeBarWidth();
+         size.x += (mDockables.length-1) * Skin.current.getResizeBarWidth();
       else
-         size.y += (mDockables.length-1) + Skin.current.getResizeBarWidth();
+         size.y += (mDockables.length-1) * Skin.current.getResizeBarWidth();
       return size;
+   }
+   public function addPaneChromeSize(ioPos:Size):Size
+   {
+      var rect = Skin.current.getDockedPaneChromeRect();
+      ioPos.x += rect.width;
+      ioPos.y += rect.height;
+      return ioPos;
    }
    public function getBestSize(inPos:DockPosition):Size
    {
@@ -58,6 +67,8 @@ class SideDock implements IDock, implements IDockable
       for(dock in mDockables)
       {
          var s = dock.getBestSize(position);
+         if (dock.asPane()!=null)
+            addPaneChromeSize(s);
          if (horizontal)
          {
             best.x += s.x;
@@ -72,13 +83,6 @@ class SideDock implements IDock, implements IDockable
  
      return addPadding(best);
    }
-   public function wantsResize(inHorizontal:Bool,inMove:Int):Bool
-   {
-      for(dock in mDockables)
-         if (!dock.wantsResize(inHorizontal,inMove))
-            return false;
-      return true;
-   }
 
    public function getMinSize():Size
    {
@@ -86,6 +90,8 @@ class SideDock implements IDock, implements IDockable
       for(dock in mDockables)
       {
          var s = dock.getMinSize();
+         if (dock.asPane()!=null)
+            addPaneChromeSize(s);
          if (horizontal)
          {
             min.x += s.x;
@@ -108,9 +114,6 @@ class SideDock implements IDock, implements IDockable
       var right = x+w;
       var bottom = y+h;
       var skin = Skin.current;
-      var pad = addPadding(new Size(0,0));
-      w-=pad.x;
-      h-=pad.y;
       var barSize = skin.getResizeBarWidth();
       if (horizontal)
          w-= barSize * (mDockables.length-1);
@@ -120,63 +123,120 @@ class SideDock implements IDock, implements IDockable
       mRect = new Rectangle(x,y,w,h);
 
       mPositions = [];
-      mPositions.push( horizontal ? x : y );
+      mSizes = [];
 
-      while(true)
+
+      var best_total = 0;
+      var min_sizes = new Array<Int>();
+      var best_sizes = new Array<Int>();
+
+      for(d in mDockables)
       {
-         var total = 0;
-         var sizes = new Array<Int>();
+         var s = d.getMinSize();
+         if (d.asPane()!=null)
+            addPaneChromeSize(s);
+         var m_size = Std.int(horizontal ? s.x : s.y);
+         min_sizes.push(m_size);
 
-         for(d in mDockables)
+         var s = d.getBestSize(position);
+         if (d.asPane()!=null)
+            addPaneChromeSize(s);
+         var b_size = Std.int(horizontal ? s.x : s.y);
+         if (b_size<m_size)
+            b_size = m_size;
+         best_sizes.push(b_size);
+         best_total += b_size;
+      }
+
+      var is_locked = new Array<Bool>();
+      var too_big = best_total > (horizontal ? w : h);
+      for(d in 0...mDockables.length)
+      {
+         var pane = mDockables[d].asPane();
+         is_locked.push( (too_big && (best_sizes[d]<=min_sizes[d] )) || (pane!=null &&  Dock.isToolbar(pane) ) );
+      }
+
+      var locked_changed = true;
+      while(locked_changed)
+      {
+         locked_changed = false;
+         var extra = Std.int((horizontal ? w : h)-best_total);
+         var stretchers = 0;
+         var is_stretch = new Array<Bool>();
+         if (extra!=0)
          {
-            var s = d.getBestSize(position);
-            var size = Std.int(horizontal ? s.x : s.y);
-            sizes.push(size);
-            total += size;
+            for(d in 0...mDockables.length)
+            {
+               if ( !is_locked[d] )
+               {
+                  is_stretch.push(true);
+                  stretchers ++;
+               }
+               else
+                  is_stretch.push(false);
+            }
          }
 
-         var extra = Std.int((horizontal ? w : h)-total);
-         var stretchers = 0;
-         if (extra!=0)
-            for(d in mDockables)
-               if (d.wantsResize(horizontal,extra))
-                  stretchers ++;
 
-         var idx = 0;
-         var orig_extra = extra;
-         for(d in mDockables)
+         for(d in 0...mDockables.length)
          {
-            var dim = sizes[idx];
+            var dim = best_sizes[d];
             var size = dim;
             var item_extra = stretchers>0 ? Std.int( extra/stretchers + 0.5 ) : 0;
-            if ( item_extra!=0 && d.wantsResize(horizontal,item_extra))
+            if ( item_extra!=0 && is_stretch[d] )
             {
                size += item_extra;
+               // Hit min - set it in stone and try again...
+               if (size<min_sizes[d] && best_sizes[d]>min_sizes[d])
+               {
+                  is_locked[d] = true;
+                  best_total += min_sizes[d] - best_sizes[d];
+                  best_sizes[d] = min_sizes[d];
+                  locked_changed = true;
+                  break;
+               }
+               extra -= size - dim;
                stretchers--;
             }
 
-            var s = d.getLayoutSize(horizontal?size:w, horizontal?h:size, !horizontal);
-            d.setRect(x,y,s.x,s.y);
+            if (is_stretch[d])
+            {
+               // TODO: pane chrome adjust
+               var s = mDockables[d].getLayoutSize(horizontal?w:size, horizontal?size:h, !horizontal);
+               var layout_size = Std.int(horizontal ? s.y : s.x);
+               // Layout wants to snap to certain size - lock in this size...
+               if (layout_size!=size)
+               {
+                  is_locked[d] = true;
+                  best_total += layout_size - best_sizes[d];
+                  best_sizes[d] = min_sizes[d] = layout_size;
+                  locked_changed = true;
+                  break;
+               }
+            }
 
-            if (horizontal)
-            {
-               size = Std.int(s.x+0.5);
-               x+=size + barSize;
-            }
-            else
-            {
-               size = Std.int(s.y+0.5);
-               y+=size + barSize;
-            }
-            mPositions.push( horizontal ? x : y );
-            extra -= size - dim;
-            idx++;
+            mSizes[d] = size;
          }
-         if (extra==orig_extra)
-            break;
-         break;
       }
-      //trace("horizontal :" + mRect + "   " + horizontal + mPositions );
+
+      for(d in 0...mDockables.length)
+      {
+         var dockable = mDockables[d];
+         var size = mSizes[d];
+         dockable.setRect(x,y,horizontal?size:w, horizontal?h:size);
+
+         if (horizontal)
+         {
+            mPositions.push( x );
+            x+=size + barSize;
+         }
+         else
+         {
+            mPositions.push( y );
+            y+=size + barSize;
+         }
+      }
+
       setChromeDirty();
    }
 
@@ -192,19 +252,16 @@ class SideDock implements IDock, implements IDockable
          if (pane!=null)
          {
             var gfx = inContainer.graphics;
-            var p0 = mPositions[d];
-            var p1 = mPositions[d+1];
             gfx.beginFill(Panel.panelColor);
             if (horizontal)
-               gfx.drawRect( p0, mRect.y, p1-p0, mRect.height );
+               gfx.drawRect( mPositions[d], mRect.y, mSizes[d], mRect.height );
             else
-               gfx.drawRect( mRect.x, p0, mRect.width, p1-p0 );
+               gfx.drawRect( mRect.x, mPositions[d], mRect.width, mSizes[d] );
          }
          else
             mDockables[d].renderChrome(inContainer);
       }
 
-      //trace("horizontal :" + mRect + "   " + horizontal + mPositions );
    }
 
    public function asPane() : Pane { return null; }

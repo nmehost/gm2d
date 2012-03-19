@@ -30,6 +30,5 @@ interface IDockable
    public function getMinSize():Size;
    public function getLayoutSize(w:Float,h:Float,limitX:Bool):Size;
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void;
-   public function wantsResize(inHorizontal:Bool,inMove:Int):Bool;
 }
 

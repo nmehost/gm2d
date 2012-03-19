@@ -74,6 +74,13 @@ class Toolbar extends Pane
       bestWidth = maxX;
       bestHeight = y+row_height+padY;
    }
+   /*
+   override public function getMinSize():Size
+   {
+      return new Size(bestWidth,bestHeight);
+   }
+   */
+  
    override public function getBestSize(inPos:DockPosition):Size
    {
       if (inPos==DOCK_TOP || inPos==DOCK_BOTTOM)
