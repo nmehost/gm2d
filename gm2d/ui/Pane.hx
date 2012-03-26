@@ -26,12 +26,14 @@ class Pane implements IDockable
    public var scrollX(default,null):Float;
    public var scrollY(default,null):Float;
    public var onLayout:Void->Void;
+   public var itemLayout:Layout;
 
    public function new(inObj:DisplayObject, inTitle:String, inFlags:Int, ?inShortTitle:String)
    {
       scrollX = scrollY = 0.0;
       displayObject = inObj;
       title = inTitle;
+      itemLayout = null;
       if (inShortTitle==null)
       {
          var lastPart = inTitle.lastIndexOf("/");
@@ -133,7 +135,12 @@ class Pane implements IDockable
          displayObject.x = x;
          displayObject.y = y;
          displayObject.scrollRect = new Rectangle(scrollX,scrollY,w,h);
+         if (itemLayout!=null)
+            itemLayout.setRect(0,0,w,h);
       }
+      else if (itemLayout!=null)
+         itemLayout.setRect(x,y,w,h);
+
       if (onLayout!=null)
          onLayout();
    }

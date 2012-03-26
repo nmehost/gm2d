@@ -10,6 +10,7 @@ import gm2d.text.TextField;
 class ListControl extends ScrollWidget
 {
    var mRows:Array<Array<DisplayObject>>;
+   var mOrigItemHeight:Float;
    var mItemHeight:Float;
    var mSelected :Int;
    var mWidth:Float;
@@ -29,7 +30,8 @@ class ListControl extends ScrollWidget
    public function new(inWidth:Float = 100, inItemHeight:Float=0)
    {
        super();
-       mItemHeight = inItemHeight;
+       mOrigItemHeight = inItemHeight;
+       mItemHeight = mOrigItemHeight;
        mControlHeight = 0.0;
        mWidth = inWidth;
        mHeight = inItemHeight;
@@ -43,6 +45,19 @@ class ListControl extends ScrollWidget
 		 wantFocus = false;
        onSelect = null;
        setScrollRange(inWidth,inWidth,inItemHeight,inItemHeight);
+   }
+
+   public function clear()
+   {
+      mRows = [];
+      mColWidths = [];
+      mColPos = [];
+      mChildrenClean = 0;
+      mSelected = -1;
+      mItemHeight = mOrigItemHeight;
+      graphics.clear();
+      while(numChildren>0)
+         removeChildAt(0);
    }
 
    public function recalcPos()
