@@ -117,9 +117,43 @@ class Skin
       inText.defaultTextFormat = textFormat;
    }
 
-   public function getDockedPaneChromeRect() : Rectangle
+   public function getChromeRect(inDocked:IDockable) : Rectangle
    {
-       return new Rectangle(2,22,4,24);
+      var pane = inDocked.asPane();
+      if (pane!=null)
+      {
+         if (Dock.isToolbar(pane))
+            return new Rectangle(2,8,4,10);
+         else
+            return new Rectangle(2,22,4,24);
+      }
+      return new Rectangle(0,0,0,0);
+   }
+
+   public function renderPaneChrome(inPane:Pane,inContainer:Sprite,inRect:Rectangle):Void
+   {
+      var gfx = inContainer.graphics;
+      gfx.lineStyle();
+      gfx.beginFill(Panel.panelColor);
+      gfx.drawRect(inRect.x,inRect.y,inRect.width,inRect.height);
+      gfx.endFill();
+      gfx.lineStyle(1,0x000000);
+      if (Dock.isToolbar(inPane))
+         gfx.drawRect(inRect.x+1.5,inRect.y+1.5,inRect.width-1,inRect.height-1);
+      else
+      {
+         gfx.drawRect(inRect.x+1.5,inRect.y+21.5,inRect.width-2,inRect.height-21);
+         var text = new TextField();
+         styleText(text);
+         text.selectable = false;
+         text.text = inPane.shortTitle;
+         text.x = inRect.x+2;
+         text.y = inRect.y+2;
+         text.width = inRect.width-4;
+         text.height = inRect.height-4;
+         inContainer.addChild(text);
+      }
+
    }
 
 

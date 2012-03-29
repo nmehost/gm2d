@@ -54,9 +54,9 @@ class SideDock implements IDock, implements IDockable
          size.y += (mDockables.length-1) * Skin.current.getResizeBarWidth();
       return size;
    }
-   public function addPaneChromeSize(ioPos:Size):Size
+   public function addPaneChromeSize(inDock:IDockable,ioPos:Size):Size
    {
-      var rect = Skin.current.getDockedPaneChromeRect();
+      var rect = Skin.current.getChromeRect(inDock);
       ioPos.x += rect.width;
       ioPos.y += rect.height;
       return ioPos;
@@ -67,8 +67,7 @@ class SideDock implements IDock, implements IDockable
       for(dock in mDockables)
       {
          var s = dock.getBestSize(position);
-         if (dock.asPane()!=null)
-            addPaneChromeSize(s);
+         addPaneChromeSize(dock,s);
          if (horizontal)
          {
             best.x += s.x;
@@ -90,8 +89,7 @@ class SideDock implements IDock, implements IDockable
       for(dock in mDockables)
       {
          var s = dock.getMinSize();
-         if (dock.asPane()!=null)
-            addPaneChromeSize(s);
+         addPaneChromeSize(dock,s);
          if (horizontal)
          {
             min.x += s.x;
@@ -133,14 +131,12 @@ class SideDock implements IDock, implements IDockable
       for(d in mDockables)
       {
          var s = d.getMinSize();
-         if (d.asPane()!=null)
-            addPaneChromeSize(s);
+         addPaneChromeSize(d,s);
          var m_size = Std.int(horizontal ? s.x : s.y);
          min_sizes.push(m_size);
 
          var s = d.getBestSize(position);
-         if (d.asPane()!=null)
-            addPaneChromeSize(s);
+         addPaneChromeSize(d,s);
          var b_size = Std.int(horizontal ? s.x : s.y);
          if (b_size<m_size)
             b_size = m_size;
@@ -201,9 +197,11 @@ class SideDock implements IDock, implements IDockable
 
             if (is_stretch[d])
             {
-               // TODO: pane chrome adjust
-               var s = mDockables[d].getLayoutSize(horizontal?w:size, horizontal?size:h, !horizontal);
-               var layout_size = Std.int(horizontal ? s.y : s.x);
+               var chrome = Skin.current.getChromeRect(mDockables[d]);
+               var layout_w = (horizontal?w:size) - chrome.width;
+               var layout_h = (horizontal?size:h) - chrome.width;
+               var s = mDockables[d].getLayoutSize(layout_w, layout_h, !horizontal);
+               var layout_size = Std.int(horizontal ? s.y+chrome.height : s.x+chrome.width);
                // Layout wants to snap to certain size - lock in this size...
                if (layout_size!=size)
                {
@@ -223,7 +221,9 @@ class SideDock implements IDock, implements IDockable
       {
          var dockable = mDockables[d];
          var size = mSizes[d];
-         dockable.setRect(x,y,horizontal?size:w, horizontal?h:size);
+         var chrome = Skin.current.getChromeRect(dockable);
+         dockable.setRect(x+chrome.x,y+chrome.y,
+            (horizontal?size:w)-chrome.width, (horizontal?h:size) -chrome.height);
 
          if (horizontal)
          {
@@ -251,12 +251,10 @@ class SideDock implements IDock, implements IDockable
          var pane = mDockables[d].asPane();
          if (pane!=null)
          {
-            var gfx = inContainer.graphics;
-            gfx.beginFill(Panel.panelColor);
-            if (horizontal)
-               gfx.drawRect( mPositions[d], mRect.y, mSizes[d], mRect.height );
-            else
-               gfx.drawRect( mRect.x, mPositions[d], mRect.width, mSizes[d] );
+            Skin.current.renderPaneChrome(pane,inContainer,
+                  horizontal ?
+                      new Rectangle( mPositions[d], mRect.y, mSizes[d], mRect.height ) :
+                      new Rectangle( mRect.x, mPositions[d], mRect.width, mSizes[d] ) );
          }
          else
             mDockables[d].renderChrome(inContainer);
