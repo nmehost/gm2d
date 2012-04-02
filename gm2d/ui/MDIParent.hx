@@ -170,7 +170,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       // Do nothing for now...
    }
 
-   public function renderChrome(inBackground:Sprite):Void
+   public function renderChrome(inBackground:Sprite,outHitBoxes:HitBoxes):Void
    {
    }
 

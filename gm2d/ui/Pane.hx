@@ -145,7 +145,7 @@ class Pane implements IDockable
          onLayout();
    }
 
-   public function renderChrome(inBackground:Sprite):Void
+   public function renderChrome(inBackground:Sprite,outHitBoxes:HitBoxes):Void
    {
    }
 

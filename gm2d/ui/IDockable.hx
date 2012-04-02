@@ -17,7 +17,7 @@ interface IDockable
    public function raiseDockable(child:IDockable):Bool;
 
    public function asPane():Pane;
-   public function renderChrome(inBackground:Sprite):Void;
+   public function renderChrome(inBackground:Sprite,outHitBoxes:HitBoxes):Void;
 
    // Display
    public function getTitle():String;

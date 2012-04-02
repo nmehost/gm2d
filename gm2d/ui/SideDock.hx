@@ -244,7 +244,7 @@ class SideDock implements IDock, implements IDockable
    {
    }
 
-   public function renderChrome(inContainer:Sprite):Void
+   public function renderChrome(inContainer:Sprite,outHitBoxes:HitBoxes):Void
    {
       for(d in 0...mDockables.length)
       {
@@ -257,7 +257,7 @@ class SideDock implements IDock, implements IDockable
                       new Rectangle( mRect.x, mPositions[d], mRect.width, mSizes[d] ) );
          }
          else
-            mDockables[d].renderChrome(inContainer);
+            mDockables[d].renderChrome(inContainer,outHitBoxes);
       }
 
    }

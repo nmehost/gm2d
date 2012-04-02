@@ -3,23 +3,26 @@ package gm2d.ui;
 import gm2d.display.DisplayObjectContainer;
 import gm2d.display.Sprite;
 import gm2d.ui.DockPosition;
+import gm2d.ui.HitBoxes;
 
 
 class TopLevelDock implements IDock
 {
    var root:IDockable;
    var backgroundContainer:Sprite;
-   var container:DisplayObjectContainer;
+   var container:Sprite;
    var mdi:MDIParent;
+   var hitBoxes:HitBoxes;
    var chromeDirty:Bool;
 
-   public function new(inContainer:DisplayObjectContainer,?inMDI:MDIParent)
+   public function new(inContainer:Sprite,?inMDI:MDIParent)
    {
       mdi = inMDI;
       container = inContainer;
       backgroundContainer = new Sprite();
       container.addChild(backgroundContainer);
       chromeDirty = true;
+      hitBoxes = new HitBoxes(container,onHitBox);
       if (inMDI!=null)
       {
          root = mdi;
@@ -27,6 +30,10 @@ class TopLevelDock implements IDock
          mdi.setContainer(container);
       }
       container.addEventListener(gm2d.events.Event.RENDER, updateChrome);
+   }
+
+   public function onHitBox(inAction:HitAction)
+   {
    }
 
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
@@ -40,10 +47,11 @@ class TopLevelDock implements IDock
       if (chromeDirty)
       {
          chromeDirty = false;
+         hitBoxes.clear();
          backgroundContainer.graphics.clear();
          while(backgroundContainer.numChildren>0)
             backgroundContainer.removeChildAt(0);
-         root.renderChrome(backgroundContainer);
+         root.renderChrome(backgroundContainer,hitBoxes);
       }
    }
 
