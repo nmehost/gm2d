@@ -55,6 +55,7 @@ class HitBoxes
    public static var BUT_STATE_DOWN = 2;
 
    public var bitmaps:Array<Bitmap>;
+   public var mOverDockSize:SideDock->Int->Float->Float->Rectangle->Void;
    var mCallback:HitAction->Void;
    var mObject:Sprite;
    var rects:Array<HitBox>;
@@ -212,8 +213,8 @@ class HitBoxes
                    result = true;
                }
             case DOCKSIZE(dock,index):
-               if (rect.rect.contains(inX,inY))
-                  trace(index);
+               if (mOverDockSize!=null && rect.rect.contains(inX,inY))
+                  mOverDockSize(dock,index,inX,inY,rect.rect);
             default:
          }
       }

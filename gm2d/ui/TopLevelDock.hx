@@ -2,8 +2,11 @@ package gm2d.ui;
 
 import gm2d.display.DisplayObjectContainer;
 import gm2d.display.Sprite;
+import gm2d.display.Stage;
 import gm2d.ui.DockPosition;
 import gm2d.ui.HitBoxes;
+import gm2d.events.MouseEvent;
+import gm2d.geom.Rectangle;
 
 
 class TopLevelDock implements IDock
@@ -17,19 +20,25 @@ class TopLevelDock implements IDock
    var hitBoxes:HitBoxes;
    var chromeDirty:Bool;
 
+   var resizeBox:Rectangle;
+   var resizeListen:Bool;
+
    public function new(inContainer:Sprite,?inMDI:MDIParent)
    {
       mdi = inMDI;
       container = inContainer;
       backgroundContainer = new Sprite();
       container.addChild(backgroundContainer);
-      overlayContainer = new Sprite();
-      container.addChild(overlayContainer);
       paneContainer = new Sprite();
       container.addChild(paneContainer);
+      overlayContainer = new Sprite();
+      container.addChild(overlayContainer);
 
+      resizeListen = false;
       chromeDirty = true;
       hitBoxes = new HitBoxes(backgroundContainer,onHitBox);
+      hitBoxes.mOverDockSize = onOverDockSize;
+
       if (inMDI!=null)
       {
          root = mdi;
@@ -47,6 +56,36 @@ class TopLevelDock implements IDock
    {
       if (root!=null)
          root.setRect(x,y,w,h);
+   }
+
+   public function checkResizeDock(inMouse:MouseEvent)
+   {
+      if (resizeBox!=null)
+      {
+         if (!resizeBox.contains(inMouse.localX,inMouse.localY))
+         {
+            resizeBox = null;
+            container.removeEventListener(MouseEvent.MOUSE_MOVE,checkResizeDock);
+            resizeListen = false;
+            var gfx = overlayContainer.graphics;
+            gfx.clear();
+         }
+      }
+   }
+
+   public function onOverDockSize(inDock:SideDock, inIndex:Int, inX:Float, inY:Float, inRect:Rectangle )
+   {
+      trace(inX + "," + inY);
+      var gfx = overlayContainer.graphics;
+      gfx.clear();
+      gfx.beginFill(0x00ff00);
+      gfx.drawRect(inX-5,inY-5,10,10);
+      resizeBox = inRect;
+      if (!resizeListen)
+      {
+         container.addEventListener(MouseEvent.MOUSE_MOVE,checkResizeDock);
+         resizeListen = true;
+      }
    }
 
    public function updateChrome(_)

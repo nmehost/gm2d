@@ -168,6 +168,7 @@ class Skin
       //gfx.lineStyle();
       gfx.beginFill(Panel.panelColor);
       var gap = getResizeBarWidth();
+      var extra = 2;
       var pos = 0.0;
       for(p in 0...inSizes.length-1)
       {
@@ -175,12 +176,12 @@ class Skin
          if (inHorizontal)
          {
             gfx.drawRect(inRect.x+pos, inRect.y,gap,inRect.height);
-            outHitBoxes.add( new Rectangle(inRect.x+pos, inRect.y,gap,inRect.height), DOCKSIZE(inDock,p) );
+            outHitBoxes.add( new Rectangle(inRect.x+pos-extra, inRect.y,gap+extra*2,inRect.height), DOCKSIZE(inDock,p) );
          }
          else
          {
             gfx.drawRect(inRect.x, inRect.y+pos,inRect.width,gap);
-            outHitBoxes.add( new Rectangle(inRect.x, inRect.y+pos,inRect.width,gap), DOCKSIZE(inDock,p) );
+            outHitBoxes.add( new Rectangle(inRect.x, inRect.y+pos-extra,inRect.width,gap+extra*2), DOCKSIZE(inDock,p) );
          }
          pos += gap;
       }
