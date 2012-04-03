@@ -246,6 +246,7 @@ class SideDock implements IDock, implements IDockable
 
    public function renderChrome(inContainer:Sprite,outHitBoxes:HitBoxes):Void
    {
+      Skin.current.renderResizeBars(this,inContainer,outHitBoxes,mRect,horizontal,mSizes);
       for(d in 0...mDockables.length)
       {
          var pane = mDockables[d].asPane();
@@ -259,7 +260,6 @@ class SideDock implements IDock, implements IDockable
          else
             mDockables[d].renderChrome(inContainer,outHitBoxes);
       }
-
    }
 
    public function asPane() : Pane { return null; }

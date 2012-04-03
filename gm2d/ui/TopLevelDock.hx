@@ -9,8 +9,10 @@ import gm2d.ui.HitBoxes;
 class TopLevelDock implements IDock
 {
    var root:IDockable;
-   var backgroundContainer:Sprite;
    var container:Sprite;
+   var backgroundContainer:Sprite;
+   var overlayContainer:Sprite;
+   var paneContainer:Sprite;
    var mdi:MDIParent;
    var hitBoxes:HitBoxes;
    var chromeDirty:Bool;
@@ -21,13 +23,18 @@ class TopLevelDock implements IDock
       container = inContainer;
       backgroundContainer = new Sprite();
       container.addChild(backgroundContainer);
+      overlayContainer = new Sprite();
+      container.addChild(overlayContainer);
+      paneContainer = new Sprite();
+      container.addChild(paneContainer);
+
       chromeDirty = true;
-      hitBoxes = new HitBoxes(container,onHitBox);
+      hitBoxes = new HitBoxes(backgroundContainer,onHitBox);
       if (inMDI!=null)
       {
          root = mdi;
          mdi.setDock(this);
-         mdi.setContainer(container);
+         mdi.setContainer(paneContainer);
       }
       container.addEventListener(gm2d.events.Event.RENDER, updateChrome);
    }
@@ -69,7 +76,7 @@ class TopLevelDock implements IDock
       {
          root = inChild;
          inChild.setDock(this);
-         inChild.setContainer(container);
+         inChild.setContainer(paneContainer);
       }
       else
       {
@@ -80,7 +87,7 @@ class TopLevelDock implements IDock
          {
             var side = new SideDock(inPos);
             side.setDock(this);
-            side.setContainer(container);
+            side.setContainer(paneContainer);
             side.addDockable(root,inPos,0);
             side.addDockable(inChild,inPos,0);
             root = side;

@@ -34,6 +34,7 @@ enum HitAction
    BUTTON(pane:IDockable,button:Int);
    TITLE(pane:IDockable);
    RESIZE(pane:IDockable,flags:Int);
+   DOCKSIZE(dock:SideDock,index:Int);
 }
 
 class HitBox
@@ -210,6 +211,9 @@ class HitBoxes
                    states[id] = BUT_STATE_UP;
                    result = true;
                }
+            case DOCKSIZE(dock,index):
+               if (rect.rect.contains(inX,inY))
+                  trace(index);
             default:
          }
       }

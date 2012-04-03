@@ -139,10 +139,16 @@ class Skin
       gfx.endFill();
       gfx.lineStyle(1,0x000000);
       if (Dock.isToolbar(inPane))
-         gfx.drawRect(inRect.x+1.5,inRect.y+1.5,inRect.width-1,inRect.height-1);
+      {
+         gfx.drawRect(inRect.x+1.5,inRect.y+1.5,inRect.width-1,inRect.height-4);
+         gfx.moveTo(inRect.x+4.5,inRect.y+4.5);
+         gfx.lineTo(inRect.x+inRect.width-2.5,inRect.y+4.5);
+         gfx.moveTo(inRect.x+4.5,inRect.y+6.5);
+         gfx.lineTo(inRect.x+inRect.width-2.5,inRect.y+6.5);
+      }
       else
       {
-         gfx.drawRect(inRect.x+1.5,inRect.y+21.5,inRect.width-2,inRect.height-21);
+         gfx.drawRect(inRect.x+1.5,inRect.y+21.5,inRect.width-2,inRect.height-23);
          var text = new TextField();
          styleText(text);
          text.selectable = false;
@@ -155,6 +161,31 @@ class Skin
       }
 
    }
+
+   public function renderResizeBars(inDock:SideDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inHorizontal:Bool,inSizes:Array<Float>):Void
+   {
+      var gfx = inContainer.graphics;
+      //gfx.lineStyle();
+      gfx.beginFill(Panel.panelColor);
+      var gap = getResizeBarWidth();
+      var pos = 0.0;
+      for(p in 0...inSizes.length-1)
+      {
+         pos += inSizes[p];
+         if (inHorizontal)
+         {
+            gfx.drawRect(inRect.x+pos, inRect.y,gap,inRect.height);
+            outHitBoxes.add( new Rectangle(inRect.x+pos, inRect.y,gap,inRect.height), DOCKSIZE(inDock,p) );
+         }
+         else
+         {
+            gfx.drawRect(inRect.x, inRect.y+pos,inRect.width,gap);
+            outHitBoxes.add( new Rectangle(inRect.x, inRect.y+pos,inRect.width,gap), DOCKSIZE(inDock,p) );
+         }
+         pos += gap;
+      }
+   }
+
 
 
    public function renderButton(inGfx:Graphics, inWidth:Float, inHeight:Float)
