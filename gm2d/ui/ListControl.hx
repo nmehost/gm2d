@@ -120,7 +120,10 @@ class ListControl extends ScrollWidget
             addChild(obj);
          }
          else
+         {
+            mColWidths.push(0);
             row.push(null);
+         }
       }
       mRows.push(row);
       layout(mWidth,height);
