@@ -45,6 +45,7 @@ class SideDock implements IDock, implements IDockable
    public function buttonStates():Array<Int> { return null; }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
+   public function isHorizontal() { return horizontal; }
    // Layout
    function addPadding(size:Size) : Size
    {

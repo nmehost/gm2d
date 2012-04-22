@@ -37,7 +37,8 @@ class TopLevelDock implements IDock
       resizeListen = false;
       chromeDirty = true;
       hitBoxes = new HitBoxes(backgroundContainer,onHitBox);
-      hitBoxes.mOverDockSize = onOverDockSize;
+      hitBoxes.onOverDockSize = onOverDockSize;
+      hitBoxes.onDockSizeDown = onDockSizeDown;
 
       if (inMDI!=null)
       {
@@ -76,10 +77,18 @@ class TopLevelDock implements IDock
    public function onOverDockSize(inDock:SideDock, inIndex:Int, inX:Float, inY:Float, inRect:Rectangle )
    {
       trace(inX + "," + inY);
+      overlayContainer.x = inX-16;
+      overlayContainer.y = inY-16;
+      overlayContainer.cacheAsBitmap = true;
+      overlayContainer.mouseEnabled = false;
       var gfx = overlayContainer.graphics;
       gfx.clear();
-      gfx.beginFill(0x00ff00);
-      gfx.drawRect(inX-5,inY-5,10,10);
+      if (inDock.isHorizontal())
+         new gm2d.icons.EastWest().render(gfx);
+      else
+         new gm2d.icons.NorthSouth().render(gfx);
+
+
       resizeBox = inRect;
       if (!resizeListen)
       {
@@ -87,6 +96,12 @@ class TopLevelDock implements IDock
          resizeListen = true;
       }
    }
+
+   public function onDockSizeDown(inDock:SideDock, inIndex:Int, inX:Float, inY:Float, inRect:Rectangle )
+   {
+      trace("Drag dock " + inX + "," + inY);
+   }
+
 
    public function updateChrome(_)
    {

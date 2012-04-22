@@ -55,7 +55,8 @@ class HitBoxes
    public static var BUT_STATE_DOWN = 2;
 
    public var bitmaps:Array<Bitmap>;
-   public var mOverDockSize:SideDock->Int->Float->Float->Rectangle->Void;
+   public var onOverDockSize:SideDock->Int->Float->Float->Rectangle->Void;
+   public var onDockSizeDown:SideDock->Int->Float->Float->Rectangle->Void;
    var mCallback:HitAction->Void;
    var mObject:Sprite;
    var rects:Array<HitBox>;
@@ -160,6 +161,9 @@ class HitBoxes
                   mCallback(r.action);
                case RESIZE(pane,flags) :
                   mCallback(r.action);
+               case DOCKSIZE(dock,index):
+                  if (onDockSizeDown!=null && r.rect.contains(inX,inY))
+                     onDockSizeDown(dock,index,inX,inY,r.rect);
                default:
             }
          }
@@ -213,8 +217,8 @@ class HitBoxes
                    result = true;
                }
             case DOCKSIZE(dock,index):
-               if (mOverDockSize!=null && rect.rect.contains(inX,inY))
-                  mOverDockSize(dock,index,inX,inY,rect.rect);
+               if (onOverDockSize!=null && rect.rect.contains(inX,inY))
+                  onOverDockSize(dock,index,inX,inY,rect.rect);
             default:
          }
       }
