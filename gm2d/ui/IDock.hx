@@ -13,6 +13,7 @@ interface IDock
    public function getDockablePosition(child:IDockable):Int;
    public function removeDockable(child:IDockable):IDockable;
    public function raiseDockable(child:IDockable):Bool;
+   public function getSlot():Int;
    public function setChromeDirty():Void;
 }
 

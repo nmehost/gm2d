@@ -17,8 +17,6 @@ class Pane implements IDockable
    public var bestHeight:Float;
    public var buttonState(default,null):Array<Int>;
    public var gm2dMinimized:Bool;
-   public var gm2dMDIRect:Rectangle;
-   var mFlags:Int;
    public var minSizeX:Float;
    public var minSizeY:Float;
    public var sizeX(default,null):Float;
@@ -27,6 +25,10 @@ class Pane implements IDockable
    public var scrollY(default,null):Float;
    public var onLayout:Void->Void;
    public var itemLayout:Layout;
+   public var bestSize:Array<Size>;
+   var mFlags:Int;
+   var posX:Float;
+   var posY:Float;
 
    public function new(inObj:DisplayObject, inTitle:String, inFlags:Int, ?inShortTitle:String)
    {
@@ -34,6 +36,7 @@ class Pane implements IDockable
       displayObject = inObj;
       title = inTitle;
       itemLayout = null;
+      bestSize = [];
       if (inShortTitle==null)
       {
          var lastPart = inTitle.lastIndexOf("/");
@@ -51,6 +54,7 @@ class Pane implements IDockable
       minSizeX = bestWidth;
       minSizeY = bestHeight;
       sizeX=sizeY=0.0;
+      posX=posY=0.0;
       buttonState = [ 0,0,0 ];
       gm2dMinimized = false;
    }
@@ -98,15 +102,18 @@ class Pane implements IDockable
    public function getShortTitle():String { return shortTitle; }
    public function getFlags():Int { return mFlags; }
    public function setFlags(inFlags:Int) : Void { mFlags=inFlags; }
-   public function getBestSize(inPos:DockPosition):Size
+   public function getBestSize(inSlot):Size
    {
-      return new Size(bestWidth,bestHeight);
+      if (bestSize[inSlot]==null)
+         return new Size(bestWidth,bestHeight);
+      return bestSize[inSlot].clone();
    }
    public function getMinSize():Size { return new Size(minSizeX,minSizeY); }
    public function buttonStates():Array<Int> { return buttonState; }
    public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
    {
-      return new Size(w,h);
+      var min = getMinSize();
+      return new Size(w<min.x ? min.x : w,h<min.y ? min.y : h);
    }
    public function wantsResize(inHorizontal:Bool,inMove:Int):Bool
    {
@@ -128,6 +135,10 @@ class Pane implements IDockable
    }
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
+      bestSize[ dock.getSlot() ] = new Size(w,h);
+
+      posX = x;
+      posY = y;
       sizeX = w;
       sizeY = h;
       if (displayObject!=null)
@@ -143,6 +154,12 @@ class Pane implements IDockable
 
       if (onLayout!=null)
          onLayout();
+   }
+
+   
+   public function getRect():gm2d.geom.Rectangle
+   {
+      return new Rectangle(posX, posY, sizeX, sizeY );
    }
 
    public function renderChrome(inBackground:Sprite,outHitBoxes:HitBoxes):Void

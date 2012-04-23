@@ -7,6 +7,10 @@ class Dock
    public static inline var MINIMIZED     = 0x0004;
    public static inline var MAXIMIZED     = 0x0008;
 
+   public static inline var DOCK_SLOT_HORIZ = 0;
+   public static inline var DOCK_SLOT_VERT  = 1;
+   public static inline var DOCK_SLOT_FLOAT = 2;
+
    public static function isResizeable(i:IDockable) { return (i.getFlags()&RESIZABLE)!=0; }
    public static function isToolbar(i:IDockable) { return (i.getFlags()&TOOLBAR)!=0; }
    public static function isMinimized(i:IDockable) { return (i.getFlags()&MINIMIZED)!=0; }

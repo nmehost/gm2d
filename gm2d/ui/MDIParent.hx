@@ -32,6 +32,8 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    var mMaximizedPane:IDockable;
    var current:IDockable;
    var flags:Int;
+   var sizeX:Float;
+   var sizeY:Float;
 
    public function new( )
    {
@@ -49,6 +51,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       mMaximizedPane = null;
       clientWidth = clientHeight = 100.0;
       mTabHeight = 20;
+      sizeX = sizeY = 0;
       current = null;
       flags = 0;
    }
@@ -113,6 +116,8 @@ class MDIParent extends Widget, implements IDock, implements IDockable
        return this;
    }
 
+   public function getSlot():Int { return Dock.DOCK_SLOT_FLOAT; }
+
    public function raiseDockable(child:IDockable):Bool
    {
       if (mMaximizedPane!=null)
@@ -155,14 +160,23 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
    // Layout
-   public function getBestSize(inPos:DockPosition):Size { return new Size(clientWidth,clientHeight); }
+   public function getBestSize(inPos:Int):Size { return new Size(clientWidth,clientHeight); }
    public function getMinSize():Size { return new Size(1,1); }
-   public function getLayoutSize(w:Float,h:Float,limitX:Bool):Size { return new Size(w,h); }
+   public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
+   {
+      var min = getMinSize();
+      return new Size(w<min.x ? min.x : w,h<min.y ? min.y : h);
+   }
+
    public function setRect(inX:Float,inY:Float,w:Float,h:Float):Void
    {
       x = inX;
       y = inY;
       layout(w,h);
+   }
+   public function getRect():gm2d.geom.Rectangle
+   {
+      return new Rectangle(x, y, sizeX, sizeY );
    }
 
    public function setChromeDirty():Void
@@ -225,6 +239,8 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    override public function layout(inW:Float,inH:Float):Void
    {
       // TODO: other tab layouts...
+      sizeX = inW;
+      sizeY = inH;
       mTabHeight = Skin.current.getTabHeight();
       clientWidth = inW;
       clientHeight = inH-mTabHeight;
@@ -349,7 +365,7 @@ class MDIChildFrame extends Sprite
       mHitBoxes = new HitBoxes(this, onHitBox);
       mMDI = inMDI;
 
-      var size = inPane.getBestSize(DOCK_OVER);
+      var size = inPane.getBestSize( Dock.DOCK_SLOT_FLOAT );
       if (size.x<Skin.current.getMinFrameWidth())
          size = inPane.getLayoutSize(Skin.current.getMinFrameWidth(),size.y,true);
 

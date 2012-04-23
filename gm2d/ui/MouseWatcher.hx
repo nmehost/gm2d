@@ -19,21 +19,50 @@ class MouseWatcher
    public var downPos:Point;
 
    public function new(inWatch:DisplayObject,
+                inOnDown:MouseEvent->Void,
+                inOnDrag:MouseEvent->Void,
+                inOnUp:MouseEvent->Void,
+                inX:Float, inY:Float, inWatchDown:Bool)
+   {
+      mWatch = inWatch;
+      pos = new Point(inX,inY);
+      downPos = new Point(inX,inY);
+      prevPos = new Point(inX,inY);
+      onDown = inOnDown;
+      onDrag = inOnDrag;
+      onUp = inOnUp;
+
+      if (inWatchDown)
+      {
+         isDown = false;
+         mEventStage = null;
+         inWatch.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+      }
+      else
+      {
+         isDown = true;
+         mEventStage = inWatch.stage;
+         mEventStage.addEventListener(MouseEvent.MOUSE_MOVE, onStageDrag);
+         mEventStage.addEventListener(MouseEvent.MOUSE_UP, onStageUp);
+      }
+   }
+
+
+   public static function create(inWatch:DisplayObject,
                        ?inOnDown:MouseEvent->Void,
                        ?inOnDrag:MouseEvent->Void,
                        ?inOnUp:MouseEvent->Void)
    {
-      mWatch = inWatch;
-      mEventStage = null;
-      pos = new Point(0,0);
-      downPos = new Point(0,0);
-      prevPos = new Point(0,0);
-      onDown = inOnDown;
-      onDrag = inOnDrag;
-      onUp = inOnUp;
-      isDown = false;
-      inWatch.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+      return new MouseWatcher(inWatch, inOnDown, inOnDrag, inOnUp, 0, 0, true );
    }
+
+    public static function watchDrag(inWatch:DisplayObject,inX:Float, inY:Float,
+                       ?inOnDrag:MouseEvent->Void,
+                       ?inOnUp:MouseEvent->Void)
+   {
+      return new MouseWatcher(inWatch, null, inOnDrag, inOnUp, inX, inY, false );
+   }
+
 
    function onMouseDown(ev:MouseEvent)
    {

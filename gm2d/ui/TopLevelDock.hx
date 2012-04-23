@@ -5,6 +5,7 @@ import gm2d.display.Sprite;
 import gm2d.display.Stage;
 import gm2d.ui.DockPosition;
 import gm2d.ui.HitBoxes;
+import gm2d.ui.MouseWatcher;
 import gm2d.events.MouseEvent;
 import gm2d.geom.Rectangle;
 
@@ -74,20 +75,28 @@ class TopLevelDock implements IDock
       }
    }
 
-   public function onOverDockSize(inDock:SideDock, inIndex:Int, inX:Float, inY:Float, inRect:Rectangle )
+   function clearOverlay(?_:Dynamic)
    {
-      trace(inX + "," + inY);
+      overlayContainer.graphics.clear();
+   }
+
+   function showResizeHint(inX:Float, inY:Float, inHorizontal:Bool)
+   {
       overlayContainer.x = inX-16;
       overlayContainer.y = inY-16;
       overlayContainer.cacheAsBitmap = true;
       overlayContainer.mouseEnabled = false;
       var gfx = overlayContainer.graphics;
       gfx.clear();
-      if (inDock.isHorizontal())
+      if (inHorizontal)
          new gm2d.icons.EastWest().render(gfx);
       else
          new gm2d.icons.NorthSouth().render(gfx);
+   }
 
+   public function onOverDockSize(inDock:SideDock, inIndex:Int, inX:Float, inY:Float, inRect:Rectangle )
+   {
+      showResizeHint(inX,inY,inDock.isHorizontal());
 
       resizeBox = inRect;
       if (!resizeListen)
@@ -99,7 +108,20 @@ class TopLevelDock implements IDock
 
    public function onDockSizeDown(inDock:SideDock, inIndex:Int, inX:Float, inY:Float, inRect:Rectangle )
    {
-      trace("Drag dock " + inX + "," + inY);
+      //trace("Drag dock " + inX + "," + inY);
+      resizeBox = null;
+      container.removeEventListener(MouseEvent.MOUSE_MOVE,checkResizeDock);
+      resizeListen = false;
+
+      MouseWatcher.watchDrag(container,inX,inY,
+          function(_) onDockSize(inDock,inIndex,_) , clearOverlay );
+   }
+
+   function onDockSize(inDock:SideDock, inIndex:Int, inEvent:MouseEvent)
+   {
+      showResizeHint(inEvent.stageX,inEvent.stageY,inDock.isHorizontal());
+      inDock.tryResize(inIndex, inDock.isHorizontal() ? inEvent.stageX : inEvent.stageY );
+      //trace(inEvent);
    }
 
 
@@ -149,6 +171,7 @@ class TopLevelDock implements IDock
       }
    }
    public function getDock():IDock { return null; }
+   public function getSlot():Int { return Dock.DOCK_SLOT_FLOAT; }
 
    public function getDockablePosition(child:IDockable):Int
    {

@@ -81,9 +81,9 @@ class Toolbar extends Pane
    }
    */
   
-   override public function getBestSize(inPos:DockPosition):Size
+   override public function getBestSize(inSlot:Int):Size
    {
-      if (inPos==DOCK_TOP || inPos==DOCK_BOTTOM)
+      if (inSlot==Dock.DOCK_SLOT_VERT)
          layout(10000,1,false,false);
       else
          layout(1,10000,false,true);
