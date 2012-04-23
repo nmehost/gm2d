@@ -130,7 +130,7 @@ class Skin
       return new Rectangle(0,0,0,0);
    }
 
-   public function renderPaneChrome(inPane:Pane,inContainer:Sprite,inRect:Rectangle):Void
+   public function renderPaneChrome(inPane:Pane,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle):Void
    {
       var gfx = inContainer.graphics;
       gfx.lineStyle();
@@ -149,6 +149,24 @@ class Skin
       else
       {
          gfx.drawRect(inRect.x+1.5,inRect.y+21.5,inRect.width-2,inRect.height-23);
+         gfx.lineStyle();
+         gfx.beginFill(Panel.panelColor);
+         gfx.drawRect(inRect.x,inRect.y,inRect.width,inRect.height);
+
+         /*
+         var mtx = new gm2d.geom.Matrix();
+         mtx.createGradientBox(21,21, Math.PI*-0.5, inRect.x+1.5, inRect.y+1.5);
+         var cols:Array<Int> = [0xf0f0e0, 0xe0e0d0, 0xa0a090];
+         var alphas:Array<Float> = [1.0, 1.0, 1.0];
+         var ratio:Array<Int> = [0, 128, 255];
+         gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
+         */
+         gfx.beginFill(0xa0a090);
+         //gfx.drawRoundRect(inRect.x+1, inRect.y+2, inRect.width-2, 20, 8,8);
+         gfx.drawRect(inRect.x+1, inRect.y, inRect.width-2, 21);
+         gfx.endFill();
+ 
+
          var text = new TextField();
          styleText(text);
          text.selectable = false;

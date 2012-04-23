@@ -253,7 +253,7 @@ class SideDock implements IDock, implements IDockable
          var pane = mDockables[d].asPane();
          if (pane!=null)
          {
-            Skin.current.renderPaneChrome(pane,inContainer,
+            Skin.current.renderPaneChrome(pane,inContainer,outHitBoxes,
                   horizontal ?
                       new Rectangle( mPositions[d], mRect.y, mSizes[d], mRect.height ) :
                       new Rectangle( mRect.x, mPositions[d], mRect.width, mSizes[d] ) );
