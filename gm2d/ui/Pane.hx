@@ -157,7 +157,7 @@ class Pane implements IDockable
    }
 
    
-   public function getRect():gm2d.geom.Rectangle
+   public function getDockRect():gm2d.geom.Rectangle
    {
       return new Rectangle(posX, posY, sizeX, sizeY );
    }

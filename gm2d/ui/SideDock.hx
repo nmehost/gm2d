@@ -243,7 +243,7 @@ class SideDock implements IDock, implements IDockable
       setChromeDirty();
    }
 
-   public function getRect():gm2d.geom.Rectangle
+   public function getDockRect():gm2d.geom.Rectangle
    {
       return mRect.clone();
    }
@@ -276,7 +276,7 @@ class SideDock implements IDock, implements IDockable
 
    function doResize(inIndex:Int, inDelta:Float )
    {
-      var rect = mDockables[inIndex].getRect();
+      var rect = mDockables[inIndex].getDockRect();
       //trace("Move : " + inIndex + " + " + inDelta + " h=" + horizontal + "   " + rect.width);
       if (horizontal)
          rect.width += inDelta;
@@ -284,7 +284,7 @@ class SideDock implements IDock, implements IDockable
          rect.height += inDelta;
       mDockables[inIndex].setRect(rect.x, rect.y, rect.width, rect.height );
 
-      var rect = mDockables[inIndex+1].getRect();
+      var rect = mDockables[inIndex+1].getDockRect();
       if (horizontal)
          rect.left += inDelta;
       else
@@ -309,7 +309,7 @@ class SideDock implements IDock, implements IDockable
       // See if we can resize...
       for(pass in 0...2)
       {
-         var orig = mDockables[prev].getRect();
+         var orig = mDockables[prev].getDockRect();
          // Try delta ...
          var test_w = horizontal ? orig.width+delta : orig.width;
          var test_h = horizontal ? orig.height : orig.height+delta;
@@ -319,7 +319,7 @@ class SideDock implements IDock, implements IDockable
          if (new_delta!=0)
          {
             // now see if next pane is happy with this too...
-            var orig = mDockables[next].getRect();
+            var orig = mDockables[next].getDockRect();
             // Try new_delta ...
             var test_w = horizontal ? orig.width-new_delta : orig.width;
             var test_h = horizontal ? orig.height : orig.height-new_delta;

@@ -76,6 +76,12 @@ class GfxBytes extends Gfx
 
    override public function eof() { buffer.writeByte(EOF); }
 
+   static var scaleModes = [ LineScaleMode.NORMAL, LineScaleMode.NONE, LineScaleMode.VERTICAL, LineScaleMode.HORIZONTAL ];
+   static var capsStyles = [ CapsStyle.ROUND, CapsStyle.NONE, CapsStyle.SQUARE ];
+   static var jointStyles = [ JointStyle.ROUND, JointStyle.MITER, JointStyle.BEVEL ];
+   static var spreadMethods = [ SpreadMethod.PAD, SpreadMethod.REPEAT, SpreadMethod.REFLECT ];
+   static var interpolationMethods = [ InterpolationMethod.RGB, InterpolationMethod.LINEAR_RGB ];
+
    public function iterate(inGfx:Gfx)
    {
       buffer.position = 0;
@@ -112,8 +118,8 @@ class GfxBytes extends Gfx
               grad.matrix.d = buffer.readFloat();
               grad.matrix.tx = buffer.readFloat();
               grad.matrix.ty = buffer.readFloat();
-              grad.spread = Type.createEnumIndex(SpreadMethod,buffer.readByte());
-              grad.interp = Type.createEnumIndex(InterpolationMethod,buffer.readByte());
+              grad.spread = spreadMethods[buffer.readByte()];
+              grad.interp = interpolationMethods[buffer.readByte()];
               grad.focus = buffer.readFloat();
               inGfx.beginGradientFill(grad);
 
@@ -126,9 +132,9 @@ class GfxBytes extends Gfx
               style.color = readRGB();
               style.alpha = buffer.readFloat();
               style.pixelHinting = buffer.readByte() > 0;
-              style.scaleMode = Type.createEnumIndex(LineScaleMode,buffer.readByte());
-              style.capsStyle = Type.createEnumIndex(CapsStyle,buffer.readByte());
-              style.jointStyle = Type.createEnumIndex(JointStyle,buffer.readByte());
+              style.scaleMode = scaleModes[buffer.readByte()];
+              style.capsStyle = capsStyles[buffer.readByte()];
+              style.jointStyle = jointStyles[buffer.readByte()];
               style.miterLimit = buffer.readFloat();
               inGfx.lineStyle(style);
 

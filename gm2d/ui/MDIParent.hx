@@ -174,7 +174,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       y = inY;
       layout(w,h);
    }
-   public function getRect():gm2d.geom.Rectangle
+   public function getDockRect():Rectangle
    {
       return new Rectangle(x, y, sizeX, sizeY );
    }
