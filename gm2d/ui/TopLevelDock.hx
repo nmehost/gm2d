@@ -17,12 +17,14 @@ class TopLevelDock implements IDock
    var backgroundContainer:Sprite;
    var overlayContainer:Sprite;
    var paneContainer:Sprite;
+   var floatingContainer:Sprite;
    var mdi:MDIParent;
    var hitBoxes:HitBoxes;
    var chromeDirty:Bool;
 
    var resizeBox:Rectangle;
    var resizeListen:Bool;
+   var size:Rectangle;
 
    public function new(inContainer:Sprite,?inMDI:MDIParent)
    {
@@ -32,6 +34,8 @@ class TopLevelDock implements IDock
       container.addChild(backgroundContainer);
       paneContainer = new Sprite();
       container.addChild(paneContainer);
+      floatingContainer = new Sprite();
+      container.addChild(floatingContainer);
       overlayContainer = new Sprite();
       container.addChild(overlayContainer);
 
@@ -52,10 +56,23 @@ class TopLevelDock implements IDock
 
    public function onHitBox(inAction:HitAction)
    {
+      switch(inAction)
+      {
+         case DRAG(p):
+            Dock.remove(p);
+            var pane = p.asPane();
+            if (pane!=null)
+            {
+               var floating = new FloatingWin(pane);
+               floatingContainer.addChild(floating);
+            }
+         default:
+      }
    }
 
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
+      size = new Rectangle(x,y,w,h);
       if (root!=null)
          root.setRect(x,y,w,h);
    }
@@ -73,6 +90,14 @@ class TopLevelDock implements IDock
             gfx.clear();
          }
       }
+   }
+
+   function forceLayout()
+   {
+      if (root!=null)
+        root.setRect(size.x, size.y, size.width, size.height );
+
+      setChromeDirty();
    }
 
    function clearOverlay(?_:Dynamic)
@@ -190,6 +215,7 @@ class TopLevelDock implements IDock
          var dock:IDock = cast root;
          root = dock.removeDockable(child);
       }
+      forceLayout();
       return null;
    }
    public function raiseDockable(child:IDockable):Bool

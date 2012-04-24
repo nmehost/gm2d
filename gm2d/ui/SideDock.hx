@@ -374,6 +374,7 @@ class SideDock implements IDock, implements IDockable
          if (mDockables.length==0)
          {
              // Hmmm?
+             trace("Bad pane nesting");
              return null;
          }
          else if (mDockables.length==1)
@@ -386,6 +387,7 @@ class SideDock implements IDock, implements IDockable
          for(i in 0...mDockables.length)
              mDockables[i] = mDockables[i].removeDockable(child);
       }
+      
       return this;
    }
  

@@ -34,6 +34,8 @@ class Dock
             parent = pp;
          }
          parent.removeDockable(child);
+         child.setDock(null);
+         child.setContainer(null);
       }
    }
    public static function raise(child:IDockable)

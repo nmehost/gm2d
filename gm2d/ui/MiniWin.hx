@@ -83,11 +83,7 @@ class MiniWin extends Sprite
       saveRect();
    }
 
-   public function setPosition(inX:Float, inY:Float)
-   {
-      x = inX;
-      y = inY;
-   }
+
 }
 
 

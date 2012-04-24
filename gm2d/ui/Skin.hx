@@ -176,6 +176,8 @@ class Skin
          text.width = inRect.width-4;
          text.height = inRect.height-4;
          inContainer.addChild(text);
+
+         outHitBoxes.add(new Rectangle(inRect.x+2, inRect.y+2, inRect.width-4, 18), TITLE(inPane) );
       }
 
    }
