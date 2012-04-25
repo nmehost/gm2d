@@ -63,8 +63,9 @@ class TopLevelDock implements IDock
             var pane = p.asPane();
             if (pane!=null)
             {
-               var floating = new FloatingWin(pane);
+               var floating = new FloatingWin(pane,hitBoxes.downX, hitBoxes.downY);
                floatingContainer.addChild(floating);
+               floating.doStartDrag();
             }
          default:
       }

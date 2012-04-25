@@ -60,10 +60,10 @@ class HitBoxes
    var mCallback:HitAction->Void;
    var mObject:Sprite;
    var rects:Array<HitBox>;
-   var mDownX:Float;
-   var mDownY:Float;
+   public var downX(default,null):Float;
+   public var downY(default,null):Float;
    var mMoved:Bool;
-   var mDownPane:IDockable;
+   var downPane:IDockable;
    var mResizeFlags:Int;
    public var buttonState(default,null):Array<Int>;
 
@@ -75,7 +75,7 @@ class HitBoxes
 
       mObject = inObject;
       mCallback = inCallback;
-      mDownPane = null;
+      downPane = null;
       mResizeFlags = 0;
       buttonState = [0,0,0,0,0];
       inObject.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
@@ -143,10 +143,10 @@ class HitBoxes
 
    public function onDown(inX:Float, inY:Float)
    {
-      mDownX = inX;
-      mDownY = inY;
+      downX = inX;
+      downY = inY;
       mMoved = false;
-      mDownPane = null;
+      downPane = null;
       for(r in rects)
          if (r.rect.contains(inX,inY))
          {
@@ -157,7 +157,7 @@ class HitBoxes
                   states[id] = BUT_STATE_DOWN;
                   mCallback(HitAction.REDRAW);
                case TITLE(pane) :
-                  mDownPane = pane;
+                  downPane = pane;
                   mCallback(r.action);
                case RESIZE(pane,flags) :
                   mCallback(r.action);
@@ -172,7 +172,7 @@ class HitBoxes
 
    public function onUp(inX:Float, inY:Float)
    {
-      mDownPane = null;
+      downPane = null;
       mResizeFlags = 0;
       mMoved = false;
       for(r in rects)
@@ -223,13 +223,13 @@ class HitBoxes
          }
       }
 
-      var moved = (mDownPane!=null) && (!mMoved) && (Math.abs(inX-mDownX)>5 || Math.abs(inY-mDownY)>5);
+      var moved = (downPane!=null) && (!mMoved) && (Math.abs(inX-downX)>5 || Math.abs(inY-downY)>5);
       if (moved)
       {
          mMoved = true;
-         if (mDownPane!=null)
-            mCallback(DRAG(mDownPane));
-         mDownPane = null;
+         if (downPane!=null)
+            mCallback(DRAG(downPane));
+         downPane = null;
       }
 
       if (result)

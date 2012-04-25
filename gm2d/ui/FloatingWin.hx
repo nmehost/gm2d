@@ -16,11 +16,11 @@ class FloatingWin extends Sprite, implements IDock
    var mHitBoxes:HitBoxes;
    var mClientWidth:Float;
    var mClientHeight:Float;
-   var mClientOffset:Point;
    var mDragStage:nme.display.Stage;
+   var mFull:Bool;
    var chrome:Sprite;
 
-   public function new(inPane:Pane )
+   public function new(inPane:Pane,inX:Float, inY:Float)
    {
       super();
       pane = inPane;
@@ -32,21 +32,22 @@ class FloatingWin extends Sprite, implements IDock
 
       var size = inPane.getBestSize( Dock.DOCK_SLOT_FLOAT );
 
-      mClientOffset = Skin.current.getMiniWinClientOffset();
-
       mClientWidth = Std.int(Math.max(size.x,Skin.current.getMinFrameWidth())+0.99);
       mClientHeight = Std.int(size.y+0.99);
       setClientSize(mClientWidth,mClientHeight);
 
-      pane.setRect(mClientOffset.x, mClientOffset.y, mClientWidth, mClientHeight);
+      pane.setRect(inX,inY, mClientWidth, mClientHeight);
 
-      x = 20;
-      y = 100;
-      alpha = 0.5;
-      mClientWidth = 200;
-      mClientHeight = 200;
+      setFull(true);
+      addEventListener(MouseEvent.ROLL_OVER,function(_) setFull(true));
+      addEventListener(MouseEvent.ROLL_OUT,function(_) setFull(false));
       //pane.displayObject.scrollRect = new Rectangle(20,20,mClientWidth, mClientHeight);
-      Skin.current.renderMiniWin(this,inPane,mClientWidth,mClientHeight,mHitBoxes);
+   }
+
+   public function setFull(inFull:Bool)
+   {
+      mFull = inFull;
+      redraw();
    }
 
    public function setClientSize(inW:Float, inH:Float)
@@ -59,7 +60,8 @@ class FloatingWin extends Sprite, implements IDock
          size = pane.getLayoutSize(minW,mClientHeight,true);
       mClientWidth = Std.int(size.x);
       mClientHeight = Std.int(size.y);
-      pane.setRect(mClientOffset.x, mClientOffset.y, mClientWidth, mClientHeight);
+      var rect = pane.getDockRect();
+      pane.setRect(rect.x, rect.y, mClientWidth, mClientHeight);
       redraw();
    }
 
@@ -79,9 +81,7 @@ class FloatingWin extends Sprite, implements IDock
       switch(inAction)
       {
          case DRAG(pane):
-            stage.addEventListener(MouseEvent.MOUSE_UP,onEndDrag);
-            mDragStage = stage;
-            startDrag();
+            doStartDrag();
          case TITLE(_):
             pane.raise();
          case BUTTON(_,id):
@@ -94,14 +94,25 @@ class FloatingWin extends Sprite, implements IDock
       }
    }
 
+   public function doStartDrag()
+   {
+      stage.addEventListener(MouseEvent.MOUSE_UP,onEndDrag);
+      mDragStage = stage;
+      startDrag();
+   }
+
    function redraw()
    {
-      Skin.current.renderMiniWin(chrome,pane,mClientWidth,mClientHeight,mHitBoxes);
+      var solid = (mFull || mDragStage!=null);
+      alpha = solid ? 1.0 : 0.5;
+      var rect = pane.getDockRect();
+      Skin.current.renderMiniWin(chrome,pane,rect,mHitBoxes,solid);
    }
 
    function onEndDrag(_)
    {
       mDragStage.removeEventListener(MouseEvent.MOUSE_UP,onEndDrag);
+      mDragStage = null;
       stopDrag();
    }
 

@@ -11,6 +11,7 @@ import gm2d.display.Bitmap;
 import gm2d.display.Shape;
 import gm2d.display.Graphics;
 import gm2d.text.TextField;
+import gm2d.text.TextFieldAutoSize;
 import gm2d.geom.Point;
 import gm2d.geom.Rectangle;
 import gm2d.geom.Matrix;
@@ -90,7 +91,7 @@ class Skin
    {
       label.defaultTextFormat = textFormat;
       label.textColor = Panel.labelColor;
-      label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
+      label.autoSize = TextFieldAutoSize.LEFT;
       label.selectable = false;
       label.mouseEnabled = false;
   }
@@ -485,19 +486,55 @@ class Skin
    }
    
 
-   public function renderMiniWin(inObj:Sprite, pane:Pane, inW:Float, inH:Float,outHitBoxes:HitBoxes)
+   public function renderMiniWin(outChrome:Sprite, pane:Pane, inRect:Rectangle,outHitBoxes:HitBoxes,inFull:Bool)
    {
-      var gfx = inObj.graphics;
+      var gfx = outChrome.graphics;
       gfx.clear();
+      outHitBoxes.clear();
 
       gfx.beginFill(0xa0a090);
-      gfx.lineStyle(1,0xa0a090);
+      gfx.lineStyle(1,0xffffff);
+      while(outChrome.numChildren>0)
+          outChrome.removeChildAt(0);
+      outChrome.cacheAsBitmap = true;
 
-      gfx.drawRoundRect(0.5,0.5,inW+borders*2, inH+borders*2, 3,3 );
+      var x0 = inRect.x-2.5;
+      var y0 = inRect.y-2.5;
+      var rw = inRect.width;
+      var rh = inRect.height;
+      if (inFull)
+      {
+         var text = new TextField();
+         styleLabelText(text);
+         text.text = pane.shortTitle;
+         text.x = inRect.x+4;
+         text.y = inRect.y+-18;
+         outChrome.addChild(text);
+         var w = text.textWidth;
+         if (w>rw-10)
+         {
+            w = rw-10;
+            text.width = w;
+         }
+         gfx.moveTo(x0,y0);
+         gfx.lineTo(x0,y0-14);
+         gfx.curveTo(x0,y0-18, x0+4, y0-18);
+         gfx.lineTo(inRect.x+10+w, y0-18);
+         gfx.curveTo(inRect.x+14+w,y0-18,inRect.x+14+w,y0-14);
+         gfx.lineTo(inRect.x+14+w,y0);
+
+         gfx.lineTo(inRect.x+rw+borders*2,y0);
+         gfx.lineTo(inRect.x+rw+borders*2,rh+borders*2+y0);
+         gfx.lineTo(x0,rh+borders*2+y0);
+         gfx.lineTo(x0,y0);
+
+         outHitBoxes.add( new Rectangle(inRect.x,inRect.y-title_h,w,title_h), TITLE(pane) );
+      }
+      else
+      {
+         gfx.drawRoundRect(x0,y0,rw+borders*2, rh+borders*2, 3,3 );
+      }
       gfx.endFill();
-      gfx.drawRect(borders-0.5,borders-0.5,inW+1, inH+1 );
-
-      outHitBoxes.clear();
    }
 
 
