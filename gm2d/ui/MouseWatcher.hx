@@ -63,6 +63,11 @@ class MouseWatcher
       return new MouseWatcher(inWatch, null, inOnDrag, inOnUp, inX, inY, false );
    }
 
+   public function deltaX() { return pos.x - prevPos.x; }
+   public function deltaY() { return pos.y - prevPos.y; }
+   public function draggedX() { return pos.x - downPos.x; }
+   public function draggedY() { return pos.y - downPos.y; }
+
 
    function onMouseDown(ev:MouseEvent)
    {

@@ -54,7 +54,7 @@ class TopLevelDock implements IDock
       container.addEventListener(gm2d.events.Event.RENDER, updateChrome);
    }
 
-   public function onHitBox(inAction:HitAction)
+   public function onHitBox(inAction:HitAction,inEvent:MouseEvent)
    {
       switch(inAction)
       {
@@ -63,9 +63,9 @@ class TopLevelDock implements IDock
             var pane = p.asPane();
             if (pane!=null)
             {
-               var floating = new FloatingWin(pane,hitBoxes.downX, hitBoxes.downY);
+               var floating = new FloatingWin(this,pane,hitBoxes.downX, hitBoxes.downY);
                floatingContainer.addChild(floating);
-               floating.doStartDrag();
+               floating.doStartDrag(inEvent);
             }
          default:
       }

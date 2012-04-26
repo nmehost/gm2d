@@ -523,8 +523,8 @@ class Skin
          gfx.curveTo(inRect.x+14+w,y0-18,inRect.x+14+w,y0-14);
          gfx.lineTo(inRect.x+14+w,y0);
 
-         gfx.lineTo(inRect.x+rw+borders*2,y0);
-         gfx.lineTo(inRect.x+rw+borders*2,rh+borders*2+y0);
+         gfx.lineTo(inRect.x+rw+borders+0.5,y0);
+         gfx.lineTo(inRect.x+rw+borders+0.5,rh+borders*2+y0);
          gfx.lineTo(x0,rh+borders*2+y0);
          gfx.lineTo(x0,y0);
 

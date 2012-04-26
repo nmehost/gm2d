@@ -305,7 +305,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
 		popup( new PopupMenu(menu), clientWidth-50,mTabHeight);
 	}
 
-   function onHitBox(inAction:HitAction)
+   function onHitBox(inAction:HitAction,inEvent:MouseEvent)
    {
       switch(inAction)
       {
@@ -415,7 +415,7 @@ class MDIChildFrame extends Sprite
       parent.removeChild(this);
    }
 
-   function onHitBox(inAction:HitAction)
+   function onHitBox(inAction:HitAction,inEvent:MouseEvent)
    {
       switch(inAction)
       {

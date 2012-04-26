@@ -57,7 +57,7 @@ class HitBoxes
    public var bitmaps:Array<Bitmap>;
    public var onOverDockSize:SideDock->Int->Float->Float->Rectangle->Void;
    public var onDockSizeDown:SideDock->Int->Float->Float->Rectangle->Void;
-   var mCallback:HitAction->Void;
+   var mCallback:HitAction->MouseEvent->Void;
    var mObject:Sprite;
    var rects:Array<HitBox>;
    public var downX(default,null):Float;
@@ -68,7 +68,7 @@ class HitBoxes
    public var buttonState(default,null):Array<Int>;
 
 
-   public function new(inObject:Sprite,inCallback:HitAction->Void)
+   public function new(inObject:Sprite,inCallback:HitAction->MouseEvent->Void)
    {
       rects = [];
       bitmaps = [];
@@ -88,11 +88,11 @@ class HitBoxes
    {
       var obj:gm2d.display.DisplayObject = event.target;
       if (obj==mObject)
-         onDown(event.localX, event.localY);
+         onDown(event.localX, event.localY, event);
       else
       {
          var opos = mObject.globalToLocal( obj.localToGlobal(new Point(event.localX,event.localY)) );
-         onDown(opos.x,opos.y);
+         onDown(opos.x,opos.y, event);
       }
    }
 
@@ -100,11 +100,11 @@ class HitBoxes
    {
       var obj:gm2d.display.DisplayObject = event.target;
       if (obj==mObject)
-         onUp(event.localX, event.localY);
+         onUp(event.localX, event.localY, event);
       else
       {
          var opos = mObject.globalToLocal( obj.localToGlobal(new Point(event.localX,event.localY)) );
-         onUp(opos.x,opos.y);
+         onUp(opos.x,opos.y, event);
       }
    }
 
@@ -112,15 +112,15 @@ class HitBoxes
    {
       var obj:gm2d.display.DisplayObject = event.target;
       if (obj==mObject)
-         onMove(event.localX, event.localY);
+         onMove(event.localX, event.localY, event);
       else
       {
          var opos = mObject.globalToLocal( obj.localToGlobal(new Point(event.localX,event.localY)) );
-         onMove(opos.x,opos.y);
+         onMove(opos.x,opos.y, event);
       }
    }
 
-   function onMouseOut(event:MouseEvent) { onMove(-100,-100); }
+   function onMouseOut(event:MouseEvent) { /*trace("Fake move!"); */onMove(-1000,-1000, event);}
 
 
 
@@ -141,7 +141,7 @@ class HitBoxes
       return -1;
    }
 
-   public function onDown(inX:Float, inY:Float)
+   public function onDown(inX:Float, inY:Float,inEvent:MouseEvent)
    {
       downX = inX;
       downY = inY;
@@ -155,12 +155,12 @@ class HitBoxes
                case BUTTON(pane,id) :
                   var states = pane==null ? buttonState : pane.buttonStates();
                   states[id] = BUT_STATE_DOWN;
-                  mCallback(HitAction.REDRAW);
+                  mCallback(HitAction.REDRAW,inEvent);
                case TITLE(pane) :
                   downPane = pane;
-                  mCallback(r.action);
+                  mCallback(r.action,inEvent);
                case RESIZE(pane,flags) :
-                  mCallback(r.action);
+                  mCallback(r.action,inEvent);
                case DOCKSIZE(dock,index):
                   if (onDockSizeDown!=null && r.rect.contains(inX,inY))
                      onDockSizeDown(dock,index,inX,inY,r.rect);
@@ -170,7 +170,7 @@ class HitBoxes
    }
 
 
-   public function onUp(inX:Float, inY:Float)
+   public function onUp(inX:Float, inY:Float,inEvent:MouseEvent)
    {
       downPane = null;
       mResizeFlags = 0;
@@ -188,12 +188,12 @@ class HitBoxes
                   }
                default:
             }
-            mCallback(r.action);
+            mCallback(r.action,inEvent);
          }
    }
 
 
-   public function onMove(inX:Float, inY:Float)
+   public function onMove(inX:Float, inY:Float, inEvent:MouseEvent)
    {
       var result = false;
 
@@ -228,12 +228,12 @@ class HitBoxes
       {
          mMoved = true;
          if (downPane!=null)
-            mCallback(DRAG(downPane));
+            mCallback(DRAG(downPane),inEvent);
          downPane = null;
       }
 
       if (result)
-         mCallback(REDRAW);
+         mCallback(REDRAW,inEvent);
    }
 
 

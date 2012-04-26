@@ -6,6 +6,7 @@ import gm2d.ui.Skin;
 import gm2d.ui.Layout;
 import gm2d.display.Sprite;
 import gm2d.geom.Point;
+import gm2d.geom.Rectangle;
 import gm2d.ui.HitBoxes;
 import gm2d.events.MouseEvent;
 
@@ -13,19 +14,24 @@ class FloatingWin extends Sprite, implements IDock
 {
    public var pane: Pane;
 
+   var mTopLevel:TopLevelDock;
    var mHitBoxes:HitBoxes;
    var mClientWidth:Float;
    var mClientHeight:Float;
-   var mDragStage:nme.display.Stage;
    var mFull:Bool;
    var chrome:Sprite;
+   var mouseWatcher:MouseWatcher;
+   var origRect:Rectangle;
 
-   public function new(inPane:Pane,inX:Float, inY:Float)
+   public function new(inTopLevel:TopLevelDock,inPane:Pane,inX:Float, inY:Float)
    {
       super();
       pane = inPane;
+      mTopLevel = inTopLevel;
       mHitBoxes = new HitBoxes(this, onHitBox);
       chrome = new Sprite();
+      mouseWatcher = null;
+      origRect = null;
       addChild(chrome);
       pane.setDock(this);
       pane.setContainer(this);
@@ -76,14 +82,14 @@ class FloatingWin extends Sprite, implements IDock
       parent.removeChild(this);
    }
 
-   function onHitBox(inAction:HitAction)
+   function onHitBox(inAction:HitAction,inEvent:MouseEvent)
    {
       switch(inAction)
       {
          case DRAG(pane):
-            doStartDrag();
+            doStartDrag(inEvent);
          case TITLE(_):
-            pane.raise();
+            Dock.raise(pane);
          case BUTTON(_,id):
             if (id==MiniButton.CLOSE)
                pane.closeRequest(false);
@@ -94,26 +100,33 @@ class FloatingWin extends Sprite, implements IDock
       }
    }
 
-   public function doStartDrag()
+   public function doStartDrag(inEvent:MouseEvent)
    {
-      stage.addEventListener(MouseEvent.MOUSE_UP,onEndDrag);
-      mDragStage = stage;
-      startDrag();
+      //trace("start " + inEvent.stageX + "," +  inEvent.stageY );
+      mouseWatcher = MouseWatcher.watchDrag(this, inEvent.stageX, inEvent.stageY, onDrag, onEndDrag);
+      origRect = pane.getDockRect();
    }
 
    function redraw()
    {
-      var solid = (mFull || mDragStage!=null);
+      var solid = (mFull || (mouseWatcher!=null));
       alpha = solid ? 1.0 : 0.5;
       var rect = pane.getDockRect();
       Skin.current.renderMiniWin(chrome,pane,rect,mHitBoxes,solid);
    }
 
+   function onDrag(_)
+   {
+      //trace(" Dragged : " + mouseWatcher.draggedX() + "," + mouseWatcher.draggedY() );
+      pane.setRect( origRect.x+mouseWatcher.draggedX(), origRect.y+mouseWatcher.draggedY(),
+                    origRect.width, origRect.height );
+      redraw();
+   }
+
    function onEndDrag(_)
    {
-      mDragStage.removeEventListener(MouseEvent.MOUSE_UP,onEndDrag);
-      mDragStage = null;
-      stopDrag();
+      //trace(" -- end -- ");
+      mouseWatcher = null;
    }
 
    public function getDock():IDock { return this; }
@@ -121,7 +134,17 @@ class FloatingWin extends Sprite, implements IDock
    public function addDockable(child:IDockable,inPos:DockPosition,inSlot:Int):Void { }
    public function getDockablePosition(child:IDockable):Int { return Dock.DOCK_SLOT_FLOAT; }
    public function removeDockable(child:IDockable):IDockable { return null; }
-   public function raiseDockable(child:IDockable):Bool { return child.asPane()==pane; }
+   public function raiseDockable(child:IDockable):Bool
+   {
+      if (child.asPane()==pane)
+      {
+         var p = parent;
+         p.removeChild(this);
+         p.addChild(this);
+         return true;
+      }
+      return false;
+   }
    public function getSlot():Int { return Dock.DOCK_SLOT_FLOAT; }
    public function setChromeDirty():Void { redraw(); }
 
