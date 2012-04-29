@@ -8,6 +8,7 @@ import gm2d.ui.HitBoxes;
 import gm2d.ui.MouseWatcher;
 import gm2d.events.MouseEvent;
 import gm2d.geom.Rectangle;
+import gm2d.ui.DockZones;
 
 
 class TopLevelDock implements IDock
@@ -18,13 +19,16 @@ class TopLevelDock implements IDock
    var overlayContainer:Sprite;
    var paneContainer:Sprite;
    var floatingContainer:Sprite;
+   var floatingWins:Array<FloatingWin>;
    var mdi:MDIParent;
    var hitBoxes:HitBoxes;
    var chromeDirty:Bool;
+   var layoutDirty:Bool;
 
    var resizeBox:Rectangle;
    var resizeListen:Bool;
    var size:Rectangle;
+   var dockZones:DockZones;
 
    public function new(inContainer:Sprite,?inMDI:MDIParent)
    {
@@ -38,9 +42,11 @@ class TopLevelDock implements IDock
       container.addChild(floatingContainer);
       overlayContainer = new Sprite();
       container.addChild(overlayContainer);
+      floatingWins = [];
 
       resizeListen = false;
       chromeDirty = true;
+      layoutDirty = true;
       hitBoxes = new HitBoxes(backgroundContainer,onHitBox);
       hitBoxes.onOverDockSize = onOverDockSize;
       hitBoxes.onDockSizeDown = onDockSizeDown;
@@ -51,7 +57,7 @@ class TopLevelDock implements IDock
          mdi.setDock(this);
          mdi.setContainer(paneContainer);
       }
-      container.addEventListener(gm2d.events.Event.RENDER, updateChrome);
+      container.addEventListener(gm2d.events.Event.RENDER, updateLayout);
    }
 
    public function onHitBox(inAction:HitAction,inEvent:MouseEvent)
@@ -64,6 +70,7 @@ class TopLevelDock implements IDock
             if (pane!=null)
             {
                var floating = new FloatingWin(this,pane,hitBoxes.downX, hitBoxes.downY);
+               floatingWins.push(floating);
                floatingContainer.addChild(floating);
                floating.doStartDrag(inEvent);
             }
@@ -98,13 +105,45 @@ class TopLevelDock implements IDock
       if (root!=null)
         root.setRect(size.x, size.y, size.width, size.height );
 
-      setChromeDirty();
+      setDirty(false,true);
    }
 
    function clearOverlay(?_:Dynamic)
    {
       overlayContainer.graphics.clear();
+      overlayContainer.x = 0;
+      overlayContainer.y = 0;
+      while(overlayContainer.numChildren>0)
+         overlayContainer.removeChildAt(0);
    }
+
+   public function finishDockDrag(inPane:Pane, inEvent:MouseEvent)
+   {
+      clearOverlay();
+      if (dockZones!=null)
+      {
+         var dropped = dockZones.test(inEvent.stageX, inEvent.stageY, inPane );
+         //trace("Dropped : " + dropped );
+      }
+      dockZones = null;
+   }
+
+   public function showDockZones(inEvent:MouseEvent)
+   {
+      clearOverlay();
+      dockZones = null;
+      if (root!=null)
+      {
+         dockZones = new DockZones(inEvent.stageX, inEvent.stageY, overlayContainer);
+         root.addDockZones(dockZones);
+         var skin = Skin.current;
+         skin.renderDropZone(size,dockZones,DOCK_LEFT, false,   function(d) addDockable(d,DOCK_LEFT,0) );
+         skin.renderDropZone(size,dockZones,DOCK_RIGHT, false,  function(d) addDockable(d,DOCK_RIGHT,0));
+         skin.renderDropZone(size,dockZones,DOCK_TOP, false,    function(d) addDockable(d,DOCK_TOP,0) );
+         skin.renderDropZone(size,dockZones,DOCK_BOTTOM, false, function(d) addDockable(d,DOCK_BOTTOM,0) );
+      }
+   }
+
 
    function showResizeHint(inX:Float, inY:Float, inHorizontal:Bool)
    {
@@ -151,8 +190,13 @@ class TopLevelDock implements IDock
    }
 
 
-   public function updateChrome(_)
+   public function updateLayout(_)
    {
+      if (layoutDirty)
+      {
+         layoutDirty = false;
+         forceLayout();
+      }
       if (chromeDirty)
       {
          chromeDirty = false;
@@ -170,6 +214,8 @@ class TopLevelDock implements IDock
    public function canAddDockable(inPos:DockPosition):Bool { return true; }
    public function addDockable(inChild:IDockable,inPos:DockPosition,inSlot:Int):Void
    {
+      // trace("addDockable " + inChild + " x " + inPos + " " + inSlot );
+      Dock.remove(inChild);
       if (mdi!=null && inPos==DOCK_OVER)
       {
           mdi.addDockable(inChild,inPos,inSlot);
@@ -184,7 +230,9 @@ class TopLevelDock implements IDock
       {
          var dock:IDock = cast root;
          if (dock!=null && dock.canAddDockable(inPos))
+         {
             dock.addDockable(inChild,inPos,inSlot);
+         }
          else
          {
             var side = new SideDock(inPos);
@@ -195,6 +243,7 @@ class TopLevelDock implements IDock
             root = side;
          }
       }
+      setDirty(true,true);
    }
    public function getDock():IDock { return null; }
    public function getSlot():Int { return Dock.DOCK_SLOT_FLOAT; }
@@ -205,6 +254,14 @@ class TopLevelDock implements IDock
    }
    public function removeDockable(child:IDockable):IDockable
    {
+      var win:FloatingWin = cast child.getDock();
+      if (win!=null)
+      {
+         if (floatingWins.remove(win))
+            win.destroy();
+         return null;
+      }
+
       if (child==root)
       {
          root=null;
@@ -216,7 +273,7 @@ class TopLevelDock implements IDock
          var dock:IDock = cast root;
          root = dock.removeDockable(child);
       }
-      forceLayout();
+      setDirty(true,true);
       return null;
    }
    public function raiseDockable(child:IDockable):Bool
@@ -226,11 +283,24 @@ class TopLevelDock implements IDock
          dock.raiseDockable(child);
       return false;
    }
-   public function setChromeDirty():Void
+   public function setLayoutDirty():Void
    {
-      chromeDirty = true;
+      layoutDirty = true;
       if (container.stage!=null)
          container.stage.invalidate();
+   }
+   public function setDirty(inLayout:Bool, inChrome:Bool):Void
+   {
+      if (inLayout)
+         layoutDirty = true;
+      if (inChrome)
+         chromeDirty = true;
+
+      if (container.stage!=null)
+         container.stage.invalidate();
+   }
+   public function addDockZones(outZones:DockZones):Void
+   {
    }
 
 }

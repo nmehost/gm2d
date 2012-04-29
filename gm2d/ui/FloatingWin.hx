@@ -115,21 +115,23 @@ class FloatingWin extends Sprite, implements IDock
       Skin.current.renderMiniWin(chrome,pane,rect,mHitBoxes,solid);
    }
 
-   function onDrag(_)
+   function onDrag(inEvent:MouseEvent)
    {
+      mTopLevel.showDockZones(inEvent);
       //trace(" Dragged : " + mouseWatcher.draggedX() + "," + mouseWatcher.draggedY() );
       pane.setRect( origRect.x+mouseWatcher.draggedX(), origRect.y+mouseWatcher.draggedY(),
                     origRect.width, origRect.height );
       redraw();
    }
 
-   function onEndDrag(_)
+   function onEndDrag(inEvent:MouseEvent)
    {
       //trace(" -- end -- ");
       mouseWatcher = null;
+      mTopLevel.finishDockDrag(pane,inEvent);
    }
 
-   public function getDock():IDock { return this; }
+   public function getDock():IDock { return mTopLevel; }
    public function canAddDockable(inPos:DockPosition):Bool { return false; }
    public function addDockable(child:IDockable,inPos:DockPosition,inSlot:Int):Void { }
    public function getDockablePosition(child:IDockable):Int { return Dock.DOCK_SLOT_FLOAT; }
@@ -146,7 +148,8 @@ class FloatingWin extends Sprite, implements IDock
       return false;
    }
    public function getSlot():Int { return Dock.DOCK_SLOT_FLOAT; }
-   public function setChromeDirty():Void { redraw(); }
+   public function setDirty(inLayout:Bool, inChrome:Bool):Void { redraw(); }
+   public function addDockZones(outZones:DockZones):Void { }
 
 
 }

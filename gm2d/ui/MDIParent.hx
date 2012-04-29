@@ -63,6 +63,8 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    {
       if (inPos!=DOCK_OVER) throw "Bad dock";
 
+      Dock.remove(inChild);
+
       inChild.setDock(this);
       mDockables.push(inChild);
       if (mMaximizedPane==null)
@@ -143,6 +145,8 @@ class MDIParent extends Widget, implements IDock, implements IDockable
 
 
 
+
+
    // --- IDockable --------------------------------------------------------------
 
    // Hierarchy
@@ -179,7 +183,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       return new Rectangle(x, y, sizeX, sizeY );
    }
 
-   public function setChromeDirty():Void
+   public function setDirty(inLayout:Bool, inChrome:Bool):Void
    {
       // Do nothing for now...
    }
@@ -191,6 +195,20 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    public function asPane() : Pane { return null; }
 
 
+   public function addDockZones(outZones:DockZones):Void
+   {
+      var rect = new Rectangle(x,y,clientWidth, clientHeight);
+
+      if (rect.contains(outZones.x,outZones.y))
+      {
+         var skin = Skin.current;
+         skin.renderDropZone(rect,outZones,DOCK_LEFT,true,   function(d) addDockable(d,DOCK_LEFT,0) );
+         skin.renderDropZone(rect,outZones,DOCK_RIGHT,true,  function(d) addDockable(d,DOCK_RIGHT,0));
+         skin.renderDropZone(rect,outZones,DOCK_TOP,true,    function(d) addDockable(d,DOCK_TOP,0) );
+         skin.renderDropZone(rect,outZones,DOCK_BOTTOM,true, function(d) addDockable(d,DOCK_BOTTOM,0) );
+         skin.renderDropZone(rect,outZones,DOCK_OVER,true, function(d) addDockable(d,DOCK_OVER,0) );
+      }
+   }
 
    // ---------------------------------------------------------------------------
 

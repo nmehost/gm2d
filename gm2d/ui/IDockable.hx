@@ -18,6 +18,8 @@ interface IDockable
 
    public function asPane():Pane;
    public function renderChrome(inBackground:Sprite,outHitBoxes:HitBoxes):Void;
+   public function addDockZones(outZones:DockZones):Void;
+
 
    // Display
    public function getTitle():String;

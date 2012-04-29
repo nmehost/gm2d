@@ -130,6 +130,7 @@ class SideDock implements IDock, implements IDockable
       var best_total = 0;
       var min_sizes = new Array<Int>();
       var best_sizes = new Array<Int>();
+      var stretch_weight = new Array<Float>();
 
       for(d in mDockables)
       {
@@ -141,6 +142,7 @@ class SideDock implements IDock, implements IDockable
          var s = d.getBestSize(horizontal?Dock.DOCK_SLOT_HORIZ : Dock.DOCK_SLOT_VERT);
          addPaneChromeSize(d,s);
          var b_size = Std.int(horizontal ? s.x : s.y);
+         stretch_weight.push(b_size > 1 ? b_size : 1 );
          if (b_size<m_size)
             b_size = m_size;
          best_sizes.push(b_size);
@@ -160,7 +162,7 @@ class SideDock implements IDock, implements IDockable
       {
          locked_changed = false;
          var extra = Std.int((horizontal ? w : h)-best_total);
-         var stretchers = 0;
+         var stretchers = 0.0;
          var is_stretch = new Array<Bool>();
          if (extra!=0)
          {
@@ -169,7 +171,7 @@ class SideDock implements IDock, implements IDockable
                if ( !is_locked[d] )
                {
                   is_stretch.push(true);
-                  stretchers ++;
+                  stretchers += stretch_weight[d];
                }
                else
                   is_stretch.push(false);
@@ -181,7 +183,7 @@ class SideDock implements IDock, implements IDockable
          {
             var dim = best_sizes[d];
             var size = dim;
-            var item_extra = stretchers>0 ? Std.int( extra/stretchers + 0.5 ) : 0;
+            var item_extra = stretchers>0 ? Std.int( extra*stretch_weight[d]/stretchers + 0.5 ) : 0;
             if ( item_extra!=0 && is_stretch[d] )
             {
                size += item_extra;
@@ -195,7 +197,7 @@ class SideDock implements IDock, implements IDockable
                   break;
                }
                extra -= size - dim;
-               stretchers--;
+               stretchers-=stretch_weight[d];
             }
 
             if (is_stretch[d])
@@ -240,16 +242,12 @@ class SideDock implements IDock, implements IDockable
          }
       }
 
-      setChromeDirty();
+      setDirty(false,true);
    }
 
    public function getDockRect():gm2d.geom.Rectangle
    {
       return mRect.clone();
-   }
-
-   function doLayout()
-   {
    }
 
    public function renderChrome(inContainer:Sprite,outHitBoxes:HitBoxes):Void
@@ -271,6 +269,24 @@ class SideDock implements IDock, implements IDockable
    }
 
    public function asPane() : Pane { return null; }
+
+   function onDock(inDockable:IDockable, inPos:Int )
+   {
+      Dock.remove(inDockable);
+      addDockable(inDockable,horizontal?DOCK_LEFT:DOCK_TOP,inPos);
+   }
+
+   public function addDockZones(outZones:DockZones):Void
+   {
+      if (mRect.contains(outZones.x, outZones.y))
+      {
+          for(d in mDockables)
+             d.addDockZones(outZones);
+          Skin.current.addResizeDockZones(outZones,mRect,horizontal,mSizes,onDock);
+      }
+   }
+
+
 
    // --- Externals -----------------------------------------
 
@@ -294,7 +310,7 @@ class SideDock implements IDock, implements IDockable
       mSizes[inIndex] += inDelta;
       mSizes[inIndex+1] -= inDelta;
       mPositions[inIndex+1] += inDelta;
-      setChromeDirty();
+      setDirty(false,true);
    }
 
    public function tryResize(inIndex:Int, inPosition:Float )
@@ -358,7 +374,7 @@ class SideDock implements IDock, implements IDockable
          mDockables.push(child);
       else
          mDockables.insert(inSlot<0?0:inSlot, child);
-      doLayout();
+      setDirty(true,true);
    }
    public function getDockablePosition(child:IDockable):Int
    {
@@ -403,10 +419,10 @@ class SideDock implements IDock, implements IDockable
         }
       return false;
    }
-   public function setChromeDirty():Void
+   public function setDirty(inLayout:Bool, inChrome:Bool):Void
    {
       if (parentDock!=null)
-         parentDock.setChromeDirty();
+         parentDock.setDirty(inLayout,inChrome);
    }
 
 

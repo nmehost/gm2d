@@ -166,6 +166,11 @@ class Pane implements IDockable
    {
    }
 
+   public function addDockZones(outZones:DockZones):Void
+   {
+   }
+
+
    public function asPane() : Pane { return this; }
 
 

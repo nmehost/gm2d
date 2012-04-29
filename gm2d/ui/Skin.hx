@@ -209,6 +209,64 @@ class Skin
    }
 
 
+   public function addResizeDockZones(outZones:DockZones,inRect:Rectangle,inHorizontal:Bool,inSizes:Array<Float>, inOnDock:IDockable->Int->Void ):Void
+   {
+      var gfx = outZones.container.graphics;
+      //gfx.lineStyle();
+      gfx.lineStyle(1,0x0000ff,0.5);
+      var gap = getResizeBarWidth();
+      var extra = 2;
+      var pos = 0.0;
+      var r:Rectangle = null;
+
+      if (inHorizontal)
+         r = new Rectangle(inRect.x+pos, inRect.y,8,inRect.height);
+      else
+         r = new Rectangle(inRect.x, inRect.y+pos,inRect.width,8);
+      var over = r.contains(outZones.x,outZones.y);
+      if (over)
+      {
+         gfx.beginFill(0x0000ff,over ? 0.5 : 0.25);
+         gfx.drawRect(r.x, r.y, r.width, r.height );
+         outZones.addRect( r, function(d) inOnDock(d,0) );
+      }
+ 
+ 
+
+      for(p in 0...inSizes.length-1)
+      {
+         pos += inSizes[p];
+         if (inHorizontal)
+            r = new Rectangle(inRect.x+pos-2, inRect.y,gap+4,inRect.height);
+         else
+            r = new Rectangle(inRect.x, inRect.y+pos-2,inRect.width,gap+4);
+         
+         var over = r.contains(outZones.x,outZones.y);
+         if (over)
+         {
+            gfx.beginFill(0x0000ff,over ? 0.5 : 0.25);
+            gfx.drawRect(r.x, r.y, r.width, r.height );
+            outZones.addRect( r, function(d) inOnDock(d,p+1) );
+         }
+         pos += gap;
+      }
+
+      if (inHorizontal)
+         r = new Rectangle(inRect.right-4, inRect.y,4,inRect.height);
+      else
+         r = new Rectangle(inRect.x, inRect.bottom-4,inRect.width,4);
+      var over = r.contains(outZones.x,outZones.y);
+      if (over)
+      {
+         gfx.beginFill(0x0000ff,over ? 0.5 : 0.25);
+         gfx.drawRect(r.x, r.y, r.width, r.height );
+         outZones.addRect( r, function(d) inOnDock(d,inSizes.length) );
+      }
+ 
+   }
+
+
+
 
    public function renderButton(inGfx:Graphics, inWidth:Float, inHeight:Float)
    {
@@ -618,5 +676,74 @@ class Skin
       gfx.drawRect(0,tab_height-2,w,8);
       inArea.draw(mDrawing);
    }
+
+   public function renderDropZone(inRect:Rectangle, outZones:DockZones, inPosition:DockPosition,
+      inCentred:Bool, onDock:IDockable->Void):Void
+   {
+      var r:Rectangle = null;
+      var x0 = Std.int(inRect.x) + 0.5;
+      var y0 = Std.int(inRect.y) + 0.5;
+      var showX = 0;
+      var showY = 0;
+      var showW = 32;
+      var showH = 32;
+      switch(inPosition)
+      {
+         case DOCK_LEFT:
+            y0 = Std.int(inRect.y + inRect.height/2 - 16 ) + 0.5;
+            if (inCentred)
+               x0 = inRect.x +inRect.width*0.5 - 48 - 2;
+            showW = 12;
+         case DOCK_RIGHT:
+            if (inCentred)
+               x0 = inRect.x +inRect.width*0.5 + 16 + 2;
+            else
+               x0 = Std.int(inRect.right-32)-0.5;
+            y0 = Std.int(inRect.y + inRect.height/2 - 16 ) + 0.5;
+            showX = 20;
+            showW = 12;
+         case DOCK_TOP:
+            if (inCentred)
+               y0 = inRect.y +inRect.height*0.5 - 48 - 2;
+            x0 = Std.int(inRect.x + inRect.width/2 - 16 ) + 0.5;
+            showH = 12;
+         case DOCK_BOTTOM:
+            x0 = Std.int(inRect.x + inRect.width/2 - 16 ) + 0.5;
+            if (inCentred)
+               y0 = inRect.y +inRect.height*0.5 + 16 + 2;
+            else
+               y0 = Std.int(inRect.bottom-32)-0.5;
+            showY = 20;
+            showH = 12;
+         case DOCK_OVER:
+            if (!inCentred)
+               return;
+
+            x0 = inRect.x +inRect.width*0.5 - 16;
+            y0 = inRect.y +inRect.height*0.5 - 16;
+            showX = showY = 4;
+            showW = showH = 24;
+         default:
+             return;
+      }
+
+      var gfx = outZones.container.graphics;
+      var result = new Rectangle(x0,y0,32,32);
+      if (result.contains(outZones.x,outZones.y))
+      {
+         gfx.lineStyle();
+         gfx.beginFill(0x7070ff);
+         gfx.drawRect(x0-4,y0-4,40,40);
+      }
+      gfx.beginFill(0xffffff);
+      gfx.lineStyle(1,0x000000);
+      gfx.drawRect(x0,y0,32,32);
+      gfx.beginFill(0x4040a0);
+      gfx.drawRect(x0+showX,y0+showY,showW,showH);
+
+      outZones.addRect(result, onDock);
+   }
 }
+
+
 
