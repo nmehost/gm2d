@@ -124,11 +124,20 @@ class FloatingWin extends Sprite, implements IDock
       redraw();
    }
 
+   function verify()
+   {
+   }
+
+
    function onEndDrag(inEvent:MouseEvent)
    {
       //trace(" -- end -- ");
       mouseWatcher = null;
       mTopLevel.finishDockDrag(pane,inEvent);
+   }
+   public function addSibling(inReference:IDockable,inIncoming:IDockable,inPos:DockPosition)
+   {
+      throw "Bad docking reference";
    }
 
    public function getDock():IDock { return mTopLevel; }

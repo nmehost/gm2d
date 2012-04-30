@@ -59,12 +59,16 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    // --- IDock --------------------------------------------------------------
 
    public function canAddDockable(inPos:DockPosition):Bool { return inPos==DOCK_OVER; }
+   public function addSibling(inReference:IDockable,inIncoming:IDockable,inPosition:DockPosition)
+   {
+      throw "Bad dock position";
+   }
+
    public function addDockable(inChild:IDockable,inPos:DockPosition,inSlot:Int):Void
    {
-      if (inPos!=DOCK_OVER) throw "Bad dock";
-
+      if (inPos!=DOCK_OVER)
+         throw "Bad dock position";
       Dock.remove(inChild);
-
       inChild.setDock(this);
       mDockables.push(inChild);
       if (mMaximizedPane==null)
@@ -154,7 +158,8 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    public function setDock(inDock:IDock):Void { parentDock = inDock; }
    public function setContainer(inParent:DisplayObjectContainer):Void
    {
-      inParent.addChild(this);
+      if (inParent!=null)
+         inParent.addChild(this);
    }
    public function closeRequest(inForce:Bool):Void {  }
    // Display
@@ -164,7 +169,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
    // Layout
-   public function getBestSize(inPos:Int):Size { return new Size(clientWidth,clientHeight); }
+   public function getBestSize(inPos:Int):Size { return new Size(sizeX,sizeY); }
    public function getMinSize():Size { return new Size(1,1); }
    public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
    {
@@ -202,11 +207,12 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       if (rect.contains(outZones.x,outZones.y))
       {
          var skin = Skin.current;
-         skin.renderDropZone(rect,outZones,DOCK_LEFT,true,   function(d) addDockable(d,DOCK_LEFT,0) );
-         skin.renderDropZone(rect,outZones,DOCK_RIGHT,true,  function(d) addDockable(d,DOCK_RIGHT,0));
-         skin.renderDropZone(rect,outZones,DOCK_TOP,true,    function(d) addDockable(d,DOCK_TOP,0) );
-         skin.renderDropZone(rect,outZones,DOCK_BOTTOM,true, function(d) addDockable(d,DOCK_BOTTOM,0) );
-         skin.renderDropZone(rect,outZones,DOCK_OVER,true, function(d) addDockable(d,DOCK_OVER,0) );
+         var dock = getDock();
+         skin.renderDropZone(rect,outZones,DOCK_LEFT,true,   function(d) dock.addSibling(this,d,DOCK_LEFT) );
+         skin.renderDropZone(rect,outZones,DOCK_RIGHT,true,  function(d) dock.addSibling(this,d,DOCK_RIGHT));
+         skin.renderDropZone(rect,outZones,DOCK_TOP,true,    function(d) dock.addSibling(this,d,DOCK_TOP) );
+         skin.renderDropZone(rect,outZones,DOCK_BOTTOM,true, function(d) dock.addSibling(this,d,DOCK_BOTTOM) );
+         skin.renderDropZone(rect,outZones,DOCK_OVER,true,   function(d) addDockable(d,DOCK_OVER,0) );
       }
    }
 
@@ -266,6 +272,10 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       doLayout();
    }
 
+   public function verify()
+   {
+   }
+
 
    function doLayout()
    {
@@ -296,7 +306,6 @@ class MDIParent extends Widget, implements IDock, implements IDockable
             return idx;
       return -1;
    }
-
 
    function findChildPane(inPane:IDockable)
    {

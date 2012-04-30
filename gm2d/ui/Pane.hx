@@ -69,6 +69,7 @@ class Pane implements IDockable
       return child==this;
    }
 
+   public function toString() { return title; }
 
    public function raise()
    {
@@ -156,20 +157,35 @@ class Pane implements IDockable
          onLayout();
    }
 
+   public function verify()
+   {
+   }
+
    
    public function getDockRect():gm2d.geom.Rectangle
    {
       return new Rectangle(posX, posY, sizeX, sizeY );
    }
 
+   public function addDockZones(outZones:DockZones):Void
+   {
+      var rect = getDockRect();
+
+      if (rect.contains(outZones.x,outZones.y))
+      {
+         var skin = Skin.current;
+         var dock = getDock();
+         skin.renderDropZone(rect,outZones,DOCK_LEFT,true,   function(d) dock.addSibling(this,d,DOCK_LEFT) );
+         skin.renderDropZone(rect,outZones,DOCK_RIGHT,true,  function(d) dock.addSibling(this,d,DOCK_RIGHT));
+         skin.renderDropZone(rect,outZones,DOCK_TOP,true,    function(d) dock.addSibling(this,d,DOCK_TOP) );
+         skin.renderDropZone(rect,outZones,DOCK_BOTTOM,true, function(d) dock.addSibling(this,d,DOCK_BOTTOM) );
+         //skin.renderDropZone(rect,outZones,DOCK_OVER,true,   function(d) addDockable(d,DOCK_OVER,0) );
+      }
+   }
+
    public function renderChrome(inBackground:Sprite,outHitBoxes:HitBoxes):Void
    {
    }
-
-   public function addDockZones(outZones:DockZones):Void
-   {
-   }
-
 
    public function asPane() : Pane { return this; }
 

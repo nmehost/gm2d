@@ -194,6 +194,7 @@ class TopLevelDock implements IDock
    {
       if (layoutDirty)
       {
+         //root.verify();
          layoutDirty = false;
          forceLayout();
       }
@@ -223,6 +224,7 @@ class TopLevelDock implements IDock
       else if (root==null)
       {
          root = inChild;
+         root.setDock(null);
          inChild.setDock(this);
          inChild.setContainer(paneContainer);
       }
@@ -245,6 +247,14 @@ class TopLevelDock implements IDock
       }
       setDirty(true,true);
    }
+
+   public function addSibling(inReference:IDockable,inIncoming:IDockable,inPos:DockPosition)
+   {
+      if (inReference!=root)
+         throw "Bad docking reference";
+      addDockable(inIncoming,inPos,0);
+   }
+
    public function getDock():IDock { return null; }
    public function getSlot():Int { return Dock.DOCK_SLOT_FLOAT; }
 
@@ -272,6 +282,8 @@ class TopLevelDock implements IDock
       {
          var dock:IDock = cast root;
          root = dock.removeDockable(child);
+         //trace("post verify");
+         //root.verify();
       }
       setDirty(true,true);
       return null;

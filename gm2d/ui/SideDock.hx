@@ -183,6 +183,7 @@ class SideDock implements IDock, implements IDockable
          {
             var dim = best_sizes[d];
             var size = dim;
+            var here = extra*stretch_weight[d]/stretchers;
             var item_extra = stretchers>0 ? Std.int( extra*stretch_weight[d]/stretchers + 0.5 ) : 0;
             if ( item_extra!=0 && is_stretch[d] )
             {
@@ -368,6 +369,7 @@ class SideDock implements IDock, implements IDockable
    {
       if (inPos!=position)
          inSlot = mDockables.length-inSlot;
+      Dock.remove(child);
       child.setDock(this);
       child.setContainer(container);
       if (inSlot>=mDockables.length)
@@ -376,6 +378,60 @@ class SideDock implements IDock, implements IDockable
          mDockables.insert(inSlot<0?0:inSlot, child);
       setDirty(true,true);
    }
+   public function addSibling(inReference:IDockable,inIncoming:IDockable,inPos:DockPosition)
+   {
+      var ref = getDockablePosition(inReference);
+      if (ref<0)
+      {
+         trace("Reference not found : " + inReference + " in " + mDockables );
+         throw "Bad docking reference";
+      }
+      if (inPos==DOCK_OVER)
+         throw "Not done yet";
+
+      var direction = inPos==DOCK_LEFT||inPos==DOCK_RIGHT ? DOCK_LEFT : DOCK_TOP;
+      var after = inPos==DOCK_RIGHT||inPos==DOCK_BOTTOM;
+      if (canAddDockable(inPos))
+         addDockable(inIncoming, direction, after ? ref+1 : ref);
+      else
+      {
+          var rect = inReference.getDockRect();
+          // Patch up references...
+          var split = new SideDock(direction);
+          mDockables[ref] = split;
+          split.setDock(this);
+          split.setContainer(container);
+          split.mDockables.push(inReference);
+          inReference.setDock(split);
+          split.addDockable(inIncoming,direction,after?1:-1);
+          split.setRect(rect.x,rect.y,rect.width,rect.height);
+          setDirty(true,true);
+      }
+      verify();
+   }
+
+   public function toString()
+   {
+      var r = getDockRect();
+      return("SideDock(" + r.x + "," + r.y + " " + r.width + "x" + r.height + ")");
+   }
+
+   public function verify()
+   {
+      for(d in mDockables)
+      {
+         if (d.getDock()!=this)
+         {
+             trace("  this  " + this );
+             trace("  child " + d );
+             trace("  is    " + d.getDock() );
+             trace("  children " + mDockables );
+             throw("Bad dock reference");
+         }
+         d.verify();
+      }
+   }
+
    public function getDockablePosition(child:IDockable):Int
    {
       for(i in 0...mDockables.length)
@@ -387,6 +443,8 @@ class SideDock implements IDock, implements IDockable
    {
       if (mDockables.remove(child))
       {
+         child.setDock(null);
+         child.setContainer(null);
          if (mDockables.length==0)
          {
              // Hmmm?
@@ -395,13 +453,17 @@ class SideDock implements IDock, implements IDockable
          }
          else if (mDockables.length==1)
          {
+            mDockables[0].setDock(getDock());
             return mDockables[0];
          }
       }
       else
       {
          for(i in 0...mDockables.length)
+         {
              mDockables[i] = mDockables[i].removeDockable(child);
+             mDockables[i].setDock(this);
+         }
       }
       
       return this;
