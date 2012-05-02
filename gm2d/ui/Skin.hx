@@ -131,6 +131,13 @@ class Skin
       return new Rectangle(0,0,0,0);
    }
 
+   public function getMultiDockChromePadding(inN:Int) : Size
+   {
+      return new Size(0,inN*24);
+   }
+
+
+
    public function renderPaneChrome(inPane:Pane,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle):Void
    {
       var gfx = inContainer.graphics;
@@ -182,6 +189,63 @@ class Skin
       }
 
    }
+
+   public function renderMultDock(dock:MultiDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable)
+   {
+      var gap = inRect.height - inDockables.length*24;
+      if (gap<0)
+        gap = 0;
+      var y = inRect.y;
+      var gfx = inContainer.graphics;
+      gfx.lineStyle();
+      gfx.beginFill(Panel.panelColor);
+      gfx.drawRect(inRect.x,inRect.y,inRect.width,inRect.height);
+      gfx.endFill();
+
+      for(d in inDockables)
+      {
+         gfx.beginFill(0xa0a090);
+         gfx.drawRoundRect(inRect.x+1+0.5, y+0.5, inRect.width-2, 22,5,5);
+         gfx.endFill();
+
+         if (current!=d)
+         {
+            var ex = inRect.right - 16;
+            var ey = y + 4;
+            gfx.lineStyle(1,0xffffff);
+            gfx.drawRect(ex+0.5,ey+0.5,8,12);
+            gfx.lineStyle();
+         }
+
+         var pane = d.asPane();
+         if (pane!=null)
+         {
+            var text = new TextField();
+            styleText(text);
+            text.selectable = false;
+            text.text = pane.shortTitle;
+            text.x = inRect.x+2;
+            text.y = y+2;
+            text.width = inRect.width-4;
+            text.height = inRect.height-4;
+            inContainer.addChild(text);
+         }
+         
+         y+=24;
+         if (d==current)
+            y+=gap;
+      }
+   }
+
+   public function getMultDockRect(inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable) : Rectangle
+   {
+      var pos = 0;
+      for(i in 0...inDockables.length)
+         if (current==inDockables[i])
+            pos = i;
+      return new Rectangle(inRect.x, inRect.y+24*(pos+1), inRect.width, Math.max(0,inRect.height-inDockables.length*24));
+   }
+
 
    public function renderResizeBars(inDock:SideDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inHorizontal:Bool,inSizes:Array<Float>):Void
    {

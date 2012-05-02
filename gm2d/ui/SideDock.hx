@@ -386,13 +386,25 @@ class SideDock implements IDock, implements IDockable
          trace("Reference not found : " + inReference + " in " + mDockables );
          throw "Bad docking reference";
       }
-      if (inPos==DOCK_OVER)
-         throw "Not done yet";
 
       var direction = inPos==DOCK_LEFT||inPos==DOCK_RIGHT ? DOCK_LEFT : DOCK_TOP;
       var after = inPos==DOCK_RIGHT||inPos==DOCK_BOTTOM;
       if (canAddDockable(inPos))
          addDockable(inIncoming, direction, after ? ref+1 : ref);
+      else if (inPos==DOCK_OVER)
+      {
+          var rect = inReference.getDockRect();
+          // Patch up references...
+          var over = new MultiDock();
+          mDockables[ref] = over;
+          over.setDock(this);
+          over.setContainer(container);
+          over.pushDockableInternal(inReference);
+          inReference.setDock(over);
+          over.addDockable(inIncoming,DOCK_OVER,2);
+          over.setRect(rect.x,rect.y,rect.width,rect.height);
+          setDirty(true,true);
+      }
       else
       {
           var rect = inReference.getDockRect();
