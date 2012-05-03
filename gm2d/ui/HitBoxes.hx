@@ -54,10 +54,9 @@ class HitBoxes
    public static var BUT_STATE_OVER = 1;
    public static var BUT_STATE_DOWN = 2;
 
-   public var bitmaps:Array<Bitmap>;
    public var onOverDockSize:SideDock->Int->Float->Float->Rectangle->Void;
    public var onDockSizeDown:SideDock->Int->Float->Float->Rectangle->Void;
-   var mCallback:HitAction->MouseEvent->Void;
+   public var mCallback:HitAction->MouseEvent->Void;
    var mObject:Sprite;
    var rects:Array<HitBox>;
    public var downX(default,null):Float;
@@ -71,7 +70,6 @@ class HitBoxes
    public function new(inObject:Sprite,inCallback:HitAction->MouseEvent->Void)
    {
       rects = [];
-      bitmaps = [];
 
       mObject = inObject;
       mCallback = inCallback;
@@ -153,9 +151,9 @@ class HitBoxes
             switch(r.action)
             {
                case BUTTON(pane,id) :
-                  var states = pane==null ? buttonState : pane.buttonStates();
-                  states[id] = BUT_STATE_DOWN;
-                  mCallback(HitAction.REDRAW,inEvent);
+                  //var states = pane==null ? buttonState : pane.buttonStates();
+                  //states[id] = BUT_STATE_DOWN;
+                  //mCallback(HitAction.REDRAW,inEvent);
                case TITLE(pane) :
                   downPane = pane;
                   mCallback(r.action,inEvent);
@@ -181,11 +179,11 @@ class HitBoxes
             switch(r.action)
             {
                case BUTTON(pane,id):
-                  var states = pane==null ? buttonState : pane.buttonStates();
-                  if (states[id]==BUT_STATE_DOWN)
-                  {
-                     states[id]=BUT_STATE_OVER;
-                  }
+                  //var states = pane==null ? buttonState : pane.buttonStates();
+                  //if (states[id]==BUT_STATE_DOWN)
+                  //{
+                     //states[id]=BUT_STATE_OVER;
+                  //}
                default:
             }
             mCallback(r.action,inEvent);
@@ -202,6 +200,7 @@ class HitBoxes
          switch(rect.action)
          {
             case BUTTON(pane,id):
+               /*
                var states = pane==null ? buttonState : pane.buttonStates();
                if (rect.rect.contains(inX,inY))
                {
@@ -216,6 +215,7 @@ class HitBoxes
                    states[id] = BUT_STATE_UP;
                    result = true;
                }
+               */
             case DOCKSIZE(dock,index):
                if (onOverDockSize!=null && rect.rect.contains(inX,inY))
                   onOverDockSize(dock,index,inX,inY,rect.rect);

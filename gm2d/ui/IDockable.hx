@@ -24,7 +24,6 @@ interface IDockable
    // Display
    public function getTitle():String;
    public function getShortTitle():String;
-   public function buttonStates():Array<Int>;
    public function getFlags():Int;
    public function setFlags(inFlags:Int):Void;
    // Layout

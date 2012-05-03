@@ -378,6 +378,8 @@ class MDIChildFrame extends Sprite
    var mClientHeight:Int;
    var mClientOffset:Point;
    var mDragStage:gm2d.display.Stage;
+   var mChromeContainer:Sprite;
+   var mPaneContainer:Sprite;
    var mResizeHandle:Sprite;
 	var mIsCurrent:Bool;
    var mSizeX0:Int;
@@ -387,8 +389,13 @@ class MDIChildFrame extends Sprite
    {
       super();
 		mIsCurrent = inIsCurrent;
+      mChromeContainer = new Sprite();
+      addChild(mChromeContainer);
+      mPaneContainer = new Sprite();
+      addChild(mPaneContainer);
+ 
       pane = inPane;
-      pane.setContainer(this);
+      pane.setContainer(mPaneContainer);
       mHitBoxes = new HitBoxes(this, onHitBox);
       mMDI = inMDI;
 
@@ -424,7 +431,7 @@ class MDIChildFrame extends Sprite
       mClientHeight = Std.int(size.y);
       mClientOffset = Skin.current.getFrameClientOffset();
       pane.setRect(mClientOffset.x, mClientOffset.y, mClientWidth, mClientHeight);
-      Skin.current.renderFrame(this,pane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
+      redraw();
    }
 
 	public function setCurrent(inIsCurrent:Bool)
@@ -481,7 +488,9 @@ class MDIChildFrame extends Sprite
 
    function redraw()
    {
-      Skin.current.renderFrame(this,pane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
+      while(mChromeContainer.numChildren>0)
+         mChromeContainer.removeChildAt(0);
+      Skin.current.renderFrame(mChromeContainer,pane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
    }
 
    function onEndDrag(_)

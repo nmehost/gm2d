@@ -15,7 +15,6 @@ class Pane implements IDockable
    public var displayObject(default,null):DisplayObject;
    public var bestWidth:Float;
    public var bestHeight:Float;
-   public var buttonState(default,null):Array<Int>;
    public var gm2dMinimized:Bool;
    public var minSizeX:Float;
    public var minSizeY:Float;
@@ -55,7 +54,6 @@ class Pane implements IDockable
       minSizeY = bestHeight;
       sizeX=sizeY=0.0;
       posX=posY=0.0;
-      buttonState = [ 0,0,0 ];
       gm2dMinimized = false;
    }
    public function removeDockable(child:IDockable):IDockable
@@ -110,7 +108,6 @@ class Pane implements IDockable
       return bestSize[inSlot].clone();
    }
    public function getMinSize():Size { return new Size(minSizeX,minSizeY); }
-   public function buttonStates():Array<Int> { return buttonState; }
    public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
    {
       var min = getMinSize();

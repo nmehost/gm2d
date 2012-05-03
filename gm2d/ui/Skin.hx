@@ -12,9 +12,12 @@ import gm2d.display.Shape;
 import gm2d.display.Graphics;
 import gm2d.text.TextField;
 import gm2d.text.TextFieldAutoSize;
+import gm2d.events.MouseEvent;
 import gm2d.geom.Point;
 import gm2d.geom.Rectangle;
 import gm2d.geom.Matrix;
+
+import nme.display.SimpleButton;
 
 class Skin
 {
@@ -376,6 +379,7 @@ class Skin
       var gfx = shape.graphics;
       gfx.lineStyle(1,0xffffff);
       var matrix = new Matrix();
+
       if (inButton==MiniButton.CLOSE)
       {
          gfx.moveTo(3,3);
@@ -421,12 +425,14 @@ class Skin
       return bmp;
    }
 
-   function getButtonBitmap(inButton:Int, inState:Int) : BitmapData
+   function getButtonBitmapData(inButton:Int, inState:Int) : BitmapData
    {
       if (mBitmaps[inState][inButton]==null)
          mBitmaps[inState][inButton]=createButtonBitmap(inButton,inState);
       return mBitmaps[inState][inButton];
    }
+
+   function getButtonBitmap(inButton:Int, inState:Int) : Bitmap { return new Bitmap(getButtonBitmapData(inButton,inState)); }
 
    static var title_h = 22;
    static var borders = 3;
@@ -504,40 +510,27 @@ class Skin
       var x = inW - borders;
       for(but in [ MiniButton.CLOSE, MiniButton.MINIMIZE, MiniButton.MAXIMIZE ] )
       {
-         var bmp = getButtonBitmap(but,pane.buttonStates()[but]);
-         if (bmp!=null) 
-         {
-            var bitmap = outHitBoxes.bitmaps[but];
-            if (bitmap==null)
-            {
-               bitmap = new Bitmap(bmp);
-               outHitBoxes.bitmaps[but]=bitmap;
-               inObj.addChild(bitmap);
-               bitmap.y = Std.int( (title_h - bmp.height)/2 );
-            }
-            else if ( bitmap.bitmapData != bmp )
-            {
-               bitmap.bitmapData = bmp;
-            }
+         var state =  getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
+         var button =  new SimpleButton( state,
+                                        getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
+                                        getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
+         inObj.addChild(button);
+         button.y = Std.int( (title_h - button.height)/2 );
+         x-= button.width;
+         button.x = x;
 
-            x-= bitmap.width;
-            bitmap.x = x;
+         if (outHitBoxes.mCallback!=null)
+            button.addEventListener( MouseEvent.CLICK, function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
 
-            outHitBoxes.add( new Rectangle(bitmap.x,bitmap.y,bmp.width,bmp.height),
-                     HitAction.BUTTON(pane,but) );
-         }
+         /*
+            outHitBoxes.add( new Rectangle(bitmap.x,bitmap.y,bmp.width,bmp.height), HitAction.BUTTON(pane,but) );
+         */
       }
 
-      var titleBmp = outHitBoxes.bitmaps[MiniButton.TITLE];
-      if (titleBmp==null)
-      {
-         titleBmp = new Bitmap();
-         titleBmp.x = borders;
-         titleBmp.y = borders;
-         inObj.addChild(titleBmp);
-         outHitBoxes.bitmaps[MiniButton.TITLE] = titleBmp;
-      }
-
+      var titleBmp = new Bitmap();
+      titleBmp.x = borders;
+      titleBmp.y = borders;
+      inObj.addChild(titleBmp);
       titleBmp.bitmapData = renderText(pane.getTitle(),pane.getShortTitle(),x-borders,  title_h-borders*2);
 
       if (centerTitle)
@@ -606,7 +599,7 @@ class Skin
 
       return bmp;
    }
-   
+
 
    public function renderMiniWin(outChrome:Sprite, pane:Pane, inRect:Rectangle,outHitBoxes:HitBoxes,inFull:Bool)
    {
@@ -705,7 +698,7 @@ class Skin
       var x = inArea.width - 4;
       for(but in buts)
       {
-         var bmp = getButtonBitmap(but,outHitBoxes.buttonState[but]);
+         var bmp = getButtonBitmapData(but,outHitBoxes.buttonState[but]);
          if (bmp!=null) 
          {
             x-= bmp.width;
