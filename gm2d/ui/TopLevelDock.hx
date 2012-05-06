@@ -74,6 +74,9 @@ class TopLevelDock implements IDock
                floatingContainer.addChild(floating);
                floating.doStartDrag(inEvent);
             }
+         case BUTTON(pane,but):
+            if (but==MiniButton.EXPAND)
+              Dock.raise(pane);
          default:
       }
    }
@@ -264,9 +267,9 @@ class TopLevelDock implements IDock
    }
    public function removeDockable(child:IDockable):IDockable
    {
-      var win:FloatingWin = cast child.getDock();
-      if (win!=null)
+      if (Std.is(child.getDock(), FloatingWin))
       {
+         var win:FloatingWin = cast child.getDock();
          if (floatingWins.remove(win))
             win.destroy();
          return null;

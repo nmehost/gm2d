@@ -93,7 +93,7 @@ class MultiDock implements IDock, implements IDockable
 
       if (currentDockable!=null)
       {
-         var rect = Skin.current.getMultDockRect(mRect,mDockables,currentDockable);
+         var rect = Skin.current.getMultiDockRect(mRect,mDockables,currentDockable);
 
          currentDockable.setRect(rect.x,rect.y,rect.width,rect.height);
       }
@@ -109,7 +109,7 @@ class MultiDock implements IDock, implements IDockable
 
    public function renderChrome(inContainer:Sprite,outHitBoxes:HitBoxes):Void
    {
-      Skin.current.renderMultDock(this,inContainer,outHitBoxes,mRect,mDockables,currentDockable);
+      Skin.current.renderMultiDock(this,inContainer,outHitBoxes,mRect,mDockables,currentDockable);
    }
 
    public function asPane() : Pane { return null; }
@@ -240,6 +240,7 @@ class MultiDock implements IDock, implements IDockable
               else
                  d.setContainer(null);
            }
+           setDirty(true,true);
            return true;
         }
       return false;

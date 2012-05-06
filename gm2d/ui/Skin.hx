@@ -96,7 +96,7 @@ class Skin
       label.textColor = Panel.labelColor;
       label.autoSize = TextFieldAutoSize.LEFT;
       label.selectable = false;
-      label.mouseEnabled = false;
+      //label.mouseEnabled = false;
   }
 
    public function styleButtonText(label:TextField)
@@ -181,6 +181,7 @@ class Skin
          var text = new TextField();
          styleText(text);
          text.selectable = false;
+         text.mouseEnabled = false;
          text.text = inPane.shortTitle;
          text.x = inRect.x+2;
          text.y = inRect.y+2;
@@ -193,7 +194,7 @@ class Skin
 
    }
 
-   public function renderMultDock(dock:MultiDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable)
+   public function renderMultiDock(dock:MultiDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable)
    {
       var gap = inRect.height - inDockables.length*24;
       if (gap<0)
@@ -211,21 +212,28 @@ class Skin
          gfx.drawRoundRect(inRect.x+1+0.5, y+0.5, inRect.width-2, 22,5,5);
          gfx.endFill();
 
-         if (current!=d)
+         var pane = d.asPane();
+         if (pane!=null && current!=d)
          {
-            var ex = inRect.right - 16;
-            var ey = y + 4;
-            gfx.lineStyle(1,0xffffff);
-            gfx.drawRect(ex+0.5,ey+0.5,8,12);
-            gfx.lineStyle();
+            var but = MiniButton.EXPAND;
+            var state =  getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
+            var button =  new SimpleButton( state,
+                                        getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
+                                        getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
+            inContainer.addChild(button);
+            button.x = inRect.right-16;
+            button.y = Std.int( y + 3);
+
+            if (outHitBoxes.mCallback!=null)
+               button.addEventListener( MouseEvent.CLICK, function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
          }
 
-         var pane = d.asPane();
          if (pane!=null)
          {
             var text = new TextField();
             styleText(text);
             text.selectable = false;
+            text.mouseEnabled = false;
             text.text = pane.shortTitle;
             text.x = inRect.x+2;
             text.y = y+2;
@@ -240,7 +248,7 @@ class Skin
       }
    }
 
-   public function getMultDockRect(inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable) : Rectangle
+   public function getMultiDockRect(inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable) : Rectangle
    {
       var pos = 0;
       for(i in 0...inDockables.length)
@@ -377,6 +385,16 @@ class Skin
       var bmp = new BitmapData(16,16,true, gm2d.RGB.CLEAR );
       var shape = new gm2d.display.Shape();
       var gfx = shape.graphics;
+
+      if (false)
+      {
+         var cols = [ 0xff0000, 0x00ff00, 0x0000ff ];
+         gfx.beginFill(cols[inState]);
+         gfx.drawRect(0,0,16,16);
+         gfx.endFill();
+      }
+
+
       gfx.lineStyle(1,0xffffff);
       var matrix = new Matrix();
 
@@ -401,6 +419,10 @@ class Skin
          gfx.drawRect(3,3,6,6);
          gfx.drawRect(8,8,6,6);
       }
+      else if (inButton==MiniButton.EXPAND)
+      {
+         gfx.drawRect(4,2,8,12);
+      }
       else if (inButton==MiniButton.POPUP)
       {
          gfx.beginFill(0xffffff);
@@ -417,7 +439,7 @@ class Skin
       if (inState!=HitBoxes.BUT_STATE_UP)
       {
          // todo: why does this not work in flash
-         var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, 1, 1, 3, 3, false, false);
+         var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, 3, 3, 2, 2, false, false);
          shape.filters = [ glow ];
       }
         
@@ -472,7 +494,6 @@ class Skin
       var w = inW+borders*2;
       var h = inH+borders*2+title_h;
 
-
 		if (inIsCurrent)
 		{
          var mtx = new gm2d.geom.Matrix();
@@ -521,10 +542,6 @@ class Skin
 
          if (outHitBoxes.mCallback!=null)
             button.addEventListener( MouseEvent.CLICK, function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
-
-         /*
-            outHitBoxes.add( new Rectangle(bitmap.x,bitmap.y,bmp.width,bmp.height), HitAction.BUTTON(pane,but) );
-         */
       }
 
       var titleBmp = new Bitmap();
@@ -666,15 +683,27 @@ class Skin
       }
    }
 
-   public function getTabHeight() { return tab_height; }
-   public function renderTabs(inArea:BitmapData,
+   public function getMDIClientChrome() { return new Rectangle(0,tab_height, 0, tab_height); }
+
+   public function renderTabs(inTabContainer:Sprite,
+                              inRect:Rectangle,
                               inPanes:Array<IDockable>,
                               inCurrent:IDockable,
                               outHitBoxes:HitBoxes,
                               inIsMaximized:Bool  )
    {
+      outHitBoxes.clear();
+      while(inTabContainer.numChildren>0)
+         inTabContainer.removeChildAt(0);
+
+      var w = inRect.width;
+      var bitmap = new BitmapData(Std.int(w), tab_height ,true, #if neko { a:0, rgb:0 } #else 0 #end );
+      var display = new Bitmap(bitmap);
+      display.x = inRect.x;
+      display.y = inRect.y;
+      inTabContainer.addChild(new Bitmap(bitmap) );
+
       initGfx();
-      var w = inArea.width;
       var gfx = mDrawing.graphics;
       gfx.clear();
       var mtx = new gm2d.geom.Matrix();
@@ -687,51 +716,94 @@ class Skin
       var ratio:Array<Int> = [0, 255];
       gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
       gfx.drawRect(0,0,w,tab_height);
-      inArea.draw(mDrawing);
+      bitmap.draw(mDrawing);
 
-      outHitBoxes.clear();
 
 
       var buts = [ MiniButton.POPUP ];
       if (inIsMaximized)
          buts.push( MiniButton.RESTORE );
-      var x = inArea.width - 4;
+      var x = bitmap.width - 4;
       for(but in buts)
       {
-         var bmp = getButtonBitmapData(but,outHitBoxes.buttonState[but]);
+         var bmp = getButtonBitmapData(but,HitBoxes.BUT_STATE_UP);
          if (bmp!=null) 
          {
             x-= bmp.width;
             var y = (tab_height-bmp.height)/2;
 
-            inArea.copyPixels( bmp, new Rectangle(0,0,bmp.width,bmp.height), new Point(x,y), null, null, true );
+            bitmap.copyPixels( bmp, new Rectangle(0,0,bmp.width,bmp.height), new Point(x,y), null, null, true );
 
-            outHitBoxes.add( new Rectangle(x,y,bmp.width,bmp.height), HitAction.BUTTON(null,but) );
+            outHitBoxes.add( new Rectangle(x, y,bmp.width,bmp.height), HitAction.BUTTON(null,but) );
          }
       }
 
       var trans = new gm2d.geom.Matrix();
-      trans.tx = 2;
+      trans.tx = 1;
       trans.ty = 2;
+
+      var cx = trans.tx;
+      var text_offset = 4-2;
+      var extra_width = 8;
+      var gap = 2;
       for(pane in inPanes)
       {
          mText.text = pane.getShortTitle();
-         var tw = mText.textWidth + 4;
-         gfx.clear();
-         //gfx.lineStyle(1,0xf0f0e0);
-         gfx.lineStyle(1,0x404040);
-         gfx.beginFill(pane==inCurrent ? 0xe0e0d0 : 0xa0a090);
-         gfx.drawRoundRect(0.5,0.5,tw,tab_height+2,3,3);
-         inArea.draw(mDrawing,trans);
+         var tw = mText.textWidth + extra_width;
+         var r = new Rectangle(trans.tx,0,tw,tab_height);
          outHitBoxes.add(new Rectangle(trans.tx,0,tw,tab_height), TITLE(pane) );
-         inArea.draw(mText,trans);
-         trans.tx+=tw+4;
+
+         if (pane==inCurrent)
+         {
+            cx = trans.tx;
+            trans.tx+=tw+gap;
+         }
+         else
+         {
+            gfx.clear();
+            gfx.lineStyle(1,0x404040);
+            gfx.beginFill(0xa0a090);
+            gfx.drawRoundRect(0.5,0.5,tw,tab_height+2,6,6);
+            bitmap.draw(mDrawing,trans);
+            trans.tx+=text_offset;
+            bitmap.draw(mText,trans);
+            trans.tx+=tw-text_offset+gap;
+         }
+      }
+      if (inCurrent!=null)
+      {
+         cx -=2;
+         text_offset += 2;
+         extra_width += 4;
+ 
+         mText.text = inCurrent.getShortTitle();
+         var tw = mText.textWidth + extra_width;
+         trans.ty = 0;
+
+         trans.tx = 0;
+         gfx.clear();
+         gfx.lineStyle(1,0x404040);
+         gfx.beginFill(0xe0e0d0);
+         gfx.moveTo(-1,tab_height-4);
+         gfx.lineTo(cx,tab_height-4);
+         gfx.lineTo(cx,6);
+         gfx.curveTo(cx,2,cx+5,1);
+         gfx.lineTo(cx+tw-5,1);
+         gfx.curveTo(cx+tw,1,cx+tw,6);
+         gfx.lineTo(cx+tw,tab_height-4);
+         gfx.lineTo(w+2,tab_height-4);
+         gfx.lineTo(w+2,tab_height);
+         gfx.lineTo(-2,tab_height);
+         bitmap.draw(mDrawing,trans);
+         trans.tx = cx+text_offset;
+         trans.ty = 2;
+         bitmap.draw(mText,trans);
       }
 
       gfx.clear();
       gfx.beginFill(0xe0e0d0);
       gfx.drawRect(0,tab_height-2,w,8);
-      inArea.draw(mDrawing);
+      bitmap.draw(mDrawing);
    }
 
    public function renderDropZone(inRect:Rectangle, outZones:DockZones, inPosition:DockPosition,

@@ -26,8 +26,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    public var clientArea(default,null):Sprite;
    public var clientWidth(default,null):Float;
    public var clientHeight(default,null):Float;
-   var mTabHeight:Int;
-   var mTabArea:Bitmap;
+   var mTabContainer:Sprite;
    var mHitBoxes:HitBoxes;
    var mMaximizedPane:IDockable;
    var current:IDockable;
@@ -38,19 +37,19 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    public function new( )
    {
       super();
+      mTabContainer = new Sprite();
+      mTabContainer.name = "Tabs";
+      addChild(mTabContainer);
       clientArea = new Sprite();
       clientArea.name = "Client area";
       clientWidth = 100;
       clientHeight = 100;
       mHitBoxes = new HitBoxes(this,onHitBox);
       addChild(clientArea);
-      mTabArea = new Bitmap();
-      addChild(mTabArea);
       mChildren = [];
       mDockables = [];
       mMaximizedPane = null;
       clientWidth = clientHeight = 100.0;
-      mTabHeight = 20;
       sizeX = sizeY = 0;
       current = null;
       flags = 0;
@@ -122,15 +121,15 @@ class MDIParent extends Widget, implements IDock, implements IDockable
        return this;
    }
 
-   public function getSlot():Int { return Dock.DOCK_SLOT_FLOAT; }
+   public function getSlot():Int { return mMaximizedPane==null ? Dock.DOCK_SLOT_FLOAT : Dock.DOCK_SLOT_MDIMAX; }
 
    public function raiseDockable(child:IDockable):Bool
    {
       if (mMaximizedPane!=null)
       {
+         maximize(child);
          if (mMaximizedPane!=child)
            return false;
-         maximize(child);
       }
       else
       {
@@ -142,6 +141,8 @@ class MDIParent extends Widget, implements IDock, implements IDockable
          {
             clientArea.setChildIndex(mChildren[idx], mChildren.length-1);
             redrawTabs();
+            for(child in mChildren)
+              child.setCurrent(child.pane==current);
          }
       }
       return true;
@@ -165,7 +166,6 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    // Display
    public function getTitle():String { return ""; }
    public function getShortTitle():String { return ""; }
-   public function buttonStates():Array<Int> { return null; }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
    // Layout
@@ -240,7 +240,6 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    }
    public function restore()
    {
-      mHitBoxes.buttonState[MiniButton.RESTORE] = 0;
       if (mMaximizedPane!=null)
       {
          current = mMaximizedPane;
@@ -263,12 +262,13 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    override public function layout(inW:Float,inH:Float):Void
    {
       // TODO: other tab layouts...
+      var chrome = Skin.current.getMDIClientChrome();
       sizeX = inW;
       sizeY = inH;
-      mTabHeight = Skin.current.getTabHeight();
-      clientWidth = inW;
-      clientHeight = inH-mTabHeight;
-      clientArea.y = mTabHeight;
+      clientWidth = inW-chrome.width;
+      clientHeight = inH-chrome.height;
+      clientArea.x = chrome.x;
+      clientArea.y = chrome.y;
       doLayout();
    }
 
@@ -294,8 +294,6 @@ class MDIParent extends Widget, implements IDock, implements IDockable
             Skin.current.renderMDI(clientArea);
       }
 
-      var bmp = new BitmapData(Std.int(clientWidth), mTabHeight, false);
-      mTabArea.bitmapData = bmp;
       redrawTabs();
    }
 
@@ -317,19 +315,15 @@ class MDIParent extends Widget, implements IDock, implements IDockable
 
    function redrawTabs()
    {
-	   var current = getCurrent();
-	   for(child in mChildren)
-		   child.setCurrent(child.pane==current);
-      if (mTabArea.bitmapData!=null)
-         Skin.current.renderTabs(mTabArea.bitmapData,mDockables,current,mHitBoxes, mMaximizedPane!=null);
+      Skin.current.renderTabs(mTabContainer,new Rectangle(x,y,sizeX,sizeY) ,mDockables, getCurrent(),mHitBoxes, mMaximizedPane!=null);
    }
 
-	function showPaneMenu()
+	function showPaneMenu(inX:Float, inY:Float)
 	{
 	   var menu = new MenuItem("Tabs");
 		for(pane in mDockables)
 		   menu.add( new MenuItem(pane.getShortTitle(), function(_)  Dock.raise(pane) ) );
-		popup( new PopupMenu(menu), clientWidth-50,mTabHeight);
+		popup( new PopupMenu(menu), inX, inY);
 	}
 
    function onHitBox(inAction:HitAction,inEvent:MouseEvent)
@@ -351,7 +345,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
             else if (id==MiniButton.POPUP)
 				{
 			      if (mDockables.length>0)
-			         showPaneMenu();
+			         showPaneMenu(inEvent.localX, inEvent.localY);
 				}
             redrawTabs();
          case REDRAW:
@@ -439,7 +433,7 @@ class MDIChildFrame extends Sprite
 	   if (mIsCurrent!=inIsCurrent)
 		{
 		   mIsCurrent = inIsCurrent;
-         Skin.current.renderFrame(this,pane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
+         redraw();
 		}
 	}
 
@@ -486,7 +480,7 @@ class MDIChildFrame extends Sprite
       //pane.gm2dMDIRect = new Rectangle(x,y,mClientWidth,mClientHeight);
    }
 
-   function redraw()
+   public function redraw()
    {
       while(mChromeContainer.numChildren>0)
          mChromeContainer.removeChildAt(0);

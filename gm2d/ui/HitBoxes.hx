@@ -21,7 +21,8 @@ class MiniButton
    public static inline var MAXIMIZE = 2;
    public static inline var RESTORE = 3;
    public static inline var POPUP = 4;
-   public static inline var COUNT = 5;
+   public static inline var EXPAND = 6;
+   public static inline var COUNT = 7;
 
    public static inline var TITLE = 6;
 }
@@ -64,7 +65,6 @@ class HitBoxes
    var mMoved:Bool;
    var downPane:IDockable;
    var mResizeFlags:Int;
-   public var buttonState(default,null):Array<Int>;
 
 
    public function new(inObject:Sprite,inCallback:HitAction->MouseEvent->Void)
@@ -75,7 +75,6 @@ class HitBoxes
       mCallback = inCallback;
       downPane = null;
       mResizeFlags = 0;
-      buttonState = [0,0,0,0,0];
       inObject.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
       inObject.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
       inObject.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
