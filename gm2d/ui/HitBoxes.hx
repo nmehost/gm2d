@@ -4,6 +4,7 @@ import gm2d.geom.Rectangle;
 import gm2d.geom.Point;
 import gm2d.display.Bitmap;
 import gm2d.display.Sprite;
+import gm2d.display.DisplayObject;
 import gm2d.events.MouseEvent;
 
 class ResizeFlag
@@ -81,6 +82,11 @@ class HitBoxes
       inObject.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
    }
 
+   public function getHitBoxOffset(inObj:DisplayObject,  inX:Float, inY:Float )
+   {
+      return mObject.globalToLocal( inObj.localToGlobal(new Point(inX,inY)) );
+   }
+
    function onMouseDown(event:MouseEvent)
    {
       var obj:gm2d.display.DisplayObject = event.target;
@@ -92,6 +98,7 @@ class HitBoxes
          onDown(opos.x,opos.y, event);
       }
    }
+
 
    function onMouseUp(event:MouseEvent)
    {

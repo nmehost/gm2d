@@ -148,6 +148,13 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       return true;
    }
 
+   public function minimizeDockable(child:IDockable):Bool
+   {
+      // todo
+      return false;
+   }
+
+
 
 
 
@@ -315,7 +322,11 @@ class MDIParent extends Widget, implements IDock, implements IDockable
 
    function redrawTabs()
    {
-      Skin.current.renderTabs(mTabContainer,new Rectangle(x,y,sizeX,sizeY) ,mDockables, getCurrent(),mHitBoxes, mMaximizedPane!=null);
+      while(mTabContainer.numChildren>0)
+         mTabContainer.removeChildAt(0);
+       mHitBoxes.clear();
+
+      Skin.current.renderTabs(mTabContainer,new Rectangle(0,0,sizeX,sizeY) ,mDockables, getCurrent(),mHitBoxes, mMaximizedPane!=null);
    }
 
 	function showPaneMenu(inX:Float, inY:Float)

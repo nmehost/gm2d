@@ -134,9 +134,9 @@ class Skin
       return new Rectangle(0,0,0,0);
    }
 
-   public function getMultiDockChromePadding(inN:Int) : Size
+   public function getMultiDockChromePadding(inN:Int,tabStyle:Bool) : Size
    {
-      return new Size(0,inN*24);
+      return new Size(0,tabStyle ? tab_height : inN*24);
    }
 
 
@@ -194,8 +194,14 @@ class Skin
 
    }
 
-   public function renderMultiDock(dock:MultiDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable)
+   public function renderMultiDock(dock:MultiDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable,tabStyle:Bool)
    {
+      if (tabStyle)
+      {
+         renderTabs(inContainer,inRect,inDockables, current, outHitBoxes, false );
+         return;
+      }
+
       var gap = inRect.height - inDockables.length*24;
       if (gap<0)
         gap = 0;
@@ -213,9 +219,9 @@ class Skin
          gfx.endFill();
 
          var pane = d.asPane();
-         if (pane!=null && current!=d)
+         if (pane!=null)
          {
-            var but = MiniButton.EXPAND;
+            var but = (current==d) ? MiniButton.MINIMIZE : MiniButton.EXPAND;
             var state =  getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
             var button =  new SimpleButton( state,
                                         getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
@@ -223,6 +229,8 @@ class Skin
             inContainer.addChild(button);
             button.x = inRect.right-16;
             button.y = Std.int( y + 3);
+
+            outHitBoxes.add(new Rectangle(inRect.x+2, y+2, inRect.width-18, 18), TITLE(pane) );
 
             if (outHitBoxes.mCallback!=null)
                button.addEventListener( MouseEvent.CLICK, function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
@@ -248,8 +256,11 @@ class Skin
       }
    }
 
-   public function getMultiDockRect(inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable) : Rectangle
+   public function getMultiDockRect(inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable,tabStyle:Bool) : Rectangle
    {
+      if (tabStyle)
+         return new Rectangle(inRect.x, inRect.y + tab_height, inRect.width, inRect.height-tab_height);
+
       var pos = 0;
       for(i in 0...inDockables.length)
          if (current==inDockables[i])
@@ -690,18 +701,15 @@ class Skin
                               inPanes:Array<IDockable>,
                               inCurrent:IDockable,
                               outHitBoxes:HitBoxes,
-                              inIsMaximized:Bool  )
+                              inShowRestore:Bool  )
    {
-      outHitBoxes.clear();
-      while(inTabContainer.numChildren>0)
-         inTabContainer.removeChildAt(0);
-
       var w = inRect.width;
       var bitmap = new BitmapData(Std.int(w), tab_height ,true, #if neko { a:0, rgb:0 } #else 0 #end );
       var display = new Bitmap(bitmap);
+      var boxOffset = outHitBoxes.getHitBoxOffset(inTabContainer,inRect.x,inRect.y);
       display.x = inRect.x;
       display.y = inRect.y;
-      inTabContainer.addChild(new Bitmap(bitmap) );
+      inTabContainer.addChild(display);
 
       initGfx();
       var gfx = mDrawing.graphics;
@@ -721,7 +729,7 @@ class Skin
 
 
       var buts = [ MiniButton.POPUP ];
-      if (inIsMaximized)
+      if (inShowRestore)
          buts.push( MiniButton.RESTORE );
       var x = bitmap.width - 4;
       for(but in buts)
@@ -734,7 +742,7 @@ class Skin
 
             bitmap.copyPixels( bmp, new Rectangle(0,0,bmp.width,bmp.height), new Point(x,y), null, null, true );
 
-            outHitBoxes.add( new Rectangle(x, y,bmp.width,bmp.height), HitAction.BUTTON(null,but) );
+            outHitBoxes.add( new Rectangle(boxOffset.x + x,boxOffset.y +  y,bmp.width,bmp.height), HitAction.BUTTON(null,but) );
          }
       }
 
@@ -751,7 +759,7 @@ class Skin
          mText.text = pane.getShortTitle();
          var tw = mText.textWidth + extra_width;
          var r = new Rectangle(trans.tx,0,tw,tab_height);
-         outHitBoxes.add(new Rectangle(trans.tx,0,tw,tab_height), TITLE(pane) );
+         outHitBoxes.add(new Rectangle(trans.tx+boxOffset.x,boxOffset.y,tw,tab_height), TITLE(pane) );
 
          if (pane==inCurrent)
          {

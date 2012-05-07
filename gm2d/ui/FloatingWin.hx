@@ -156,6 +156,12 @@ class FloatingWin extends Sprite, implements IDock
       }
       return false;
    }
+   public function minimizeDockable(child:IDockable):Bool
+   {
+      // TODO
+      return false;
+   }
+ 
    public function getSlot():Int { return Dock.DOCK_SLOT_FLOAT; }
    public function setDirty(inLayout:Bool, inChrome:Bool):Void { redraw(); }
    public function addDockZones(outZones:DockZones):Void { }

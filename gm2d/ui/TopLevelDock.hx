@@ -77,6 +77,11 @@ class TopLevelDock implements IDock
          case BUTTON(pane,but):
             if (but==MiniButton.EXPAND)
               Dock.raise(pane);
+            else if (but==MiniButton.MINIMIZE)
+              Dock.minimize(pane);
+         case TITLE(pane):
+            Dock.raise(pane);
+
          default:
       }
    }
@@ -296,6 +301,10 @@ class TopLevelDock implements IDock
       var dock:IDock = cast root;
       if (dock!=null)
          dock.raiseDockable(child);
+      return false;
+   }
+   public function minimizeDockable(child:IDockable):Bool
+   {
       return false;
    }
    public function setLayoutDirty():Void

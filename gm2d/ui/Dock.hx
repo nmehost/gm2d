@@ -43,5 +43,11 @@ class Dock
    {
       child.getDock().raiseDockable(child);
    }
+   public static function minimize(child:IDockable)
+   {
+      child.getDock().minimizeDockable(child);
+   }
+
+
 
 }

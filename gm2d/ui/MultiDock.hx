@@ -15,36 +15,41 @@ class MultiDock implements IDock, implements IDockable
    var currentDockable:IDockable;
    var bestSize:Array<Size>;
    var flags:Int;
+   var tabStyle:Bool;
 
    public function new()
    {
       flags = 0;
       mDockables = [];
       bestSize = [];
+      tabStyle = false;
       mRect = new Rectangle();
    }
    
    // Hierarchy
    public function getDock():IDock { return parentDock; }
    public function getSlot():Int { return parentDock==null ? Dock.DOCK_SLOT_FLOAT : parentDock.getSlot(); }
-   public function setDock(inDock:IDock):Void { parentDock = inDock; }
+   public function setDock(inDock:IDock):Void
+   {
+      parentDock = inDock;
+      tabStyle = inDock!=null ? inDock.getSlot()==Dock.DOCK_SLOT_VERT : false;
+      setCurrent(currentDockable);
+   }
    public function setContainer(inParent:DisplayObjectContainer):Void
    {
       container = inParent;
-      for(d in mDockables)
-         d.setContainer(container);
+      setCurrent(currentDockable);
    }
    public function closeRequest(inForce:Bool):Void { }
    // Display
    public function getTitle():String { return ""; }
    public function getShortTitle():String { return ""; }
-   public function buttonStates():Array<Int> { return null; }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
    // Layout
    public function addPadding(ioSize:Size):Size
    {
-      var pad = Skin.current.getMultiDockChromePadding(mDockables.length);
+      var pad = Skin.current.getMultiDockChromePadding(mDockables.length,tabStyle);
       ioSize.x += pad.x;
       ioSize.y += pad.y;
       return ioSize;
@@ -93,7 +98,7 @@ class MultiDock implements IDock, implements IDockable
 
       if (currentDockable!=null)
       {
-         var rect = Skin.current.getMultiDockRect(mRect,mDockables,currentDockable);
+         var rect = Skin.current.getMultiDockRect(mRect,mDockables,currentDockable,tabStyle);
 
          currentDockable.setRect(rect.x,rect.y,rect.width,rect.height);
       }
@@ -109,7 +114,7 @@ class MultiDock implements IDock, implements IDockable
 
    public function renderChrome(inContainer:Sprite,outHitBoxes:HitBoxes):Void
    {
-      Skin.current.renderMultiDock(this,inContainer,outHitBoxes,mRect,mDockables,currentDockable);
+      Skin.current.renderMultiDock(this,inContainer,outHitBoxes,mRect,mDockables,currentDockable,tabStyle);
    }
 
    public function asPane() : Pane { return null; }
@@ -226,25 +231,57 @@ class MultiDock implements IDock, implements IDockable
       
       return this;
    }
+
+   function setCurrent(child:IDockable)
+   {
+      currentDockable = child;
+      var found = false;
+           
+      for(d in mDockables)
+      {
+          if (d==child)
+          {
+             found = true;
+             d.setContainer(container);
+          }
+          else
+             d.setContainer(null);
+      }
+
+      if (!found && tabStyle && mDockables.length>0)
+         setCurrent(mDockables[0]);
+      else if (currentDockable!=null)
+      {
+         var rect = Skin.current.getMultiDockRect(mRect,mDockables,currentDockable,tabStyle);
+
+         currentDockable.setRect(rect.x,rect.y,rect.width,rect.height);
+      }
+
+      setDirty(true,true);
+   }
+ 
  
    public function raiseDockable(child:IDockable):Bool
    {
       for(i in 0...mDockables.length)
         if (child==mDockables[i])
         {
-           currentDockable = child;
-           for(d in mDockables)
-           {
-              if (d==child)
-                 d.setContainer(container);
-              else
-                 d.setContainer(null);
-           }
-           setDirty(true,true);
+           setCurrent(child);
            return true;
         }
       return false;
    }
+
+   public function minimizeDockable(child:IDockable):Bool
+   {
+      if (currentDockable==child)
+      {
+         setCurrent(null);
+         return true;
+      }
+      return false;
+   }
+
    public function setDirty(inLayout:Bool, inChrome:Bool):Void
    {
       if (parentDock!=null)

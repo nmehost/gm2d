@@ -488,11 +488,13 @@ class SideDock implements IDock, implements IDockable
         {
            return true;
         }
-        else
-        {
-        }
       return false;
    }
+   public function minimizeDockable(child:IDockable):Bool
+   {
+      return false;
+   }
+ 
    public function setDirty(inLayout:Bool, inChrome:Bool):Void
    {
       if (parentDock!=null)
