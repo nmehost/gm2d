@@ -9,8 +9,7 @@ interface IDockable
 {
    // Hierarchy
    public function getDock():IDock;
-   public function setDock(inDock:IDock):Void;
-   public function setContainer(inParent:DisplayObjectContainer):Void;
+   public function setDock(inDock:IDock,inParent:DisplayObjectContainer):Void;
    public function closeRequest(inForce:Bool):Void;
    // If it is a container...
    public function removeDockable(child:IDockable):IDockable;
@@ -32,6 +31,8 @@ interface IDockable
    public function getLayoutSize(w:Float,h:Float,limitX:Bool):Size;
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void;
    public function getDockRect():gm2d.geom.Rectangle;
+   // generic
+   public function getProperties():Dynamic;
    // Debug
    public function verify():Void;
 }

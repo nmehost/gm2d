@@ -33,8 +33,7 @@ class FloatingWin extends Sprite, implements IDock
       mouseWatcher = null;
       origRect = null;
       addChild(chrome);
-      pane.setDock(this);
-      pane.setContainer(this);
+      pane.setDock(this,this);
 
       var size = inPane.getBestSize( Dock.DOCK_SLOT_FLOAT );
 
@@ -76,8 +75,7 @@ class FloatingWin extends Sprite, implements IDock
    {
       if (pane!=null)
       {
-         pane.setContainer(null);
-         pane.setDock(null);
+         pane.setDock(null,null);
       }
       parent.removeChild(this);
    }

@@ -27,14 +27,16 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    public var clientWidth(default,null):Float;
    public var clientHeight(default,null):Float;
    var mTabContainer:Sprite;
+   var mTopLevel:TopLevelDock;
    var mHitBoxes:HitBoxes;
    var mMaximizedPane:IDockable;
    var current:IDockable;
+   var properties:Dynamic;
    var flags:Int;
    var sizeX:Float;
    var sizeY:Float;
 
-   public function new( )
+   public function new()
    {
       super();
       mTabContainer = new Sprite();
@@ -44,6 +46,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       clientArea.name = "Client area";
       clientWidth = 100;
       clientHeight = 100;
+      properties = {};
       mHitBoxes = new HitBoxes(this,onHitBox);
       addChild(clientArea);
       mChildren = [];
@@ -53,6 +56,11 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       sizeX = sizeY = 0;
       current = null;
       flags = 0;
+   }
+
+   public function setTopLevel(inTopLevel:TopLevelDock)
+   {
+      mTopLevel = inTopLevel;
    }
 
    // --- IDock --------------------------------------------------------------
@@ -68,19 +76,21 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       if (inPos!=DOCK_OVER)
          throw "Bad dock position";
       Dock.remove(inChild);
-      inChild.setDock(this);
       mDockables.push(inChild);
       if (mMaximizedPane==null)
       {
-         Dock.setMinimized(inChild,false);
          var child = new MDIChildFrame(inChild,this,true);
+         Dock.setMinimized(inChild,false);
          mChildren.push(child);
          clientArea.addChild(child);
          current = inChild;
          redrawTabs();
       }
       else
+      {
+         inChild.setDock(this,clientArea);
          maximize(inChild);
+      }
    }
    public function getDockablePosition(child:IDockable):Int
    {
@@ -115,13 +125,19 @@ class MDIParent extends Widget, implements IDock, implements IDockable
 	       }
        }
 
+       
        var idx = findPaneIndex(inPane);
        mDockables.splice(idx,1);
+       if (inPane==current)
+       {
+          current = mDockables.length>0 ? mDockables[0] : null;
+       }
+ 
        redrawTabs();
        return this;
    }
 
-   public function getSlot():Int { return mMaximizedPane==null ? Dock.DOCK_SLOT_FLOAT : Dock.DOCK_SLOT_MDIMAX; }
+   public function getSlot():Int { return mMaximizedPane==null ? Dock.DOCK_SLOT_MDI : Dock.DOCK_SLOT_MDIMAX; }
 
    public function raiseDockable(child:IDockable):Bool
    {
@@ -163,11 +179,14 @@ class MDIParent extends Widget, implements IDock, implements IDockable
 
    // Hierarchy
    public function getDock():IDock { return parentDock; }
-   public function setDock(inDock:IDock):Void { parentDock = inDock; }
-   public function setContainer(inParent:DisplayObjectContainer):Void
+   public function setDock(inDock:IDock,inParent:DisplayObjectContainer):Void
    {
-      if (inParent!=null)
-         inParent.addChild(this);
+      parentDock = inDock;
+      if (inParent!=parent)
+         if (inParent!=null)
+            inParent.addChild(this);
+         else
+            parent.removeChild(this);
    }
    public function closeRequest(inForce:Bool):Void {  }
    // Display
@@ -177,6 +196,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
    // Layout
    public function getBestSize(inPos:Int):Size { return new Size(sizeX,sizeY); }
+   public function getProperties() : Dynamic { return properties; }
    public function getMinSize():Size { return new Size(1,1); }
    public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
    {
@@ -241,7 +261,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       if (mMaximizedPane==null)
          clientArea.graphics.clear();
       mMaximizedPane = inPane;
-      inPane.setContainer(clientArea);
+      inPane.setDock(this,clientArea);
       inPane.setRect(0,0,clientWidth,clientHeight);
       redrawTabs();
    }
@@ -250,7 +270,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       if (mMaximizedPane!=null)
       {
          current = mMaximizedPane;
-         mMaximizedPane.setContainer(null);
+         mMaximizedPane.setDock(this,null);
          mMaximizedPane = null;
          for(pane in mDockables)
          {
@@ -341,11 +361,8 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    {
       switch(inAction)
       {
-         case DRAG(pane):
-            //trace("Drag:" + pane.title);
-            //stage.addEventListener(MouseEvent.MOUSE_UP,onEndDrag);
-            //mDragStage = stage;
-            //startDrag();
+         case DRAG(p):
+            mTopLevel.floatWindow(p,inEvent);
          case TITLE(pane):
             Dock.raise(pane);
          case BUTTON(pane,id):
@@ -394,25 +411,41 @@ class MDIChildFrame extends Sprite
    {
       super();
 		mIsCurrent = inIsCurrent;
+      mMDI = inMDI;
       mChromeContainer = new Sprite();
       addChild(mChromeContainer);
       mPaneContainer = new Sprite();
       addChild(mPaneContainer);
  
       pane = inPane;
-      pane.setContainer(mPaneContainer);
+      pane.setDock(mMDI,mPaneContainer);
       mHitBoxes = new HitBoxes(this, onHitBox);
-      mMDI = inMDI;
 
       var size = inPane.getBestSize( Dock.DOCK_SLOT_FLOAT );
       if (size.x<Skin.current.getMinFrameWidth())
          size = inPane.getLayoutSize(Skin.current.getMinFrameWidth(),size.y,true);
 
-      mNextChildPos += 20;
-      if (mNextChildPos+size.x>mMDI.clientWidth || mNextChildPos+size.y>mMDI.clientHeight)
+      var props:Dynamic = inPane.getProperties();
+      var pos_x = props.mdiX;
+      var pos_y = props.mdiY;
+      if (pos_x==null || pos_y==null)
+      {
+         mNextChildPos += 20;
+         x = props.mdiX = mNextChildPos;
+         y = props.mdiY = mNextChildPos;
+      }
+      else
+      {
+         x = pos_x;
+         y = pos_y;
+      }
+
+      if (x>mMDI.clientWidth-20 || y>mMDI.clientHeight-20)
+      {
          mNextChildPos = 0;
-      x = mNextChildPos;
-      y = mNextChildPos;
+         x = y = mNextChildPos;
+         props.mdiX = props.mdiY = mNextChildPos;
+      }
 
       mClientWidth = Std.int(Math.max(size.x,Skin.current.getMinFrameWidth())+0.99);
       mClientHeight = Std.int(size.y+0.99);
@@ -450,7 +483,7 @@ class MDIChildFrame extends Sprite
 
    public function destroy()
    {
-      pane.setContainer(null);
+      pane.setDock(mMDI,null);
       parent.removeChild(this);
    }
 
@@ -510,7 +543,9 @@ class MDIChildFrame extends Sprite
       }
       else
          stopDrag();
-      saveRect();
+      var props:Dynamic = pane.getProperties();
+      props.mdiX = x;
+      props.mdiY = y;
    }
 
    function onUpdateSize(_)

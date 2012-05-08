@@ -14,6 +14,7 @@ class MultiDock implements IDock, implements IDockable
    var container:DisplayObjectContainer;
    var currentDockable:IDockable;
    var bestSize:Array<Size>;
+   var properties:Dynamic;
    var flags:Int;
    var tabStyle:Bool;
 
@@ -23,20 +24,16 @@ class MultiDock implements IDock, implements IDockable
       mDockables = [];
       bestSize = [];
       tabStyle = false;
+      properties = {};
       mRect = new Rectangle();
    }
    
    // Hierarchy
    public function getDock():IDock { return parentDock; }
    public function getSlot():Int { return parentDock==null ? Dock.DOCK_SLOT_FLOAT : parentDock.getSlot(); }
-   public function setDock(inDock:IDock):Void
+   public function setDock(inDock:IDock,inParent:DisplayObjectContainer):Void
    {
       parentDock = inDock;
-      tabStyle = inDock!=null ? inDock.getSlot()==Dock.DOCK_SLOT_VERT : false;
-      setCurrent(currentDockable);
-   }
-   public function setContainer(inParent:DisplayObjectContainer):Void
-   {
       container = inParent;
       setCurrent(currentDockable);
    }
@@ -71,6 +68,11 @@ class MultiDock implements IDock, implements IDockable
       }
       return bestSize[inSlot];
    }
+   public function getProperties() : Dynamic { return properties; }
+
+
+
+
 
    public function getMinSize():Size
    {
@@ -95,6 +97,8 @@ class MultiDock implements IDock, implements IDockable
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
       mRect = new Rectangle(x,y,w,h);
+
+      tabStyle = w>h;
 
       if (currentDockable!=null)
       {
@@ -159,8 +163,7 @@ class MultiDock implements IDock, implements IDockable
    public function addDockable(child:IDockable,inPos:DockPosition,inSlot:Int):Void
    {
       Dock.remove(child);
-      child.setDock(this);
-      child.setContainer(container);
+      child.setDock(this,container);
       if (inSlot>=mDockables.length)
          mDockables.push(child);
       else
@@ -206,8 +209,8 @@ class MultiDock implements IDock, implements IDockable
    {
       if (mDockables.remove(child))
       {
-         child.setDock(null);
-         child.setContainer(null);
+         child.setDock(null,null);
+
          if (mDockables.length==0)
          {
              // Hmmm?
@@ -216,7 +219,6 @@ class MultiDock implements IDock, implements IDockable
          }
          else if (mDockables.length==1)
          {
-            mDockables[0].setDock(getDock());
             return mDockables[0];
          }
       }
@@ -224,8 +226,19 @@ class MultiDock implements IDock, implements IDockable
       {
          for(i in 0...mDockables.length)
          {
-             mDockables[i] = mDockables[i].removeDockable(child);
-             mDockables[i].setDock(this);
+            var old = mDockables[i];
+            mDockables[i] = old.removeDockable(child);
+            if (mDockables[i]!=old)
+            {
+               if (currentDockable==old)
+               {
+                  currentDockable = mDockables[i];
+                  mDockables[i].setDock(this,container);
+               }
+               else
+                  mDockables[i].setDock(this,container);
+               setDirty(true,true);
+            }
          }
       }
       
@@ -242,10 +255,10 @@ class MultiDock implements IDock, implements IDockable
           if (d==child)
           {
              found = true;
-             d.setContainer(container);
+             d.setDock(this,container);
           }
           else
-             d.setContainer(null);
+             d.setDock(this,null);
       }
 
       if (!found && tabStyle && mDockables.length>0)

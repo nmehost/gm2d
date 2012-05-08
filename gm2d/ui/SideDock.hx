@@ -16,6 +16,7 @@ class SideDock implements IDock, implements IDockable
    var mSizes:Array<Float>;
    var container:DisplayObjectContainer;
    var position:DockPosition;
+   var properties:Dynamic;
    var flags:Int;
 
    public function new(inPos:DockPosition)
@@ -26,18 +27,19 @@ class SideDock implements IDock, implements IDockable
       mDockables = [];
       mPositions = [];
       mSizes = [];
+      properties = [];
       mRect = new Rectangle();
    }
    
    // Hierarchy
    public function getDock():IDock { return parentDock; }
    public function getSlot():Int { return horizontal ? Dock.DOCK_SLOT_HORIZ : Dock.DOCK_SLOT_VERT; }
-   public function setDock(inDock:IDock):Void { parentDock = inDock; }
-   public function setContainer(inParent:DisplayObjectContainer):Void
+   public function setDock(inDock:IDock,inParent:DisplayObjectContainer):Void
    {
+      parentDock = inDock;
       container = inParent;
       for(d in mDockables)
-         d.setContainer(container);
+         d.setDock(this,container);
    }
    public function closeRequest(inForce:Bool):Void { }
    // Display
@@ -84,6 +86,8 @@ class SideDock implements IDock, implements IDockable
  
      return addPadding(best);
    }
+   public function getProperties() : Dynamic { return properties; }
+
 
    public function getMinSize():Size
    {
@@ -370,8 +374,7 @@ class SideDock implements IDock, implements IDockable
       if (inPos!=position)
          inSlot = mDockables.length-inSlot;
       Dock.remove(child);
-      child.setDock(this);
-      child.setContainer(container);
+      child.setDock(this,container);
       if (inSlot>=mDockables.length)
          mDockables.push(child);
       else
@@ -397,10 +400,9 @@ class SideDock implements IDock, implements IDockable
           // Patch up references...
           var over = new MultiDock();
           mDockables[ref] = over;
-          over.setDock(this);
-          over.setContainer(container);
+          over.setDock(this,container);
           over.pushDockableInternal(inReference);
-          inReference.setDock(over);
+          inReference.setDock(over,container);
           over.addDockable(inIncoming,DOCK_OVER,2);
           over.setRect(rect.x,rect.y,rect.width,rect.height);
           setDirty(true,true);
@@ -411,10 +413,9 @@ class SideDock implements IDock, implements IDockable
           // Patch up references...
           var split = new SideDock(direction);
           mDockables[ref] = split;
-          split.setDock(this);
-          split.setContainer(container);
+          split.setDock(this,container);
           split.mDockables.push(inReference);
-          inReference.setDock(split);
+          inReference.setDock(split,container);
           split.addDockable(inIncoming,direction,after?1:-1);
           split.setRect(rect.x,rect.y,rect.width,rect.height);
           setDirty(true,true);
@@ -455,8 +456,7 @@ class SideDock implements IDock, implements IDockable
    {
       if (mDockables.remove(child))
       {
-         child.setDock(null);
-         child.setContainer(null);
+         child.setDock(null,null);
          if (mDockables.length==0)
          {
              // Hmmm?
@@ -465,7 +465,6 @@ class SideDock implements IDock, implements IDockable
          }
          else if (mDockables.length==1)
          {
-            mDockables[0].setDock(getDock());
             return mDockables[0];
          }
       }
@@ -474,7 +473,7 @@ class SideDock implements IDock, implements IDockable
          for(i in 0...mDockables.length)
          {
              mDockables[i] = mDockables[i].removeDockable(child);
-             mDockables[i].setDock(this);
+             mDockables[i].setDock(this,container);
          }
       }
       

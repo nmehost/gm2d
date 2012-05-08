@@ -10,7 +10,8 @@ class Dock
    public static inline var DOCK_SLOT_HORIZ = 0;
    public static inline var DOCK_SLOT_VERT  = 1;
    public static inline var DOCK_SLOT_FLOAT = 2;
-   public static inline var DOCK_SLOT_MDIMAX = 3;
+   public static inline var DOCK_SLOT_MDI   = 3;
+   public static inline var DOCK_SLOT_MDIMAX = 4;
 
    public static function isResizeable(i:IDockable) { return (i.getFlags()&RESIZABLE)!=0; }
    public static function isToolbar(i:IDockable) { return (i.getFlags()&TOOLBAR)!=0; }
@@ -35,8 +36,7 @@ class Dock
             parent = pp;
          }
          parent.removeDockable(child);
-         child.setDock(null);
-         child.setContainer(null);
+         child.setDock(null,null);
       }
    }
    public static function raise(child:IDockable)

@@ -3,6 +3,7 @@ package gm2d.ui;
 import gm2d.display.DisplayObject;
 import gm2d.display.DisplayObjectContainer;
 import gm2d.geom.Rectangle;
+import gm2d.geom.Point;
 import gm2d.display.Sprite;
 import gm2d.ui.IDockable;
 
@@ -25,9 +26,11 @@ class Pane implements IDockable
    public var onLayout:Void->Void;
    public var itemLayout:Layout;
    public var bestSize:Array<Size>;
+   public var bestPos:Array<Point>;
    var mFlags:Int;
    var posX:Float;
    var posY:Float;
+   var properties:Dynamic;
 
    public function new(inObj:DisplayObject, inTitle:String, inFlags:Int, ?inShortTitle:String)
    {
@@ -36,6 +39,8 @@ class Pane implements IDockable
       title = inTitle;
       itemLayout = null;
       bestSize = [];
+      bestPos = [];
+      properties = {};
       if (inShortTitle==null)
       {
          var lastPart = inTitle.lastIndexOf("/");
@@ -79,8 +84,9 @@ class Pane implements IDockable
    {
       Dock.remove(this);
    }
-   public function setContainer(inParent:DisplayObjectContainer):Void
+   public function setDock(inDock:IDock,inParent:DisplayObjectContainer):Void
    {
+      dock = inDock;
       if (displayObject!=null)
       {
          var p = displayObject.parent;
@@ -96,7 +102,6 @@ class Pane implements IDockable
 
 
    public function getDock():IDock { return dock; }
-   public function setDock(inDock:IDock):Void { dock=inDock; }
    public function getTitle():String { return title; }
    public function getShortTitle():String { return shortTitle; }
    public function getFlags():Int { return mFlags; }
@@ -107,6 +112,8 @@ class Pane implements IDockable
          return new Size(bestWidth,bestHeight);
       return bestSize[inSlot].clone();
    }
+   public function getProperties() : Dynamic { return properties; }
+
    public function getMinSize():Size { return new Size(minSizeX,minSizeY); }
    public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
    {
@@ -133,7 +140,10 @@ class Pane implements IDockable
    }
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
-      bestSize[ dock.getSlot() ] = new Size(w,h);
+      var slot = dock.getSlot();
+      bestSize[slot] = new Size(w,h);
+      if (slot==Dock.DOCK_SLOT_FLOAT || slot==Dock.DOCK_SLOT_MDI)
+          bestSize[Dock.DOCK_SLOT_FLOAT] = bestSize[Dock.DOCK_SLOT_MDI] = new Size(w,h);
 
       posX = x;
       posY = y;

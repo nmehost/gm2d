@@ -33,6 +33,8 @@ class TopLevelDock implements IDock
    public function new(inContainer:Sprite,?inMDI:MDIParent)
    {
       mdi = inMDI;
+      if (mdi!=null)
+         mdi.setTopLevel(this);
       container = inContainer;
       backgroundContainer = new Sprite();
       container.addChild(backgroundContainer);
@@ -54,10 +56,22 @@ class TopLevelDock implements IDock
       if (inMDI!=null)
       {
          root = mdi;
-         mdi.setDock(this);
-         mdi.setContainer(paneContainer);
+         mdi.setDock(this,paneContainer);
       }
       container.addEventListener(gm2d.events.Event.RENDER, updateLayout);
+   }
+
+   public function floatWindow(inDockable:IDockable, inEvent:MouseEvent)
+   {
+      Dock.remove(inDockable);
+      var pane = inDockable.asPane();
+      if (pane!=null)
+      {
+         var floating = new FloatingWin(this,pane,inEvent.stageX, inEvent.stageY);
+         floatingWins.push(floating);
+         floatingContainer.addChild(floating);
+         floating.doStartDrag(inEvent);
+      }
    }
 
    public function onHitBox(inAction:HitAction,inEvent:MouseEvent)
@@ -65,16 +79,8 @@ class TopLevelDock implements IDock
       switch(inAction)
       {
          case DRAG(p):
-            Dock.remove(p);
-            var pane = p.asPane();
-            if (pane!=null)
-            {
-               var floating = new FloatingWin(this,pane,hitBoxes.downX, hitBoxes.downY);
-               floatingWins.push(floating);
-               floatingContainer.addChild(floating);
-               floating.doStartDrag(inEvent);
-            }
-         case BUTTON(pane,but):
+            floatWindow(p,inEvent);
+        case BUTTON(pane,but):
             if (but==MiniButton.EXPAND)
               Dock.raise(pane);
             else if (but==MiniButton.MINIMIZE)
@@ -232,9 +238,7 @@ class TopLevelDock implements IDock
       else if (root==null)
       {
          root = inChild;
-         root.setDock(null);
-         inChild.setDock(this);
-         inChild.setContainer(paneContainer);
+         root.setDock(this,paneContainer);
       }
       else
       {
@@ -246,8 +250,7 @@ class TopLevelDock implements IDock
          else
          {
             var side = new SideDock(inPos);
-            side.setDock(this);
-            side.setContainer(paneContainer);
+            side.setDock(this,paneContainer);
             side.addDockable(root,inPos,0);
             side.addDockable(inChild,inPos,0);
             root = side;
@@ -283,13 +286,14 @@ class TopLevelDock implements IDock
       if (child==root)
       {
          root=null;
-         child.setDock(null);
-         child.setContainer(null);
+         child.setDock(null,null);
       }
       else
       {
          var dock:IDock = cast root;
          root = dock.removeDockable(child);
+         if (root!=null)
+           root.setDock(this,paneContainer);
          //trace("post verify");
          //root.verify();
       }
