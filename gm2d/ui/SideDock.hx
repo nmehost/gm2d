@@ -291,6 +291,19 @@ class SideDock implements IDock, implements IDockable
       }
    }
 
+   public function getLayoutInfo():Dynamic
+   {
+      var dockables = new Array<Dynamic>();
+      for(i in 0...mDockables.length)
+         dockables[i] = mDockables[i].getLayoutInfo();
+
+      return { type:"SideDock", horizontal:horizontal, dockables:dockables, properties:properties, flags:flags };
+   }
+
+   public function loadLayout(inLayout:Dynamic):Void
+   {
+   }
+
 
 
    // --- Externals -----------------------------------------

@@ -31,6 +31,9 @@ interface IDockable
    public function getLayoutSize(w:Float,h:Float,limitX:Bool):Size;
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void;
    public function getDockRect():gm2d.geom.Rectangle;
+   public function getLayoutInfo():Dynamic;
+   public function loadLayout(inLayout:Dynamic):Void;
+
    // generic
    public function getProperties():Dynamic;
    // Debug

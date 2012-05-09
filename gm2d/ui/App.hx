@@ -7,6 +7,8 @@ import gm2d.ui.Layout;
 import gm2d.ui.Dock;
 import gm2d.ui.IDockable;
 
+import nme.net.SharedObject;
+
 
 class App extends Screen
 {
@@ -33,6 +35,33 @@ class App extends Screen
    {
       dock.addDockable(inPane,inPos,inSlot);
    }
+
+   public function saveLayout(inKey:String)
+   {
+      var layout = dock.getLayoutInfo();
+      trace(layout);
+      var def = SharedObject.getLocal("layout");
+      if (def!=null)
+      {
+         Reflect.setField(def.data,inKey, layout);
+         def.flush();
+      }
+   }
+
+   public function loadLayout(inKey:String)
+   {
+      var def = SharedObject.getLocal("layout");
+      if (def!=null)
+      {
+         var layout = Reflect.field(def.data,inKey);
+         if (layout!=null)
+         {
+            trace(layout);
+            dock.setLayoutInfo(layout);
+         }
+      }
+   }
+
 
    function doLayout()
    {

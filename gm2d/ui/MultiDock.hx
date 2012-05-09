@@ -149,6 +149,22 @@ class MultiDock implements IDock, implements IDockable
    }
 
 
+   public function getLayoutInfo():Dynamic
+   {
+      var dockables = new Array<Dynamic>();
+      for(i in 0...mDockables.length)
+         dockables[i] = mDockables[i].getLayoutInfo();
+
+      return { type:"MultiDock",
+          dockables:dockables, properties:properties, flags:flags,
+          current:currentDockable==null ? null : currentDockable.getTitle() };
+   }
+
+   public function loadLayout(inLayout:Dynamic):Void
+   {
+   }
+
+
 
 
    // --- IDock -----------------------------------------

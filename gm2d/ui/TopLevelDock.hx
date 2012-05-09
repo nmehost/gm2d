@@ -223,6 +223,22 @@ class TopLevelDock implements IDock
       }
    }
 
+   public function getLayoutInfo():Dynamic
+   {
+      var floating = new Array<Dynamic>();
+      for(idx in 0...floatingWins.length)
+         floating[idx] = floatingWins[idx].pane.getLayoutInfo();
+
+      return { floating:floating, root:root==null ? null : root.getLayoutInfo() }
+   }
+
+   public function setLayoutInfo(inInfo:Dynamic)
+   {
+      var panes = Pane.allPanes();
+      for(pane in panes)
+         Dock.remove(pane);
+   }
+
 
 
    // -- IDock -----------------------------------------------------------

@@ -10,6 +10,7 @@ import gm2d.ui.IDockable;
 
 class Pane implements IDockable
 {
+   public static var sPanes = new Array<Pane>();
    var        dock:IDock;
    public var title(default,null):String;
    public var shortTitle(default,null):String;
@@ -27,13 +28,14 @@ class Pane implements IDockable
    public var itemLayout:Layout;
    public var bestSize:Array<Size>;
    public var bestPos:Array<Point>;
-   var mFlags:Int;
+   var flags:Int;
    var posX:Float;
    var posY:Float;
    var properties:Dynamic;
 
    public function new(inObj:DisplayObject, inTitle:String, inFlags:Int, ?inShortTitle:String)
    {
+      sPanes.push(this);
       scrollX = scrollY = 0.0;
       displayObject = inObj;
       title = inTitle;
@@ -52,7 +54,7 @@ class Pane implements IDockable
             shortTitle = shortTitle.substr(0,dot);
          */
       }
-      mFlags = inFlags;
+      flags = inFlags;
       bestWidth = displayObject.width;
       bestHeight = displayObject.height;
       minSizeX = bestWidth;
@@ -61,6 +63,8 @@ class Pane implements IDockable
       posX=posY=0.0;
       gm2dMinimized = false;
    }
+   static public function allPanes() { return sPanes.copy(); }
+
    public function removeDockable(child:IDockable):IDockable
    {
       if (child==this)
@@ -83,6 +87,8 @@ class Pane implements IDockable
    public function closeRequest(inForce:Bool) : Void
    {
       Dock.remove(this);
+      if ( (flags & Dock.DONT_DESTROY) ==0 )
+         sPanes.remove(this);
    }
    public function setDock(inDock:IDock,inParent:DisplayObjectContainer):Void
    {
@@ -104,8 +110,8 @@ class Pane implements IDockable
    public function getDock():IDock { return dock; }
    public function getTitle():String { return title; }
    public function getShortTitle():String { return shortTitle; }
-   public function getFlags():Int { return mFlags; }
-   public function setFlags(inFlags:Int) : Void { mFlags=inFlags; }
+   public function getFlags():Int { return flags; }
+   public function setFlags(inFlags:Int) : Void { flags=inFlags; }
    public function getBestSize(inSlot):Size
    {
       if (bestSize[inSlot]==null)
@@ -189,6 +195,23 @@ class Pane implements IDockable
          skin.renderDropZone(rect,outZones,DOCK_OVER,true,   function(d) dock.addSibling(this,d,DOCK_OVER) );
       }
    }
+
+
+   public function getLayoutInfo():Dynamic
+   {
+      return { type:"Pane",
+          sizeX:sizeX,  sizeY:sizeY, scrollX:scrollX, scrollY:scrollY,
+          bestSize:bestSize, bestPos:bestPos,
+          properties:properties, flags:flags };
+
+      return {};
+   }
+
+   public function loadLayout(inLayout:Dynamic):Void
+   {
+   }
+
+
 
    public function renderChrome(inBackground:Sprite,outHitBoxes:HitBoxes):Void
    {

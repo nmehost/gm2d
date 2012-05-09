@@ -80,7 +80,6 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       if (mMaximizedPane==null)
       {
          var child = new MDIChildFrame(inChild,this,true);
-         Dock.setMinimized(inChild,false);
          mChildren.push(child);
          clientArea.addChild(child);
          current = inChild;
@@ -242,6 +241,24 @@ class MDIParent extends Widget, implements IDock, implements IDockable
          skin.renderDropZone(rect,outZones,DOCK_OVER,true,   function(d) addDockable(d,DOCK_OVER,0) );
       }
    }
+
+
+   public function getLayoutInfo():Dynamic
+   {
+      var dockables = new Array<Dynamic>();
+      for(i in 0...mDockables.length)
+         dockables[i] = mDockables[i].getLayoutInfo();
+
+      return { type:"MDIParent",
+          sizeX:sizeX,  sizeY:sizeY,
+          dockables:dockables, properties:properties, flags:flags,
+          maximised:current==null ? null : current.getTitle() };
+   }
+
+   public function loadLayout(inLayout:Dynamic):Void
+   {
+   }
+
 
    // ---------------------------------------------------------------------------
 
