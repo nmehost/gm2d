@@ -379,7 +379,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       switch(inAction)
       {
          case DRAG(p):
-            mTopLevel.floatWindow(p,inEvent);
+            mTopLevel.floatWindow(p,inEvent,null);
          case TITLE(pane):
             Dock.raise(pane);
          case BUTTON(pane,id):

@@ -27,11 +27,11 @@ class Pane implements IDockable
    public var onLayout:Void->Void;
    public var itemLayout:Layout;
    public var bestSize:Array<Size>;
-   public var bestPos:Array<Point>;
+   public var properties:Dynamic;
+   //public var bestPos:Array<Point>;
    var flags:Int;
    var posX:Float;
    var posY:Float;
-   var properties:Dynamic;
 
    public function new(inObj:DisplayObject, inTitle:String, inFlags:Int, ?inShortTitle:String)
    {
@@ -41,7 +41,7 @@ class Pane implements IDockable
       title = inTitle;
       itemLayout = null;
       bestSize = [];
-      bestPos = [];
+      //bestPos = [];
       properties = {};
       if (inShortTitle==null)
       {
@@ -199,10 +199,9 @@ class Pane implements IDockable
 
    public function getLayoutInfo():Dynamic
    {
-      return { type:"Pane",
+      return { type:"Pane", title:title,
           sizeX:sizeX,  sizeY:sizeY, scrollX:scrollX, scrollY:scrollY,
-          bestSize:bestSize, bestPos:bestPos,
-          properties:properties, flags:flags };
+          bestSize:bestSize, properties:properties, flags:flags };
 
       return {};
    }

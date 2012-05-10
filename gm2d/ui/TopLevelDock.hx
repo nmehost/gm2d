@@ -61,16 +61,27 @@ class TopLevelDock implements IDock
       container.addEventListener(gm2d.events.Event.RENDER, updateLayout);
    }
 
-   public function floatWindow(inDockable:IDockable, inEvent:MouseEvent)
+   public function floatWindow(inDockable:IDockable, inEvent:MouseEvent, inProps:Dynamic)
    {
       Dock.remove(inDockable);
       var pane = inDockable.asPane();
       if (pane!=null)
       {
-         var floating = new FloatingWin(this,pane,inEvent.stageX, inEvent.stageY);
+         var floating:FloatingWin = null;
+         if (inEvent!=null)
+            floating = new FloatingWin(this,pane,inEvent.stageX, inEvent.stageY)
+         else
+         {
+            pane.loadLayout(inProps);
+            var pos = inProps.properties.floatingPos;
+            if (pos==null)
+               pos = { x:20, y:20 };
+            floating = new FloatingWin(this,pane,pos.x, pos.y);
+         }
          floatingWins.push(floating);
          floatingContainer.addChild(floating);
-         floating.doStartDrag(inEvent);
+         if (inEvent!=null)
+            floating.doStartDrag(inEvent);
       }
    }
 
@@ -79,7 +90,7 @@ class TopLevelDock implements IDock
       switch(inAction)
       {
          case DRAG(p):
-            floatWindow(p,inEvent);
+            floatWindow(p,inEvent,null);
         case BUTTON(pane,but):
             if (but==MiniButton.EXPAND)
               Dock.raise(pane);
@@ -237,6 +248,18 @@ class TopLevelDock implements IDock
       var panes = Pane.allPanes();
       for(pane in panes)
          Dock.remove(pane);
+      var floatings:Array<Dynamic> = inInfo.floating;
+      for(floating in floatings)
+      {
+         var title = floating.title;
+         for(pane in panes)
+            if (pane.title==title)
+            {
+               panes.remove(pane);
+               floatWindow(pane,null,floating);
+            }
+      }
+      //root = Dock.
    }
 
 
