@@ -1,5 +1,7 @@
 package gm2d.ui;
 
+import gm2d.ui.DockPosition;
+
 class Dock
 {
    public static inline var RESIZABLE     = 0x0001;
@@ -39,7 +41,70 @@ class Dock
    {
       child.getDock().minimizeDockable(child);
    }
+   public static function loadLayout(inInfo:Dynamic, panes:Array<Pane>,inMDI:MDIParent ):IDockable
+   {
+      if (inInfo==null)
+         return null;
+      switch(inInfo.type)
+      {
+         case "MDIParent" :
+            if (inInfo.properties!=null)
+               inMDI.loadLayout(inInfo.properties);
+            var dockables:Array<Dynamic> = inInfo.dockables;
+            var currentTitle:String = inInfo.current==null ? inInfo.current : "";
+            var current:Pane = null;
+            if (dockables!=null)
+               for(d in dockables)
+               {
+                  var title = d.title;
+                  for(pane in panes)
+                  if (pane.title==title)
+                  {
+                     pane.loadLayout(d);
+                     inMDI.addDockable(pane,DOCK_OVER,0);
+                     if (title==currentTitle)
+                        current = pane;
+                     break;
+                  }
+               }
+            if (current!=null)
+               inMDI.raiseDockable(current);
+            return inMDI;
+         case "Pane" :
+            var title:String = inInfo.title;
+            for(pane in panes)
+                if (pane.title==title)
+                {
+                    pane.loadLayout(inInfo);
+                    return pane;
+                }
+            return null;
 
 
-
+         case "SideDock" :
+            var horizontal = inInfo.horizontal ? DOCK_LEFT:DOCK_TOP;
+            var children = new Array<IDockable>();
+            var dockables:Array<Dynamic> = inInfo.dockables;
+            if (dockables!=null)
+            {
+               for(d in dockables)
+               {
+                  var child = loadLayout(d, panes, inMDI);
+                  if (child!=null)
+                     children.push(child);
+               }
+            }
+            if (children.length==0)
+               return null;
+            if (children.length==1)
+               return children[0];
+            var side = new SideDock(horizontal);
+            side.loadLayout(inInfo.properties);
+            var idx = 0;
+            for(child in children)
+               side.addDockable(child,horizontal,idx++);
+            return side;
+      }
+      return null;
+   }
 }

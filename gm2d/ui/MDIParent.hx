@@ -252,7 +252,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       return { type:"MDIParent",
           sizeX:sizeX,  sizeY:sizeY,
           dockables:dockables, properties:properties, flags:flags,
-          maximised:current==null ? null : current.getTitle() };
+          current:current==null ? null : current.getTitle() };
    }
 
    public function loadLayout(inLayout:Dynamic):Void
@@ -443,8 +443,8 @@ class MDIChildFrame extends Sprite
          size = inPane.getLayoutSize(Skin.current.getMinFrameWidth(),size.y,true);
 
       var props:Dynamic = inPane.getProperties();
-      var pos_x = props.mdiX;
-      var pos_y = props.mdiY;
+      var pos_x:Dynamic = props.mdiX;
+      var pos_y:Dynamic = props.mdiY;
       if (pos_x==null || pos_y==null)
       {
          mNextChildPos += 20;
@@ -472,6 +472,10 @@ class MDIChildFrame extends Sprite
       mSizeY0 = mClientHeight;
 
       pane.setRect(mClientOffset.x, mClientOffset.y, mClientWidth, mClientHeight);
+   }
+
+   public function loadLayout(inProperties:Dynamic)
+   {
    }
 
    public function setClientSize(inW:Int, inH:Int)

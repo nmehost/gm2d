@@ -208,6 +208,17 @@ class Pane implements IDockable
 
    public function loadLayout(inLayout:Dynamic):Void
    {
+      var x = inLayout.mdiX;
+      if (x!=null) properties.mdiX = x;
+      var y = inLayout.mdiY;
+      if (y!=null) properties.mdiY = y;
+
+      var pos = inLayout.floatinfPos;
+      if (pos!=null)
+      {
+         properties.floatinfPos.x = pos.x;
+         properties.floatinfPos.y = pos.y;
+      }
    }
 
 

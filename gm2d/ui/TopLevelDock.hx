@@ -230,7 +230,8 @@ class TopLevelDock implements IDock
          backgroundContainer.graphics.clear();
          while(backgroundContainer.numChildren>0)
             backgroundContainer.removeChildAt(0);
-         root.renderChrome(backgroundContainer,hitBoxes);
+         if (root!=null)
+            root.renderChrome(backgroundContainer,hitBoxes);
       }
    }
 
@@ -256,10 +257,15 @@ class TopLevelDock implements IDock
             if (pane.title==title)
             {
                panes.remove(pane);
+               pane.loadLayout(floating);
                floatWindow(pane,null,floating);
+               break;
             }
       }
-      //root = Dock.
+
+      root = Dock.loadLayout(inInfo.root,panes,mdi);
+      if (root!=null)
+        root.setDock(this,paneContainer);
    }
 
 
