@@ -201,7 +201,7 @@ class Pane implements IDockable
    {
       return { type:"Pane", title:title,
           sizeX:sizeX,  sizeY:sizeY, scrollX:scrollX, scrollY:scrollY,
-          bestSize:bestSize, properties:properties, flags:flags };
+          bestSize:bestSize.copy(), properties:properties, flags:flags };
 
       return {};
    }
@@ -213,11 +213,18 @@ class Pane implements IDockable
       var y = inLayout.mdiY;
       if (y!=null) properties.mdiY = y;
 
-      var pos = inLayout.floatinfPos;
+      var pos = inLayout.floatingfPos;
       if (pos!=null)
       {
-         properties.floatinfPos.x = pos.x;
-         properties.floatinfPos.y = pos.y;
+         properties.floatingPos.x = pos.x;
+         properties.floatingPos.y = pos.y;
+      }
+      var sizes:Array<Dynamic> = inLayout.bestSize;
+      for(idx in 0...sizes.length)
+      {
+         var s = sizes[idx];
+         if (s!=null)
+            bestSize[idx] = new Size( s.x, s.y );
       }
    }
 

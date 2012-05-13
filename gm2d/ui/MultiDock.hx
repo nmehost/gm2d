@@ -5,7 +5,6 @@ import gm2d.display.Sprite;
 import gm2d.ui.DockPosition;
 import gm2d.geom.Rectangle;
 
-
 class MultiDock implements IDock, implements IDockable
 {
    var parentDock:IDock;
@@ -66,7 +65,7 @@ class MultiDock implements IDock, implements IDockable
          }
          bestSize[inSlot] = addPadding(best);
       }
-      return bestSize[inSlot];
+      return bestSize[inSlot].clone();
    }
    public function getProperties() : Dynamic { return properties; }
 
@@ -157,11 +156,20 @@ class MultiDock implements IDock, implements IDockable
 
       return { type:"MultiDock",
           dockables:dockables, properties:properties, flags:flags,
-          current:currentDockable==null ? null : currentDockable.getTitle() };
+          current:currentDockable==null ? null : currentDockable.getTitle(),
+          bestSize : bestSize.copy() };
    }
 
    public function loadLayout(inLayout:Dynamic):Void
    {
+      bestSize = [];
+      var sizes:Array<Dynamic> = inLayout.bestSize;
+      for(idx in 0...sizes.length)
+      {
+         var s = sizes[idx];
+         if (s!=null)
+            bestSize[idx] = new Size( s.x, s.y );
+      }
    }
 
 

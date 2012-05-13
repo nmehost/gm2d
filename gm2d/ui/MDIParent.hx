@@ -257,6 +257,8 @@ class MDIParent extends Widget, implements IDock, implements IDockable
 
    public function loadLayout(inLayout:Dynamic):Void
    {
+      sizeX = inLayout.sizeX==null ? sizeX : inLayout.sizeX;
+      sizeY = inLayout.sizeY==null ? sizeY : inLayout.sizeY;
    }
 
 

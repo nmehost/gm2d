@@ -41,6 +41,24 @@ class Dock
    {
       child.getDock().minimizeDockable(child);
    }
+
+
+   static function loadChildren(inDockables:Dynamic, panes:Array<Pane>,inMDI:MDIParent ):Array<IDockable>
+   {
+      var children = new Array<IDockable>();
+      var dockables:Array<Dynamic> = inDockables;
+      if (dockables!=null)
+      {
+         for(d in dockables)
+         {
+            var child = loadLayout(d, panes, inMDI);
+            if (child!=null)
+               children.push(child);
+         }
+      }
+      return children;
+   }
+
    public static function loadLayout(inInfo:Dynamic, panes:Array<Pane>,inMDI:MDIParent ):IDockable
    {
       if (inInfo==null)
@@ -48,8 +66,8 @@ class Dock
       switch(inInfo.type)
       {
          case "MDIParent" :
-            if (inInfo.properties!=null)
-               inMDI.loadLayout(inInfo.properties);
+            if (inInfo!=null)
+               inMDI.loadLayout(inInfo);
             var dockables:Array<Dynamic> = inInfo.dockables;
             var currentTitle:String = inInfo.current==null ? inInfo.current : "";
             var current:Pane = null;
@@ -70,6 +88,7 @@ class Dock
             if (current!=null)
                inMDI.raiseDockable(current);
             return inMDI;
+
          case "Pane" :
             var title:String = inInfo.title;
             for(pane in panes)
@@ -82,28 +101,31 @@ class Dock
 
 
          case "SideDock" :
-            var horizontal = inInfo.horizontal ? DOCK_LEFT:DOCK_TOP;
-            var children = new Array<IDockable>();
-            var dockables:Array<Dynamic> = inInfo.dockables;
-            if (dockables!=null)
-            {
-               for(d in dockables)
-               {
-                  var child = loadLayout(d, panes, inMDI);
-                  if (child!=null)
-                     children.push(child);
-               }
-            }
+            var children = loadChildren(inInfo.dockables,panes,inMDI);
             if (children.length==0)
                return null;
             if (children.length==1)
                return children[0];
+            var horizontal = inInfo.horizontal ? DOCK_LEFT:DOCK_TOP;
             var side = new SideDock(horizontal);
-            side.loadLayout(inInfo.properties);
+            side.loadLayout(inInfo);
             var idx = 0;
             for(child in children)
                side.addDockable(child,horizontal,idx++);
             return side;
+
+         case "MultiDock" :
+            var children = loadChildren(inInfo.dockables,panes,inMDI);
+            if (children.length==0)
+               return null;
+            if (children.length==1)
+               return children[0];
+            var multi = new MultiDock();
+            multi.loadLayout(inInfo);
+            var idx = 0;
+            for(child in children)
+               multi.addDockable(child,DOCK_OVER,idx++);
+            return multi;
       }
       return null;
    }
