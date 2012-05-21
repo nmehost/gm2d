@@ -476,7 +476,7 @@ class Game
          mScreenParent.mouseEnabled = false;
          mDialogParent.addChild(mCurrentDialog);
          mCurrentDialog.onAdded();
-         mCurrentDialog.doLayout();
+         //mCurrentDialog.doLayout();
          if (inCenter)
             mCurrentDialog.center(initWidth,initHeight);
       }

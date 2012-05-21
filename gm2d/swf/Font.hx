@@ -41,7 +41,7 @@ class Font
       var bold = (inVersion>1) && inStream.ReadBool();
       var lang_code = (inVersion>1) ? inStream.ReadByte() : 0;
       mName = (inVersion>1) ?  inStream.ReadPascalString() : "font";
-      //trace("Font name : " + mName);
+      trace("Font name : " + mName);
       
       var n:Int;
       var s0:Int;
@@ -252,8 +252,11 @@ class Font
    }
 
 
+   static var first = true;
    public function RenderGlyph(inGraphics:Graphics,inGlyph:Int,m:Matrix) : Void
    {
+
+
       if (mGlyphs.length>inGlyph)
       {
          var commands = mGlyphs[inGlyph].mCommands;

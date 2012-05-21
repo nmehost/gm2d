@@ -23,6 +23,10 @@ class Skin
 {
    public static var current(getCurrent,setCurrent):Skin;
 
+   public var labelColor:Int;
+   public var panelColor:Int;
+   public var buttonColor:Int;
+
    public var textFormat:gm2d.text.TextFormat;
    public var menuHeight:Float;
    public var mBitmaps:Array< Array<BitmapData> >;
@@ -43,9 +47,24 @@ class Skin
       centerTitle = true;
       buttonBorderX = 10;
       buttonBorderY = 5;
+      labelColor = 0x000000;
+      panelColor = 0xe0e0d0;
+      buttonColor = 0xf0f0f0;
+
+      initGfx();
+
       for(state in  HitBoxes.BUT_STATE_UP...HitBoxes.BUT_STATE_DOWN+1)
          mBitmaps[state] = [];
    }
+
+   public function getTextFormat()
+   {
+      var fmt = new gm2d.text.TextFormat();
+      fmt.size = 16;
+      fmt.font = "Arial";
+      return fmt;
+   }
+
 
    public static function getCurrent():Skin
    {
@@ -93,7 +112,7 @@ class Skin
    public function styleLabelText(label:TextField)
    {
       label.defaultTextFormat = textFormat;
-      label.textColor = Panel.labelColor;
+      label.textColor = labelColor;
       label.autoSize = TextFieldAutoSize.LEFT;
       label.selectable = false;
       //label.mouseEnabled = false;
@@ -111,7 +130,7 @@ class Skin
    public function stylePane(inGfx:Graphics, inRect:Rectangle)
    {
       inGfx.clear();
-      inGfx.beginFill(Panel.panelColor);
+      inGfx.beginFill(panelColor);
       inGfx.drawRect(inRect.x, inRect.y, inRect.w, inRect.h );
    }
 */
@@ -145,7 +164,7 @@ class Skin
    {
       var gfx = inContainer.graphics;
       gfx.lineStyle();
-      gfx.beginFill(Panel.panelColor);
+      gfx.beginFill(panelColor);
       gfx.drawRect(inRect.x,inRect.y,inRect.width,inRect.height);
       gfx.endFill();
       gfx.lineStyle(1,0x000000);
@@ -161,7 +180,7 @@ class Skin
       {
          gfx.drawRect(inRect.x+1.5,inRect.y+21.5,inRect.width-2,inRect.height-23);
          gfx.lineStyle();
-         gfx.beginFill(Panel.panelColor);
+         gfx.beginFill(panelColor);
          gfx.drawRect(inRect.x,inRect.y,inRect.width,inRect.height);
 
          /*
@@ -208,7 +227,7 @@ class Skin
       var y = inRect.y;
       var gfx = inContainer.graphics;
       gfx.lineStyle();
-      gfx.beginFill(Panel.panelColor);
+      gfx.beginFill(panelColor);
       gfx.drawRect(inRect.x,inRect.y,inRect.width,inRect.height);
       gfx.endFill();
 
@@ -273,7 +292,7 @@ class Skin
    {
       var gfx = inContainer.graphics;
       //gfx.lineStyle();
-      gfx.beginFill(Panel.panelColor);
+      gfx.beginFill(panelColor);
       var gap = getResizeBarWidth();
       var extra = 2;
       var pos = 0.0;
@@ -374,10 +393,89 @@ class Skin
    }
 
 
-   public function renderDialog(inGfx:Graphics, inWidth:Float, inHeight:Float)
+   public function renderDialog(inObj:Sprite, pane:IDockable, inW:Float, inH:Float, outHitBoxes:HitBoxes)
    {
-      renderButton(inGfx,inWidth,inHeight);
+      outHitBoxes.clear();
+
+      inObj.y = -title_h;
+      var gfx = inObj.graphics;
+      gfx.clear();
+
+      var w = inW+borders*2;
+      var h = inH+borders*2+title_h;
+
+		gfx.beginFill(0xa0a090);
+      gfx.lineStyle(1,0xa0a090);
+
+      gfx.drawRoundRect(0.5,0.5,w, h, 3,3 );
+
+      /*
+      if (inTitle!="")
+      {
+         mTitle = new TextField();
+         mTitle.mouseEnabled = false;
+         mTitle.defaultTextFormat = Panel.labelFormat;
+         mTitle.textColor = 0x000000;
+         mTitle.selectable = false;
+         mTitle.text = inTitle;
+         mTitle.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
+         mTitle.y = 2;
+         title_gap = 24;
+
+         var f:Array<BitmapFilter> = [];
+         f.push( new DropShadowFilter(2,45,0xffffff,1,0,0,1) );
+         mTitle.filters = f;
+
+         addChild(mTitle);
+      }
+      */
+
+
+      if ( Dock.isResizeable(pane) )
+      {
+         gfx.endFill();
+         for(o in 0...4)
+         {
+            var dx = (o+2)*3;
+            gfx.moveTo(w-dx,h);
+            gfx.lineTo(w,h-dx);
+         }
+         outHitBoxes.add( new Rectangle(w-12,h-12,12,12), HitAction.RESIZE(pane, ResizeFlag.S|ResizeFlag.E) );
+      }
+
+		//gfx.beginFill(0xffffff);
+      //gfx.drawRect(borders-0.5,title_h+borders-0.5,inW+1, inH+1 );
+
+
+      var x = inW - borders;
+      for(but in [ MiniButton.CLOSE, MiniButton.MINIMIZE, MiniButton.MAXIMIZE ] )
+      {
+         var state =  getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
+         var button =  new SimpleButton( state,
+                                        getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
+                                        getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
+         inObj.addChild(button);
+         button.y = Std.int( (title_h - button.height)/2 );
+         x-= button.width;
+         button.x = x;
+
+         if (outHitBoxes.mCallback!=null)
+            button.addEventListener( MouseEvent.CLICK, function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
+      }
+
+      var titleBmp = new Bitmap();
+      titleBmp.x = borders;
+      titleBmp.y = borders;
+      inObj.addChild(titleBmp);
+      titleBmp.bitmapData = renderText(pane.getTitle(),pane.getShortTitle(),x-borders,  title_h-borders*2);
+
+      if (centerTitle)
+         titleBmp.x = Std.int((x-borders-titleBmp.width)/2);
+
+      //trace("Title : " + inW + "x"  + title_h );
+      outHitBoxes.add( new Rectangle(0,0,inW,title_h), TITLE(pane) );
    }
+
 
    public function renderMDI(inMDI:Sprite)
    {
@@ -711,7 +809,6 @@ class Skin
       display.y = inRect.y;
       inTabContainer.addChild(display);
 
-      initGfx();
       var gfx = mDrawing.graphics;
       gfx.clear();
       var mtx = new gm2d.geom.Matrix();

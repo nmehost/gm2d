@@ -9,51 +9,48 @@ import gm2d.ui.Layout;
 import gm2d.svg.SVG2Gfx;
 import gm2d.filters.BitmapFilter;
 import gm2d.filters.DropShadowFilter;
+import gm2d.ui.HitBoxes;
 
 
 
 class Dialog extends Window
 {
-   var mPanel:Panel;
-   var mTitle:TextField;
-   var mBG:Sprite;
+   var mPane:Pane;
+   var mChrome:Sprite;
+   var mContent:Sprite;
+   var mHitBoxes:HitBoxes;
+   var mClientWidth:Float;
+   var mClientHeight:Float;
+   var mouseWatcher:MouseWatcher;
 
-   public var panel(getPanel,null):Panel;
 
 
-   public function new(inTitle:String="",?inForceWidth:Null<Float>, ?inForceHeight:Null<Float>)
+
+   public function new(inPane:Pane)
    {
       super();
-      mBG = new Sprite();
-      addChild(mBG);
+      mPane = inPane;
+      mChrome = new Sprite();
+      mContent = new Sprite();
+      addChild(mChrome);
+      inPane.setDock(null,this);
+      //addChild(inPane.displayObject);
+      mHitBoxes = new HitBoxes(this,onHitBox);
+      var size = inPane.getBestSize(Dock.DOCK_SLOT_FLOAT);
+      mClientWidth = size.x;
+      mClientHeight = size.y;
+
+      Skin.current.renderDialog(mChrome,mPane,mClientWidth,mClientHeight,mHitBoxes);
+
       var title_gap = 0;
-      if (inTitle!="")
-      {
-         mTitle = new TextField();
-         mTitle.mouseEnabled = false;
-         mTitle.defaultTextFormat = Panel.labelFormat;
-         mTitle.textColor = 0x000000;
-         mTitle.selectable = false;
-         mTitle.text = inTitle;
-         mTitle.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
-         mTitle.y = 2;
-         title_gap = 24;
-
-         var f:Array<BitmapFilter> = [];
-         f.push( new DropShadowFilter(2,45,0xffffff,1,0,0,1) );
-         mTitle.filters = f;
-
-         addChild(mTitle);
-      }
-      mPanel = new Panel(inForceWidth,inForceHeight);
-      addChild(mPanel);
-      mLayout = mPanel.getLayout().setBorders(10,10+title_gap,10,10);
+      //mLayout = mPanel.getLayout().setBorders(10,10+title_gap,10,10);
 
       var f:Array<BitmapFilter> = [];
       f.push( new DropShadowFilter(5,45,0,0.5,3,3,1) );
       filters = f;
 
-      mBG.addEventListener(gm2d.events.MouseEvent.MOUSE_DOWN, doDrag);
+      // TODO - use hit boxes
+      mChrome.addEventListener(gm2d.events.MouseEvent.MOUSE_DOWN, doDrag);
    }
 
    function doneDrag(_)
@@ -70,14 +67,25 @@ class Dialog extends Window
 
    public function goBack() { Game.closeDialog(); }
 
-   public function getBackground() { return mBG.graphics; }
-   public function getPanel() { return mPanel; }
-   public dynamic function renderBackground(inW:Float,inH:Float)
+   function onHitBox(inAction:HitAction,inEvent:MouseEvent)
    {
-      var gfx = getBackground();
-      Skin.current.renderDialog(gfx,inW,inH);
+      /*
+      switch(inAction)
+      {
+         case DRAG(pane):
+            doStartDrag(inEvent);
+         case BUTTON(_,id):
+            if (id==MiniButton.CLOSE)
+               pane.closeRequest(false);
+            redraw();
+         case REDRAW:
+            redraw();
+         default:
+      }
+      */
    }
 
+/*
    public function doLayout()
    {
       panel.doLayout();
@@ -107,11 +115,12 @@ class Dialog extends Window
       renderBackground = function(w,h) { bg.width = w; bg.height = h; }
       cacheAsBitmap = gm2d.Lib.isOpenGL;
    }
+   */
    public function center(inWidth:Float,inHeight:Float)
    {
       var p = (parent==null) ? this : parent;
-      x = ( (inWidth - mPanel.getLayoutWidth())/2 )/p.scaleX;
-      y = ( (inHeight - mPanel.getLayoutHeight())/2 )/p.scaleY;
+      x = ( (inWidth - mClientWidth)/2 )/p.scaleX;
+      y = ( (inHeight - mClientHeight)/2 )/p.scaleY;
    }
 
    public dynamic function onClose() { }

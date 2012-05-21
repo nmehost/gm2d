@@ -12,6 +12,31 @@ class SwfTest extends Screen
    {
       super();
 
+/*
+      var data = Resources.loadBytes("tests/Text.swf");
+      var swf = new SWF(data);
+      var obj = swf.createInstance();
+      obj.scaleX = obj.scaleY = 5.0;
+      addChild(obj);
+      obj.cacheAsBitmap = true;
+*/
+      var obj = new Sprite();
+      addChild(obj);
+      //obj.cacheAsBitmap = true;
+      var gfx=obj.graphics;
+      gfx.beginFill(0x00ff00);
+      gfx.moveTo(100,100);
+      gfx.lineTo(200,100);
+      gfx.lineTo(200,200);
+      gfx.lineTo(100,200);
+      gfx.lineTo(100,100);
+      gfx.moveTo(120,120);
+      gfx.lineTo(180,120);
+      gfx.lineTo(180,180);
+      gfx.lineTo(120,180);
+      gfx.lineTo(120,120);
+
+
       var test=[ "AdvancedLines", "Text", "GradientFillMotion", "ShapeMorph" ];
       var idx = 0;
       var gfx = graphics;
@@ -23,13 +48,14 @@ class SwfTest extends Screen
             var data = Resources.loadBytes("tests/" + test[idx++] + ".swf");
             var swf = new SWF(data);
             var obj = swf.createInstance();
-            obj.cacheAsBitmap = true;
+            //obj.cacheAsBitmap = true;
             obj.x = x*320;
             obj.y = y*240;
             obj.scaleX = 0.5;
             obj.scaleY = 0.5;
             addChild(obj);
          }
+
       makeCurrent();
    }
 

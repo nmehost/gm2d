@@ -22,12 +22,10 @@ class Dialog extends Screen
 
       Game.setCurrentScreen(this);
 
-      var settings = new gm2d.ui.Dialog("Settings",300,200);
+
+      var panel = new gm2d.ui.Panel("Settings");
+
       var bg:SVG2Gfx = Resources.loadSvg("bg.svg");
-      settings.SetSVGBackground( bg );
-
-      var panel =settings.panel;
-
       panel.addLabel("Music Volume");
       var sl:SVG2Gfx =  Resources.loadSvg("slider.svg");
       panel.addUI(gm2d.ui.Slider.SkinnedSlider(sl,null,0,100,50,OnMusic) );
@@ -39,6 +37,12 @@ class Dialog extends Screen
       var but = Button.TextButton("Cancel", function() { Game.closeDialog(); } );
       but.setBackground(bg,100,40);
       panel.addButton(but);
+
+      var pane = panel.getPane();
+      pane.setMinSize(300,200);
+      var settings = new gm2d.ui.Dialog(pane);
+      //settings.SetSVGBackground( bg );
+
 
       Game.addDialog("Settings",settings);
       var dlg = Game.showDialog("Settings");

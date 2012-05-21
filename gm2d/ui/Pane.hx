@@ -65,6 +65,22 @@ class Pane implements IDockable
    }
    static public function allPanes() { return sPanes.copy(); }
 
+   public function setMinSize(inX:Float, inY:Float)
+   {
+      minSizeX = inX;
+      minSizeY = inY;
+      if (bestWidth<inX)
+         bestWidth = inX;
+      if (bestHeight<inY)
+         bestHeight = inY;
+      for(s in bestSize)
+         if (s!=null)
+         {
+            if (s.x<inX) s.x = inX;
+            if (s.y<inY) s.y = inY;
+         }
+   }
+
    public function removeDockable(child:IDockable):IDockable
    {
       if (child==this)

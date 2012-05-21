@@ -17,7 +17,7 @@ class TextInput extends Control
    {
        super();
        mText = new TextField();
-       mText.defaultTextFormat = Panel.labelFormat;
+       mText.defaultTextFormat = Skin.current.textFormat;
        mText.text = inVal;
        mText.x = 0.5;
        mText.y = 0.5;

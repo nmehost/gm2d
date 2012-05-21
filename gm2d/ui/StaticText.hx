@@ -9,13 +9,7 @@ class StaticText
    public static function create(inText:String,?inParent:DisplayObjectContainer)
    {
       var label = new TextField();
-      label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
-      // todo : skin
-      label.defaultTextFormat = Panel.labelFormat;
-      label.text = inText;
-      label.setTextFormat(Panel.labelFormat);
-      label.textColor = Panel.labelColor;
-      label.selectable = false;
+      Skin.current.styleLabelText(label);
       if (inParent!=null)
          inParent.addChild(label);
       return label;

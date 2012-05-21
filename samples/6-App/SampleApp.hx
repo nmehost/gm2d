@@ -66,7 +66,7 @@ class SampleApp extends App
 
    function onTest(_)
    {
-      var progressDialog = new gm2d.ui.ProgressDialog("Test","Progress",100, 
+      var progressDialog = gm2d.ui.ProgressDialog.create("Test","Progress",100, 
             function() { Game.closeDialog(); } );
       Game.doShowDialog(progressDialog,true);
    }

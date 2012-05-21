@@ -74,9 +74,8 @@ class ListControl extends ScrollWidget
    public function stringToItem(inString:String) : DisplayObject
    {
       var t = new TextField();
-      t.defaultTextFormat = Panel.labelFormat;
+      Skin.current.styleLabelText(t);
       t.text = inString;
-      t.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
       t.selectable = mTextSelectable;
       if (!mTextSelectable)
          t.mouseEnabled = false;

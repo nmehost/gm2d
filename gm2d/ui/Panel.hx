@@ -14,26 +14,19 @@ class Panel extends Widget
    var mItemLayout:Layout;
    var mButtonLayout:Layout;
    var mDebug:Shape;
-   var mForceWidth:Null<Float>;
-   var mForceHeight:Null<Float>;
    var mLayoutDirty:Bool;
    var mLabelLookup:Hash<TextField>;
    var mButtons:Array<Button>;
+   var mTitle:String;
+   var mPane:Pane;
 
-   public static var labelColor = 0x000000;
-   public static var labelFormat = DefaultTextFormat();
-   public static var panelColor = 0xe0e0d0;
-   public static var buttonColor = 0xf0f0f0;
-
-   public function new(?inForceWidth:Null<Float>, ?inForceHeight:Null<Float>,?inTitleLayout:Layout)
+   public function new(inTitle:String = "" )
    {
       super();
 
-      mForceWidth = inForceWidth;
-      mForceHeight = inForceHeight;
       mButtons = [];
       mLayoutDirty = true;
-
+      mTitle = inTitle;
 
       mDebug = gm2d.Lib.debug ? new Shape() : null;
       mGridLayout = new GridLayout(1,"vertical");
@@ -41,8 +34,6 @@ class Panel extends Widget
       mItemLayout = new GridLayout(2,"items");
       mButtonLayout = new GridLayout(null,"buttons");
       mButtonLayout.setSpacing(10,0);
-      if (inTitleLayout!=null)
-         mGridLayout.add(inTitleLayout);
       mGridLayout.add(mItemLayout);
       mGridLayout.add(mButtonLayout);
       mGridLayout.setRowStretch(1,0);
@@ -50,6 +41,20 @@ class Panel extends Widget
          addChild(mDebug);
    }
 
+   public function getPane()
+   {
+      if (mPane==null)
+      {
+         var w = mGridLayout.getBestWidth();
+         var h = mGridLayout.getBestHeight(w);
+         mPane = new Pane(this, mTitle, 0);
+         mPane.setMinSize(w,h);
+         layout(w,h);
+      }
+      return mPane;
+   }
+
+   /*
    public function doLayout()
    {
       mLayoutDirty = false;
@@ -65,6 +70,8 @@ class Panel extends Widget
       onLaidOut();
       Layout.setDebug(null);
    }
+   */
+
    override public function layout(inX:Float,inY:Float)
    {
       mGridLayout.setRect(0,0,inX,inY);
@@ -91,6 +98,7 @@ class Panel extends Widget
    public dynamic function onLaidOut() { }
 
 
+   /*
    public function getLayoutWidth()
    {
       if (mLayoutDirty) doLayout();
@@ -101,6 +109,7 @@ class Panel extends Widget
       if (mLayoutDirty) doLayout();
       return mGridLayout.height;
    }
+   */
 
 
    public function setBorders(inL:Float,inT:Float,inR:Float,inB:Float)
@@ -140,12 +149,8 @@ class Panel extends Widget
    {
       mLayoutDirty = true;
       var label = new TextField();
-      label.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
-      label.defaultTextFormat = labelFormat;
+      Skin.current.styleLabelText(label);
       label.text = inText;
-      label.setTextFormat(labelFormat);
-      label.textColor = labelColor;
-      label.selectable = false;
       addChild(label);
       mItemLayout.add( new TextLayout(label) );
 
@@ -159,15 +164,6 @@ class Panel extends Widget
    {
       mLabelLookup.get(inName).text = inValue;
    }
-
-   static function DefaultTextFormat()
-   {
-      var fmt = new gm2d.text.TextFormat();
-      fmt.size = 16;
-      fmt.font = "Arial";
-      return fmt;
-   }
-
 
 
 
