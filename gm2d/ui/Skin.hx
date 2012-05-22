@@ -19,6 +19,15 @@ import gm2d.geom.Matrix;
 
 import nme.display.SimpleButton;
 
+
+class FrameRenderer
+{
+   public function new() { }
+
+   public dynamic function render(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void { }
+   public dynamic function getRect(ioRect:Rectangle):Void { }
+}
+
 class Skin
 {
    public static var current(getCurrent,setCurrent):Skin;
@@ -392,46 +401,32 @@ class Skin
       inGfx.drawRoundRect(0.5,0.5,inWidth*inFraction,inHeight,6,6);
    }
 
+   public function getDialogRenderer() : FrameRenderer
+   {
+      var result = new FrameRenderer();
+      result.render = renderDialog;
+      return result;
+   }
 
-   public function renderDialog(inObj:Sprite, pane:IDockable, inW:Float, inH:Float, outHitBoxes:HitBoxes)
+   public function renderDialog(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes)
    {
       outHitBoxes.clear();
+      while(outChrome.numChildren>0)
+         outChrome.removeChildAt(0);
 
-      inObj.y = -title_h;
-      var gfx = inObj.graphics;
+      var ox = inRect.x - borders;
+      var oy = inRect.y -title_h - borders;
+      var w = inRect.width+borders*2;
+      var h = inRect.height+borders*2+title_h;
+
+      var gfx = outChrome.graphics;
       gfx.clear();
-
-      var w = inW+borders*2;
-      var h = inH+borders*2+title_h;
-
-		gfx.beginFill(0xa0a090);
+      gfx.beginFill(0xa0a090);
       gfx.lineStyle(1,0xa0a090);
 
-      gfx.drawRoundRect(0.5,0.5,w, h, 3,3 );
+      gfx.drawRoundRect(ox+0.5,ox+0.5,w, h, 3,3 );
 
-      /*
-      if (inTitle!="")
-      {
-         mTitle = new TextField();
-         mTitle.mouseEnabled = false;
-         mTitle.defaultTextFormat = Panel.labelFormat;
-         mTitle.textColor = 0x000000;
-         mTitle.selectable = false;
-         mTitle.text = inTitle;
-         mTitle.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
-         mTitle.y = 2;
-         title_gap = 24;
-
-         var f:Array<BitmapFilter> = [];
-         f.push( new DropShadowFilter(2,45,0xffffff,1,0,0,1) );
-         mTitle.filters = f;
-
-         addChild(mTitle);
-      }
-      */
-
-
-      if ( Dock.isResizeable(pane) )
+      if ( Dock.isResizeable(inPane) )
       {
          gfx.endFill();
          for(o in 0...4)
@@ -440,40 +435,36 @@ class Skin
             gfx.moveTo(w-dx,h);
             gfx.lineTo(w,h-dx);
          }
-         outHitBoxes.add( new Rectangle(w-12,h-12,12,12), HitAction.RESIZE(pane, ResizeFlag.S|ResizeFlag.E) );
+         outHitBoxes.add( new Rectangle(w-12,h-12,12,12), HitAction.RESIZE(inPane, ResizeFlag.S|ResizeFlag.E) );
       }
 
-		//gfx.beginFill(0xffffff);
-      //gfx.drawRect(borders-0.5,title_h+borders-0.5,inW+1, inH+1 );
-
-
-      var x = inW - borders;
-      for(but in [ MiniButton.CLOSE, MiniButton.MINIMIZE, MiniButton.MAXIMIZE ] )
+      var pane = inPane.asPane();
+      var title = pane==null ? "" : pane.title;
+      if (title!="")
       {
-         var state =  getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
-         var button =  new SimpleButton( state,
-                                        getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
-                                        getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
-         inObj.addChild(button);
-         button.y = Std.int( (title_h - button.height)/2 );
-         x-= button.width;
-         button.x = x;
+         var titleField = new TextField();
+         titleField.defaultTextFormat = textFormat;
+         var f = titleField.defaultTextFormat;
+         f.size = 24;
+         titleField.defaultTextFormat = f;
+         titleField.mouseEnabled = false;
+         titleField.textColor = 0x000000;
+         titleField.selectable = false;
+         titleField.text = title;
+         titleField.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
+         titleField.y = 2;
 
-         if (outHitBoxes.mCallback!=null)
-            button.addEventListener( MouseEvent.CLICK, function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
+         var f:Array<BitmapFilter> = [];
+         f.push( new DropShadowFilter(2,45,0xffffff,1,0,0,1) );
+         titleField.filters = f;
+
+         outChrome.addChild(titleField);
+
+         if (centerTitle)
+            titleField.x = ox + Std.int((inRect.width-titleField.textWidth)/2);
       }
 
-      var titleBmp = new Bitmap();
-      titleBmp.x = borders;
-      titleBmp.y = borders;
-      inObj.addChild(titleBmp);
-      titleBmp.bitmapData = renderText(pane.getTitle(),pane.getShortTitle(),x-borders,  title_h-borders*2);
-
-      if (centerTitle)
-         titleBmp.x = Std.int((x-borders-titleBmp.width)/2);
-
-      //trace("Title : " + inW + "x"  + title_h );
-      outHitBoxes.add( new Rectangle(0,0,inW,title_h), TITLE(pane) );
+      outHitBoxes.add( new Rectangle(ox,ox,w,title_h), TITLE(inPane) );
    }
 
 

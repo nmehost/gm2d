@@ -49,7 +49,7 @@ class Panel extends Widget
          var h = mGridLayout.getBestHeight(w);
          mPane = new Pane(this, mTitle, 0);
          mPane.setMinSize(w,h);
-         layout(w,h);
+         mPane.itemLayout = mGridLayout;
       }
       return mPane;
    }

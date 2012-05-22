@@ -10,6 +10,8 @@ import gm2d.svg.SVG2Gfx;
 import gm2d.filters.BitmapFilter;
 import gm2d.filters.DropShadowFilter;
 import gm2d.ui.HitBoxes;
+import gm2d.geom.Rectangle;
+import gm2d.ui.Skin;
 
 
 
@@ -19,14 +21,14 @@ class Dialog extends Window
    var mChrome:Sprite;
    var mContent:Sprite;
    var mHitBoxes:HitBoxes;
-   var mClientWidth:Float;
-   var mClientHeight:Float;
+   var mClientRect:Rectangle;
    var mouseWatcher:MouseWatcher;
+   var renderer:FrameRenderer;
 
 
 
 
-   public function new(inPane:Pane)
+   public function new(inPane:Pane, ?inRenderer:FrameRenderer)
    {
       super();
       mPane = inPane;
@@ -37,10 +39,14 @@ class Dialog extends Window
       //addChild(inPane.displayObject);
       mHitBoxes = new HitBoxes(this,onHitBox);
       var size = inPane.getBestSize(Dock.DOCK_SLOT_FLOAT);
-      mClientWidth = size.x;
-      mClientHeight = size.y;
+      mClientRect = new Rectangle(0,0,size.x,size.y);
 
-      Skin.current.renderDialog(mChrome,mPane,mClientWidth,mClientHeight,mHitBoxes);
+      renderer = inRenderer==null ? Skin.current.getDialogRenderer() : inRenderer;
+      renderer.getRect(mClientRect);
+
+      var layout = inPane.setRect(mClientRect.x,mClientRect.y,mClientRect.width,mClientRect.height);
+
+      renderer.render(mChrome,mPane,mClientRect,mHitBoxes);
 
       var title_gap = 0;
       //mLayout = mPanel.getLayout().setBorders(10,10+title_gap,10,10);
@@ -119,8 +125,8 @@ class Dialog extends Window
    public function center(inWidth:Float,inHeight:Float)
    {
       var p = (parent==null) ? this : parent;
-      x = ( (inWidth - mClientWidth)/2 )/p.scaleX;
-      y = ( (inHeight - mClientHeight)/2 )/p.scaleY;
+      x = ( (inWidth - mClientRect.width)/2 )/p.scaleX;
+      y = ( (inHeight - mClientRect.height)/2 )/p.scaleY;
    }
 
    public dynamic function onClose() { }

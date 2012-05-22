@@ -162,10 +162,13 @@ class Pane implements IDockable
    }
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
-      var slot = dock.getSlot();
-      bestSize[slot] = new Size(w,h);
-      if (slot==Dock.DOCK_SLOT_FLOAT || slot==Dock.DOCK_SLOT_MDI)
-          bestSize[Dock.DOCK_SLOT_FLOAT] = bestSize[Dock.DOCK_SLOT_MDI] = new Size(w,h);
+      if (dock!=null)
+      {
+         var slot = dock.getSlot();
+         bestSize[slot] = new Size(w,h);
+         if (slot==Dock.DOCK_SLOT_FLOAT || slot==Dock.DOCK_SLOT_MDI)
+             bestSize[Dock.DOCK_SLOT_FLOAT] = bestSize[Dock.DOCK_SLOT_MDI] = new Size(w,h);
+      }
 
       posX = x;
       posY = y;
