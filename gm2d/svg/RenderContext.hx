@@ -1,24 +1,28 @@
 package gm2d.svg;
 
 import gm2d.geom.Matrix;
+import gm2d.geom.Rectangle;
 
 class RenderContext
 {
-   public function new()
+   public function new(inMatrix:Matrix,?inRectangle:Rectangle)
    {
-      matrix = null;
+      matrix = inMatrix;
+      rect = inRectangle;
       firstX = 0;
       firstY = 0;
       lastX = 0;
       lastY = 0;
    }
-   inline public function  transX(inX:Float, inY:Float)
+   public function  transX(inX:Float, inY:Float)
    {
-      return matrix==null ? inX : (inX*matrix.a + inY*matrix.c + matrix.tx);
+      var x =  matrix==null ? inX : (inX*matrix.a + inY*matrix.c + matrix.tx);
+      return rect==null || x<rect.x ? x : x + rect.width*2;
    }
-   inline public function  transY(inX:Float, inY:Float)
+   public function  transY(inX:Float, inY:Float)
    {
-      return matrix==null ? inY : (inX*matrix.b + inY*matrix.d + matrix.ty);
+      var y =  matrix==null ? inY : (inX*matrix.b + inY*matrix.d + matrix.ty);
+      return rect==null || y<rect.y ? y : y + rect.width;
    }
 
 
@@ -28,6 +32,8 @@ class RenderContext
       lastY = transY(inX,inY);
    }
    public var matrix:Matrix;
+   public var rect:Rectangle;
+
    public var firstX:Float;
    public var firstY:Float;
    public var lastX:Float;

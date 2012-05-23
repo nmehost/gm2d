@@ -22,6 +22,7 @@ import gm2d.svg.Grad;
 import gm2d.svg.Group;
 import gm2d.svg.FillType;
 import gm2d.gfx.Gfx;
+import gm2d.geom.Rectangle;
 
 
 typedef GroupPath = Array<String>;
@@ -35,6 +36,7 @@ class SVG2Gfx
     var mSvg:Svg;
     var mGfx : Gfx;
     var mMatrix : Matrix;
+    var mScale9Rect:Rectangle;
     var mFilter : ObjectFilter;
     var mGroupPath : GroupPath;
 
@@ -81,14 +83,9 @@ class SVG2Gfx
 
        var m:Matrix  = inPath.matrix.clone();
        m.concat(mMatrix);
-       var context:RenderContext = null;
-
+       var context = new RenderContext(m,mScale9Rect);
 
        var geomOnly = mGfx.geometryOnly();
-
-       context = new RenderContext();
-       context.matrix = m;
-
        if (!geomOnly)
        {
           // Move to avoid the case of:
@@ -162,7 +159,7 @@ class SVG2Gfx
        mGroupPath.pop();
     }
 
-    public function Render(inGfx:Graphics,?inMatrix:Matrix, ?inFilter:ObjectFilter )
+    public function Render(inGfx:Graphics,?inMatrix:Matrix, ?inFilter:ObjectFilter, ?inScale9:Rectangle )
     {
        mGfx = new gm2d.gfx.GfxGraphics(inGfx);
        if (inMatrix==null)
@@ -170,11 +167,13 @@ class SVG2Gfx
        else
           mMatrix = inMatrix.clone();
 
+       mScale9Rect = inScale9;
        mFilter = inFilter;
        mGroupPath = [];
 
        iterateGroup(mSvg,true);
     }
+
 
     public function GetExtent(?inMatrix:Matrix, ?inFilter:ObjectFilter, inIgnoreDot=true ) :
         Rectangle
@@ -195,9 +194,9 @@ class SVG2Gfx
     }
 
     public function RenderObject(inObj:DisplayObject,inGfx:Graphics,
-                    ?inMatrix:Matrix,?inFilter:ObjectFilter)
+                    ?inMatrix:Matrix,?inFilter:ObjectFilter,inScale9:Rectangle)
     {
-       Render(inGfx,inMatrix,inFilter);
+       Render(inGfx,inMatrix,inFilter,inScale9);
        var rect = GetExtent(inMatrix, function(_,groups) { return groups[1]==".scale9"; } );
 		 // TODO:
 		 /*
@@ -209,15 +208,15 @@ class SVG2Gfx
 		 */
     }
 
-    public function RenderSprite(inObj:Sprite, ?inMatrix:Matrix,?inFilter:ObjectFilter)
+    public function RenderSprite(inObj:Sprite, ?inMatrix:Matrix,?inFilter:ObjectFilter, ?inScale9:Rectangle)
     {
-       RenderObject(inObj,inObj.graphics,inMatrix,inFilter);
+       RenderObject(inObj,inObj.graphics,inMatrix,inFilter,inScale9);
     }
 
-    public function CreateShape(?inMatrix:Matrix,?inFilter:ObjectFilter) : Shape
+    public function CreateShape(?inMatrix:Matrix,?inFilter:ObjectFilter, ?inScale9:Rectangle) : Shape
     {
        var shape = new Shape();
-       RenderObject(shape,shape.graphics,inMatrix,inFilter);
+       RenderObject(shape,shape.graphics,inMatrix,inFilter,inScale9);
        return shape;
     }
 

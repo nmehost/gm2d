@@ -18,6 +18,8 @@ import gm2d.geom.Rectangle;
 import gm2d.geom.Matrix;
 
 import nme.display.SimpleButton;
+import gm2d.svg.SVG2Gfx;
+
 
 
 class FrameRenderer
@@ -26,6 +28,50 @@ class FrameRenderer
 
    public dynamic function render(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void { }
    public dynamic function getRect(ioRect:Rectangle):Void { }
+
+   public static function fromSVG(inSVG:SVG2Gfx)
+   {
+
+      var all  = inSVG.GetExtent(null, null);
+      var scale9 = inSVG.GetExtent(null, function(_,groups) { return groups[1]==".scale9"; } );
+      var interior = inSVG.GetExtent(null, function(_,groups) { return groups[1]==".interior"; } );
+      var size = inSVG.GetExtent(null, function(_,groups) { return groups[1]==".size"; } );
+
+      var result = new FrameRenderer();
+      result.render = function(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void
+      {
+         var gfx = outChrome.graphics;
+         var matrix = new Matrix();
+         matrix.tx = inRect.x;
+         matrix.ty = inRect.y;
+         if (scale9==null)
+         {
+            var rect = interior==null ? all : interior;
+            matrix.a = inRect.width/rect.width;
+            matrix.d = inRect.height/rect.height;
+         }
+         inSVG.Render(gfx,matrix,null,scale9);
+         if (gm2d.Lib.isOpenGL)
+            outChrome.cacheAsBitmap = true;
+      };
+      if (scale9!=null)
+        result.getRect = function(ioRect:Rectangle)
+        {
+           ioRect.x -= all.x;
+           ioRect.y -= all.y;
+           ioRect.width += all.width;
+           ioRect.height += all.height;
+        }
+      else if (size!=null)
+        result.getRect = function(ioRect:Rectangle)
+        {
+           ioRect.x = size.x;
+           ioRect.y = size.y;
+           ioRect.width = size.width;
+           ioRect.height = size.height;
+        }
+      return result;
+   }
 }
 
 class Skin

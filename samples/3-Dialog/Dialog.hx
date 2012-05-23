@@ -12,6 +12,7 @@ import gm2d.ui.Keyboard;
 import gm2d.events.MouseEvent;
 import gm2d.ui.BitmapFont;
 import gm2d.ui.BitmapText;
+import gm2d.ui.Skin;
 
 
 class Dialog extends Screen
@@ -40,9 +41,7 @@ class Dialog extends Screen
 
       var pane = panel.getPane();
       pane.setMinSize(300,200);
-      var settings = new gm2d.ui.Dialog(pane);
-      //settings.SetSVGBackground( bg );
-
+      var settings = new gm2d.ui.Dialog(pane, FrameRenderer.fromSVG(bg) );
 
       Game.addDialog("Settings",settings);
       var dlg = Game.showDialog("Settings");
