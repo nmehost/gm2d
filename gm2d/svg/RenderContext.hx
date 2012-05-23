@@ -17,7 +17,7 @@ class RenderContext
    public function  transX(inX:Float, inY:Float)
    {
       var x =  matrix==null ? inX : (inX*matrix.a + inY*matrix.c + matrix.tx);
-      return rect==null || x<rect.x ? x : x + rect.width*2;
+      return rect==null || x<rect.x ? x : x + rect.width;
    }
    public function  transY(inX:Float, inY:Float)
    {
