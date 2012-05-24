@@ -78,6 +78,7 @@ class Svg extends Group
           {
              case DisplayPath(path): trace(indent + "Path" + "  " + path.matrix);
              case DisplayGroup(group): dumpGroup(group,indent+"   ");
+             case DisplayText(text): trace(indent+"Text " + text.text);
           }
        }
     }
@@ -409,6 +410,42 @@ class Svg extends Group
        return path;
     }
 
+    public function loadText(inText:Xml, matrix:Matrix,inStyles:Styles) : Text
+    {
+       if (inText.exists("transform"))
+       {
+          matrix = matrix.clone();
+          applyTransform(matrix,inText.get("transform"));
+       }
+
+       var styles = getStyles(inText,inStyles);
+
+       var text = new Text();
+       text.matrix=matrix;
+       text.name=inText.exists("id") ? inText.get("id") : "";
+       text.x=getFloat(inText,"x",0.0);
+       text.y=getFloat(inText,"y",0.0);
+
+       text.fill=GetFillStyle("fill",inText,styles);
+       text.fill_alpha= getFloatStyle("fill-opacity",inText,styles,1.0);
+       text.stroke_alpha= getFloatStyle("stroke-opacity",inText,styles,1.0);
+       text.stroke_colour=getStrokeStyle("stroke",inText,styles,null);
+       text.stroke_width= getFloatStyle("stroke-width",inText,styles,1.0);
+       text.font_family= getStyle("font-family",inText,styles,"");
+       text.font_size= getFloatStyle("font-size",inText,styles,12);
+       text.letter_spacing= getFloatStyle("letter-spacing",inText,styles,0);
+       text.kerning= getFloatStyle("kerning",inText,styles,0);
+
+       var string="";
+       for(el in inText.elements())
+          string += el.toString();
+       trace(string);
+       text.text= string;
+       
+       trace(text);
+       return text;
+    }
+
     public function loadGroup(g:Group, inG:Xml, matrix:Matrix,inStyles:Styles) : Group
     {
        if (inG.exists("transform"))
@@ -451,6 +488,10 @@ class Svg extends Group
           else if (name=="ellipse")
           {
              g.children.push( DisplayPath( loadPath(el,matrix, styles, false, true) ) );
+          }
+          else if (name=="text")
+          {
+             g.children.push( DisplayText( loadText(el,matrix, styles) ) );
           }
           else
           {

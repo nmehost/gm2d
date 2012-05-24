@@ -71,6 +71,10 @@ class SVG2Gfx
        return inGfx;
     }
 
+    public function iterateText(inText:Text)
+    {
+    }
+
     public function iteratePath(inPath:Path)
     {
        if (mFilter!=null && !mFilter(inPath.name,mGroupPath))
@@ -153,11 +157,17 @@ class SVG2Gfx
                 iterateGroup(group,inIgnoreDot);
              case DisplayPath(path):
                 iteratePath(path);
+             case DisplayText(text):
+                iterateText(text);
           }
        }
 
        mGroupPath.pop();
     }
+
+
+
+
 
     public function Render(inGfx:Graphics,?inMatrix:Matrix, ?inFilter:ObjectFilter, ?inScale9:Rectangle )
     {

@@ -97,7 +97,7 @@ class FileOpenScreen extends Screen
                spaceChar = "/";
                dir_buttons.add(spacer);
                var link = soFar.join("/");
-               var button = Button.TextButton(part, function() setDir(null), true );
+               var button = Button.TextButton(part, function() setDir(link), true );
                addChild(button);
                dir_buttons.add(button.getLayout());
             }
