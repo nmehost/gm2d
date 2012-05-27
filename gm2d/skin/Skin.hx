@@ -31,6 +31,7 @@ import gm2d.ui.Layout;
 
 import nme.display.SimpleButton;
 import gm2d.svg.Svg;
+import gm2d.svg.SvgRenderer;
 
 
 
@@ -54,6 +55,13 @@ class Skin
 
    public var dialogRenderer:FrameRenderer;
    public var buttonRenderer:ButtonRenderer;
+
+   public static var svgInterior = ~/\.interior/;
+   public static var svgScaleX = ~/\.scaleX/;
+   public static var svgScaleY = ~/\.scaleY/;
+   public static var svgBounds = ~/\.bounds/;
+   public static var svgActive = ~/\.active/;
+   public static var svgThumb = ".thumb";
 
    var mDrawing:Shape;
    var mText:TextField;
@@ -99,7 +107,7 @@ class Skin
    {
       var result = new ButtonRenderer();
       result.render = renderButton;
-      result.updateItemLayout = function(ioLayout:Layout)
+      result.updateLayout = function(ioLayout:Layout)
       {
          ioLayout.setBorders(buttonBorderX,buttonBorderY,buttonBorderX,buttonBorderY);
       };
@@ -109,6 +117,27 @@ class Skin
       };
       return result;
    }
+
+   public function fromSvg(inSvg:Svg)
+   {
+      if (inSvg.hasGroup("dialog"))
+         dialogRenderer = FrameRenderer.fromSvg(inSvg,"dialog");
+   }
+
+   public static function getScale9(inRenderer:SvgRenderer, inBounds:Rectangle)
+   {
+      var scaleX = inRenderer.getMatchingRect(Skin.svgScaleX);
+      var scaleY = inRenderer.getMatchingRect(Skin.svgScaleY);
+      if (scaleX==null && scaleY==null)
+         return { rect:null, x:false, y:false };
+      return  { rect: new Rectangle(scaleX==null ? inBounds.x - 1000 : scaleX.x,
+                            scaleY==null ? inBounds.y - 1000 : scaleY.y,
+                            scaleX==null ? inBounds.width + 1000 : scaleX.width,
+                            scaleY==null ? inBounds.height + 1000 : scaleY.height ),
+                x:scaleX!=null,
+                y:scaleX!=null};
+   }
+
 
 
    public static function getCurrent():Skin

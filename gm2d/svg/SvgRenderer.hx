@@ -51,7 +51,7 @@ class SvgRenderer
        if (inLayer!=null)
        {
           mRoot = mSvg.findGroup(inLayer);
-          if (mRoot!=null)
+          if (mRoot==null)
              throw "Could not find SVG group: " + inLayer;
        }
     }
@@ -209,6 +209,11 @@ class SvgRenderer
        iterateGroup(mRoot,inIgnoreDot);
 
        return gfx.extent;
+    }
+
+    public function getMatchingRect(inMatch:EReg) : Rectangle
+    {
+       return getExtent(null, function(_,groups) return inMatch.match(groups[1]) );
     }
 
     public function renderObject(inObj:DisplayObject,inGfx:Graphics,

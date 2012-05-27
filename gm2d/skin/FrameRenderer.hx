@@ -19,6 +19,7 @@ import gm2d.geom.Matrix;
 
 import nme.display.SimpleButton;
 import gm2d.ui.IDockable;
+import gm2d.ui.Layout;
 import gm2d.svg.SvgRenderer;
 import gm2d.svg.Svg;
 
@@ -28,50 +29,39 @@ class FrameRenderer
    public function new() { }
 
    public dynamic function render(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void { }
-   public dynamic function getRect(ioRect:Rectangle):Void { }
+   public dynamic function updateLayout(ioLayout:Layout):Void { }
 
-   public static function fromSVG(inSVG:Svg,?inLayer:String)
+
+   public static function fromSvg(inSvg:Svg,?inLayer:String)
    {
-      var renderer = new SvgRenderer(inSVG,inLayer);
+      var renderer = new SvgRenderer(inSvg,inLayer);
 
-      var all  = renderer.getExtent(null, null);
-      var scale9 = renderer.getExtent(null, function(_,groups) { return groups[1]==".scale9"; } );
-      var interior = renderer.getExtent(null, function(_,groups) { return groups[1]==".interior"; } );
-      var size = renderer.getExtent(null, function(_,groups) { return groups[1]==".size"; } );
+      var interior = renderer.getMatchingRect(Skin.svgInterior);
+      var bounds = renderer.getMatchingRect(Skin.svgBounds);
+      if (bounds==null)
+         bounds = renderer.getExtent(null, null);
+      if (interior==null)
+         interior = bounds;
+      var scaleInfo = Skin.getScale9(renderer,bounds);
 
       var result = new FrameRenderer();
       result.render = function(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void
       {
          var gfx = outChrome.graphics;
          var matrix = new Matrix();
-         matrix.tx = inRect.x;
-         matrix.ty = inRect.y;
-         if (scale9==null)
-         {
-            var rect = interior==null ? all : interior;
-            matrix.a = inRect.width/rect.width;
-            matrix.d = inRect.height/rect.height;
-         }
-         renderer.render(gfx,matrix,null,scale9);
+         matrix.tx = inRect.x-interior.x;
+         matrix.ty = inRect.y-interior.y;
+         renderer.render(gfx,matrix,null,scaleInfo.rect);
          if (gm2d.Lib.isOpenGL)
             outChrome.cacheAsBitmap = true;
       };
-      if (scale9!=null)
-        result.getRect = function(ioRect:Rectangle)
-        {
-           ioRect.x -= all.x;
-           ioRect.y -= all.y;
-           ioRect.width += all.width;
-           ioRect.height += all.height;
-        }
-      else if (size!=null)
-        result.getRect = function(ioRect:Rectangle)
-        {
-           ioRect.x = size.x;
-           ioRect.y = size.y;
-           ioRect.width = size.width;
-           ioRect.height = size.height;
-        }
+      result.updateLayout = function(ioLayout:Layout)
+      {
+         ioLayout.setBorders(interior.x-bounds.x, interior.y-bounds.y,
+                             bounds.right-interior.right, bounds.bottom-interior.bottom );
+         // TODO - min/fixed size
+      };
+
       return result;
    }
 }

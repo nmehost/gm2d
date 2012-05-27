@@ -203,7 +203,7 @@ class Button extends Control
       mItemLayout = ( Std.is(mDisplayObj,TextField)) ?
            new TextLayout(cast mDisplayObj)  : 
            new DisplayLayout(mDisplayObj) ;
-      mRenderer.updateItemLayout(mItemLayout);
+      mRenderer.updateLayout(mItemLayout);
       layout.add(mItemLayout);
       layout.mDebugCol = 0x00ff00;
       layout.onLayout = renderBackground;

@@ -20,7 +20,7 @@ class ButtonRenderer
    public function new() { }
 
    public dynamic function render(outChrome:Sprite, inRect:Rectangle, inState:ButtonState):Void { }
-   public dynamic function updateItemLayout(ioLayout:Layout):Void { }
+   public dynamic function updateLayout(ioLayout:Layout):Void { }
    public dynamic function getDownOffset():Point { return new Point(1,1); }
    public dynamic function styleLabel(ioLabel:TextField):Void {  }
 }

@@ -24,26 +24,24 @@ class Dialog extends Screen
 
       Game.setCurrentScreen(this);
 
+      var skin = Resources.loadSvg("skin.svg");
+      Skin.current.fromSvg(skin);
 
       var panel = new gm2d.ui.Panel("Settings");
 
-      var bg:Svg = Resources.loadSvg("bg.svg");
       panel.addLabel("Music Volume");
 
-      var sl:Svg =  Resources.loadSvg("slider.svg");
-      panel.addUI(gm2d.ui.Slider.SkinnedSlider(sl,null,0,100,50,OnMusic) );
+      //panel.addUI(gm2d.ui.Slider.SkinnedSlider(sl,null,0,100,50,OnMusic) );
 
       var but = Button.TextButton("Ok", function() { Game.closeDialog(); } );
-      //but.setBackground(bg,100,40);
       panel.addButton(but);
 
       var but = Button.TextButton("Cancel", function() { Game.closeDialog(); } );
-      //but.setBackground(bg,100,40);
       panel.addButton(but);
 
       var pane = panel.getPane();
-      pane.setMinSize(300,200);
-      var settings = new gm2d.ui.Dialog(pane, FrameRenderer.fromSVG(bg) );
+      //pane.setMinSize(300,200);
+      var settings = new gm2d.ui.Dialog(pane);
 
       Game.addDialog("Settings",settings);
       var dlg = Game.showDialog("Settings");

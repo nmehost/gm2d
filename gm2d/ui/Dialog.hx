@@ -41,9 +41,11 @@ class Dialog extends Window
       mClientRect = new Rectangle(0,0,size.x,size.y);
 
       renderer = inRenderer==null ? Skin.current.dialogRenderer : inRenderer;
-      renderer.getRect(mClientRect);
 
-      var layout = inPane.setRect(mClientRect.x,mClientRect.y,mClientRect.width,mClientRect.height);
+      inPane.setRect(mClientRect.x,mClientRect.y,mClientRect.width,mClientRect.height);
+
+      // TODO - create extra layout
+      renderer.updateLayout(inPane.itemLayout);
 
       renderer.render(mChrome,mPane,mClientRect,mHitBoxes);
 

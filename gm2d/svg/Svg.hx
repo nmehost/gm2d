@@ -68,6 +68,7 @@ class Svg extends Group
           //dumpGroup(g,"");
     }
 
+    public function hasGroup(inName:String) { return findGroup(inName)!=null; }
     public function findGroup(inName:String) : Group
     {
        for(child in children)

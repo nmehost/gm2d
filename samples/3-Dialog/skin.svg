@@ -14,7 +14,7 @@
    height="150"
    id="svg2484"
    sodipodi:version="0.32"
-   inkscape:version="0.48.2 r9819"
+   inkscape:version="0.48.1 "
    version="1.0"
    sodipodi:docname="skin.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape">
@@ -102,15 +102,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8691099"
-     inkscape:cx="142.25"
-     inkscape:cy="88.941606"
+     inkscape:cx="102.16788"
+     inkscape:cy="90.20111"
      inkscape:document-units="px"
-     inkscape:current-layer="layer11"
+     inkscape:current-layer="layer24"
      showgrid="true"
-     inkscape:window-width="1336"
-     inkscape:window-height="856"
-     inkscape:window-x="12"
-     inkscape:window-y="2"
+     inkscape:window-width="1505"
+     inkscape:window-height="952"
+     inkscape:window-x="42"
+     inkscape:window-y="0"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
@@ -217,7 +217,7 @@
     <g
        inkscape:groupmode="layer"
        id="layer14"
-       inkscape:label=".scaleW"
+       inkscape:label=".scaleX"
        style="display:none">
       <rect
          style="fill:#c5bcdf;fill-opacity:0.37980772;stroke:none"
@@ -278,7 +278,7 @@
     <g
        inkscape:groupmode="layer"
        id="PO"
-       inkscape:label=".interior.scaleH"
+       inkscape:label=".interior.scaleY"
        style="opacity:1;display:inline">
       <rect
          style="fill:#000001;fill-opacity:0.0625;fill-rule:evenodd;stroke:none;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
@@ -374,7 +374,7 @@
     <g
        inkscape:groupmode="layer"
        id="layer7"
-       inkscape:label=".interior.scaleW"
+       inkscape:label=".interior.scaleX"
        style="display:none">
       <rect
          style="fill:#939393;fill-opacity:0.3671498;stroke:#12181d;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
@@ -423,7 +423,7 @@
     <g
        inkscape:groupmode="layer"
        id="layer21"
-       inkscape:label=".interior.scaleW"
+       inkscape:label=".interior.scaleX"
        style="display:none">
       <rect
          style="fill:#ffffff;fill-opacity:0.0625;stroke:#12181d;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"

@@ -23,8 +23,7 @@
   <icon name="../icon.svg" />
 
 	<assets>
-	 <asset name="bg.svg"/>
-	 <asset name="slider.svg"/>
+	 <asset name="skin.svg"/>
 	</assets>
 
   
