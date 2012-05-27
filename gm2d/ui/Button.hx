@@ -162,7 +162,7 @@ class Button extends Control
    {
       var label = new TextField();
       label.text = inText;
-      //label.mouseEnabled = false;
+      label.selectable = false;
       var result =  new Button(label,inOnClick,inRenderer);
       return result;
    }

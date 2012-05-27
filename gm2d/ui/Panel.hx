@@ -34,6 +34,7 @@ class Panel extends Widget
       mItemLayout = new GridLayout(2,"items");
       mButtonLayout = new GridLayout(null,"buttons");
       mButtonLayout.setSpacing(10,0);
+      mButtonLayout.setBorders(0,10,0,10);
       mGridLayout.add(mItemLayout);
       mGridLayout.add(mButtonLayout);
       mGridLayout.setRowStretch(1,0);

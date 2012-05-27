@@ -103,6 +103,10 @@ class Skin
       {
          ioLayout.setBorders(buttonBorderX,buttonBorderY,buttonBorderX,buttonBorderY);
       };
+      result.styleLabel = function(ioTextField:TextField)
+      {
+         ioTextField.height = 30;
+      };
       return result;
    }
 
@@ -435,6 +439,7 @@ class Skin
 
    public function renderButton(outChrome:Sprite, inRect:Rectangle, inState:ButtonState)
    {
+trace(inRect);
       clearSprite(outChrome);
       var gfx = outChrome.graphics;
       gfx.beginFill(inState==BUTTON_DISABLE ? disableColor : controlColor);
