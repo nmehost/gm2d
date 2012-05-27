@@ -14,7 +14,7 @@ import gm2d.ui.HitBoxes;
 import gm2d.ui.Dock;
 import gm2d.ui.DockPosition;
 import gm2d.Game;
-
+import gm2d.skin.Skin;
 
 
 

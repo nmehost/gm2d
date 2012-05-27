@@ -5,7 +5,7 @@ import gm2d.display.BitmapData;
 import gm2d.display.Bitmap;
 import gm2d.geom.Rectangle;
 import gm2d.text.TextField;
-
+import gm2d.skin.Skin;
 
 class ListControl extends ScrollWidget
 {

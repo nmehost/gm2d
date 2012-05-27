@@ -2,7 +2,7 @@ package gm2d.ui;
 
 import gm2d.svg.BitmapDataManager;
 import gm2d.reso.Resources;
-import gm2d.svg.SVG2Gfx;
+import gm2d.svg.SvgRenderer;
 
 import gm2d.display.Sprite;
 import gm2d.events.MouseEvent;
@@ -76,7 +76,7 @@ class MultiTouchButton  extends Sprite
       BitmapDataManager.setCacheScale(inScale);
       if (mFilename!="")
       {
-         var svg:SVG2Gfx = Resources.loadSvg(mFilename);
+         var svg:SvgRenderer = new SvgRenderer(Resources.loadSvg(mFilename));
          if (mSeparateUpDown)
          {
             up.bitmapData = BitmapDataManager.create(mFilename,"up",inScale);

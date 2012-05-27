@@ -4,7 +4,7 @@ import gm2d.display.DisplayObjectContainer;
 import gm2d.display.Sprite;
 import gm2d.ui.DockPosition;
 import gm2d.geom.Rectangle;
-
+import gm2d.skin.Skin;
 
 class SideDock implements IDock, implements IDockable
 {

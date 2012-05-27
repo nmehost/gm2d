@@ -6,13 +6,14 @@ import gm2d.blit.Layer;
 import gm2d.blit.Grid;
 import gm2d.Game;
 import gm2d.Screen;
-import gm2d.svg.SVG2Gfx;
 import gm2d.ui.Button;
 import gm2d.ui.Keyboard;
 import gm2d.events.MouseEvent;
 import gm2d.ui.BitmapFont;
 import gm2d.ui.BitmapText;
-import gm2d.ui.Skin;
+import gm2d.skin.Skin;
+import gm2d.skin.FrameRenderer;
+import gm2d.svg.Svg;
 
 
 class Dialog extends Screen
@@ -26,17 +27,18 @@ class Dialog extends Screen
 
       var panel = new gm2d.ui.Panel("Settings");
 
-      var bg:SVG2Gfx = Resources.loadSvg("bg.svg");
+      var bg:Svg = Resources.loadSvg("bg.svg");
       panel.addLabel("Music Volume");
-      var sl:SVG2Gfx =  Resources.loadSvg("slider.svg");
+
+      var sl:Svg =  Resources.loadSvg("slider.svg");
       panel.addUI(gm2d.ui.Slider.SkinnedSlider(sl,null,0,100,50,OnMusic) );
 
       var but = Button.TextButton("Ok", function() { Game.closeDialog(); } );
-      but.setBackground(bg,100,40);
+      //but.setBackground(bg,100,40);
       panel.addButton(but);
 
       var but = Button.TextButton("Cancel", function() { Game.closeDialog(); } );
-      but.setBackground(bg,100,40);
+      //but.setBackground(bg,100,40);
       panel.addButton(but);
 
       var pane = panel.getPane();

@@ -6,13 +6,12 @@ import gm2d.display.Sprite;
 import gm2d.text.TextField;
 import gm2d.text.TextFormat;
 import gm2d.ui.Layout;
-import gm2d.svg.SVG2Gfx;
 import gm2d.filters.BitmapFilter;
 import gm2d.filters.DropShadowFilter;
 import gm2d.ui.HitBoxes;
 import gm2d.geom.Rectangle;
-import gm2d.ui.Skin;
-
+import gm2d.skin.Skin;
+import gm2d.skin.FrameRenderer;
 
 
 class Dialog extends Window
@@ -41,7 +40,7 @@ class Dialog extends Window
       var size = inPane.getBestSize(Dock.DOCK_SLOT_FLOAT);
       mClientRect = new Rectangle(0,0,size.x,size.y);
 
-      renderer = inRenderer==null ? Skin.current.getDialogRenderer() : inRenderer;
+      renderer = inRenderer==null ? Skin.current.dialogRenderer : inRenderer;
       renderer.getRect(mClientRect);
 
       var layout = inPane.setRect(mClientRect.x,mClientRect.y,mClientRect.width,mClientRect.height);

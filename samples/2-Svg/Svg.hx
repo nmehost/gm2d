@@ -2,6 +2,7 @@ import gm2d.display.Sprite;
 import gm2d.Game;
 import gm2d.Screen;
 import gm2d.reso.Resources;
+import gm2d.svg.SvgRenderer;
 
 import gm2d.ui.Keyboard;
 
@@ -14,8 +15,8 @@ class Svg extends Screen
    {
       super();
 
-      var svg = Resources.loadSvg("tiger.svg");
-      var shape = svg.CreateShape();
+      var svg = new SvgRenderer(Resources.loadSvg("tiger.svg"));
+      var shape = svg.createShape();
       shape.scaleX = shape.scaleY = 0.5;
       shape.cacheAsBitmap = true;
       addChild(shape);

@@ -56,12 +56,12 @@ class Resources
       return xml;
    }
 
-   static public function loadSvg(inAssetName:String, inCache=false) : gm2d.svg.SVG2Gfx
+   static public function loadSvg(inAssetName:String, inCache=false) : gm2d.svg.Svg
    {
       var xml:Xml = loadXml(inAssetName,false);
       if (xml==null)
          return null;
-      var svg = new gm2d.svg.SVG2Gfx(xml);
+      var svg = new gm2d.svg.Svg(xml);
       if (inCache)
          mLoaded.set(inAssetName,svg);
       return svg;

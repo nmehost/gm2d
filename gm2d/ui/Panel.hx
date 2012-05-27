@@ -6,7 +6,7 @@ import gm2d.display.Sprite;
 import gm2d.text.TextField;
 import gm2d.text.TextFormat;
 import gm2d.ui.Layout;
-
+import gm2d.skin.Skin;
 
 class Panel extends Widget
 {
@@ -79,6 +79,7 @@ class Panel extends Widget
       Layout.setDebug(null);
    }
 
+/*
    public function setButtonBGs(inRenderer:gm2d.display.Graphics->Float->Float->Void, inExtraX=10.0, inExtraY=5.0)
    {
       var cols = mButtonLayout.getColWidths();
@@ -91,6 +92,7 @@ class Panel extends Widget
           but.setBG(inRenderer,w+inExtraX,h+inExtraY);
       }
    }
+      */
 
 
    override public function createLayout() : Layout { return mGridLayout; }

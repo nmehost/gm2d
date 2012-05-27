@@ -11,7 +11,7 @@ import gm2d.display.Sprite;
 import gm2d.text.TextField;
 import gm2d.events.MouseEvent;
 import gm2d.text.TextFieldAutoSize;
-
+import gm2d.skin.Skin;
 
 class Menubar extends Sprite
 {

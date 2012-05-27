@@ -28,34 +28,42 @@ import gm2d.geom.Rectangle;
 typedef GroupPath = Array<String>;
 typedef ObjectFilter = String->GroupPath->Bool;
 
-class SVG2Gfx
+class SvgRenderer
 {
     public var width(default,null):Float;
     public var height(default,null):Float;
 
     var mSvg:Svg;
+    var mRoot:Group;
     var mGfx : Gfx;
     var mMatrix : Matrix;
     var mScale9Rect:Rectangle;
     var mFilter : ObjectFilter;
     var mGroupPath : GroupPath;
 
-    public function new(inXML:Xml,inConvertCubics:Bool = false)
+    public function new(inSvg:Svg,?inLayer:String)
     {
-       mSvg = new Svg(inXML,inConvertCubics);
+       mSvg = inSvg;
 
        width = mSvg.width;
        height = mSvg.height;
+       mRoot = mSvg;
+       if (inLayer!=null)
+       {
+          mRoot = mSvg.findGroup(inLayer);
+          if (mRoot!=null)
+             throw "Could not find SVG group: " + inLayer;
+       }
     }
 
     public static function toHaxe(inXML:Xml,?inFilter:ObjectFilter) : Array<String>
     {
-       return new SVG2Gfx(inXML,true).iterate(new gm2d.gfx.Gfx2Haxe(),inFilter).commands;
+       return new SvgRenderer(new Svg(inXML,true)).iterate(new gm2d.gfx.Gfx2Haxe(),inFilter).commands;
     }
 
     public static function toBytes(inXML:Xml,?inFilter:ObjectFilter) : gm2d.gfx.GfxBytes
     {
-       return new SVG2Gfx(inXML,true).iterate(new gm2d.gfx.GfxBytes(),inFilter);
+       return new SvgRenderer(new Svg(inXML,true)).iterate(new gm2d.gfx.GfxBytes(),inFilter);
     }
 
 
@@ -66,7 +74,7 @@ class SVG2Gfx
        mFilter = inFilter;
        mGroupPath = [];
        mGfx.size(width,height);
-       iterateGroup(mSvg,true);
+       iterateGroup(mRoot,true);
        mGfx.eof();
        return inGfx;
     }
@@ -169,7 +177,7 @@ class SVG2Gfx
 
 
 
-    public function Render(inGfx:Graphics,?inMatrix:Matrix, ?inFilter:ObjectFilter, ?inScale9:Rectangle )
+    public function render(inGfx:Graphics,?inMatrix:Matrix, ?inFilter:ObjectFilter, ?inScale9:Rectangle )
     {
        mGfx = new gm2d.gfx.GfxGraphics(inGfx);
        if (inMatrix==null)
@@ -181,11 +189,11 @@ class SVG2Gfx
        mFilter = inFilter;
        mGroupPath = [];
 
-       iterateGroup(mSvg,true);
+       iterateGroup(mRoot,true);
     }
 
 
-    public function GetExtent(?inMatrix:Matrix, ?inFilter:ObjectFilter, inIgnoreDot=true ) :
+    public function getExtent(?inMatrix:Matrix, ?inFilter:ObjectFilter, inIgnoreDot=true ) :
         Rectangle
     {
        var gfx = new gm2d.gfx.GfxExtent();
@@ -198,16 +206,16 @@ class SVG2Gfx
        mFilter = inFilter;
        mGroupPath = [];
 
-       iterateGroup(mSvg,inIgnoreDot);
+       iterateGroup(mRoot,inIgnoreDot);
 
        return gfx.extent;
     }
 
-    public function RenderObject(inObj:DisplayObject,inGfx:Graphics,
+    public function renderObject(inObj:DisplayObject,inGfx:Graphics,
                     ?inMatrix:Matrix,?inFilter:ObjectFilter,inScale9:Rectangle)
     {
-       Render(inGfx,inMatrix,inFilter,inScale9);
-       var rect = GetExtent(inMatrix, function(_,groups) { return groups[1]==".scale9"; } );
+       render(inGfx,inMatrix,inFilter,inScale9);
+       var rect = getExtent(inMatrix, function(_,groups) { return groups[1]==".scale9"; } );
 		 // TODO:
 		 /*
        if (rect!=null)
@@ -218,52 +226,30 @@ class SVG2Gfx
 		 */
     }
 
-    public function RenderSprite(inObj:Sprite, ?inMatrix:Matrix,?inFilter:ObjectFilter, ?inScale9:Rectangle)
+    public function renderSprite(inObj:Sprite, ?inMatrix:Matrix,?inFilter:ObjectFilter, ?inScale9:Rectangle)
     {
-       RenderObject(inObj,inObj.graphics,inMatrix,inFilter,inScale9);
+       renderObject(inObj,inObj.graphics,inMatrix,inFilter,inScale9);
     }
 
-    public function CreateShape(?inMatrix:Matrix,?inFilter:ObjectFilter, ?inScale9:Rectangle) : Shape
+    public function createShape(?inMatrix:Matrix,?inFilter:ObjectFilter, ?inScale9:Rectangle) : Shape
     {
        var shape = new Shape();
-       RenderObject(shape,shape.graphics,inMatrix,inFilter,inScale9);
+       renderObject(shape,shape.graphics,inMatrix,inFilter,inScale9);
        return shape;
     }
 
     public function namedShape(inName:String) : Shape
     {
-       return CreateShape(null, function(name,_) { return name==inName; } );
+       return createShape(null, function(name,_) { return name==inName; } );
     }
 
 
-
-    public function ToBitmap()
-    {
-       mMatrix = new Matrix();
-
-       var w = Math.ceil( width );
-       var h = Math.ceil( height );
-
-       var bmp = new gm2d.display.BitmapData(w,h,true,gm2d.RGB.CLEAR );
-
-       var shape = new gm2d.display.Shape();
-       mGfx = new gm2d.gfx.GfxGraphics(shape.graphics);
-
-       mGroupPath = [];
-       iterateGroup(mSvg,true);
-
-      bmp.draw(shape);
-      mGfx = null;
-
-      return bmp;
-    }
-
-    public function RectToBitmap(inRect:Rectangle,inScale:Float = 1.0)
+    public function renderBitmap(?inRect:Rectangle,inScale:Float = 1.0)
     {
        mMatrix = new Matrix(inScale,0,0,inScale, -inRect.x*inScale, -inRect.y*inScale);
 
-       var w = Math.ceil( inRect.width*inScale );
-       var h = Math.ceil( inRect.height*inScale );
+       var w = Std.int(Math.ceil( inRect==null ? width : inRect.width*inScale ));
+       var h = Std.int(Math.ceil( inRect==null ? width : inRect.height*inScale ));
 
        var bmp = new gm2d.display.BitmapData(w,h,true,gm2d.RGB.CLEAR );
 
@@ -271,12 +257,12 @@ class SVG2Gfx
        mGfx = new gm2d.gfx.GfxGraphics(shape.graphics);
 
        mGroupPath = [];
-       iterateGroup(mSvg,true);
+       iterateGroup(mRoot,true);
 
-      bmp.draw(shape);
-      mGfx = null;
+       bmp.draw(shape);
+       mGfx = null;
 
-      return bmp;
+       return bmp;
     }
 }
 

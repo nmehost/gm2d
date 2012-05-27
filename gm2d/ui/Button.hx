@@ -9,53 +9,56 @@ import gm2d.events.MouseEvent;
 import gm2d.text.TextField;
 import gm2d.geom.Rectangle;
 import gm2d.ui.Layout;
+import gm2d.skin.Skin;
+import gm2d.skin.ButtonRenderer;
+import gm2d.skin.ButtonState;
 
 class Button extends Control
 {
    var mDisplayObj : DisplayObject;
-   public var mBG : Sprite;
+   public var mChrome : Sprite;
    public var down(getDown,setDown):Bool;
 	public var noFocus:Bool;
    public var mCallback : Void->Void;
    var mIsDown:Bool;
    var mDownBmp:BitmapData;
-   var mUpBmp:BitmapData;
    var mDownDX:Float;
    var mDownDY:Float;
+   var mUpBmp:BitmapData;
    var mCurrentDX:Float;
    var mCurrentDY:Float;
-   var mBGLayout:Layout;
    var mMainLayout:Layout;
    var mItemLayout:Layout;
+   var mRenderer:ButtonRenderer;
    public var onCurrentChangedFunc:Bool->Void;
 
    static public var BMPButtonFont = "Arial";
 
-   public function new(inObject:DisplayObject,?inOnClick:Void->Void,inSkinBG= false)
+   public function new(inObject:DisplayObject,?inOnClick:Void->Void,?inRenderer:ButtonRenderer)
    {
       super();
       name = "button";
       mCallback = inOnClick;
       mIsDown = false;
-      mBG = new Sprite();
+      mChrome = new Sprite();
       mDisplayObj = inObject;
-      addChild(mBG);
+      addChild(mChrome);
       addChild(mDisplayObj);
-      mDownDX = mDownDY = 0;
       mCurrentDX = mCurrentDY = 0;
-		noFocus = false;
+      noFocus = false;
       var me = this;
+      mRenderer = inRenderer==null ? Skin.current.buttonRenderer : inRenderer;
       addEventListener(MouseEvent.CLICK, function(_) { mCallback(); } );
       addEventListener(MouseEvent.MOUSE_DOWN, function(_) { me.setDown(true); } );
       addEventListener(MouseEvent.MOUSE_UP, function(_) { me.setDown(false); } );
 
-      if (inSkinBG)
-      {
-         var layout = getLayout();
-         setBG(Skin.current.renderButton,
-             layout.getBestWidth()+Skin.current.buttonBorderX,
-             layout.getBestHeight()+Skin.current.buttonBorderY);
-      }
+      var label = getLabel();
+      if (label!=null)
+         mRenderer.styleLabel(label);
+      var offset = mRenderer.getDownOffset();
+      mDownDX = offset.x;
+      mDownDY = offset.y;
+      getLayout();
    }
 
    public function getItemLayout()
@@ -71,9 +74,10 @@ class Button extends Control
       return null;
    }
 
-   public function setBackground(inSVG:gm2d.svg.SVG2Gfx, inW:Float, inH:Float)
+/*
+   public function setBackground(inSVG:gm2d.svg.SvgRenderer, inW:Float, inH:Float)
    {
-      inSVG.RenderSprite(mBG);
+      inSVG.renderSprite(mBG);
       mBG.width = inW;
       mBG.height = inH;
    }
@@ -93,14 +97,9 @@ class Button extends Control
       inRenderer(gfx,inW,inH);
       var layout = getLayout();
       mMainLayout.setBestSize(mBG.width,mBG.height);
-      mBGLayout.setBestSize(mBG.width,mBG.height);
    }
+   */
 
-   public function setDownOffsets( inDownDX:Float, inDownDY:Float)
-   {
-      mDownDX = inDownDX;
-      mDownDY = inDownDY;
-   }
    public function setBGStates(inUpBmp:BitmapData, inDownBmp:BitmapData,
              inDownDX:Int = 0, inDownDY:Int = 0)
    {
@@ -110,7 +109,6 @@ class Button extends Control
       var h = mUpBmp!=null ? mUpBmp.height : mDownBmp==null? mDownBmp.height : 32;
       var layout = getLayout();
       mMainLayout.setBestSize(w,h);
-      mBGLayout.setBestSize(w,h);
       mDownDX = inDownDX;
       mDownDY = inDownDY;
       mIsDown = !mIsDown;
@@ -125,7 +123,7 @@ class Button extends Control
          mIsDown = inDown;
          if (mDownBmp!=null || mUpBmp!=null)
          {
-            var gfx = mBG.graphics;
+            var gfx = mChrome.graphics;
             gfx.clear();
             var bmp:BitmapData = mIsDown?mDownBmp:mUpBmp;
             if (bmp!=null)
@@ -160,14 +158,12 @@ class Button extends Control
       return result;
    }
 
-   public static function TextButton(inText:String,inOnClick:Void->Void,inSkinBG=false)
+   public static function TextButton(inText:String,inOnClick:Void->Void,?inRenderer:ButtonRenderer)
    {
       var label = new TextField();
-		Skin.current.styleButtonText(label);
-		label.text = inText;
+      label.text = inText;
       //label.mouseEnabled = false;
-      var result =  new Button(label,inOnClick,inSkinBG);
-      result.setDownOffsets(1,1);
+      var result =  new Button(label,inOnClick,inRenderer);
       return result;
    }
 
@@ -194,20 +190,23 @@ class Button extends Control
       return result;
    }
 
+   function renderBackground(inX:Float, inY:Float, inW:Float, inH:Float)
+   {
+      mRenderer.render(mChrome,new Rectangle(inX-x,inY-y,inW,inH), mIsDown ? BUTTON_DOWN:BUTTON_UP);
+   }
+
    override public function createLayout() : Layout
    {
       var layout = new ChildStackLayout( );
       layout.setBorders(0,0,0,0);
       layout.add( mMainLayout = (new DisplayLayout(this)).setOrigin(0,0) );
-      layout.add( mBGLayout = new DisplayLayout(mBG) );
-   
       mItemLayout = ( Std.is(mDisplayObj,TextField)) ?
            new TextLayout(cast mDisplayObj)  : 
            new DisplayLayout(mDisplayObj) ;
-
+      mRenderer.updateItemLayout(mItemLayout);
       layout.add(mItemLayout);
       layout.mDebugCol = 0x00ff00;
-
+      layout.onLayout = renderBackground;
       return layout;
    }
 

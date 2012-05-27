@@ -6,7 +6,9 @@ import gm2d.events.MouseEvent;
 import gm2d.text.TextField;
 import gm2d.geom.Rectangle;
 import gm2d.ui.Layout;
-import gm2d.svg.SVG2Gfx;
+import gm2d.svg.Svg;
+import gm2d.svg.SvgRenderer;
+import gm2d.skin.Skin;
 
 class Slider extends Control
 {
@@ -103,16 +105,17 @@ class Slider extends Control
       }
    }
 
-   public static function SkinnedSlider(inSkin:SVG2Gfx,inText:DisplayObject,
+   public static function SkinnedSlider(inSkin:Svg,inText:DisplayObject,
              inMin:Float,inMax:Float,inPos:Float,inOnChange:Float->Void)
    {
       var track = new Sprite();
-      inSkin.RenderSprite(track,null, function(name,groups) { return groups[1]=="Track"; } );
+      var renderer = new SvgRenderer(inSkin);
+      renderer.renderSprite(track,null, function(name,groups) { return groups[1]=="Track"; } );
 
       var thumb = new Sprite();
-      inSkin.RenderSprite(thumb,null, function(name,groups) { return groups[1]=="Thumb"; } );
+      renderer.renderSprite(thumb,null, function(name,groups) { return groups[1]=="Thumb"; } );
 
-      var rect = inSkin.GetExtent(null,
+      var rect = renderer.getExtent(null,
                      function(name,groups) { return groups[1]==".Active"; },true );
 
       var result:Slider = null;

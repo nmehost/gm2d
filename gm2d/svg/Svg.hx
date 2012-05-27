@@ -68,6 +68,19 @@ class Svg extends Group
           //dumpGroup(g,"");
     }
 
+    public function findGroup(inName:String) : Group
+    {
+       for(child in children)
+          switch(child)
+          {
+             case DisplayGroup(group):
+                if (group.name==inName)
+                   return group;
+             default:
+          }
+       return null;
+    }
+
     function dumpGroup(g:Group,indent:String)
     {
        trace(indent + "Group:" + g.name);

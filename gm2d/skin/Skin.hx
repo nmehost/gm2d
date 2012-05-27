@@ -1,6 +1,17 @@
-package gm2d.ui;
+package gm2d.skin;
 
 import gm2d.ui.HitBoxes;
+import gm2d.ui.Widget;
+import gm2d.ui.Button;
+import gm2d.ui.IDockable;
+import gm2d.ui.Size;
+import gm2d.ui.Pane;
+import gm2d.ui.Dock;
+import gm2d.ui.MultiDock;
+import gm2d.ui.SideDock;
+import gm2d.ui.DockZones;
+import gm2d.ui.DockPosition;
+import gm2d.skin.ButtonState;
 import gm2d.filters.BitmapFilter;
 import gm2d.filters.BitmapFilterType;
 import gm2d.filters.DropShadowFilter;
@@ -16,63 +27,12 @@ import gm2d.events.MouseEvent;
 import gm2d.geom.Point;
 import gm2d.geom.Rectangle;
 import gm2d.geom.Matrix;
+import gm2d.ui.Layout;
 
 import nme.display.SimpleButton;
-import gm2d.svg.SVG2Gfx;
+import gm2d.svg.Svg;
 
 
-
-class FrameRenderer
-{
-   public function new() { }
-
-   public dynamic function render(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void { }
-   public dynamic function getRect(ioRect:Rectangle):Void { }
-
-   public static function fromSVG(inSVG:SVG2Gfx)
-   {
-
-      var all  = inSVG.GetExtent(null, null);
-      var scale9 = inSVG.GetExtent(null, function(_,groups) { return groups[1]==".scale9"; } );
-      var interior = inSVG.GetExtent(null, function(_,groups) { return groups[1]==".interior"; } );
-      var size = inSVG.GetExtent(null, function(_,groups) { return groups[1]==".size"; } );
-
-      var result = new FrameRenderer();
-      result.render = function(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void
-      {
-         var gfx = outChrome.graphics;
-         var matrix = new Matrix();
-         matrix.tx = inRect.x;
-         matrix.ty = inRect.y;
-         if (scale9==null)
-         {
-            var rect = interior==null ? all : interior;
-            matrix.a = inRect.width/rect.width;
-            matrix.d = inRect.height/rect.height;
-         }
-         inSVG.Render(gfx,matrix,null,scale9);
-         if (gm2d.Lib.isOpenGL)
-            outChrome.cacheAsBitmap = true;
-      };
-      if (scale9!=null)
-        result.getRect = function(ioRect:Rectangle)
-        {
-           ioRect.x -= all.x;
-           ioRect.y -= all.y;
-           ioRect.width += all.width;
-           ioRect.height += all.height;
-        }
-      else if (size!=null)
-        result.getRect = function(ioRect:Rectangle)
-        {
-           ioRect.x = size.x;
-           ioRect.y = size.y;
-           ioRect.width = size.width;
-           ioRect.height = size.height;
-        }
-      return result;
-   }
-}
 
 class Skin
 {
@@ -80,7 +40,10 @@ class Skin
 
    public var labelColor:Int;
    public var panelColor:Int;
-   public var buttonColor:Int;
+   public var controlColor:Int;
+   public var disableColor:Int;
+   public var controlBorder:Int;
+   public var buttonCorner:Float;
 
    public var textFormat:gm2d.text.TextFormat;
    public var menuHeight:Float;
@@ -88,6 +51,9 @@ class Skin
    public var centerTitle:Bool;
    public var buttonBorderX:Float;
    public var buttonBorderY:Float;
+
+   public var dialogRenderer:FrameRenderer;
+   public var buttonRenderer:ButtonRenderer;
 
    var mDrawing:Shape;
    var mText:TextField;
@@ -104,12 +70,50 @@ class Skin
       buttonBorderY = 5;
       labelColor = 0x000000;
       panelColor = 0xe0e0d0;
-      buttonColor = 0xf0f0f0;
+      controlColor = 0xf0f0e0;
+      disableColor = 0x808080;
+      controlBorder = 0x000000;
+      buttonCorner = 6.0;
 
       initGfx();
 
       for(state in  HitBoxes.BUT_STATE_UP...HitBoxes.BUT_STATE_DOWN+1)
          mBitmaps[state] = [];
+
+      createRenderers();
+   }
+
+   public function createRenderers()
+   {
+      dialogRenderer = createDialogRenderer();
+      buttonRenderer = createButtonRenderer();
+   }
+
+   public function createDialogRenderer()
+   {
+      var result = new FrameRenderer();
+      result.render = renderDialog;
+      return result;
+   }
+   public function createButtonRenderer()
+   {
+      var result = new ButtonRenderer();
+      result.render = renderButton;
+      result.updateItemLayout = function(ioLayout:Layout)
+      {
+         ioLayout.setBorders(buttonBorderX,buttonBorderY,buttonBorderX,buttonBorderY);
+      };
+      return result;
+   }
+
+
+   public static function getCurrent():Skin
+   {
+      if (current==null)
+      {
+         current = new Skin();
+      }
+      return current;
    }
 
    public function getTextFormat()
@@ -121,12 +125,6 @@ class Skin
    }
 
 
-   public static function getCurrent():Skin
-   {
-      if (current==null)
-         current = new Skin();
-      return current;
-   }
    public static function setCurrent(skin:Skin):Skin
    {
       current = skin;
@@ -426,14 +424,22 @@ class Skin
    }
 
 
-
-
-   public function renderButton(inGfx:Graphics, inWidth:Float, inHeight:Float)
+   function clearSprite(outSprite:Sprite)
    {
-      inGfx.clear();
-      inGfx.beginFill(0xf0f0e0);
-      inGfx.lineStyle(1,0x000000);
-      inGfx.drawRoundRect(0.5,0.5,inWidth,inHeight,6,6);
+      outSprite.graphics.clear();
+      while(outSprite.numChildren>0)
+         outSprite.removeChildAt(0);
+   }
+
+
+
+   public function renderButton(outChrome:Sprite, inRect:Rectangle, inState:ButtonState)
+   {
+      clearSprite(outChrome);
+      var gfx = outChrome.graphics;
+      gfx.beginFill(inState==BUTTON_DISABLE ? disableColor : controlColor);
+      gfx.lineStyle(1,controlBorder);
+      gfx.drawRoundRect(inRect.x+0.5,inRect.y+0.5,inRect.width-1,inRect.height-1,buttonCorner,buttonCorner);
    }
 
     public function renderProgressBar(inGfx:Graphics, inWidth:Float, inHeight:Float, inFraction:Float)
@@ -447,18 +453,10 @@ class Skin
       inGfx.drawRoundRect(0.5,0.5,inWidth*inFraction,inHeight,6,6);
    }
 
-   public function getDialogRenderer() : FrameRenderer
-   {
-      var result = new FrameRenderer();
-      result.render = renderDialog;
-      return result;
-   }
-
    public function renderDialog(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes)
    {
       outHitBoxes.clear();
-      while(outChrome.numChildren>0)
-         outChrome.removeChildAt(0);
+      clearSprite(outChrome);
 
       var ox = inRect.x - borders;
       var oy = inRect.y -title_h - borders;

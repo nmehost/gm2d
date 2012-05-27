@@ -34,8 +34,11 @@ class Layout
 
    public var mAlign:Int;
 
+   public var onLayout:Float->Float->Float->Float->Void;
+
    static var mDebug:gm2d.display.Graphics;
    static var mDebugObject:gm2d.display.Shape;
+
 
    public function new()
    {
@@ -199,6 +202,9 @@ class DisplayLayout extends Layout
          var pos = Layout.mDebugObject.globalToLocal( mObj.parent.localToGlobal( new Point(x,y) ) );
          renderDebug(pos,w,h);
       }
+
+      if (onLayout!=null)
+         onLayout(inX,inY,inW,inH);
    }
 
    public function renderDebug(pos:Point, w:Float, h:Float)
@@ -269,6 +275,8 @@ class StackLayout extends Layout
       trace("   " + (inW-mBLeft-mBRight) + "," + (inH-mBTop-mBBottom) );
       for(child in mChildren)
          child.setRect( inX+mBLeft, inY+mBTop, inW-mBLeft-mBRight, inH-mBTop-mBBottom );
+      if (onLayout!=null)
+         onLayout(inX,inY,inW,inH);
    }
 
    public override function add(inLayout:Layout) : Layout
@@ -340,6 +348,8 @@ class ChildStackLayout extends StackLayout
          Layout.mDebug.lineStyle(1,0xffff00);
          Layout.mDebug.drawRect(inX,inY,inW,inH);
       }
+      if (onLayout!=null)
+         onLayout(inX,inY,inW,inH);
    }
 }
 
@@ -647,5 +657,8 @@ class GridLayout extends Layout
          Layout.mDebug.lineStyle(1,0x0000ff);
          Layout.mDebug.drawRect(inX,inY,inW,inH);
       }
+
+      if (onLayout!=null)
+         onLayout(inX,inY,inW,inH);
    }
 }

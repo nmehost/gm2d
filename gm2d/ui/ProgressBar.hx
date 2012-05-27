@@ -1,4 +1,5 @@
 package gm2d.ui;
+import gm2d.skin.Skin;
 
 
 class ProgressBar extends Widget

@@ -2,7 +2,7 @@ package gm2d.ui;
 
 import gm2d.Screen;
 import gm2d.ScreenScaleMode;
-import gm2d.ui.Skin;
+import gm2d.skin.Skin;
 import gm2d.ui.Layout;
 import gm2d.ui.Dock;
 import gm2d.ui.IDockable;

@@ -1,7 +1,7 @@
 package gm2d.svg;
 
 import gm2d.reso.Resources;
-import gm2d.svg.SVG2Gfx;
+import gm2d.svg.SvgRenderer;
 import gm2d.geom.Matrix;
 
 import gm2d.display.Shape;
@@ -20,7 +20,7 @@ class BitmapDataManager
       if (bitmaps.exists(key))
          return bitmaps.get(key);
 
-      var svg:SVG2Gfx = Resources.loadSvg(inSVG);
+      var svg:SvgRenderer = new SvgRenderer( Resources.loadSvg(inSVG) );
       var shape = new Shape();
       if (inGroup=="")
          svg.RenderObject(shape,shape.graphics);

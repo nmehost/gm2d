@@ -4,7 +4,7 @@ import gm2d.text.TextField;
 import gm2d.display.BitmapData;
 import gm2d.events.MouseEvent;
 import gm2d.ui.Button;
-
+import gm2d.skin.Skin;
 
 class TextInput extends Control
 {

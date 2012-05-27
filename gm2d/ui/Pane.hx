@@ -6,7 +6,7 @@ import gm2d.geom.Rectangle;
 import gm2d.geom.Point;
 import gm2d.display.Sprite;
 import gm2d.ui.IDockable;
-
+import gm2d.skin.Skin;
 
 class Pane implements IDockable
 {

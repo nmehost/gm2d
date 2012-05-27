@@ -9,7 +9,7 @@ import gm2d.ui.MouseWatcher;
 import gm2d.events.MouseEvent;
 import gm2d.geom.Rectangle;
 import gm2d.ui.DockZones;
-
+import gm2d.skin.Skin;
 
 class TopLevelDock implements IDock
 {

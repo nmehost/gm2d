@@ -5,7 +5,7 @@ import gm2d.ui.Layout;
 import gm2d.text.TextField;
 import gm2d.ScreenScaleMode;
 import gm2d.display.Sprite;
-
+import gm2d.skin.Skin;
 
 import gm2d.display.Graphics;
 import gm2d.display.Bitmap;
