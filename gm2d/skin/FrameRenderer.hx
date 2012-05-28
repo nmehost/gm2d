@@ -29,7 +29,7 @@ class FrameRenderer
    public function new() { }
 
    public dynamic function render(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void { }
-   public dynamic function updateLayout(ioLayout:Layout):Void { }
+   public dynamic function createLayout(inInteriorLayout:Layout):Layout { return inInteriorLayout; }
 
 
    public static function fromSvg(inSvg:Svg,?inLayer:String)
@@ -42,24 +42,37 @@ class FrameRenderer
          bounds = renderer.getExtent(null, null);
       if (interior==null)
          interior = bounds;
-      var scaleInfo = Skin.getScale9(renderer,bounds);
+      var scaleRect = Skin.getScaleRect(renderer,bounds);
 
       var result = new FrameRenderer();
       result.render = function(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void
       {
+         //trace("Rect: " + inRect);
+         //trace("bounds: " + bounds);
+         //trace("interior: " + interior);
+         //trace("scale: " + scaleRect);
          var gfx = outChrome.graphics;
          var matrix = new Matrix();
-         matrix.tx = inRect.x-interior.x;
-         matrix.ty = inRect.y-interior.y;
-         renderer.render(gfx,matrix,null,scaleInfo.rect);
+         matrix.tx = inRect.x-(bounds.x);
+         matrix.ty = inRect.y-(bounds.y);
+         if (scaleRect!=null)
+            renderer.render(gfx,matrix,null,scaleRect, inRect.width-(bounds.width-scaleRect.width), 
+                                                    inRect.height-(bounds.height-scaleRect.height) );
+         else
+            renderer.render(gfx,matrix);
+
          if (gm2d.Lib.isOpenGL)
             outChrome.cacheAsBitmap = true;
       };
-      result.updateLayout = function(ioLayout:Layout)
+      result.createLayout = function(inInteriorLayout:Layout)
       {
-         ioLayout.setBorders(interior.x-bounds.x, interior.y-bounds.y,
+         var layout = new StackLayout();
+         layout.setBorders(interior.x-bounds.x, interior.y-bounds.y,
                              bounds.right-interior.right, bounds.bottom-interior.bottom );
-         // TODO - min/fixed size
+         layout.minWidth = bounds.width;
+         layout.minHeight = bounds.height;
+         layout.add(inInteriorLayout);
+         return layout;
       };
 
       return result;

@@ -124,18 +124,16 @@ class Skin
          dialogRenderer = FrameRenderer.fromSvg(inSvg,"dialog");
    }
 
-   public static function getScale9(inRenderer:SvgRenderer, inBounds:Rectangle)
+   public static function getScaleRect(inRenderer:SvgRenderer, inBounds:Rectangle) : Rectangle
    {
-      var scaleX = inRenderer.getMatchingRect(Skin.svgScaleX);
-      var scaleY = inRenderer.getMatchingRect(Skin.svgScaleY);
+      var scaleX = inRenderer.getMatchingRect(svgScaleX);
+      var scaleY = inRenderer.getMatchingRect(svgScaleY);
       if (scaleX==null && scaleY==null)
-         return { rect:null, x:false, y:false };
-      return  { rect: new Rectangle(scaleX==null ? inBounds.x - 1000 : scaleX.x,
+         return null;
+      return  new Rectangle(scaleX==null ? inBounds.x - 1000 : scaleX.x,
                             scaleY==null ? inBounds.y - 1000 : scaleY.y,
                             scaleX==null ? inBounds.width + 1000 : scaleX.width,
-                            scaleY==null ? inBounds.height + 1000 : scaleY.height ),
-                x:scaleX!=null,
-                y:scaleX!=null};
+                            scaleY==null ? inBounds.height + 1000 : scaleY.height );
    }
 
 
@@ -468,7 +466,6 @@ class Skin
 
    public function renderButton(outChrome:Sprite, inRect:Rectangle, inState:ButtonState)
    {
-trace(inRect);
       clearSprite(outChrome);
       var gfx = outChrome.graphics;
       gfx.beginFill(inState==BUTTON_DISABLE ? disableColor : controlColor);

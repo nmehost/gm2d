@@ -453,10 +453,9 @@ class Svg extends Group
        var string="";
        for(el in inText.elements())
           string += el.toString();
-       trace(string);
+       //trace(string);
        text.text= string;
        
-       trace(text);
        return text;
     }
 

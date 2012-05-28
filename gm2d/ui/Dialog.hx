@@ -20,7 +20,7 @@ class Dialog extends Window
    var mChrome:Sprite;
    var mContent:Sprite;
    var mHitBoxes:HitBoxes;
-   var mClientRect:Rectangle;
+   var mSize:Size;
    var mouseWatcher:MouseWatcher;
    var renderer:FrameRenderer;
 
@@ -37,26 +37,19 @@ class Dialog extends Window
       inPane.setDock(null,this);
       //addChild(inPane.displayObject);
       mHitBoxes = new HitBoxes(this,onHitBox);
-      var size = inPane.getBestSize(Dock.DOCK_SLOT_FLOAT);
-      mClientRect = new Rectangle(0,0,size.x,size.y);
 
       renderer = inRenderer==null ? Skin.current.dialogRenderer : inRenderer;
 
-      inPane.setRect(mClientRect.x,mClientRect.y,mClientRect.width,mClientRect.height);
+      var layout = renderer.createLayout(inPane.itemLayout);
+      layout.onLayout = function(inX:Float, inY:Float, inW:Float, inH:Float)
+      {
+         renderer.render(mChrome,mPane,new Rectangle(inX,inY,inW,inH),mHitBoxes);
+      }
 
-      // TODO - create extra layout
-      renderer.updateLayout(inPane.itemLayout);
+      mSize = layout.getBestSize();
+      layout.setRect(0,0,mSize.x,mSize.y);
 
-      renderer.render(mChrome,mPane,mClientRect,mHitBoxes);
-
-      var title_gap = 0;
-      //mLayout = mPanel.getLayout().setBorders(10,10+title_gap,10,10);
-
-      var f:Array<BitmapFilter> = [];
-      f.push( new DropShadowFilter(5,45,0,0.5,3,3,1) );
-      filters = f;
-
-      // TODO - use hit boxes
+      // TODO - use hit boxes/MouseWatcher
       mChrome.addEventListener(gm2d.events.MouseEvent.MOUSE_DOWN, doDrag);
    }
 
@@ -92,42 +85,11 @@ class Dialog extends Window
       */
    }
 
-/*
-   public function doLayout()
-   {
-      panel.doLayout();
-      if (mTitle!=null)
-        mTitle.x = (mLayout.width - mTitle.textWidth)/2 - 2;
-      if (renderBackground!=null)
-         renderBackground(mLayout.width,mLayout.height);
-   }
-   public function SetSVGBackground(inSVG:SVG2Gfx)
-   {
-      var gfx = getBackground();
-      inSVG.Render(gfx,null,null);
-
-      var all  = inSVG.GetExtent(null, null);
-      var scale9 = inSVG.GetExtent(null, function(_,groups) { return groups[1]==".scale9"; } );
-      if (scale9!=null)
-         mBG.scale9Grid = scale9;
-      var interior = inSVG.GetExtent(null, function(_,groups) { return groups[1]==".interior"; } );
-      if (interior == null)
-         interior = scale9;
-
-      if (interior != null && false)
-         mPanel.setBorders(interior.left,interior.top, all.right-interior.right,
-                    all.bottom-interior.bottom);
-
-      var bg = mBG;
-      renderBackground = function(w,h) { bg.width = w; bg.height = h; }
-      cacheAsBitmap = gm2d.Lib.isOpenGL;
-   }
-   */
    public function center(inWidth:Float,inHeight:Float)
    {
       var p = (parent==null) ? this : parent;
-      x = ( (inWidth - mClientRect.width)/2 )/p.scaleX;
-      y = ( (inHeight - mClientRect.height)/2 )/p.scaleY;
+      x = ( (inWidth - mSize.x)/2 )/p.scaleX;
+      y = ( (inHeight - mSize.y)/2 )/p.scaleY;
    }
 
    public dynamic function onClose() { }

@@ -27,6 +27,8 @@ class Layout
    public var mBRight:Float;
    public var mBBottom:Float;
 
+   public var minWidth:Null<Float>;
+   public var minHeight:Null<Float>;
    public var width:Float;
    public var height:Float;
 
@@ -92,6 +94,13 @@ class Layout
 
    public function getBestWidth(?inHeight:Null<Float>) : Float { return 0.0; }
    public function getBestHeight(?inWidth:Null<Float>) : Float { return 0.0; }
+
+   public function getBestSize() : Size
+   {
+      var w = getBestWidth();
+      var h = getBestHeight(w);
+      return new Size(w,h);
+   }
 }
 
 typedef LayoutList = Array<Layout>;
@@ -213,8 +222,16 @@ class DisplayLayout extends Layout
      Layout.mDebug.drawRect(pos.x,pos.y,w,h);
    }
 
-   public override function getBestWidth(?inHeight:Null<Float>) : Float { return mOWidth; }
-   public override function getBestHeight(?inWidth:Null<Float>) : Float { return mOHeight; }
+   public override function getBestWidth(?inHeight:Null<Float>) : Float
+   {
+      if (minWidth!=null && minWidth>mOWidth) return mOWidth;
+      return mOWidth;
+   }
+   public override function getBestHeight(?inWidth:Null<Float>) : Float
+   {
+      if (minHeight!=null && minHeight>mOHeight) return mOHeight;
+      return mOHeight;
+   }
 }
 
 class TextLayout extends DisplayLayout
@@ -271,8 +288,6 @@ class StackLayout extends Layout
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
-      trace("StackLayout::setRect " + inX + "," + inY + "   " +inW + "x"+inH);
-      trace("   " + (inW-mBLeft-mBRight) + "," + (inH-mBTop-mBBottom) );
       for(child in mChildren)
          child.setRect( inX+mBLeft, inY+mBTop, inW-mBLeft-mBRight, inH-mBTop-mBBottom );
       if (onLayout!=null)
@@ -295,6 +310,7 @@ class StackLayout extends Layout
          if (w>width) width=w;
       }
       width += mBLeft + mBRight;
+      if (minWidth!=null && minWidth>width) width = minWidth;
       return width;
 
    }
@@ -307,6 +323,7 @@ class StackLayout extends Layout
          if (h>height) height=h;
       }
       height += mBTop + mBBottom;
+      if (minHeight!=null && minHeight>height) height = minHeight;
       return height;
    }
 
@@ -582,6 +599,7 @@ class GridLayout extends Layout
          w+=(mColInfo.length-1)*mSpaceX;
       for(col in mColInfo)
          w+= col.mWidth;
+      if (minWidth!=null && minWidth>w) return minWidth;
       return w;
    }
    public override function getBestHeight(?inWidth:Null<Float>) : Float
@@ -592,6 +610,7 @@ class GridLayout extends Layout
         h+= (mRowInfo.length-1)*mSpaceY;
       for(row in mRowInfo)
          h+= row.mHeight;
+      if (minHeight!=null && minHeight>h) return minHeight;
       return h;
    }
 

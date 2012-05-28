@@ -5,10 +5,12 @@ import gm2d.geom.Rectangle;
 
 class RenderContext
 {
-   public function new(inMatrix:Matrix,?inRectangle:Rectangle)
+   public function new(inMatrix:Matrix,?inRect:Rectangle,?inW:Float, ?inH:Float)
    {
       matrix = inMatrix;
-      rect = inRectangle;
+      rect = inRect;
+      rectW = inW!=null ? inW : inRect!=null? inRect.width : 1;
+      rectH = inH!=null ? inH : inRect!=null? inRect.height : 1;
       firstX = 0;
       firstY = 0;
       lastX = 0;
@@ -16,13 +18,25 @@ class RenderContext
    }
    public function  transX(inX:Float, inY:Float)
    {
-      var x =  matrix==null ? inX : (inX*matrix.a + inY*matrix.c + matrix.tx);
-      return rect==null || x<rect.x ? x : x + rect.width;
+      if (rect!=null && inX>rect.x)
+      {
+         if (inX>rect.right)
+            inX += rectW - rect.width;
+         else
+            inX = rect.x + rectW * (inX-rect.x)/rect.width;
+      }
+      return inX*matrix.a + inY*matrix.c + matrix.tx;
    }
    public function  transY(inX:Float, inY:Float)
    {
-      var y =  matrix==null ? inY : (inX*matrix.b + inY*matrix.d + matrix.ty);
-      return rect==null || y<rect.y ? y : y + rect.width;
+      if (rect!=null && inY>rect.y)
+      {
+         if (inY>rect.right)
+            inY += rectH - rect.height;
+         else
+            inY = rect.y + rectH * (inY-rect.y)/rect.height;
+      }
+      return inX*matrix.b + inY*matrix.d + matrix.ty;
    }
 
 
@@ -33,6 +47,8 @@ class RenderContext
    }
    public var matrix:Matrix;
    public var rect:Rectangle;
+   public var rectW:Float;
+   public var rectH:Float;
 
    public var firstX:Float;
    public var firstY:Float;

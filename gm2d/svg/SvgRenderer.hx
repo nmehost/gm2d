@@ -37,7 +37,9 @@ class SvgRenderer
     var mRoot:Group;
     var mGfx : Gfx;
     var mMatrix : Matrix;
-    var mScale9Rect:Rectangle;
+    var mScaleRect:Rectangle;
+    var mScaleW:Null<Float>;
+    var mScaleH:Null<Float>;
     var mFilter : ObjectFilter;
     var mGroupPath : GroupPath;
 
@@ -95,7 +97,7 @@ class SvgRenderer
 
        var m:Matrix  = inPath.matrix.clone();
        m.concat(mMatrix);
-       var context = new RenderContext(m,mScale9Rect);
+       var context = new RenderContext(m,mScaleRect,mScaleW,mScaleH);
 
        var geomOnly = mGfx.geometryOnly();
        if (!geomOnly)
@@ -150,7 +152,7 @@ class SvgRenderer
     public function iterateGroup(inGroup:Group,inIgnoreDot:Bool)
     {
        // Convention for hidden layers ...
-       if (inGroup.name!=null && inGroup.name.substr(0,1)==".")
+       if (inIgnoreDot && inGroup.name!=null && inGroup.name.substr(0,1)==".")
           return;
 
        mGroupPath.push(inGroup.name);
@@ -177,7 +179,7 @@ class SvgRenderer
 
 
 
-    public function render(inGfx:Graphics,?inMatrix:Matrix, ?inFilter:ObjectFilter, ?inScale9:Rectangle )
+    public function render(inGfx:Graphics,?inMatrix:Matrix, ?inFilter:ObjectFilter, ?inScaleRect:Rectangle,?inScaleW:Float, ?inScaleH:Float )
     {
        mGfx = new gm2d.gfx.GfxGraphics(inGfx);
        if (inMatrix==null)
@@ -185,7 +187,9 @@ class SvgRenderer
        else
           mMatrix = inMatrix.clone();
 
-       mScale9Rect = inScale9;
+       mScaleRect = inScaleRect;
+       mScaleW = inScaleW;
+       mScaleH = inScaleH;
        mFilter = inFilter;
        mGroupPath = [];
 
@@ -213,7 +217,10 @@ class SvgRenderer
 
     public function getMatchingRect(inMatch:EReg) : Rectangle
     {
-       return getExtent(null, function(_,groups) return inMatch.match(groups[1]) );
+       return getExtent(null, function(_,groups) {
+          //trace( groups + " ->  " +  inMatch.match(groups[1]) );
+          return inMatch.match(groups[1]);
+       }, false  );
     }
 
     public function renderObject(inObj:DisplayObject,inGfx:Graphics,
