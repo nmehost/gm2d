@@ -27,8 +27,8 @@ class Layout
    public var mBRight:Float;
    public var mBBottom:Float;
 
-   public var minWidth:Null<Float>;
-   public var minHeight:Null<Float>;
+   public var minWidth:Float;
+   public var minHeight:Float;
    public var width:Float;
    public var height:Float;
 
@@ -45,6 +45,7 @@ class Layout
    public function new()
    {
       width = height = 0.0;
+      minWidth = minHeight = 0.0;
       mDebugCol = 0xff0000;
       mBLeft = mBRight = mBTop = mBBottom = 0;
       mAlign = AlignCenterX|AlignCenterY;
@@ -54,6 +55,11 @@ class Layout
    {
       mAlign = inAlign;
       return this;
+   }
+   public function setMinSize(inWidth:Float,inHeight:Float) : Void
+   {
+      minWidth = inWidth;
+      minHeight = inHeight;
    }
 
    public function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void
@@ -177,16 +183,18 @@ class DisplayLayout extends Layout
    {
       var w = inW - mBLeft - mBRight;
       var x = mOX + inX + mBLeft;
+      var ow = minWidth<mOWidth ? mOWidth : minWidth;
+      var oh = minHeight<mOHeight ? mOHeight : minHeight;
       switch(mAlign & Layout.AlignMaskX)
       {
          case Layout.AlignLeft:
-            w = mOWidth;
+            w = ow;
          case Layout.AlignRight:
-            x = x + w-mOWidth;
-            w = mOWidth;
+            x = x + w-ow;
+            w = ow;
          case Layout.AlignCenterX:
-            x = x + (w-mOWidth)/2;
-            w = mOWidth;
+            x = x + (w-ow)/2;
+            w = ow;
       }
 
       var h = inH - mBTop - mBBottom;
@@ -194,13 +202,13 @@ class DisplayLayout extends Layout
       switch(mAlign & Layout.AlignMaskY)
       {
          case Layout.AlignTop:
-            h = mOHeight;
+            h = oh;
          case Layout.AlignBottom:
-            y = y + h - mOHeight;
-            h = mOHeight;
+            y = y + h - oh;
+            h = oh;
          case Layout.AlignCenterY:
-            y = y + (h - mOHeight)/2;
-            h = mOHeight;
+            y = y + (h - oh)/2;
+            h = oh;
       }
 
        
@@ -224,12 +232,12 @@ class DisplayLayout extends Layout
 
    public override function getBestWidth(?inHeight:Null<Float>) : Float
    {
-      if (minWidth!=null && minWidth>mOWidth) return mOWidth;
+      if (minWidth>mOWidth) return minWidth;
       return mOWidth;
    }
    public override function getBestHeight(?inWidth:Null<Float>) : Float
    {
-      if (minHeight!=null && minHeight>mOHeight) return mOHeight;
+      if (minHeight!=null && minHeight>mOHeight) return minHeight;
       return mOHeight;
    }
 }
@@ -310,7 +318,7 @@ class StackLayout extends Layout
          if (w>width) width=w;
       }
       width += mBLeft + mBRight;
-      if (minWidth!=null && minWidth>width) width = minWidth;
+      if (minWidth>width) width = minWidth;
       return width;
 
    }
@@ -599,7 +607,7 @@ class GridLayout extends Layout
          w+=(mColInfo.length-1)*mSpaceX;
       for(col in mColInfo)
          w+= col.mWidth;
-      if (minWidth!=null && minWidth>w) return minWidth;
+      if (minWidth>w) return minWidth;
       return w;
    }
    public override function getBestHeight(?inWidth:Null<Float>) : Float

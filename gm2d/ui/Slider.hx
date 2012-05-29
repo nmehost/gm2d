@@ -9,67 +9,63 @@ import gm2d.ui.Layout;
 import gm2d.svg.Svg;
 import gm2d.svg.SvgRenderer;
 import gm2d.skin.Skin;
+import gm2d.skin.SliderRenderer;
 
 class Slider extends Control
 {
-   var mTrack : Sprite;
-   var mThumb : Sprite;
-   var mCallback : Float->Void;
-   var mMin:Float;
-   var mMax:Float;
-   var mSliding:Bool;
-   var mX0:Float;
-   var mX1:Float;
-   var mLength:Float;
-   var mPrefW:Null<Float>;
-   var mPrefH:Null<Float>;
+   public var mTrack : Sprite;
+   public var mThumb : Sprite;
+   public var mText  : TextField;
+   public var mCallback : Float->Void;
+   public var mMin:Float;
+   public var mMax:Float;
+   public var mSliding:Bool;
+   public var mX0:Float;
+   public var mX1:Float;
+   public var mValue:Float;
+   var mRenderer:gm2d.skin.SliderRenderer;
 
-   public function new(inTrack:Sprite,inThumb:Sprite,
-                       inText:DisplayObject,inMin:Float,inMax:Float,inPos:Float,
-                       inOnChange:Float->Void,
-                       ?inX0:Float = 0.0,
-                       ?inX1:Null<Float>)
+   public function new(inMin:Float,inMax:Float,inPos:Float,inOnChange:Float->Void,
+      ?inRenderer:SliderRenderer)
    {
       super();
       name = "Slider";
       mCallback = inOnChange;
-      mTrack = inTrack;
-      if (mTrack!=null) mTrack.name = "Track";
-      mThumb = inThumb;
-      if (mThumb!=null) mThumb.name = "Thumb";
-      addChild(mTrack);
       mMax = inMax;
       mMin = inMin;
-      mX0 = inX0;
-      mX1 = (inX1==null) ? (mTrack==null ? 100 : mTrack.width) : inX1;
-      mLength = mX1-mX0;
-      if (mLength==0) mLength = 1;
+      mX0 = 0;
+      mX1 = 1;
+      mRenderer = inRenderer==null ? new SliderRenderer() : inRenderer;
+
+      mTrack = new Sprite();
+      addChild(mTrack);
+
+      mRenderer.onCreate(this);
+
       mSliding = false;
 
       if (mThumb!=null)
       {
          addChild(mThumb);
-         mTrack.addEventListener(MouseEvent.MOUSE_DOWN, OnTrack );
-         mTrack.addEventListener(MouseEvent.CLICK, OnClick );
          mThumb.addEventListener(MouseEvent.MOUSE_DOWN, OnTrack );
       }
-      SetPos(inPos);
+
+      addEventListener(MouseEvent.MOUSE_DOWN, OnTrack );
+      addEventListener(MouseEvent.CLICK, OnClick );
+
+      setValueQuiet(inPos);
    }
 
-   function OnTrackDone(_)
-   {
-      //mThumb.stopDrag();
-   }
-
-   function SetThumbX(inX:Float)
+   function setThumbX(inX:Float)
    {
       inX -= mTrack.x + mX0;
+      var len = mX1-mX0;
       if (inX<0)
-         SetPos(mMin);
-      else if (inX>mLength)
-         SetPos(mMax);
+         setValue(mMin);
+      else if (inX>len)
+         setValue(mMax);
       else
-         SetPos( mMin + (mMax-mMin)*inX/mLength );
+         setValue( mMin + (mMax-mMin)*inX/len );
    }
 
    function EndMoveSlider()
@@ -77,7 +73,7 @@ class Slider extends Control
       mSliding = false;
       stage.removeEventListener(MouseEvent.MOUSE_MOVE, OnMoveSlider);
    }
-   function OnClick(inEvent:MouseEvent) { SetThumbX(mouseX); }
+   function OnClick(inEvent:MouseEvent) { setThumbX(mouseX); }
 
    function OnMoveSlider(inEvent:MouseEvent)
    {
@@ -85,7 +81,7 @@ class Slider extends Control
          EndMoveSlider();
       else
       {
-         SetThumbX(mouseX);
+         setThumbX(mouseX);
       }
    }
    function OnTrack(_)
@@ -97,14 +93,21 @@ class Slider extends Control
       }
    }
 
-   function SetPos(inPos:Float)
+   function setValueQuiet(inPos:Float)
    {
-      if (mThumb!=null)
-      {
-         mThumb.x = mTrack.x + mX0 + mLength * (inPos-mMin)/(mMax-mMin);
-      }
+      mValue = inPos;
+      mRenderer.onPosition(this);
    }
 
+
+   function setValue(inPos:Float)
+   {
+      setValueQuiet(inPos);
+      if (mCallback!=null)
+         mCallback(inPos);
+   }
+
+/*
    public static function SkinnedSlider(inSkin:Svg,inText:DisplayObject,
              inMin:Float,inMax:Float,inPos:Float,inOnChange:Float->Void)
    {
@@ -127,6 +130,7 @@ class Slider extends Control
       result.getLayout().setBestSize(inSkin.width,inSkin.height);
       return result;
    }
+*/
 
 /*
    override public function activate(inDirection:Int)

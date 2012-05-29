@@ -20,18 +20,53 @@ import gm2d.geom.Matrix;
 import nme.display.SimpleButton;
 import gm2d.ui.IDockable;
 import gm2d.ui.Layout;
+import gm2d.ui.Slider;
 import gm2d.svg.SvgRenderer;
 import gm2d.svg.Svg;
 
 
-class FrameRenderer
+class SliderRenderer
 {
    public function new() { }
 
-   public dynamic function render(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void { }
-   public dynamic function createLayout(inInteriorLayout:Layout):Layout { return inInteriorLayout; }
+   public dynamic function onCreate(inSlider:Slider):Void
+   {
+      var layout = inSlider.getLayout();
+      layout.setMinSize(120,20);
+
+      inSlider.mThumb = new Sprite();
+      var gfx = inSlider.mThumb.graphics;
+      gfx.beginFill(Skin.current.controlColor);
+      gfx.lineStyle(1,Skin.current.controlBorder);
+      gfx.drawRect(-10,0,20,20);
+
+      layout.onLayout = function(inX:Float,inY:Float,inW:Float,inH:Float)
+      {
+          this.onRender( inSlider, new Rectangle(inX,inY,inW,inH) );
+          this.onPosition(inSlider);
+      };
+   }
+
+   public dynamic function onRender(inSlider:Slider, inRect:Rectangle):Void
+   {
+      inSlider.mX0 = 10;
+      inSlider.mX1 = inRect.width-10;
+
+      var gfx = inSlider.mTrack.graphics;
+      gfx.beginFill(Skin.current.disableColor);
+      gfx.lineStyle(1,Skin.current.controlBorder);
+      gfx.drawRect(10,0,inRect.width-20,inRect.height);
+
+   }
+   public dynamic function onPosition(inSlider:Slider):Void
+   {
+      inSlider.mThumb.x = inSlider.mX0 + (inSlider.mX1-inSlider.mX0) *
+             (inSlider.mValue - inSlider.mMin) /
+                    (inSlider.mMax-inSlider.mMin);
+   }
 
 
+/*
    public static function fromSvg(inSvg:Svg,?inLayer:String)
    {
       var renderer = new SvgRenderer(inSvg,inLayer);
@@ -81,5 +116,7 @@ class FrameRenderer
 
       return result;
    }
+*/
 }
+
 

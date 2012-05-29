@@ -11,6 +11,7 @@ import gm2d.ui.Keyboard;
 import gm2d.events.MouseEvent;
 import gm2d.ui.BitmapFont;
 import gm2d.ui.BitmapText;
+import gm2d.ui.Slider;
 import gm2d.skin.Skin;
 import gm2d.skin.FrameRenderer;
 import gm2d.svg.Svg;
@@ -30,21 +31,16 @@ class Dialog extends Screen
       var panel = new gm2d.ui.Panel("Settings");
 
       panel.addLabel("Music Volume");
+      panel.addUI(new Slider(0,100,50,OnMusic) );
 
-      //panel.addUI(gm2d.ui.Slider.SkinnedSlider(sl,null,0,100,50,OnMusic) );
-
-      var but = Button.TextButton("Ok", function() { Game.closeDialog(); } );
-      panel.addButton(but);
-
-      var but = Button.TextButton("Cancel", function() { Game.closeDialog(); } );
-      panel.addButton(but);
+      panel.addButton(Button.TextButton("Ok", function() { Game.closeDialog(); } ) );
+      panel.addButton(Button.TextButton("Cancel", function() { Game.closeDialog(); } ) );
 
       var pane = panel.getPane();
-      //pane.setMinSize(300,200);
       var settings = new gm2d.ui.Dialog(pane);
-
       Game.addDialog("Settings",settings);
       var dlg = Game.showDialog("Settings");
+
 
       var s = stage;
       s.addEventListener( MouseEvent.CLICK, function (e:MouseEvent)

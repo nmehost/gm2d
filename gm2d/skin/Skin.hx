@@ -122,6 +122,8 @@ class Skin
    {
       if (inSvg.hasGroup("dialog"))
          dialogRenderer = FrameRenderer.fromSvg(inSvg,"dialog");
+      //if (inSvg.hasGroup("slider"))
+      //   sliderRenderer = SliderRenderer.fromSvg(inSvg,"slider");
    }
 
    public static function getScaleRect(inRenderer:SvgRenderer, inBounds:Rectangle) : Rectangle
@@ -132,8 +134,8 @@ class Skin
          return null;
       return  new Rectangle(scaleX==null ? inBounds.x - 1000 : scaleX.x,
                             scaleY==null ? inBounds.y - 1000 : scaleY.y,
-                            scaleX==null ? inBounds.width + 1000 : scaleX.width,
-                            scaleY==null ? inBounds.height + 1000 : scaleY.height );
+                            scaleX==null ? inBounds.width + 2000 : scaleX.width,
+                            scaleY==null ? inBounds.height + 2000 : scaleY.height );
    }
 
 

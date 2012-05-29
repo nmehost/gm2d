@@ -278,7 +278,7 @@
     <g
        inkscape:groupmode="layer"
        id="PO"
-       inkscape:label=".interior.scaleY"
+       inkscape:label=".interior.scaleX.scaleY"
        style="opacity:1;display:inline">
       <rect
          style="fill:#000001;fill-opacity:0.0625;fill-rule:evenodd;stroke:none;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
