@@ -55,7 +55,7 @@ class Button extends Control
       var label = getLabel();
       if (label!=null)
          mRenderer.styleLabel(label);
-      var offset = mRenderer.getDownOffset();
+      var offset = mRenderer.downOffset;
       mDownDX = offset.x;
       mDownDY = offset.y;
       getLayout();

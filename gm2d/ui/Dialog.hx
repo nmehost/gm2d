@@ -51,6 +51,9 @@ class Dialog extends Window
 
       // TODO - use hit boxes/MouseWatcher
       mChrome.addEventListener(gm2d.events.MouseEvent.MOUSE_DOWN, doDrag);
+
+      if (gm2d.Lib.isOpenGL)
+         cacheAsBitmap = true;
    }
 
    function doneDrag(_)

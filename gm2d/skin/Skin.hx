@@ -165,6 +165,8 @@ trace("HELLO!");
          dialogRenderer = FrameRenderer.fromSvg(inSvg,"dialog");
       if (inSvg.hasGroup("slider"))
          sliderRenderer = SliderRenderer.fromSvg(inSvg,"slider");
+      if (inSvg.hasGroup("button"))
+         buttonRenderer = ButtonRenderer.fromSvg(inSvg,"button");
    }
 
    public static function getScaleRect(inRenderer:SvgRenderer, inBounds:Rectangle) : Rectangle
