@@ -23,7 +23,7 @@ class Slider extends Control
    public var mX0:Float;
    public var mX1:Float;
    public var mValue:Float;
-   var mRenderer:gm2d.skin.SliderRenderer;
+   public var mRenderer:gm2d.skin.SliderRenderer;
 
    public function new(inMin:Float,inMax:Float,inPos:Float,inOnChange:Float->Void,
       ?inRenderer:SliderRenderer)
@@ -35,7 +35,7 @@ class Slider extends Control
       mMin = inMin;
       mX0 = 0;
       mX1 = 1;
-      mRenderer = inRenderer==null ? new SliderRenderer() : inRenderer;
+      mRenderer = inRenderer==null ? Skin.current.sliderRenderer : inRenderer;
 
       mTrack = new Sprite();
       addChild(mTrack);
@@ -106,31 +106,6 @@ class Slider extends Control
       if (mCallback!=null)
          mCallback(inPos);
    }
-
-/*
-   public static function SkinnedSlider(inSkin:Svg,inText:DisplayObject,
-             inMin:Float,inMax:Float,inPos:Float,inOnChange:Float->Void)
-   {
-      var track = new Sprite();
-      var renderer = new SvgRenderer(inSkin);
-      renderer.renderSprite(track,null, function(name,groups) { return groups[1]=="Track"; } );
-
-      var thumb = new Sprite();
-      renderer.renderSprite(thumb,null, function(name,groups) { return groups[1]=="Thumb"; } );
-
-      var rect = renderer.getExtent(null,
-                     function(name,groups) { return groups[1]==".Active"; },true );
-
-      var result:Slider = null;
-      if (rect!=null)
-         result =  new Slider(track,thumb,null, inMin,inMax,inPos,inOnChange,rect.left,rect.right);
-      else
-         result =  new Slider(track,thumb,null, inMin,inMax,inPos,inOnChange);
-
-      result.getLayout().setBestSize(inSkin.width,inSkin.height);
-      return result;
-   }
-*/
 
 /*
    override public function activate(inDirection:Int)

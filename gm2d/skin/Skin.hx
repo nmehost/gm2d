@@ -28,6 +28,7 @@ import gm2d.geom.Point;
 import gm2d.geom.Rectangle;
 import gm2d.geom.Matrix;
 import gm2d.ui.Layout;
+import gm2d.ui.Slider;
 
 import nme.display.SimpleButton;
 import gm2d.svg.Svg;
@@ -55,6 +56,7 @@ class Skin
 
    public var dialogRenderer:FrameRenderer;
    public var buttonRenderer:ButtonRenderer;
+   public var sliderRenderer:SliderRenderer;
 
    public static var svgInterior = ~/\.interior/;
    public static var svgScaleX = ~/\.scaleX/;
@@ -95,6 +97,7 @@ class Skin
    {
       dialogRenderer = createDialogRenderer();
       buttonRenderer = createButtonRenderer();
+      sliderRenderer = createSliderRenderer();
    }
 
    public function createDialogRenderer()
@@ -117,13 +120,51 @@ class Skin
       };
       return result;
    }
+   public function createSliderRenderer()
+   {
+      var result = new SliderRenderer();
+      result.onCreate = onCreateSlider;
+      result.onRender = onRenderSlider;
+      return result;
+   }
+
+   public function onCreateSlider(inSlider:Slider):Void
+   {
+trace("HELLO!");
+      var layout = inSlider.getLayout();
+      layout.setMinSize(120,20);
+
+      inSlider.mThumb = new Sprite();
+      var gfx = inSlider.mThumb.graphics;
+      gfx.beginFill(controlColor);
+      gfx.lineStyle(1,controlBorder);
+      gfx.drawRect(-10,0,20,20);
+      inSlider.getLayout().onLayout = function(inX:Float,inY:Float,inW:Float,inH:Float)
+      {
+          inSlider.mRenderer.onRender( inSlider, new Rectangle(inX,inY,inW,inH) );
+          inSlider.mRenderer.onPosition(inSlider);
+      };
+   }
+
+   public function onRenderSlider(inSlider:Slider, inRect:Rectangle):Void
+   {
+      inSlider.mX0 = 10;
+      inSlider.mX1 = inRect.width-10;
+
+      var gfx = inSlider.mTrack.graphics;
+      gfx.beginFill(disableColor);
+      gfx.lineStyle(1,controlBorder);
+      gfx.drawRect(10,0,inRect.width-20,inRect.height);
+
+   }
+
 
    public function fromSvg(inSvg:Svg)
    {
       if (inSvg.hasGroup("dialog"))
          dialogRenderer = FrameRenderer.fromSvg(inSvg,"dialog");
-      //if (inSvg.hasGroup("slider"))
-      //   sliderRenderer = SliderRenderer.fromSvg(inSvg,"slider");
+      if (inSvg.hasGroup("slider"))
+         sliderRenderer = SliderRenderer.fromSvg(inSvg,"slider");
    }
 
    public static function getScaleRect(inRenderer:SvgRenderer, inBounds:Rectangle) : Rectangle

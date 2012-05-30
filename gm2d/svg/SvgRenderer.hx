@@ -80,6 +80,10 @@ class SvgRenderer
        mGfx.eof();
        return inGfx;
     }
+    public function hasGroup(inName:String)
+    {
+        return mRoot.hasGroup(inName);
+    }
 
     public function iterateText(inText:Text)
     {
@@ -193,13 +197,46 @@ class SvgRenderer
        mFilter = inFilter;
        mGroupPath = [];
 
-       iterateGroup(mRoot,true);
+       iterateGroup(mRoot,inFilter==null);
+    }
+    public function renderRect(inGfx:Graphics,inFilter:ObjectFilter,scaleRect:Rectangle,inBounds:Rectangle,inRect:Rectangle) : Void
+    {
+       var matrix = new Matrix();
+       matrix.tx = inRect.x-(inBounds.x);
+       matrix.ty = inRect.y-(inBounds.y);
+       if (scaleRect!=null)
+       {
+          var extraX = inRect.width-(inBounds.width-scaleRect.width);
+          var extraY = inRect.height-(inBounds.height-scaleRect.height);
+          render(inGfx,matrix,inFilter,scaleRect, extraX, extraY );
+       }
+       else
+         render(inGfx,matrix,inFilter);
+    }
+
+    public function renderRect0(inGfx:Graphics,inFilter:ObjectFilter,scaleRect:Rectangle,inBounds:Rectangle,inRect:Rectangle) : Void
+    {
+       var matrix = new Matrix();
+       matrix.tx = -(inBounds.x);
+       matrix.ty = -(inBounds.y);
+       if (scaleRect!=null)
+       {
+          var extraX = inRect.width-(inBounds.width-scaleRect.width);
+          var extraY = inRect.height-(inBounds.height-scaleRect.height);
+          render(inGfx,matrix,inFilter,scaleRect, extraX, extraY );
+       }
+       else
+         render(inGfx,matrix,inFilter);
     }
 
 
-    public function getExtent(?inMatrix:Matrix, ?inFilter:ObjectFilter, inIgnoreDot=true ) :
+
+
+    public function getExtent(?inMatrix:Matrix, ?inFilter:ObjectFilter, ?inIgnoreDot:Bool ) :
         Rectangle
     {
+       if (inIgnoreDot==null)
+          inIgnoreDot = inFilter==null;
        var gfx = new gm2d.gfx.GfxExtent();
        mGfx = gfx;
        if (inMatrix==null)
@@ -218,8 +255,7 @@ class SvgRenderer
     public function getMatchingRect(inMatch:EReg) : Rectangle
     {
        return getExtent(null, function(_,groups) {
-          //trace( groups + " ->  " +  inMatch.match(groups[1]) );
-          return inMatch.match(groups[1]);
+          return groups[1]!=null && inMatch.match(groups[1]);
        }, false  );
     }
 

@@ -14,7 +14,7 @@
    height="150"
    id="svg2484"
    sodipodi:version="0.32"
-   inkscape:version="0.48.1 "
+   inkscape:version="0.48.2 r9819"
    version="1.0"
    sodipodi:docname="skin.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape">
@@ -102,14 +102,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8691099"
-     inkscape:cx="102.16788"
+     inkscape:cx="35.770981"
      inkscape:cy="90.20111"
      inkscape:document-units="px"
-     inkscape:current-layer="layer24"
+     inkscape:current-layer="PO"
      showgrid="true"
-     inkscape:window-width="1505"
-     inkscape:window-height="952"
-     inkscape:window-x="42"
+     inkscape:window-width="1440"
+     inkscape:window-height="856"
+     inkscape:window-x="10"
      inkscape:window-y="0"
      inkscape:window-maximized="0">
     <inkscape:grid
@@ -281,7 +281,7 @@
        inkscape:label=".interior.scaleX.scaleY"
        style="opacity:1;display:inline">
       <rect
-         style="fill:#000001;fill-opacity:0.0625;fill-rule:evenodd;stroke:none;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         style="fill:#07070e;fill-opacity:0.0625;fill-rule:evenodd;stroke:none;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          id="rect3287"
          width="180"
          height="100"
