@@ -232,13 +232,15 @@ class DisplayLayout extends Layout
 
    public override function getBestWidth(?inHeight:Null<Float>) : Float
    {
-      if (minWidth>mOWidth) return minWidth;
-      return mOWidth;
+      var w = mOWidth + mBLeft + mBRight;
+      if (minWidth>w) return minWidth;
+      return w;
    }
    public override function getBestHeight(?inWidth:Null<Float>) : Float
    {
-      if (minHeight!=null && minHeight>mOHeight) return minHeight;
-      return mOHeight;
+      var h = mOHeight + mBTop + mBBottom;
+      if (minHeight>h) return minHeight;
+      return h;
    }
 }
 
@@ -352,19 +354,16 @@ class ChildStackLayout extends StackLayout
    {
       var new_w = inW-mBLeft-mBRight;
       var new_h = inH-mBTop-mBBottom;
-      //trace("ChildStackLayout: setRect : " + inX + "," + inY );
       for(i in 0...mChildren.length)
       {
          var child = mChildren[i];
          if (i==0)
          {
             child.setRect( inX+mBLeft, inY+mBTop, new_w, new_h );
-            //trace(" set first " + (inX+mBLeft) + "," + new_w);
          }
          else
          {
-            child.setRect( 0, 0, new_w, new_h );
-            //trace(" set other:"+new_w);
+            child.setRect(0,0,new_w,new_h);
          }
       }
 
@@ -373,6 +372,7 @@ class ChildStackLayout extends StackLayout
          Layout.mDebug.lineStyle(1,0xffff00);
          Layout.mDebug.drawRect(inX,inY,inW,inH);
       }
+
       if (onLayout!=null)
          onLayout(inX,inY,inW,inH);
    }

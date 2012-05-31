@@ -199,14 +199,17 @@ class Button extends Control
    {
       var layout = new ChildStackLayout( );
       layout.setBorders(0,0,0,0);
-      layout.add( mMainLayout = (new DisplayLayout(this)).setOrigin(0,0) );
+      mMainLayout = new DisplayLayout(this).setOrigin(0,0);
+      mMainLayout.mAlign = Layout.AlignLeft | Layout.AlignTop;
+      layout.add( mMainLayout );
       mItemLayout = ( Std.is(mDisplayObj,TextField)) ?
            new TextLayout(cast mDisplayObj)  : 
            new DisplayLayout(mDisplayObj) ;
-      mRenderer.updateLayout(mItemLayout);
       layout.add(mItemLayout);
       layout.mDebugCol = 0x00ff00;
       layout.onLayout = renderBackground;
+      mLayout = layout;
+      mRenderer.updateLayout(this);
       return layout;
    }
 

@@ -57,6 +57,7 @@ class Skin
    public var dialogRenderer:FrameRenderer;
    public var buttonRenderer:ButtonRenderer;
    public var sliderRenderer:SliderRenderer;
+   public var labelRenderer:LabelRenderer;
 
    public static var svgInterior = ~/\.interior/;
    public static var svgScaleX = ~/\.scaleX/;
@@ -98,6 +99,7 @@ class Skin
       dialogRenderer = createDialogRenderer();
       buttonRenderer = createButtonRenderer();
       sliderRenderer = createSliderRenderer();
+      labelRenderer = createLabelRenderer();
    }
 
    public function createDialogRenderer()
@@ -110,14 +112,11 @@ class Skin
    {
       var result = new ButtonRenderer();
       result.render = renderButton;
-      result.updateLayout = function(ioLayout:Layout)
+      result.updateLayout = function(ioButton:Button)
       {
-         ioLayout.setBorders(buttonBorderX,buttonBorderY,buttonBorderX,buttonBorderY);
+         ioButton.getItemLayout().setBorders(buttonBorderX,buttonBorderY,buttonBorderX,buttonBorderY);
       };
-      result.styleLabel = function(ioTextField:TextField)
-      {
-         ioTextField.height = 30;
-      };
+      result.styleLabel = styleLabel;
       return result;
    }
    public function createSliderRenderer()
@@ -127,10 +126,17 @@ class Skin
       result.onRender = onRenderSlider;
       return result;
    }
+   public function createLabelRenderer()
+   {
+      var result = new LabelRenderer();
+      result.styleLabel = styleLabel;
+      return result;
+   }
+
+
 
    public function onCreateSlider(inSlider:Slider):Void
    {
-trace("HELLO!");
       var layout = inSlider.getLayout();
       layout.setMinSize(120,20);
 
@@ -238,7 +244,7 @@ trace("HELLO!");
       inItem.onCurrentChangedFunc = function(_) { };
    }
 
-   public function styleLabelText(label:TextField)
+   public function styleLabel(label:TextField)
    {
       label.defaultTextFormat = textFormat;
       label.textColor = labelColor;
@@ -246,14 +252,6 @@ trace("HELLO!");
       label.selectable = false;
       //label.mouseEnabled = false;
   }
-
-   public function styleButtonText(label:TextField)
-   {
-      styleLabelText(label);
-      label.mouseEnabled = true;
-      //label.border = true;
-      //label.borderColor = 0x000000;
-   }
 
 /*
    public function stylePane(inGfx:Graphics, inRect:Rectangle)
@@ -857,7 +855,7 @@ trace("HELLO!");
       if (inFull)
       {
          var text = new TextField();
-         styleLabelText(text);
+         styleLabel(text);
          text.text = pane.shortTitle;
          text.x = inRect.x+4;
          text.y = inRect.y+-18;
@@ -899,7 +897,7 @@ trace("HELLO!");
       if (mText==null)
       {
          mText = new TextField();
-         styleLabelText(mText);
+         styleLabel(mText);
       }
    }
 

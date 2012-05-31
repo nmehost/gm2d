@@ -30,6 +30,7 @@ class FrameRenderer
 
    public dynamic function render(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void { }
    public dynamic function createLayout(inInteriorLayout:Layout):Layout { return inInteriorLayout; }
+   public dynamic function styleTitle(ioLabel:TextField):Void { Skin.current.styleLabel(ioLabel); }
 
 
    public static function fromSvg(inSvg:Svg,?inLayer:String)

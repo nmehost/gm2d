@@ -14,6 +14,7 @@ import nme.display.SimpleButton;
 import gm2d.svg.Svg;
 import gm2d.svg.SvgRenderer;
 import gm2d.ui.Layout;
+import gm2d.ui.Button;
 
 
 class ButtonRenderer
@@ -23,8 +24,9 @@ class ButtonRenderer
    public var downOffset:Point;
 
    public dynamic function render(outChrome:Sprite, inRect:Rectangle, inState:ButtonState):Void { }
-   public dynamic function updateLayout(ioLayout:Layout):Void { }
-   public dynamic function styleLabel(ioLabel:TextField):Void {  }
+   public dynamic function updateLayout(ioButton:Button):Void { }
+   public dynamic function styleLabel(ioLabel:TextField):Void { Skin.current.styleLabel(ioLabel); }
+
 
    public static function fromSvg( inSvg:Svg,?inLayer:String)
    {
@@ -45,13 +47,17 @@ class ButtonRenderer
          outChrome.graphics.clear();
          renderer.renderRect0(outChrome.graphics,null,scaleRect,bounds,inRect);
       };
-      result.updateLayout = function(ioLayout:Layout)
+      result.updateLayout = function(ioButton:Button)
       {
-         //ioLayout.setBorders(buttonBorderX,buttonBorderY,buttonBorderX,buttonBorderY);
+         //trace("Min Size:" + bounds.width + "x" + bounds.height);
+         ioButton.getLayout().setMinSize(bounds.width, bounds.height);
+         ioButton.getItemLayout().setBorders(interior.x-bounds.x, interior.y-bounds.y,
+                             bounds.right-interior.right, bounds.bottom-interior.bottom);
       };
       result.styleLabel = function(ioTextField:TextField)
       {
-         ioTextField.height = 20;
+         //trace("Style : " + ioTextField);
+         Skin.current.styleLabel(ioTextField);
       };
 
 

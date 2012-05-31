@@ -6,6 +6,7 @@ import gm2d.display.Sprite;
 import gm2d.text.TextField;
 import gm2d.text.TextFormat;
 import gm2d.ui.Layout;
+import gm2d.skin.LabelRenderer;
 import gm2d.skin.Skin;
 
 class Panel extends Widget
@@ -20,7 +21,9 @@ class Panel extends Widget
    var mTitle:String;
    var mPane:Pane;
 
-   public function new(inTitle:String = "" )
+   public var labelRenderer:LabelRenderer;
+
+   public function new(inTitle:String = "", ?inLabelRenderer:LabelRenderer )
    {
       super();
 
@@ -40,6 +43,7 @@ class Panel extends Widget
       mGridLayout.setRowStretch(1,0);
       if (mDebug!=null)
          addChild(mDebug);
+      labelRenderer = inLabelRenderer==null ? Skin.current.labelRenderer : inLabelRenderer;
    }
 
    public function getPane()
@@ -152,7 +156,7 @@ class Panel extends Widget
    {
       mLayoutDirty = true;
       var label = new TextField();
-      Skin.current.styleLabelText(label);
+      labelRenderer.styleLabel(label);
       label.text = inText;
       addChild(label);
       mItemLayout.add( new TextLayout(label) );
