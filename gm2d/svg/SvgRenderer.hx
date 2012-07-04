@@ -87,6 +87,9 @@ class SvgRenderer
 
     public function iterateText(inText:Text)
     {
+       if (mFilter!=null && !mFilter(inText.name,mGroupPath))
+          return;
+       mGfx.renderText(inText);
     }
 
     public function iteratePath(inPath:Path)
@@ -94,7 +97,7 @@ class SvgRenderer
        if (mFilter!=null && !mFilter(inPath.name,mGroupPath))
           return;
 
-       if (inPath.segments.length==0)
+       if (inPath.segments.length==0 || mGfx==null)
            return;
        var px = 0.0;
        var py = 0.0;
@@ -250,6 +253,16 @@ class SvgRenderer
        iterateGroup(mRoot,inIgnoreDot);
 
        return gfx.extent;
+    }
+
+    public function findText(?inFilter:ObjectFilter)
+    {
+       mFilter = inFilter;
+       mGroupPath = [];
+       var finder = new gm2d.gfx.GfxTextFinder();
+       mGfx = finder;
+       iterateGroup(mRoot,false);
+       return finder.text;
     }
 
     public function getMatchingRect(inMatch:EReg) : Rectangle

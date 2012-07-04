@@ -52,9 +52,6 @@ class Button extends Control
       addEventListener(MouseEvent.MOUSE_DOWN, function(_) { me.setDown(true); } );
       addEventListener(MouseEvent.MOUSE_UP, function(_) { me.setDown(false); } );
 
-      var label = getLabel();
-      if (label!=null)
-         mRenderer.styleLabel(label);
       var offset = mRenderer.downOffset;
       mDownDX = offset.x;
       mDownDY = offset.y;
@@ -160,10 +157,12 @@ class Button extends Control
 
    public static function TextButton(inText:String,inOnClick:Void->Void,?inRenderer:ButtonRenderer)
    {
+      var renderer = inRenderer==null ? Skin.current.buttonRenderer : inRenderer;
       var label = new TextField();
+      renderer.styleLabel(label);
       label.text = inText;
       label.selectable = false;
-      var result =  new Button(label,inOnClick,inRenderer);
+      var result =  new Button(label,inOnClick,renderer);
       return result;
    }
 

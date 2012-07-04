@@ -54,11 +54,7 @@ class ButtonRenderer
          ioButton.getItemLayout().setBorders(interior.x-bounds.x, interior.y-bounds.y,
                              bounds.right-interior.right, bounds.bottom-interior.bottom);
       };
-      result.styleLabel = function(ioTextField:TextField)
-      {
-         //trace("Style : " + ioTextField);
-         Skin.current.styleLabel(ioTextField);
-      };
+      result.styleLabel = LabelRenderer.fromSvg(inSvg, [inLayer, "dialog", null] ).styleLabel;
 
 
       return result;

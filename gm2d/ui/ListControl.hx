@@ -74,7 +74,7 @@ class ListControl extends ScrollWidget
    public function stringToItem(inString:String) : DisplayObject
    {
       var t = new TextField();
-      Skin.current.styleLabelText(t);
+      Skin.current.labelRenderer.styleLabel(t);
       t.text = inString;
       t.selectable = mTextSelectable;
       if (!mTextSelectable)

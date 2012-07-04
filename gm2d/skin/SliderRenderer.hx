@@ -64,7 +64,7 @@ class SliderRenderer
          var layout = inSlider.getLayout();
          layout.setMinSize(bounds.width,bounds.height);
 
-         if (thumb!=null)
+         if (thumb)
          {
             inSlider.mThumb = new Sprite();
             var mtx = new Matrix();

@@ -67,7 +67,7 @@ class FileOpenScreen extends Screen
       var dir_buttons = new GridLayout(null,"dir button",0).setAlignment(Layout.AlignLeft);
       dir_buttons.setSpacing(2,10);
 
-      var button = Button.TextButton("All", function() setDir(null), true );
+      var button = Button.TextButton("All", function() setDir(null) );
       addChild(button);
       dir_buttons.add(button.getLayout());
 
@@ -97,7 +97,7 @@ class FileOpenScreen extends Screen
                spaceChar = "/";
                dir_buttons.add(spacer);
                var link = soFar.join("/");
-               var button = Button.TextButton(part, function() setDir(link), true );
+               var button = Button.TextButton(part, function() setDir(link) );
                addChild(button);
                dir_buttons.add(button.getLayout());
             }
@@ -165,7 +165,7 @@ class FileOpenScreen extends Screen
       var buttons = new GridLayout(null,"buttons",1);
       buttons.setSpacing(10,0);
 
-      var button = Button.TextButton("Cancel", function() setResult(""), true );
+      var button = Button.TextButton("Cancel", function() setResult("") );
       addChild(button);
       buttons.add(button.getLayout());
 

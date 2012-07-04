@@ -102,10 +102,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8691099"
-     inkscape:cx="35.770981"
+     inkscape:cx="174.46179"
      inkscape:cy="90.20111"
      inkscape:document-units="px"
-     inkscape:current-layer="PO"
+     inkscape:current-layer="layer9"
      showgrid="true"
      inkscape:window-width="1440"
      inkscape:window-height="856"
@@ -192,7 +192,8 @@
        inkscape:groupmode="layer"
        id="layer15"
        inkscape:label=".active"
-       style="display:none">
+       style="display:none"
+       sodipodi:insensitive="true">
       <rect
          style="fill:#c5bcdf;fill-opacity:0.37980772;stroke:none"
          id="rect4079"
@@ -218,7 +219,8 @@
        inkscape:groupmode="layer"
        id="layer14"
        inkscape:label=".scaleX"
-       style="display:none">
+       style="display:none"
+       sodipodi:insensitive="true">
       <rect
          style="fill:#c5bcdf;fill-opacity:0.37980772;stroke:none"
          id="rect4076"
@@ -291,7 +293,8 @@
     <g
        inkscape:groupmode="layer"
        id="layer17"
-       inkscape:label=".label" />
+       inkscape:label=".font"
+       style="display:inline" />
     <g
        inkscape:groupmode="layer"
        id="layer8"
@@ -384,17 +387,22 @@
          x="228"
          y="5" />
     </g>
-    <text
-       xml:space="preserve"
-       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#4121a0;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
-       x="255"
-       y="20"
-       id="text3923"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3925"
-         x="255"
-         y="20">Label</tspan></text>
+    <g
+       inkscape:groupmode="layer"
+       id="layer9"
+       inkscape:label=".font">
+      <text
+         xml:space="preserve"
+         style="font-size:14px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#374cd9;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr"
+         x="235"
+         y="20"
+         id="text3953"
+         sodipodi:linespacing="125%"><tspan
+           sodipodi:role="line"
+           id="tspan3955"
+           x="235"
+           y="20">Label</tspan></text>
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
@@ -437,7 +445,7 @@
   <g
      inkscape:groupmode="layer"
      id="layer22"
-     inkscape:label="font"
+     inkscape:label=".font"
      style="display:inline">
     <text
        xml:space="preserve"

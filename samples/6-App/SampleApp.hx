@@ -6,7 +6,8 @@ import gm2d.display.Sprite;
 import gm2d.display.Bitmap;
 import gm2d.utils.ByteArray;
 import gm2d.Game;
-import gm2d.svg.SVG2Gfx;
+import gm2d.svg.SvgRenderer;
+import gm2d.svg.Svg;
 import gm2d.swf.SWF;
 import gm2d.ui.FileOpen;
 import gm2d.display.Loader;
@@ -75,10 +76,10 @@ class SampleApp extends App
    {
       var string = inData.readUTFBytes(inData.length);
       var xml = Xml.parse(string);
-      var svg = new SVG2Gfx(xml);
+      var svg = new SvgRenderer(new Svg(xml));
       var item = new Sprite();
       var gfx = item.graphics;
-      svg.Render(gfx);
+      svg.render(gfx);
       item.cacheAsBitmap = true;
       var pane = new Pane(item,inName,Dock.RESIZABLE);
       pane.bestWidth = svg.width;
@@ -87,10 +88,10 @@ class SampleApp extends App
       addPane( pane, DOCK_OVER );
 
       #if neko
-      var commands = SVG2Gfx.toHaxe(xml);
+      var commands = SvgRenderer.toHaxe(xml);
       for(c in commands)
          neko.Lib.println(c);
-      var bytes = SVG2Gfx.toBytes(xml);
+      var bytes = SvgRenderer.toBytes(xml);
       trace(bytes);
       #end
    }

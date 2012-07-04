@@ -333,7 +333,7 @@ class StackLayout extends Layout
          if (h>height) height=h;
       }
       height += mBTop + mBBottom;
-      if (minHeight!=null && minHeight>height) height = minHeight;
+      if (minHeight>height) height = minHeight;
       return height;
    }
 
@@ -618,7 +618,7 @@ class GridLayout extends Layout
         h+= (mRowInfo.length-1)*mSpaceY;
       for(row in mRowInfo)
          h+= row.mHeight;
-      if (minHeight!=null && minHeight>h) return minHeight;
+      if (minHeight>h) return minHeight;
       return h;
    }
 
