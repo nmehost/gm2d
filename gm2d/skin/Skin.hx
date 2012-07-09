@@ -105,6 +105,8 @@ class Skin
    public function createDialogRenderer()
    {
       var result = new FrameRenderer();
+      result.borders = borders;
+      result.titleHeight = 26;
       result.render = renderDialog;
       return result;
    }
@@ -532,17 +534,17 @@ class Skin
       outHitBoxes.clear();
       clearSprite(outChrome);
 
-      var ox = inRect.x - borders;
-      var oy = inRect.y -title_h - borders;
-      var w = inRect.width+borders*2;
-      var h = inRect.height+borders*2+title_h;
+      var ox = inRect.x+0.5;
+      var oy = inRect.y+0.5;
+      var w = inRect.width;
+      var h = inRect.height;
 
       var gfx = outChrome.graphics;
       gfx.clear();
       gfx.beginFill(0xa0a090);
       gfx.lineStyle(1,0xa0a090);
 
-      gfx.drawRoundRect(ox+0.5,ox+0.5,w, h, 3,3 );
+      gfx.drawRoundRect(ox,ox,w, h, 7,7 );
 
       if ( Dock.isResizeable(inPane) )
       {
@@ -563,7 +565,7 @@ class Skin
          var titleField = new TextField();
          titleField.defaultTextFormat = textFormat;
          var f = titleField.defaultTextFormat;
-         f.size = 24;
+         f.size = 20;
          titleField.defaultTextFormat = f;
          titleField.mouseEnabled = false;
          titleField.textColor = 0x000000;

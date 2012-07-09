@@ -6,6 +6,7 @@ import gm2d.filters.BitmapFilterType;
 import gm2d.filters.DropShadowFilter;
 import gm2d.filters.GlowFilter;
 import gm2d.display.Sprite;
+import gm2d.display.DisplayObject;
 import gm2d.display.BitmapData;
 import gm2d.display.Bitmap;
 import gm2d.display.Shape;
@@ -26,11 +27,19 @@ import gm2d.svg.Svg;
 
 class FrameRenderer
 {
-   public function new() { }
+   public function new() { titleHeight = 20; borders=5; }
 
    public dynamic function render(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void { }
-   public dynamic function createLayout(inInteriorLayout:Layout):Layout { return inInteriorLayout; }
-   public dynamic function styleTitle(ioLabel:TextField):Void { Skin.current.styleLabel(ioLabel); }
+
+   public var titleHeight:Float;
+   public var borders:Float;
+   public dynamic function createLayout(inInteriorLayout:Layout):Layout
+   {
+      var layout = new StackLayout();
+      layout.add(inInteriorLayout);
+      layout.setBorders(borders,borders+titleHeight,borders,borders);
+      return layout;
+   }
 
 
    public static function fromSvg(inSvg:Svg,?inLayer:String)

@@ -25,8 +25,6 @@ class Dialog extends Window
    var renderer:FrameRenderer;
 
 
-
-
    public function new(inPane:Pane, ?inRenderer:FrameRenderer)
    {
       super();
