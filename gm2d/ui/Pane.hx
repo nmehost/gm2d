@@ -135,7 +135,11 @@ class Pane implements IDockable
          if (itemLayout!=null)
          {
              bestSize[inSlot] = new Size( itemLayout.getBestWidth(), itemLayout.getBestHeight() );
-             trace("Item layout: " + bestSize[inSlot] );
+             if (bestSize[inSlot].x < bestWidth)
+                bestSize[inSlot].x = bestWidth;
+             if (bestSize[inSlot].y < bestHeight)
+                bestSize[inSlot].y = bestHeight;
+             //trace("Item layout: " + bestSize[inSlot] );
          }
          else
             bestSize[inSlot] = new Size(bestWidth,bestHeight);

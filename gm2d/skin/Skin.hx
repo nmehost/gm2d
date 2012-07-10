@@ -541,8 +541,8 @@ class Skin
 
       var gfx = outChrome.graphics;
       gfx.clear();
-      gfx.beginFill(0xa0a090);
-      gfx.lineStyle(1,0xa0a090);
+      gfx.beginFill(panelColor);
+      gfx.lineStyle(1,0xf0f0e0);
 
       gfx.drawRoundRect(ox,ox,w, h, 7,7 );
 
@@ -565,7 +565,7 @@ class Skin
          var titleField = new TextField();
          titleField.defaultTextFormat = textFormat;
          var f = titleField.defaultTextFormat;
-         f.size = 20;
+         f.size = 16;
          titleField.defaultTextFormat = f;
          titleField.mouseEnabled = false;
          titleField.textColor = 0x000000;
@@ -574,9 +574,9 @@ class Skin
          titleField.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
          titleField.y = 2;
 
-         var f:Array<BitmapFilter> = [];
-         f.push( new DropShadowFilter(2,45,0xffffff,1,0,0,1) );
-         titleField.filters = f;
+         //var f:Array<BitmapFilter> = [];
+         //f.push( new DropShadowFilter(2,45,0xffffff,1,0,0,1) );
+         //titleField.filters = f;
 
          outChrome.addChild(titleField);
 
@@ -727,7 +727,7 @@ class Skin
 		else
 		{
 		   gfx.beginFill(0xa0a090);
-         gfx.lineStyle(1,0xa0a090);
+         gfx.lineStyle(2,0xa0a090);
 		}
 
       gfx.drawRoundRect(0.5,0.5,w, h, 3,3 );
@@ -735,6 +735,7 @@ class Skin
       if ( Dock.isResizeable(pane) )
       {
          gfx.endFill();
+         gfx.lineStyle(1,0xa0a090);
          for(o in 0...4)
          {
             var dx = (o+2)*3;
