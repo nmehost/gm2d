@@ -21,6 +21,7 @@ class Layout
    public static var AlignCenter   = AlignCenterX | AlignCenterY;
    public static var AlignPixel    = 0x0100;
    public static var AlignHalfPixel= 0x0200;
+   public static var AlignKeepAspect= 0x0400;
 
    public var mBLeft:Float;
    public var mBTop:Float;
@@ -439,6 +440,17 @@ class GridLayout extends Layout
       mSpaceX = 10;
       mSpaceY = 10;
    }
+
+   public static function createKeepAspect(inMinWidth:Float, inMinHeight:Float, inBase:Layout)
+   {
+      var result = new GridLayout(1,"KeepAspect");
+      result.minWidth = inMinWidth;
+      result.minHeight = inMinHeight;
+      result.add(inBase);
+      inBase.mAlign |= Layout.AlignKeepAspect;
+      return result;
+   }
+
    public override function add(inLayout:Layout) : Layout
    {
       var row = 0;
@@ -447,6 +459,8 @@ class GridLayout extends Layout
          row = Std.int(mPos / mCols);
          if (row>=mRowInfo.length)
             mRowInfo.push(new RowInfo(mDefaultStretch));
+         else if (mRowInfo[row]==null)
+            mRowInfo[row]=new RowInfo(mDefaultStretch);
       }
       else
       {
@@ -483,8 +497,8 @@ class GridLayout extends Layout
    function BestColWidths()
    {
       //trace(indent + "BestColWidths..." + mColInfo.length);
-      var oindent = indent;
-      indent += "  ";
+      //var oindent = indent;
+      //indent += "  ";
       for(col in mColInfo)
          col.mWidth = 0;
       for(row in mRowInfo)
@@ -504,14 +518,7 @@ class GridLayout extends Layout
             }
          }
       }
-      var str = "";
-      for(col in mColInfo)
-        str+="  " + col.mWidth;
-
-      indent = oindent;
-
-      //trace(indent + "sizes " + str);
-      //trace(indent + "done BestColWidths");
+      //indent = oindent;
    }
 
    function BestRowHeights()
@@ -645,33 +652,54 @@ class GridLayout extends Layout
             var h = row_h;
 
             var item = row.mCols[c];
-            switch(item.mAlign & Layout.AlignMaskX)
+
+            if (item!=null)
             {
-               case Layout.AlignLeft:
-                  w = item.getBestWidth();
-               case Layout.AlignRight:
-                  w = item.getBestWidth();
-                  ox += col_w - w;
-               case Layout.AlignCenterX:
-                  w = item.getBestWidth();
-                  ox += (col_w - w)/2;
+               if ((item.mAlign & Layout.AlignMaskX)!=0)
+                   w = item.getBestWidth();
+               if ((item.mAlign & Layout.AlignMaskY)!=0)
+                   h = item.getBestHeight();
+
+               if ( (item.mAlign & Layout.AlignKeepAspect)>0 && item.minWidth>0 && item.minHeight>0 )
+               {
+                  var w0 = w - item.mBLeft - item.mBRight;
+                  var h0 = h - item.mBTop - item.mBBottom;
+                  
+                  if (w0*item.minHeight > h0*item.minWidth)
+                  {
+                     var new_w = h0*item.minWidth/item.minHeight + item.mBLeft + item.mBRight;
+                     ox += (w-new_w)*0.5;
+                     w = new_w;
+                  }
+                  else
+                  {
+                     var new_h = w0*item.minHeight/item.minWidth + item.mBTop + item.mBBottom;
+                     oy += (h-new_h)*0.5;
+                     h = new_h;
+                  }
+               }
+
+               switch(item.mAlign & Layout.AlignMaskX)
+               {
+                  case Layout.AlignRight:
+                     ox += col_w - w;
+                  case Layout.AlignCenterX:
+                     ox += (col_w - w)/2;
+               }
+               //trace(indent + "Put " + w + " in " + col_w);
+
+
+               switch(item.mAlign & Layout.AlignMaskY)
+               {
+                  case Layout.AlignBottom:
+                     oy += row_h - h;
+                  case Layout.AlignCenterY:
+                     oy += (row_h - h)/2;
+               }
+
+               item.setRect(ox,oy,w,h);
             }
-            //trace(indent + "Put " + w + " in " + col_w);
 
-
-            switch(item.mAlign & Layout.AlignMaskY)
-            {
-               case Layout.AlignTop:
-                  h = item.getBestHeight();
-               case Layout.AlignBottom:
-                  h = item.getBestHeight();
-                  oy += row_h - h;
-               case Layout.AlignCenterY:
-                  h = item.getBestHeight();
-                  oy += (row_h - h)/2;
-            }
-
-            item.setRect(ox,oy,w,h);
             x+=col_w + mSpaceX;
          }
          y+= row.mHeight + mSpaceY;
