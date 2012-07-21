@@ -459,13 +459,13 @@ class GridLayout extends Layout
          row = Std.int(mPos / mCols);
          if (row>=mRowInfo.length)
             mRowInfo.push(new RowInfo(mDefaultStretch));
-         else if (mRowInfo[row]==null)
-            mRowInfo[row]=new RowInfo(mDefaultStretch);
       }
       else
       {
          mColInfo.push(new ColInfo(mDefaultStretch));
       }
+      if (mRowInfo[row]==null)
+         mRowInfo[row]=new RowInfo(mDefaultStretch);
       mRowInfo[row].mCols.push(inLayout);
       mPos++;
       return this;
