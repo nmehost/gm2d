@@ -17,6 +17,7 @@ class Button extends Control
 {
    var mDisplayObj : DisplayObject;
    public var mChrome : Sprite;
+   public var mRect : Rectangle;
    public var down(getDown,setDown):Bool;
 	public var noFocus:Bool;
    public var mCallback : Void->Void;
@@ -141,6 +142,14 @@ class Button extends Control
 			   mDisplayObj.y += dy-mCurrentDY;
 				mCurrentDY = dy;
          }
+
+         if (mRenderer!=null && mRect!=null)
+         {
+            mChrome.graphics.clear();
+            while(mChrome.numChildren>0)
+               mChrome.removeChildAt(0);
+            mRenderer.render(mChrome,mRect, mIsDown ? BUTTON_DOWN:BUTTON_UP);
+         }
       }
       return mIsDown;
    }
@@ -191,7 +200,8 @@ class Button extends Control
 
    function renderBackground(inX:Float, inY:Float, inW:Float, inH:Float)
    {
-      mRenderer.render(mChrome,new Rectangle(inX-x,inY-y,inW,inH), mIsDown ? BUTTON_DOWN:BUTTON_UP);
+      mRect = new Rectangle(inX-x,inY-y,inW,inH);
+      mRenderer.render(mChrome,mRect, mIsDown ? BUTTON_DOWN:BUTTON_UP);
    }
 
    override public function createLayout() : Layout
