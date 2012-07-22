@@ -489,7 +489,7 @@ class RGBBox extends Widget
       getLayout().setMinSize(20,32);
 
       var fmt = new nme.text.TextFormat();
-      fmt.align = neash.text.TextFormatAlign.CENTER;
+      fmt.align = nme.text.TextFormatAlign.CENTER;
 
       textField = new TextField( );
       textField.border = true;

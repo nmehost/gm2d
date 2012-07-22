@@ -45,7 +45,12 @@ class Skin
    public var controlColor:Int;
    public var disableColor:Int;
    public var controlBorder:Int;
+   public var mdiBGColor:Int;
    public var buttonCorner:Float;
+
+   public var guiLight:Int;
+   public var guiMedium:Int;
+   public var guiDark:Int;
 
    public var textFormat:gm2d.text.TextFormat;
    public var menuHeight:Float;
@@ -79,9 +84,13 @@ class Skin
       centerTitle = true;
       buttonBorderX = 10;
       buttonBorderY = 5;
+      guiLight = 0xf0f0e0;
+      guiMedium = 0xe0e0d0;
+      guiDark = 0xa0a090;
+      mdiBGColor = 0x404040;
       labelColor = 0x000000;
-      panelColor = 0xe0e0d0;
-      controlColor = 0xf0f0e0;
+      panelColor = guiMedium;
+      controlColor = guiLight;
       disableColor = 0x808080;
       controlBorder = 0x000000;
       buttonCorner = 6.0;
@@ -232,7 +241,7 @@ class Skin
       gfx.clear();
       var mtx = new gm2d.geom.Matrix();
       mtx.createGradientBox(inH,inH,Math.PI * 0.5);
-      var cols:Array<Int> = [0xf0f0e0, 0xe0e0d0, 0xa0a090];
+      var cols:Array<Int> = [guiLight, guiMedium, guiDark];
       var alphas:Array<Float> = [1.0, 1.0, 1.0];
       var ratio:Array<Int> = [0, 128, 255];
       gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
@@ -315,12 +324,12 @@ class Skin
          /*
          var mtx = new gm2d.geom.Matrix();
          mtx.createGradientBox(21,21, Math.PI*-0.5, inRect.x+1.5, inRect.y+1.5);
-         var cols:Array<Int> = [0xf0f0e0, 0xe0e0d0, 0xa0a090];
+         var cols:Array<Int> = [guiLight, guiMedium, guiDark];
          var alphas:Array<Float> = [1.0, 1.0, 1.0];
          var ratio:Array<Int> = [0, 128, 255];
          gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
          */
-         gfx.beginFill(0xa0a090);
+         gfx.beginFill(guiDark);
          //gfx.drawRoundRect(inRect.x+1, inRect.y+2, inRect.width-2, 20, 8,8);
          gfx.drawRect(inRect.x+1, inRect.y, inRect.width-2, 21);
          gfx.endFill();
@@ -362,7 +371,7 @@ class Skin
 
       for(d in inDockables)
       {
-         gfx.beginFill(0xa0a090);
+         gfx.beginFill(guiDark);
          gfx.drawRoundRect(inRect.x+1+0.5, y+0.5, inRect.width-2, 22,5,5);
          gfx.endFill();
 
@@ -542,7 +551,7 @@ class Skin
       var gfx = outChrome.graphics;
       gfx.clear();
       gfx.beginFill(panelColor);
-      gfx.lineStyle(1,0xf0f0e0);
+      gfx.lineStyle(1,guiLight);
 
       gfx.drawRoundRect(ox,ox,w, h, 7,7 );
 
@@ -595,7 +604,7 @@ class Skin
       var rect = inMDI.scrollRect;
       if (rect!=null)
       {
-         gfx.beginFill(0x404040);
+         gfx.beginFill(mdiBGColor);
          gfx.drawRect(rect.x, rect.y, rect.width, rect.height );
       }
    }
@@ -713,29 +722,36 @@ class Skin
 
       var w = inW+borders*2;
       var h = inH+borders*2+title_h;
+      var x = inW - borders;
 
-		if (inIsCurrent)
-		{
+      gfx.beginFill(panelColor);
+      gfx.drawRoundRect(0.5,0.5,w, h, 3,3 );
+
+      if (inIsCurrent)
+      {
          var mtx = new gm2d.geom.Matrix();
          mtx.createGradientBox(title_h+borders,title_h+borders,Math.PI * 0.5);
-         var cols:Array<Int> = [0xf0f0e0, 0xe0e0d0, 0xa0a090];
+         var cols:Array<Int> = [guiLight, guiMedium, guiDark];
          var alphas:Array<Float> = [1.0, 1.0, 1.0];
          var ratio:Array<Int> = [0, 128, 255];
          gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
-         gfx.lineStyle(1,0xf0f0e0);
-		}
-		else
-		{
-		   gfx.beginFill(0xa0a090);
-         gfx.lineStyle(2,0xa0a090);
-		}
+      }
+      else
+      {
+         gfx.beginFill(guiDark);
+      }
+
+      gfx.drawRoundRect(0.5,0.5,w, title_h, 3,3 );
+      gfx.endFill();
+      if (inIsCurrent)
+         gfx.lineStyle(2,guiLight);
+      else
+         gfx.lineStyle(2,guiDark);
 
       gfx.drawRoundRect(0.5,0.5,w, h, 3,3 );
-
-      if ( Dock.isResizeable(pane) )
+      if ( Dock.isResizeable(pane))
       {
-         gfx.endFill();
-         gfx.lineStyle(1,0xa0a090);
+         gfx.lineStyle(1,guiDark);
          for(o in 0...4)
          {
             var dx = (o+2)*3;
@@ -745,11 +761,7 @@ class Skin
          outHitBoxes.add( new Rectangle(w-12,h-12,12,12), HitAction.RESIZE(pane, ResizeFlag.S|ResizeFlag.E) );
       }
 
-		//gfx.beginFill(0xffffff);
-      //gfx.drawRect(borders-0.5,title_h+borders-0.5,inW+1, inH+1 );
 
-
-      var x = inW - borders;
       for(but in [ MiniButton.CLOSE, MiniButton.MINIMIZE, MiniButton.MAXIMIZE ] )
       {
          var state =  getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
@@ -845,7 +857,7 @@ class Skin
       gfx.clear();
       outHitBoxes.clear();
 
-      gfx.beginFill(0xa0a090);
+      gfx.beginFill(panelColor);
       gfx.lineStyle(1,0xffffff);
       while(outChrome.numChildren>0)
           outChrome.removeChildAt(0);
@@ -927,8 +939,7 @@ class Skin
 
       mtx.createGradientBox(tab_height,tab_height,Math.PI * 0.5);
 
-      //var cols:Array<Int> = [ 0xe0e0d0, 0xa0a090];
-      var cols:Array<Int> = [ 0xa0a090, 0x909080];
+      var cols:Array<Int> = [ guiDark, 0x909080];
       var alphas:Array<Float> = [1.0, 1.0];
       var ratio:Array<Int> = [0, 255];
       gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
@@ -979,7 +990,7 @@ class Skin
          {
             gfx.clear();
             gfx.lineStyle(1,0x404040);
-            gfx.beginFill(0xa0a090);
+            gfx.beginFill(guiDark);
             gfx.drawRoundRect(0.5,0.5,tw,tab_height+2,6,6);
             bitmap.draw(mDrawing,trans);
             trans.tx+=text_offset;
@@ -1000,7 +1011,7 @@ class Skin
          trans.tx = 0;
          gfx.clear();
          gfx.lineStyle(1,0x404040);
-         gfx.beginFill(0xe0e0d0);
+         gfx.beginFill(guiMedium);
          gfx.moveTo(-1,tab_height-4);
          gfx.lineTo(cx,tab_height-4);
          gfx.lineTo(cx,6);
@@ -1018,7 +1029,7 @@ class Skin
       }
 
       gfx.clear();
-      gfx.beginFill(0xe0e0d0);
+      gfx.beginFill(guiMedium);
       gfx.drawRect(0,tab_height-2,w,8);
       bitmap.draw(mDrawing);
    }

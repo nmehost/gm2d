@@ -36,7 +36,7 @@ class FileHandler
     {
        if (progressDialog==null)
        {
-          progressDialog = new ProgressDialog(inName,"Upload",inSize, 
+          progressDialog = ProgressDialog.create(inName,"Upload",inSize, 
             function() { fileReference.cancel(); closeProgress(); } );
           gm2d.Game.doShowDialog(progressDialog,true);
           progressDialog.update(10000);

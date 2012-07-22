@@ -57,6 +57,13 @@ class Layout
       mAlign = inAlign;
       return this;
    }
+
+   public function pixelAlign()
+   {
+      mAlign |= Layout.AlignPixel;
+      return this;
+   }
+
    public function setMinSize(inWidth:Float,inHeight:Float) : Void
    {
       minWidth = inWidth;
