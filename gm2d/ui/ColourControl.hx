@@ -172,6 +172,11 @@ class ColourSlider extends Widget
       layout.mAlign = inVertical ? Layout.AlignCenterX : Layout.AlignCenterY;
    }
 
+   public function getValue() : Float
+   {
+      return mMode==VALUE ? mPos*255 : mPos;
+   }
+
    function onMouse(inEvent:MouseEvent)
    {
       var val = 1-inEvent.localY/mHeight;
@@ -179,11 +184,8 @@ class ColourSlider extends Widget
       if (val>1) val = 1;
       mPos = val;
 
-      if (mMode==VALUE)
-         val*=255.0;
-
       if (onChange!=null)
-         onChange(val);
+         onChange(getValue());
    }
 
    public override function layout(inWidth:Float,inHeight:Float)
@@ -548,6 +550,7 @@ class ColourControl extends Widget
       layout.setColStretch(1,1);
       layout.setRowStretch(0,1);
       layout.setSpacing(0,0);
+      layout.setMinSize(100,100);
 
       valueSlider = new ColourSlider(ColourSlider.VALUE, true);
       valueSlider.onChange = onValue;
@@ -562,20 +565,45 @@ class ColourControl extends Widget
       layout.add(null);
 
       alphaSlider = new ColourSlider(ColourSlider.ALPHA, false);
-      //alphaSlider.onChange = onAlpha;
+      alphaSlider.onChange = onAlpha;
       addChild(alphaSlider);
       layout.add(alphaSlider.getLayout());
 
-      all.add(layout.setAlignment(Layout.AlignStretch));
+      all.add(layout.setAlignment(Layout.AlignStretch | Layout.AlignKeepAspect));
 
       mLayout = all;
    }
+
+   public function setColour(inCol:Int, inAlpha:Float)
+   {
+      var col = new RGBHSV(inCol);
+      box.setColour(inCol);
+      valueSlider.updateComponents(col);
+      alphaSlider.updateComponents(col);
+      wheel.colour = col;
+   }
+
+   function send()
+   {
+      if (onColourChange!=null)
+      {
+         var col = wheel.getColour();
+         onColourChange(col.getRGB(), alphaSlider.getValue() );
+      }
+   }
+
 
    public function onWheel(inCol:RGBHSV)
    {
       box.setColour(inCol.getRGB());
       valueSlider.updateComponents(inCol);
       alphaSlider.updateComponents(inCol);
+      send();
+   }
+
+   public function onAlpha(inValue:Float)
+   {
+      send();
    }
 
    public function onValue(inValue:Float)
@@ -584,6 +612,7 @@ class ColourControl extends Widget
       var col = wheel.getColour();
       box.setColour(col.getRGB());
       alphaSlider.updateComponents(col);
+      send();
    }
 
    public function setValue(inValue:Float)

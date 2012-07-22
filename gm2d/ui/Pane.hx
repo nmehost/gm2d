@@ -25,6 +25,7 @@ class Pane implements IDockable
    public var scrollX(default,null):Float;
    public var scrollY(default,null):Float;
    public var onLayout:Void->Void;
+   public var onClose:Void->Void;
    public var itemLayout:Layout;
    public var bestSize:Array<Size>;
    public var properties:Dynamic;
@@ -104,7 +105,10 @@ class Pane implements IDockable
    {
       Dock.remove(this);
       if ( (flags & Dock.DONT_DESTROY) ==0 )
+      {
          sPanes.remove(this);
+         onClose();
+      }
    }
    public function setDock(inDock:IDock,inParent:DisplayObjectContainer):Void
    {
