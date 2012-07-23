@@ -53,8 +53,8 @@ class RGBHSV
 
    public function setRGB(inRGB:Int)
    {
-      r = (inRGB>>16);
-      g = (inRGB>>8);
+      r = (inRGB>>16) & 0xff;
+      g = (inRGB>>8) & 0xff;
       b = (inRGB) & 0xff;
 
       if (r==g && r==b)
