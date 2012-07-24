@@ -353,8 +353,12 @@ class Skin
 
    public function renderMultiDock(dock:MultiDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable,tabStyle:Bool)
    {
+      var gfx = inContainer.graphics;
       if (tabStyle)
       {
+         gfx.beginFill(panelColor);
+         gfx.drawRect(inRect.x,inRect.y+tab_height,inRect.width,inRect.height-tab_height);
+         gfx.endFill();
          renderTabs(inContainer,inRect,inDockables, current, outHitBoxes, false );
          return;
       }
@@ -363,7 +367,6 @@ class Skin
       if (gap<0)
         gap = 0;
       var y = inRect.y;
-      var gfx = inContainer.graphics;
       gfx.lineStyle();
       gfx.beginFill(panelColor);
       gfx.drawRect(inRect.x,inRect.y,inRect.width,inRect.height);

@@ -151,6 +151,11 @@ class Pane implements IDockable
       return bestSize[inSlot].clone();
    }
    public function getProperties() : Dynamic { return properties; }
+   public function setBestSize(inW:Float,inH:Float)
+   {
+      bestWidth = inW;
+      bestHeight = inH;
+   }
 
    public function getMinSize():Size { return new Size(minSizeX,minSizeY); }
    public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size

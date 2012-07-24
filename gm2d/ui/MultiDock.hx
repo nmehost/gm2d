@@ -25,7 +25,7 @@ class MultiDock implements IDock, implements IDockable
       bestSize = [];
       tabStyle = false;
       properties = {};
-      mRect = new Rectangle();
+      mRect = null;
    }
    
    // Hierarchy
@@ -98,7 +98,7 @@ class MultiDock implements IDock, implements IDockable
    {
       mRect = new Rectangle(x,y,w,h);
 
-      tabStyle = w>h;
+      tabStyle = w>h || w>200;
 
       if (currentDockable!=null)
       {
@@ -288,7 +288,7 @@ class MultiDock implements IDock, implements IDockable
 
       if (!found && tabStyle && mDockables.length>0)
          setCurrent(mDockables[0]);
-      else if (currentDockable!=null)
+      else if (currentDockable!=null && mRect!=null)
       {
          var rect = Skin.current.getMultiDockRect(mRect,mDockables,currentDockable,tabStyle);
 

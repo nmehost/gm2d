@@ -31,7 +31,7 @@ class App extends Screen
 
    override public function getScaleMode():ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
 
-   public function addPane(inPane:Pane, inPos:DockPosition,inSlot:Int=-1)
+   public function addPane(inPane:IDockable, inPos:DockPosition,inSlot:Int=-1)
    {
       dock.addDockable(inPane,inPos,inSlot);
    }

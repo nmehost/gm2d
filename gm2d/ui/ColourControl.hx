@@ -396,6 +396,8 @@ class ColourWheel extends Widget
       //var y0 = Std.int(rad*Math.sqrt(3.0)*0.5);
       var y0 = rad;
       var h = y0*2+1;
+      if (w<1 || h<1)
+         return;
       var bmp = new BitmapData(w,h,true,0x000000);
       bitmap.bitmapData = bmp;
 
@@ -530,11 +532,14 @@ class ColourControl extends Widget
    var box:RGBBox;
    var valueSlider:ColourSlider;
    var alphaSlider:ColourSlider;
+   var updateLockout:Int;
    public var onColourChange:Int->Float->Void;
 
    public function new(inCol:Int, inAlpha:Float)
    {
       super();
+  
+      updateLockout = 0;
 
       var all =  new GridLayout(1,"All",0);
       all.setColStretch(0,1);
@@ -576,6 +581,8 @@ class ColourControl extends Widget
 
    public function setColour(inCol:Int, inAlpha:Float)
    {
+      if (updateLockout>0) return;
+
       var col = new RGBHSV(inCol);
       box.setColour(inCol);
       valueSlider.updateComponents(col);
@@ -587,8 +594,10 @@ class ColourControl extends Widget
    {
       if (onColourChange!=null)
       {
+         updateLockout++;
          var col = wheel.getColour();
          onColourChange(col.getRGB(), alphaSlider.getValue() );
+         updateLockout--;
       }
    }
 
