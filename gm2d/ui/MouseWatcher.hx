@@ -14,6 +14,8 @@ class MouseWatcher
    public var onDrag:MouseEvent->Void;
    public var onUp:MouseEvent->Void;
    public var isDown:Bool;
+   public var wasDragged:Bool;
+   public var minDragDistance:Float;
    public var prevPos:Point;
    public var pos:Point;
    public var downPos:Point;
@@ -31,6 +33,8 @@ class MouseWatcher
       onDown = inOnDown;
       onDrag = inOnDrag;
       onUp = inOnUp;
+      wasDragged = false;
+      minDragDistance = 0.0;
 
       if (inWatchDown)
       {
@@ -76,6 +80,7 @@ class MouseWatcher
        downPos = new Point(ev.stageX,ev.stageY);
        prevPos = new Point(ev.stageX,ev.stageY);
        isDown = true;
+       wasDragged = false;
        mEventStage.addEventListener(MouseEvent.MOUSE_MOVE, onStageDrag);
        mEventStage.addEventListener(MouseEvent.MOUSE_UP, onStageUp);
        if (onDown!=null)
@@ -104,7 +109,15 @@ class MouseWatcher
       prevPos.y = pos.y;
       pos.x = ev.stageX;
       pos.y = ev.stageY;
-      if (onDrag!=null)
+      if (!wasDragged)
+      {
+         var dx = draggedX();
+         var dy = draggedY();
+         if (dx*dx+dy*dy >= minDragDistance*minDragDistance)
+            wasDragged = true;
+      }
+
+      if (onDrag!=null && wasDragged)
          onDrag(ev);
    }
 }
