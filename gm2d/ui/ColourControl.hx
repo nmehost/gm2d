@@ -386,6 +386,15 @@ class ColourWheel extends Widget
 
    */
 
+   function emptyBmp(w:Int, h:Int)
+   {
+      #if neko
+      return  new BitmapData(w,h,true,{rgb:0, a:0} );
+      #else
+      return  new BitmapData(w,h,true,0x000000);
+      #end
+   }
+
    function buildBmp()
    {
       var rad = Std.int(mWidth/2 - 1);
@@ -398,7 +407,7 @@ class ColourWheel extends Widget
       var h = y0*2+1;
       if (w<1 || h<1)
          return;
-      var bmp = new BitmapData(w,h,true,0x000000);
+      var bmp = emptyBmp(w,h);
       bitmap.bitmapData = bmp;
 
       var pixels = new nme.utils.ByteArray();
@@ -458,7 +467,7 @@ class ColourWheel extends Widget
       gfx.clear();
       gfx.beginFill(0x000000);
       gfx.drawCircle(rad+2.5,y0+2.5,rad+2);
-      var bmp = new BitmapData(w+4,h+4,true,0x000000);
+      var bmp = emptyBmp(w+4,h+4);
       bmp.draw(s);
       background.bitmapData = bmp;
       updateAlpha();
