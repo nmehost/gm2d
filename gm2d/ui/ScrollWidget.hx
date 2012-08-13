@@ -12,6 +12,7 @@ class ScrollWidget extends Control
 {
    public var scrollX(getScrollX,setScrollX):Float;
    public var scrollY(getScrollY,setScrollY):Float;
+   public var scrollWheelStep:Float;
    public var maxScrollX:Float;
    public var maxScrollY:Float;
    public var windowWidth:Float;
@@ -39,11 +40,13 @@ class ScrollWidget extends Control
       maxScrollY = 0;
       windowWidth = windowHeight = 0.0;
       mScrollX = mScrollY = 0.0;
+      scrollWheelStep = 20.0;
       mScrolling = false;
       viscousity = 2500.0;
       speedX = new TimeAverage(0.2);
       speedY = new TimeAverage(0.2);
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+      addEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
    }
    public function setScrollRange(inControlWidth:Float, inWindowWidth:Float,
                            inControlHeight:Float, inWindowHeight:Float)
@@ -59,6 +62,14 @@ class ScrollWidget extends Control
        if (mScrollY>maxScrollY)
          mScrollY = maxScrollY;
        scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
+   }
+
+   function onMouseWheel(event:MouseEvent)
+   {
+      if (maxScrollY>0 && scrollWheelStep>0)
+      {
+          setScrollY(mScrollY - scrollWheelStep * event.delta);
+      }
    }
 
    function onMouseDown(ev:MouseEvent)

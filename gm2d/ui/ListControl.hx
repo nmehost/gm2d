@@ -32,6 +32,7 @@ class ListControl extends ScrollWidget
        super();
        mOrigItemHeight = inItemHeight;
        mItemHeight = mOrigItemHeight;
+       scrollWheelStep = mOrigItemHeight;
        mControlHeight = 0.0;
        mWidth = inWidth;
        mHeight = inItemHeight;
@@ -55,6 +56,7 @@ class ListControl extends ScrollWidget
       mChildrenClean = 0;
       mSelected = -1;
       mItemHeight = mOrigItemHeight;
+      scrollWheelStep = mOrigItemHeight;
       graphics.clear();
       while(numChildren>0)
          removeChildAt(0);
@@ -107,6 +109,7 @@ class ListControl extends ScrollWidget
             if (h>mItemHeight)
             {
                mItemHeight = h;
+               scrollWheelStep = h;
                mChildrenClean = 0;
             }
             var w = obj.width;
