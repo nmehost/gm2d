@@ -189,6 +189,17 @@ class Pane implements IDockable
          bestSize[slot] = new Size(w,h);
          if (slot==Dock.DOCK_SLOT_FLOAT || slot==Dock.DOCK_SLOT_MDI)
              bestSize[Dock.DOCK_SLOT_FLOAT] = bestSize[Dock.DOCK_SLOT_MDI] = new Size(w,h);
+         if (Dock.isToolbar(this))
+         {
+            if (slot==Dock.DOCK_SLOT_HORIZ)
+            {
+               h = getLayoutSize(w,h,true).y;
+            }
+            else if (slot==Dock.DOCK_SLOT_VERT)
+            {
+               w = getLayoutSize(w,h,false).x;
+            }
+         }
       }
 
       posX = x;

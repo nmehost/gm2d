@@ -232,9 +232,11 @@ class SideDock implements IDock, implements IDockable
          var dockable = mDockables[d];
          var size = mSizes[d];
          var chrome = Skin.current.getChromeRect(dockable);
-         dockable.setRect(x+chrome.x,y+chrome.y,
-            (horizontal?size:w)-chrome.width, (horizontal?h:size) -chrome.height);
-
+         var pane = dockable.asPane();
+         var dw = (horizontal?size:w)-chrome.width;
+         var dh = (horizontal?h:size) -chrome.height;
+         dockable.setRect(x+chrome.x,y+chrome.y, dw, dh );
+         
          if (horizontal)
          {
             mPositions.push( x );
