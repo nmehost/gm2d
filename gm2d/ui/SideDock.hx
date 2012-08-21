@@ -65,12 +65,12 @@ class SideDock implements IDock, implements IDockable
       ioPos.y += rect.height;
       return ioPos;
    }
-   public function getBestSize(inSlot:Int):Size
+   public function getBestSize(inSlot:Int,inW:Float,inH:Float):Size
    {
       var best = new Size(0,0);
       for(dock in mDockables)
       {
-         var s = dock.getBestSize(horizontal?Dock.DOCK_SLOT_HORIZ : Dock.DOCK_SLOT_VERT );
+         var s = dock.getBestSize(horizontal?Dock.DOCK_SLOT_HORIZ : Dock.DOCK_SLOT_VERT, 0, 0 );
          addPaneChromeSize(dock,s);
          if (horizontal)
          {
@@ -143,7 +143,8 @@ class SideDock implements IDock, implements IDockable
          var m_size = Std.int(horizontal ? s.x : s.y);
          min_sizes.push(m_size);
 
-         var s = d.getBestSize(horizontal?Dock.DOCK_SLOT_HORIZ : Dock.DOCK_SLOT_VERT);
+         // TODO: remove chrome
+         var s = d.getBestSize(horizontal?Dock.DOCK_SLOT_HORIZ : Dock.DOCK_SLOT_VERT, w,h);
          addPaneChromeSize(d,s);
          var b_size = Std.int(horizontal ? s.x : s.y);
          stretch_weight.push(b_size > 1 ? b_size : 1 );

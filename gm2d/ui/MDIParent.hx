@@ -194,7 +194,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
    // Layout
-   public function getBestSize(inPos:Int):Size { return new Size(sizeX,sizeY); }
+   public function getBestSize(inPos:Int,inW:Float,inH:Float):Size { return new Size(sizeX,sizeY); }
    public function getProperties() : Dynamic { return properties; }
    public function getMinSize():Size { return new Size(1,1); }
    public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
@@ -440,7 +440,7 @@ class MDIChildFrame extends Sprite
       pane.setDock(mMDI,mPaneContainer);
       mHitBoxes = new HitBoxes(this, onHitBox);
 
-      var size = inPane.getBestSize( Dock.DOCK_SLOT_FLOAT );
+      var size = inPane.getBestSize( Dock.DOCK_SLOT_FLOAT,0,0 );
       if (size.x<Skin.current.getMinFrameWidth())
          size = inPane.getLayoutSize(Skin.current.getMinFrameWidth(),size.y,true);
 

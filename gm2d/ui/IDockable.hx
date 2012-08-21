@@ -26,7 +26,7 @@ interface IDockable
    public function getFlags():Int;
    public function setFlags(inFlags:Int):Void;
    // Layout
-   public function getBestSize(inSlot:Int):Size;
+   public function getBestSize(inSlot:Int,w:Float,h:Float):Size;
    public function getMinSize():Size;
    public function getLayoutSize(w:Float,h:Float,limitX:Bool):Size;
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void;

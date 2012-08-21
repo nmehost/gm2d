@@ -36,7 +36,7 @@ class FloatingWin extends Sprite, implements IDock
       pane.setDock(this,this);
       pane.properties.floatingPos = { x:inX, y:inY };
 
-      var size = inPane.getBestSize( Dock.DOCK_SLOT_FLOAT );
+      var size = inPane.getBestSize( Dock.DOCK_SLOT_FLOAT, 0, 0 );
 
       mClientWidth = Std.int(Math.max(size.x,Skin.current.getMinFrameWidth())+0.99);
       mClientHeight = Std.int(size.y+0.99);

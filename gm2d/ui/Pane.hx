@@ -132,7 +132,7 @@ class Pane implements IDockable
    public function getShortTitle():String { return shortTitle; }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int) : Void { flags=inFlags; }
-   public function getBestSize(inSlot):Size
+   public function getBestSize(inSlot,inW:Float,inH:Float):Size
    {
       if (bestSize[inSlot]==null)
       {
