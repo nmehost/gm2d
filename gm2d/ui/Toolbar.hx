@@ -83,18 +83,16 @@ class Toolbar extends Pane
   
    override public function getBestSize(inSlot:Int,inW:Float, inH:Float):Size
    {
-      if (inSlot==Dock.DOCK_SLOT_VERT)
-         layout(inW==0?100000:inW,inH==0?1:inH,false,false);
-      else
-         layout(inW==0?1:inW,inH==0?100000:inH,false,true);
+      if (bestSize[inSlot]==null)
+      {
+         if (inSlot==Dock.DOCK_SLOT_VERT)
+            layout(10000,1,false,false);
+         else
+            layout(1,10000,false,true);
 
-/*
-      if (inSlot==Dock.DOCK_SLOT_VERT)
-         layout(10000,1,false,false);
-      else
-         layout(1,10000,false,true);
-*/
-      return new Size(bestWidth,bestHeight);
+         bestSize[inSlot] = new Size(bestWidth, bestHeight);
+      }
+      return bestSize[inSlot].clone();
    }
 
 

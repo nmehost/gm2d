@@ -278,14 +278,14 @@ class Skin
       inText.defaultTextFormat = textFormat;
    }
 
-   public function getChromeRect(inDocked:IDockable) : Rectangle
+   public function getChromeRect(inDocked:IDockable,inTopGrip:Bool) : Rectangle
    {
       var pane = inDocked.asPane();
       if (pane!=null)
       {
          if (Dock.isToolbar(pane))
          {
-            if (inDocked.getDock().getSlot()==Dock.DOCK_SLOT_HORIZ)
+            if (inTopGrip)
                return new Rectangle(2,8,4,10);
             else
                return new Rectangle(8,2,10,4);
@@ -303,7 +303,7 @@ class Skin
 
 
 
-   public function renderPaneChrome(inPane:Pane,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle):Void
+   public function renderPaneChrome(inPane:Pane,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inTopGrip:Bool):Void
    {
       var gfx = inContainer.graphics;
       gfx.lineStyle();
@@ -315,10 +315,11 @@ class Skin
       {
          var px = inPane.sizeX;
          var py = inPane.sizeY;
-         if (inPane.getDock().getSlot()==Dock.DOCK_SLOT_HORIZ)
+         if (inTopGrip)
          {
             outHitBoxes.add(new Rectangle(inRect.x+1, inRect.y+1, inRect.width-2, 6), TITLE(inPane) );
             gfx.drawRect(inRect.x+1.5,inRect.y+1.5,px+2,py+8);
+
             gfx.moveTo(inRect.x+4.5,inRect.y+4.5);
             gfx.lineTo(inRect.x+inRect.width-2.5,inRect.y+4.5);
             gfx.moveTo(inRect.x+4.5,inRect.y+6.5);
@@ -328,6 +329,7 @@ class Skin
          {
             outHitBoxes.add(new Rectangle(inRect.x+1, inRect.y+1, 6, inRect.height-2), TITLE(inPane) );
             gfx.drawRect(inRect.x+1.5,inRect.y+1.5,px+8,py+2);
+
             gfx.moveTo(inRect.x+4.5,inRect.y+4.5);
             gfx.lineTo(inRect.x+4.5,inRect.y+inRect.height-2.5);
             gfx.moveTo(inRect.x+6.5,inRect.y+4.5);

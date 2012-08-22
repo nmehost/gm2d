@@ -150,6 +150,16 @@ class Pane implements IDockable
       }
       return bestSize[inSlot].clone();
    }
+   public function onLayoutSwitch(inOldSlot:Int)
+   {
+      if (bestSize[inOldSlot]!=null)
+      {
+         if (inOldSlot==Dock.DOCK_SLOT_HORIZ)
+            bestSize[Dock.DOCK_SLOT_VERT] = bestSize[inOldSlot].clone();
+         else
+            bestSize[Dock.DOCK_SLOT_HORIZ] = bestSize[inOldSlot].clone();
+      }
+   }
    public function getProperties() : Dynamic { return properties; }
    public function setBestSize(inW:Float,inH:Float)
    {

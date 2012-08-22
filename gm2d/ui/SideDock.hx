@@ -17,6 +17,7 @@ class SideDock implements IDock, implements IDockable
    var container:DisplayObjectContainer;
    var position:DockPosition;
    var properties:Dynamic;
+   var toolbarGripperTop:Bool;
    var flags:Int;
 
    public function new(inPos:DockPosition)
@@ -28,6 +29,7 @@ class SideDock implements IDock, implements IDockable
       mPositions = [];
       mSizes = [];
       properties = [];
+      toolbarGripperTop = horizontal;
       mRect = new Rectangle();
    }
    
@@ -60,7 +62,7 @@ class SideDock implements IDock, implements IDockable
    }
    public function addPaneChromeSize(inDock:IDockable,ioPos:Size):Size
    {
-      var rect = Skin.current.getChromeRect(inDock);
+      var rect = Skin.current.getChromeRect(inDock,toolbarGripperTop);
       ioPos.x += rect.width;
       ioPos.y += rect.height;
       return ioPos;
@@ -128,6 +130,7 @@ class SideDock implements IDock, implements IDockable
          h-= barSize * (mDockables.length-1);
 
       mPositions = [];
+      var oldSizes = mSizes;
       mSizes = [];
 
 
@@ -144,7 +147,9 @@ class SideDock implements IDock, implements IDockable
          min_sizes.push(m_size);
 
          // TODO: remove chrome
-         var s = d.getBestSize(horizontal?Dock.DOCK_SLOT_HORIZ : Dock.DOCK_SLOT_VERT, w,h);
+         var s = horizontal ?
+            d.getBestSize(Dock.DOCK_SLOT_HORIZ, w/mDockables.length,h) :
+            d.getBestSize(Dock.DOCK_SLOT_VERT,  w,h/mDockables.length);
          addPaneChromeSize(d,s);
          var b_size = Std.int(horizontal ? s.x : s.y);
          stretch_weight.push(b_size > 1 ? b_size : 1 );
@@ -208,7 +213,7 @@ class SideDock implements IDock, implements IDockable
 
             if (is_stretch[d])
             {
-               var chrome = Skin.current.getChromeRect(mDockables[d]);
+               var chrome = Skin.current.getChromeRect(mDockables[d],toolbarGripperTop);
                var layout_w = (horizontal?w:size) - chrome.width;
                var layout_h = (horizontal?size:h) - chrome.height;
                var s = mDockables[d].getLayoutSize(layout_w, layout_h, !horizontal);
@@ -232,7 +237,7 @@ class SideDock implements IDock, implements IDockable
       {
          var dockable = mDockables[d];
          var size = mSizes[d];
-         var chrome = Skin.current.getChromeRect(dockable);
+         var chrome = Skin.current.getChromeRect(dockable,toolbarGripperTop);
          var pane = dockable.asPane();
          var dw = (horizontal?size:w)-chrome.width;
          var dh = (horizontal?h:size) -chrome.height;
@@ -269,7 +274,8 @@ class SideDock implements IDock, implements IDockable
             Skin.current.renderPaneChrome(pane,inContainer,outHitBoxes,
                   horizontal ?
                       new Rectangle( mPositions[d], mRect.y, mSizes[d], mRect.height ) :
-                      new Rectangle( mRect.x, mPositions[d], mRect.width, mSizes[d] ) );
+                      new Rectangle( mRect.x, mPositions[d], mRect.width, mSizes[d] ),
+                  toolbarGripperTop);
          }
          else
             mDockables[d].renderChrome(inContainer,outHitBoxes);
@@ -428,6 +434,10 @@ class SideDock implements IDock, implements IDockable
           var rect = inReference.getDockRect();
           // Patch up references...
           var split = new SideDock(direction);
+          split.toolbarGripperTop = toolbarGripperTop;
+          var asPane = mDockables[ref].asPane();
+          if (asPane!=null)
+             asPane.onLayoutSwitch(getSlot());
           mDockables[ref] = split;
           split.setDock(this,container);
           split.mDockables.push(inReference);

@@ -30,6 +30,8 @@ class Resources
 
    static public function loadString(inAssetName:String, inCache=false) : String
    {
+      return loadAsset(inAssetName,inCache);
+      /*
       var bytes = loadBytes(inAssetName,false);
       if (bytes==null)
          return null;
@@ -41,6 +43,7 @@ class Resources
       if (inCache)
          mLoaded.set(inAssetName,result);
       return result;
+      */
    }
 
    static public function loadXml(inAssetName:String, inCache=false) : Xml
