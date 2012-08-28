@@ -51,14 +51,14 @@ class MultiDock implements IDock, implements IDockable
       ioSize.y += pad.y;
       return ioSize;
    }
-   public function getBestSize(inSlot:Int,inW:Float, inH:Float):Size
+   public function getBestSize(inSlot:Int):Size
    {
       if (bestSize[inSlot]==null)
       {
          var best = new Size(0,0);
          for(dock in mDockables)
          {
-            var s = dock.getBestSize(inSlot,inW,inH);
+            var s = dock.getBestSize(inSlot);
             if (s.x>best.x)
                best.x = s.x;
             if (s.y>best.y)
@@ -94,6 +94,10 @@ class MultiDock implements IDock, implements IDockable
       var min = getMinSize();
       return new Size(w<min.x ? min.x : w,h<min.y ? min.y : h);
    }
+
+   public function isLocked():Bool { return false; }
+
+
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
       mRect = new Rectangle(x,y,w,h);

@@ -132,7 +132,7 @@ class Pane implements IDockable
    public function getShortTitle():String { return shortTitle; }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int) : Void { flags=inFlags; }
-   public function getBestSize(inSlot,inW:Float,inH:Float):Size
+   public function getBestSize(inSlot):Size
    {
       if (bestSize[inSlot]==null)
       {
@@ -173,6 +173,9 @@ class Pane implements IDockable
       var min = getMinSize();
       return new Size(w<min.x ? min.x : w,h<min.y ? min.y : h);
    }
+
+   public function isLocked():Bool { return false; }
+
    public function wantsResize(inHorizontal:Bool,inMove:Int):Bool
    {
       if ( Dock.isToolbar(this) )

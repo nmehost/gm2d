@@ -25,6 +25,7 @@ class Toolbar extends Pane
    var items:Array<ToolbarItem>;
    public var padX:Float;
    public var padY:Float;
+   public var layoutRows:Int;
 
    public function new(inTitle:String)
    {
@@ -43,13 +44,14 @@ class Toolbar extends Pane
       items.push(new ToolbarItem(inTool,w,h));
    }
 
-   public function layout(inW:Float, inH:Float,inDoMove:Bool, inLimitX:Bool)
+   public function layout(inW:Float, inDoMove:Bool)
    {
       var max = inW-padX;
       var x = padX;
       var y = padY;
       var row_height = 0.0;
       var maxX = 0.0;
+      layoutRows = 1;
       for(item in items)
       {
          if (row_height>0 && x+item.w>max)
@@ -57,6 +59,7 @@ class Toolbar extends Pane
             y+=row_height + padY*2;
             x = padX;
             row_height = 0;
+            layoutRows++;
          }
          // TODO: center-y?
          if (inDoMove)
@@ -74,6 +77,10 @@ class Toolbar extends Pane
       bestWidth = maxX;
       bestHeight = y+row_height+padY;
    }
+
+   override public function isLocked():Bool { return true; }
+
+
    /*
    override public function getMinSize():Size
    {
@@ -81,14 +88,14 @@ class Toolbar extends Pane
    }
    */
   
-   override public function getBestSize(inSlot:Int,inW:Float, inH:Float):Size
+   override public function getBestSize(inSlot:Int):Size
    {
       if (bestSize[inSlot]==null)
       {
          if (inSlot==Dock.DOCK_SLOT_VERT)
-            layout(10000,1,false,false);
+            layout(10000,false);
          else
-            layout(1,10000,false,true);
+            layout(1,false);
 
          bestSize[inSlot] = new Size(bestWidth, bestHeight);
       }
@@ -98,12 +105,34 @@ class Toolbar extends Pane
 
    override public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
    {
-      layout(w,h,false,inLimitX);
+      if (inLimitX)
+         layout(w,false);
+      else
+      {
+          // Calculate minimum width while keeping height <= h
+
+          // Start with 1 column...
+          var minWidth = 0.0;
+          for(item in items)
+             if (item.w>minWidth)
+                minWidth = item.w;
+
+          var tryWidth = minWidth;
+          layout(tryWidth,false);
+          while(bestHeight>h && layoutRows>1)
+          {
+             tryWidth += minWidth;
+             layout(tryWidth,false);
+          }
+
+          //trace("Find " + h + " = " + bestHeight + " -> width " + bestWidth );
+      }
       return new Size(bestWidth,bestHeight);
    }
    override public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
-      layout(w,h,true,true);
+      layout(w,true);
+      //trace("Set size " + w + "x" + h);
       super.setRect(x,y,w,h);
    }
 }
