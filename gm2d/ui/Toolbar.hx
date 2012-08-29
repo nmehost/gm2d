@@ -3,6 +3,7 @@ import gm2d.display.Sprite;
 import gm2d.display.BitmapData;
 import gm2d.display.DisplayObject;
 import gm2d.ui.DockPosition;
+import gm2d.geom.Rectangle;
 
 import gm2d.ui.Pane;
 
@@ -131,9 +132,25 @@ class Toolbar extends Pane
    }
    override public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
+      // todo:set best size...
       layout(w,true);
-      //trace("Set size " + w + "x" + h);
-      super.setRect(x,y,w,h);
+
+      if (dock!=null)
+      {
+         var slot = dock.getSlot();
+         bestSize[slot] = new Size(bestWidth, bestHeight);
+      }
+      if (displayObject!=null)
+      {
+         displayObject.x = x;
+         displayObject.y = y;
+         displayObject.scrollRect = new Rectangle(scrollX,scrollY,w,h);
+      }
+
+      posX = x;
+      posY = y;
+      sizeX = w;
+      sizeY = h;
    }
 }
 

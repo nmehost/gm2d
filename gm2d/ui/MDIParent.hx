@@ -194,7 +194,11 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
    // Layout
-   public function getBestSize(inPos:Int):Size { return new Size(clientWidth,clientHeight); }
+   public function getBestSize(inPos:Int):Size
+   {
+      var chrome = Skin.current.getMDIClientChrome();
+      return new Size(clientWidth+chrome.width,clientHeight+chrome.height);
+   }
    public function getProperties() : Dynamic { return properties; }
    public function getMinSize():Size { return new Size(1,1); }
    public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size

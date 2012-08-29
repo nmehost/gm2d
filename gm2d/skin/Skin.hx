@@ -302,6 +302,14 @@ class Skin
    }
 
 
+   public function renderToolbarGap(inContainer:Sprite,inX:Float, inY:Float, inW:Float, inH:Float)
+   {
+      var gfx = inContainer.graphics;
+      gfx.lineStyle();
+      gfx.beginFill(panelColor);
+      gfx.drawRect(inX,inY,inW,inH);
+      gfx.endFill();
+   }
 
    public function renderPaneChrome(inPane:Pane,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inTopGrip:Bool):Void
    {

@@ -116,6 +116,33 @@ class SideDock implements IDock, implements IDockable
    }
    public function getLayoutSize(w:Float,h:Float,limitX:Bool):Size
    {
+      if (isLocked())
+      {
+         var min = new Size(0,0);
+         addPadding(min);
+         w-=min.x;
+         h-=min.y;
+         for(dock in mDockables)
+         {
+            var chrome = Skin.current.getChromeRect(dock,toolbarGripperTop);
+            var s = dock.getLayoutSize(w-chrome.width, h-chrome.height,!horizontal);
+            s.x+=chrome.width;
+            s.y+=chrome.height;
+
+            if (horizontal)
+            {
+               min.x += s.x;
+               if (s.y>min.y) min.y = s.y;
+            }
+            else
+            {
+               if (s.x>min.x) min.x = s.x;
+               min.y += s.y;
+            }
+         }
+        return min;
+      }
+
       var min = getMinSize();
       return new Size(w<min.x ? min.x : w,h<min.y ? min.y : h);
    }
@@ -131,6 +158,7 @@ class SideDock implements IDock, implements IDockable
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
       mRect = new Rectangle(x,y,w,h);
+      //trace(indent + "Set rect " + horizontal + " " + mRect);
 
       var right = x+w;
       var bottom = y+h;
@@ -146,126 +174,137 @@ class SideDock implements IDock, implements IDockable
       mSizes = [];
 
 
-      var best_total = 0;
-      var min_sizes = new Array<Int>();
-      var best_sizes = new Array<Int>();
-      var stretch_weight = new Array<Float>();
 
-
-      var idx = 0;
-      for(d in mDockables)
+      // Only toolbars - changes logic a bit
+      if (isLocked())
       {
-         var s = d.getMinSize();
-         addPaneChromeSize(d,s);
-         var m_size = Std.int(horizontal ? s.x : s.y);
-         min_sizes.push(m_size);
-
-         var s = horizontal ?  d.getBestSize(Dock.DOCK_SLOT_HORIZ) : d.getBestSize(Dock.DOCK_SLOT_VERT);
-         if (d.isLocked())
+         for(d in mDockables)
          {
-            // TODO - add and remove chrome
-            if (horizontal && s.y>h)
-               s = d.getLayoutSize(1,h,false);
-            if (!horizontal && s.x>w)
-               s = d.getLayoutSize(w,1,true);
+            var chrome = Skin.current.getChromeRect(d,toolbarGripperTop);
+            var s = d.getLayoutSize(w-chrome.width,h-chrome.height,!horizontal);
+            s.x+=chrome.width;
+            s.y+=chrome.height;
+            mSizes.push(s);
+            var layout_size = Std.int(!horizontal ? s.y:s.x);
+            mWidths.push(layout_size);
          }
-         addPaneChromeSize(d,s);
-
-         mSizes.push(s.clone());
-         var b_size = Std.int(horizontal ? s.x : s.y);
-         stretch_weight.push(b_size > 1 ? b_size : 1 );
-         if (b_size<m_size)
-            b_size = m_size;
-         best_sizes.push(b_size);
-         best_total += b_size;
       }
-
-      var is_locked = new Array<Bool>();
-      var too_big = best_total > (horizontal ? w : h);
-      for(d in 0...mDockables.length)
+      else
       {
-         var pane = mDockables[d].asPane();
-         is_locked.push( (too_big && (best_sizes[d]<=min_sizes[d] )) || mDockables[d].isLocked() );
-      }
-
-      var locked_changed = true;
-      var pass = 0;
-      while(locked_changed)
-      {
-         locked_changed = false;
-         var extra = Std.int((horizontal ? w : h)-best_total);
-         var stretchers = 0.0;
-         var is_stretch = new Array<Bool>();
-         if (extra!=0)
+         var best_total = 0;
+         var min_sizes = new Array<Int>();
+         var best_sizes = new Array<Int>();
+         var stretch_weight = new Array<Float>();
+   
+         var idx = 0;
+         for(d in mDockables)
          {
-            for(d in 0...mDockables.length)
-            {
-               if ( !is_locked[d] )
-               {
-                  is_stretch.push(true);
-                  stretchers += stretch_weight[d];
-               }
-               else
-                  is_stretch.push(false);
-            }
+            var s = d.getMinSize();
+            addPaneChromeSize(d,s);
+            var m_size = Std.int(horizontal ? s.x : s.y);
+            min_sizes.push(m_size);
+   
+            var s = horizontal ? d.getBestSize(Dock.DOCK_SLOT_HORIZ) : d.getBestSize(Dock.DOCK_SLOT_VERT);
+
+            addPaneChromeSize(d,s);
+   
+            mSizes.push(s.clone());
+            var b_size = Std.int(horizontal ? s.x : s.y);
+            stretch_weight.push(b_size > 1 ? b_size : 1 );
+            if (b_size<m_size)
+               b_size = m_size;
+            best_sizes.push(b_size);
+            best_total += b_size;
          }
-
-         //trace(indent + " " + extra + " over " + is_stretch + "  best " + best_sizes);
-
+   
+         var is_locked = new Array<Bool>();
+         var too_big = best_total > (horizontal ? w : h);
          for(d in 0...mDockables.length)
          {
-            var dim = best_sizes[d];
-            var size = dim;
-            var here = extra*stretch_weight[d]/stretchers;
-            var item_extra = stretchers>0 ? Std.int( extra*stretch_weight[d]/stretchers + 0.5 ) : 0;
-            if ( item_extra!=0 && is_stretch[d] )
+            var pane = mDockables[d].asPane();
+            is_locked.push( (too_big && (best_sizes[d]<=min_sizes[d] )) || mDockables[d].isLocked() );
+         }
+   
+         var locked_changed = true;
+         var pass = 0;
+   
+         while(locked_changed)
+         {
+            locked_changed = false;
+            var extra = Std.int((horizontal ? w : h)-best_total);
+            var stretchers = 0.0;
+            var is_stretch = new Array<Bool>();
+            if (extra!=0)
             {
-               size += item_extra;
-               // Hit min - set it in stone and try again...
-               if (size<min_sizes[d] && best_sizes[d]>min_sizes[d])
+               for(d in 0...mDockables.length)
                {
-                  is_locked[d] = true;
-                  best_total += min_sizes[d] - best_sizes[d];
-                  best_sizes[d] = min_sizes[d];
-                  locked_changed = true;
-                  break;
-               }
-               extra -= size - dim;
-               stretchers-=stretch_weight[d];
-            }
-
-            var chrome = Skin.current.getChromeRect(mDockables[d],toolbarGripperTop);
-            var layout_w = (horizontal?size:w) - chrome.width;
-            var layout_h = (horizontal?h:size) - chrome.height;
-            var s = mDockables[d].getLayoutSize(layout_w, layout_h, horizontal);
-            //trace(indent + "Layout " + dockName(d) + " = " + layout_w + "x" + layout_h + "  -> " + s + " lock:" + is_locked[d] + "  size=" + size);
-            s.x += chrome.width;
-            s.y += chrome.height;
-            mSizes[d] = s.clone();
-
-            if (is_stretch[d])
-            {
-               var layout_size = Std.int(!horizontal ? s.y+chrome.height : s.x+chrome.width);
-               // Layout wants to snap to certain size - lock in this size...
-               if (layout_size!=size)
-               {
-                  is_locked[d] = true;
-                  best_total += layout_size - best_sizes[d];
-                  best_sizes[d] = min_sizes[d] = layout_size;
-                  mWidths[d] = layout_size;
-                  locked_changed = true;
-                  break;
+                  if ( !is_locked[d] )
+                  {
+                     is_stretch.push(true);
+                     stretchers += stretch_weight[d];
+                  }
+                  else
+                     is_stretch.push(false);
                }
             }
-            else
+   
+            //trace(indent + " " + extra + " over " + is_stretch + "  best " + best_sizes);
+   
+            for(d in 0...mDockables.length)
             {
-               size = Std.int(horizontal ? s.x : s.y );
+               var dim = best_sizes[d];
+               var size = dim;
+               var here = extra*stretch_weight[d]/stretchers;
+               var item_extra = stretchers>0 ? Std.int( extra*stretch_weight[d]/stretchers + 0.5 ) : 0;
+               if ( item_extra!=0 && is_stretch[d] )
+               {
+                  size += item_extra;
+                  // Hit min - set it in stone and try again...
+                  if (size<min_sizes[d] && best_sizes[d]>min_sizes[d])
+                  {
+                     is_locked[d] = true;
+                     best_total += min_sizes[d] - best_sizes[d];
+                     best_sizes[d] = min_sizes[d];
+                     locked_changed = true;
+                     break;
+                  }
+                  extra -= size - dim;
+                  stretchers-=stretch_weight[d];
+               }
+   
+               var chrome = Skin.current.getChromeRect(mDockables[d],toolbarGripperTop);
+               var layout_w = (horizontal?size:w) - chrome.width;
+               var layout_h = (horizontal?h:size) - chrome.height;
+               var s = mDockables[d].getLayoutSize(layout_w, layout_h, horizontal);
+               //trace(indent + "Layout " + dockName(d) + " = " + layout_w + "x" + layout_h + "  -> " + s + " lock:" + is_locked[d] + "  size=" + size);
+               s.x += chrome.width;
+               s.y += chrome.height;
+               mSizes[d] = s.clone();
+   
+               if (is_stretch[d])
+               {
+                  var layout_size = Std.int(!horizontal ? s.y : s.x);
+                  // Layout wants to snap to certain size - lock in this size...
+                  if (layout_size!=size)
+                  {
+                     is_locked[d] = true;
+                     best_total += layout_size - best_sizes[d];
+                     best_sizes[d] = min_sizes[d] = layout_size;
+                     mWidths[d] = layout_size;
+                     locked_changed = true;
+                     break;
+                  }
+               }
+               else
+               {
+                  size = Std.int(horizontal ? s.x : s.y );
+               }
+   
+               mWidths[d] = size;
             }
-
-            mWidths[d] = size;
          }
       }
-
+   
       for(d in 0...mDockables.length)
       {
          var dockable = mDockables[d];
@@ -278,7 +317,7 @@ class SideDock implements IDock, implements IDockable
          indent+="   ";
          dockable.setRect(x+chrome.x,y+chrome.y, dw, dh );
          indent = oid;
-         
+
          if (horizontal)
          {
             mPositions.push( x );
@@ -316,16 +355,26 @@ class SideDock implements IDock, implements IDockable
       for(d in 0...mDockables.length)
       {
          var pane = mDockables[d].asPane();
+         var rect = horizontal ?
+                      new Rectangle( mPositions[d], mRect.y, mWidths[d], mRect.height ) :
+                      new Rectangle( mRect.x, mPositions[d], mRect.width, mWidths[d] );
          if (pane!=null)
          {
-            Skin.current.renderPaneChrome(pane,inContainer,outHitBoxes,
-                  horizontal ?
-                      new Rectangle( mPositions[d], mRect.y, mWidths[d], mRect.height ) :
-                      new Rectangle( mRect.x, mPositions[d], mRect.width, mWidths[d] ),
-                  toolbarGripperTop);
+            Skin.current.renderPaneChrome(pane,inContainer,outHitBoxes,rect, toolbarGripperTop);
          }
          else
+         {
             mDockables[d].renderChrome(inContainer,outHitBoxes);
+            var r = mDockables[d].getDockRect();
+            var gap = horizontal ? mRect.height - r.height : mRect.width-r.width;
+            if (gap>0.5)
+            {
+               if (horizontal)
+                  Skin.current.renderToolbarGap(inContainer,rect.x, rect.bottom-gap, rect.width, gap);
+               else
+                  Skin.current.renderToolbarGap(inContainer,rect.right - gap, rect.y, gap, rect.height);
+            }
+         }
       }
    }
 
@@ -478,10 +527,13 @@ class SideDock implements IDock, implements IDockable
           var rect = getDockableRect(ref);
           // Patch up references...
           var split = new SideDock(direction);
-          split.toolbarGripperTop = toolbarGripperTop;
           var asPane = mDockables[ref].asPane();
           if (asPane!=null)
+          {
+             if (Dock.isToolbar(asPane))
+                split.toolbarGripperTop = toolbarGripperTop;
              asPane.onLayoutSwitch(getSlot());
+          }
           mDockables[ref] = split;
           split.setDock(this,container);
           split.mDockables.push(inReference);
