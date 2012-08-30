@@ -2,7 +2,6 @@ package gm2d.ui;
 
 import gm2d.display.DisplayObjectContainer;
 
-#if (!waxe || nme_menu)
 import gm2d.Screen;
 import gm2d.Game;
 import gm2d.display.BitmapData;
@@ -13,7 +12,21 @@ import gm2d.events.MouseEvent;
 import gm2d.text.TextFieldAutoSize;
 import gm2d.skin.Skin;
 
-class Menubar extends Sprite
+#if (waxe && !nme_menu)
+import wx.Menu;
+#end
+
+interface Menubar
+{
+   public function layout(inWidth:Float) : Float;
+   #if (waxe && !nme_menu)
+   public function addItems(inMenu:Menu,inItem:MenuItem) : Float;
+   #end
+   public function add(inItem:MenuItem) : Void;
+   public function closeMenu(inItem:MenuItem):Void;
+} 
+
+class SpriteMenubar extends Sprite, implements Menubar
 {
    var mWidth:Float;
    var mHeight:Float;
@@ -99,12 +112,14 @@ class Menubar extends Sprite
    }
 }
 
-#else
-
-import wx.Menu;
 
 
-class Menubar
+
+#if (waxe && !nme_menu)
+
+
+
+class WxMenubar implements Menubar
 {
    var mWxMenuBar:wx.MenuBar;
    var mAdded:Bool;

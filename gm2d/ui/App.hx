@@ -6,13 +6,16 @@ import gm2d.skin.Skin;
 import gm2d.ui.Layout;
 import gm2d.ui.Dock;
 import gm2d.ui.IDockable;
+import gm2d.ui.Menubar;
 
 import nme.net.SharedObject;
 
 
 class App extends Screen
 {
+   var _menubar:Menubar;
    public var menubar(getMenuBar,null):Menubar;
+   var topSlideBar:SlideBar;
    var dock:TopLevelDock;
    var mMDI:MDIParent;
 
@@ -27,6 +30,14 @@ class App extends Screen
       makeCurrent();
 
       doLayout();
+   }
+
+   public function createTopSlideBar()
+   {
+      if (topSlideBar==null)
+      {
+          topSlideBar = new SlideBar(this,Layout.AlignTop);
+      }
    }
 
    override public function getScaleMode():ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
@@ -69,9 +80,17 @@ class App extends Screen
       var y0 = 0.0;
       var w:Float = stage.stageWidth;
       var h:Float = stage.stageHeight;
-      if (menubar!=null)
+ 
+      if (topSlideBar!=null)
       {
-         var menu_h = menubar.layout(w);
+         var menu_h = topSlideBar.layout(w);
+         y0 += menu_h;
+         h -= menu_h;
+      }
+     
+      if (_menubar!=null)
+      {
+         var menu_h = _menubar.layout(w);
          y0 += menu_h;
          h -= menu_h;
       }
@@ -83,15 +102,20 @@ class App extends Screen
 
    public function getMenuBar() : Menubar
    {
-      if (menubar==null)
+      if (topSlideBar!=null)
+         return topSlideBar;
+
+      if (_menubar==null)
       {
-         menubar = new Menubar(this);
+         #if (waxe && !nme_menu)
+         _menubar = new WxMenubar(this);
+         #else
+         _menubar = new SpriteMenubar(this);
+         #end
          doLayout();
       }
-      return menubar;
+      return _menubar;
    }
-
-
 }
 
 
