@@ -62,6 +62,26 @@ class ListControl extends ScrollWidget
          removeChildAt(0);
    }
 
+   public function getColPos(inIdx:Int)
+   {
+      return mColPos[inIdx];
+   }
+
+   public function getColWidth(inIdx:Int)
+   {
+      return mColWidths[inIdx];
+   }
+
+   public function setMinColWidth(inCol:Int, inWidth:Float)
+   {
+      if (mColWidths[inCol]<inWidth)
+      {
+         mColWidths[inCol] = inWidth;
+         recalcPos();
+         layout(mWidth,mHeight);
+      }
+   }
+
    public function recalcPos()
    {
       mChildrenClean = 0;
@@ -128,11 +148,26 @@ class ListControl extends ScrollWidget
          }
       }
       mRows.push(row);
-      layout(mWidth,height);
+      layout(mWidth,mHeight);
    }
    public function addItem(inItem:Dynamic)
    {
       addRow([inItem]);
+   }
+
+   public function showItem(idx:Int)
+   {
+      if (idx>=0)
+      {
+         var top = idx*mItemHeight;
+         // If above, put on top row ...
+         if (top<mScrollY)
+            setScrollY(top);
+    
+         // if below, raise to bottom line
+         else if (top-mScrollY > mHeight-mItemHeight)
+            setScrollY(top+mItemHeight-mHeight);
+      }
    }
 
 
@@ -145,6 +180,7 @@ class ListControl extends ScrollWidget
          if (onSelect!=null)
             onSelect(inIndex);
       }
+      showItem(inIndex);
    }
 
    public function selectByY(inY:Float):Int
