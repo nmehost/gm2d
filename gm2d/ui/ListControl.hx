@@ -18,18 +18,29 @@ class ListControl extends ScrollWidget
    var mChildrenClean :Int;
    var mColWidths:Array<Float>;
    var mColPos:Array<Float>;
+   var mColAlign:Array<Int>;
    var mControlHeight:Float;
    public var onSelect:Int->Void;
    public var mXGap:Float;
    public var mTextSelectable:Bool;
   
-   static var mSelectColour = 0xd0d0f0;
-   static var mEvenColour = 0xffffff;
-   static var mOddColour = 0xf0f0ff;
+   public var selectColour:Int;
+   public var selectAlpha:Float;
+   public var evenColour:Int;
+   public var evenAlpha:Float;
+   public var oddColour:Int;
+   public var oddAlpha:Float;
 
    public function new(inWidth:Float = 100, inItemHeight:Float=0)
    {
        super();
+       selectAlpha = 1.0;
+       evenAlpha = 1.0;
+       oddAlpha = 1.0;
+       selectColour = 0xd0d0f0;
+       evenColour = 0xffffff;
+       oddColour = 0xf0f0ff;
+
        mOrigItemHeight = inItemHeight;
        mItemHeight = mOrigItemHeight;
        scrollWheelStep = mOrigItemHeight;
@@ -45,6 +56,7 @@ class ListControl extends ScrollWidget
        mTextSelectable = false;
 		 wantFocus = false;
        onSelect = null;
+       mColAlign = [];
        setScrollRange(inWidth,inWidth,inItemHeight,inItemHeight);
    }
 
@@ -60,6 +72,14 @@ class ListControl extends ScrollWidget
       graphics.clear();
       while(numChildren>0)
          removeChildAt(0);
+   }
+
+   public function setColAlign(inIdx:Int, inAlign:Int)
+   {
+      for (i in 0...inIdx)
+         if (mColAlign.length==i)
+            mColAlign.push(Layout.AlignCenterY | Layout.AlignLeft);
+      mColAlign[inIdx] = inAlign;
    }
 
    public function getColPos(inIdx:Int)
@@ -85,12 +105,13 @@ class ListControl extends ScrollWidget
    public function recalcPos()
    {
       mChildrenClean = 0;
-      var pos = mXGap;
+      var pos = 0.0;
       for(i in 0...mColWidths.length)
       {
          mColPos[i] = pos;
          pos += mColWidths[i] + mXGap;
       }
+      mColPos.push(pos);
    }
 
    public function stringToItem(inString:String) : DisplayObject
@@ -114,6 +135,8 @@ class ListControl extends ScrollWidget
       var row = new Array<DisplayObject>();
       for(i in 0...inRow.length)
       {
+         if (i==mColAlign.length)
+            mColAlign.push(Layout.AlignCenterY | Layout.AlignLeft);
          var item:Dynamic = inRow[i];
          if (item!=null)
          {
@@ -126,13 +149,20 @@ class ListControl extends ScrollWidget
                obj = bitmapDataToItem(item);
 
             var h = obj.height;
+            var w = obj.width;
+            if (Std.is(item,TextField))
+            {
+               var tf:TextField = cast item;
+               w = tf.textWidth;
+               h = tf.textHeight;
+            }
+
             if (h>mItemHeight)
             {
                mItemHeight = h;
                scrollWheelStep = h;
                mChildrenClean = 0;
             }
-            var w = obj.width;
             if (mColWidths.length<=i || mColWidths[i]<w)
             {
                mColWidths[i] = w;
@@ -207,12 +237,13 @@ class ListControl extends ScrollWidget
       gfx.clear();
       for(i in 0...mRows.length)
       {
-         gfx.beginFill( (i==mSelected) ? mSelectColour : ( (i & 1) > 0 ? mOddColour: mEvenColour ) );
+         gfx.beginFill( (i==mSelected) ? selectColour : ( (i & 1) > 0 ? oddColour: evenColour ),
+                        (i==mSelected) ? selectAlpha  : ( (i & 1) > 0 ? oddAlpha : evenAlpha  ) );
          gfx.drawRect(0,i*mItemHeight,mWidth,mItemHeight);
       }
       if (mControlHeight<mHeight)
       {
-         gfx.beginFill( mEvenColour );
+         gfx.beginFill( evenColour, evenAlpha );
          gfx.drawRect(0,mControlHeight,mWidth,mHeight-mControlHeight);
       }
    }
@@ -227,9 +258,32 @@ class ListControl extends ScrollWidget
             var item = row[i];
             if (item!=null)
             {
+               var w = item.width;
+               switch(mColAlign[i] & Layout.AlignMaskX)
+               {
+                  case Layout.AlignRight:
+                      item.x = mColPos[i] + (mColWidths[i]-w);
+
+                  case Layout.AlignCenterX:
+                      item.x = mColPos[i] + (mColWidths[i]-w)*0.5;
+
+                  default:
+                      item.x = mColPos[i];
+               }
+ 
+
                var h = item.height;
-               item.x = mColPos[i];
-               item.y = row_idx*mItemHeight + (mItemHeight-h)*0.5;
+               switch(mColAlign[i] & Layout.AlignMaskY)
+               {
+                  case Layout.AlignTop:
+                      item.y = row_idx*mItemHeight;
+
+                  case Layout.AlignBottom:
+                      item.y = row_idx*mItemHeight + (mItemHeight-h);
+
+                  default:
+                      item.y = row_idx*mItemHeight + (mItemHeight-h)*0.5;
+               }
             }
          }
       }
