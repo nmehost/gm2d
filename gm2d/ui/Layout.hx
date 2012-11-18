@@ -394,11 +394,13 @@ class ColInfo
    {
       mMaxWidth = 0;
       mWidth = 0;
+      mMinWidth = 0;
       mStretch = inStretch;
    }
    public var mMaxWidth:Float;
    public var mWidth:Float;
    public var mStretch:Float;
+   public var mMinWidth:Float;
 }
 
 class RowInfo
@@ -499,6 +501,15 @@ class GridLayout extends Layout
       return this;
    }
 
+   public function setMinColWidth(inCol:Int,inMin:Float)
+   {
+      if (mColInfo[inCol]==null)
+         mColInfo[inCol] = new ColInfo(mDefaultStretch);
+      mColInfo[inCol].mMinWidth = inMin;
+      return this;
+   }
+
+
    static var indent = "";
 
    function BestColWidths()
@@ -507,7 +518,7 @@ class GridLayout extends Layout
       //var oindent = indent;
       //indent += "  ";
       for(col in mColInfo)
-         col.mWidth = 0;
+         col.mWidth = col.mMinWidth;
       for(row in mRowInfo)
       {
          //trace(indent + " cols : "  + row.mCols.length);

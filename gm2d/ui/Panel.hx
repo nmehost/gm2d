@@ -12,7 +12,7 @@ import gm2d.skin.Skin;
 class Panel extends Widget
 {
    var mGridLayout:GridLayout;
-   var mItemLayout:Layout;
+   var mItemLayout:GridLayout;
    var mButtonLayout:Layout;
    var mDebug:Shape;
    var mLayoutDirty:Bool;
@@ -44,6 +44,11 @@ class Panel extends Widget
       if (mDebug!=null)
          addChild(mDebug);
       labelRenderer = inLabelRenderer==null ? Skin.current.labelRenderer : inLabelRenderer;
+   }
+
+   public function setItemSize(inSize:Int)
+   {
+       mItemLayout.setMinColWidth(1,inSize);
    }
 
    public function getPane()
@@ -85,40 +90,9 @@ class Panel extends Widget
       Layout.setDebug(null);
    }
 
-/*
-   public function setButtonBGs(inRenderer:gm2d.display.Graphics->Float->Float->Void, inExtraX=10.0, inExtraY=5.0)
-   {
-      var cols = mButtonLayout.getColWidths();
-      var h = mButtonLayout.getBestHeight();
-      var w = 0.0;
-      for(c in cols)
-         if (c>w) w=c;
-      for(but in mButtons)
-      {
-          but.setBG(inRenderer,w+inExtraX,h+inExtraY);
-      }
-   }
-      */
-
-
    override public function createLayout() : Layout { return mGridLayout; }
 
    public dynamic function onLaidOut() { }
-
-
-   /*
-   public function getLayoutWidth()
-   {
-      if (mLayoutDirty) doLayout();
-      return mGridLayout.width;
-   }
-   public function getLayoutHeight()
-   {
-      if (mLayoutDirty) doLayout();
-      return mGridLayout.height;
-   }
-   */
-
 
    public function setBorders(inL:Float,inT:Float,inR:Float,inB:Float)
    {
@@ -140,27 +114,37 @@ class Panel extends Widget
       mButtonLayout.add( inButton.getLayout() );
    }
 
-   public function addObj(inObj:gm2d.display.DisplayObject)
+   public function addObj(inObj:gm2d.display.DisplayObject,?inAlign:Null<Int>)
    {
       mLayoutDirty = true;
       addChild(inObj);
-      mItemLayout.add( new DisplayLayout(inObj) );
+      var layout = new DisplayLayout(inObj);
+      if (inAlign!=null)
+         layout.mAlign = inAlign;
+      else
+         layout.mAlign = Layout.AlignStretch;
+      mItemLayout.add( layout );
    }
 
-   public function addLabelObj(inLabel:String,inObj:DisplayObject,?inName:String)
+   public function addLabelObj(inLabel:String,inObj:DisplayObject,?inName:String,?inAlign:Null<Int>)
    {
-      addLabel(inLabel,inName);
-      addObj(inObj);
+      addLabel(inLabel,inName,inAlign);
+      addObj(inObj,inAlign);
    }
  
-   public function addLabel(inText:String,?inName:String)
+   public function addLabel(inText:String,?inName:String,?inAlign:Null<Int>)
    {
       mLayoutDirty = true;
       var label = new TextField();
       labelRenderer.styleLabel(label);
       label.text = inText;
       addChild(label);
-      mItemLayout.add( new TextLayout(label) );
+      var layout = new TextLayout(label);
+      if (inAlign!=null)
+         layout.mAlign = inAlign;
+      else
+         layout.mAlign = Layout.AlignRight | Layout.AlignCenterY;
+      mItemLayout.add( layout );
 
       if (inName!=null)
       {
