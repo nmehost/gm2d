@@ -20,6 +20,8 @@ class SideDock implements IDock, implements IDockable
    var properties:Dynamic;
    var toolbarGripperTop:Bool;
    var flags:Int;
+   public var shortTitle:String;
+   public var title:String;
 
    public function new(inPos:DockPosition)
    {
@@ -33,6 +35,7 @@ class SideDock implements IDock, implements IDockable
       properties = [];
       toolbarGripperTop = horizontal;
       mRect = new Rectangle();
+      title = shortTitle = "";
    }
    
    // Hierarchy
@@ -47,8 +50,8 @@ class SideDock implements IDock, implements IDockable
    }
    public function closeRequest(inForce:Bool):Void { }
    // Display
-   public function getTitle():String { return ""; }
-   public function getShortTitle():String { return ""; }
+   public function getTitle():String { return title; }
+   public function getShortTitle():String { return shortTitle; }
    public function buttonStates():Array<Int> { return null; }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
