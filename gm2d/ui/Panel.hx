@@ -39,7 +39,6 @@ class Panel extends Widget
       mButtonLayout.setSpacing(10,0);
       mButtonLayout.setBorders(0,10,0,10);
       mGridLayout.add(mItemLayout);
-      mGridLayout.add(mButtonLayout);
       mGridLayout.setRowStretch(1,0);
       if (mDebug!=null)
          addChild(mDebug);
@@ -107,6 +106,9 @@ class Panel extends Widget
    }
    public function addButton(inButton:gm2d.ui.Button)
    {
+      if (mButtons.length==0)
+         mGridLayout.add(mButtonLayout);
+
       mLayoutDirty = true;
       addChild(inButton);
       // inButton.setBG( Skin.current.renderButton, w+inExtraX,h+inExtraY);

@@ -5,6 +5,7 @@ import gm2d.display.Sprite;
 import gm2d.display.BitmapData;
 import gm2d.events.MouseEvent;
 import gm2d.ui.Button;
+import gm2d.geom.Point;
 import gm2d.skin.Skin;
 
 class NumericInput extends TextInput
@@ -14,6 +15,8 @@ class NumericInput extends TextInput
    var max:Float;
    var step:Float;
    var slider:Sprite;
+   var sliderX:Float;
+   var sliderWatcher:MouseWatcher;
    static var SLIDER_W = 22;
 
    public function new(inVal:Float,inInteger:Bool,inMin:Float, inMax:Float, inStep:Float,
@@ -25,7 +28,37 @@ class NumericInput extends TextInput
       step = inStep;
       slider = new Sprite();
       addChild(slider);
+      slider.addEventListener(MouseEvent.MOUSE_DOWN, onSliderDown );
       renderSlider();
+   }
+
+
+   function onSliderDown(e:MouseEvent)
+   {
+      var pos = slider.localToGlobal( new Point(0,0) );
+      stage.addChild(slider);
+      slider.x = pos.x;
+      slider.y = pos.y;
+      sliderWatcher = new MouseWatcher(slider, null, onSliderDrag, onSliderUp,
+          pos.x, pos.y+e.localY, false );
+   }
+
+   function onSliderDrag(e:MouseEvent)
+   {
+      var dy = sliderWatcher.pos.y - sliderWatcher.prevPos.y;
+      slider.y += dy;
+      var val = Std.parseFloat(mText.text);
+      val -= dy*step;
+      if (val<min) val = min;
+      if (val>max) val = max;
+      mText.text = Std.string(val);
+   }
+   function onSliderUp(e:MouseEvent)
+   {
+      addChild(slider);
+      slider.x = sliderX;
+      slider.y = 0;
+      sliderWatcher = null;
    }
 
    function renderSlider()
@@ -34,7 +67,7 @@ class NumericInput extends TextInput
       gfx.clear();
       gfx.lineStyle(1,0x000040);
       gfx.beginFill(0xffffff);
-      gfx.drawRect(5.5,5.5,11,11);
+      gfx.drawRoundRect(1,1,20,20,5,5);
    }
 
    function onUpdateText(inText:String)
@@ -48,6 +81,6 @@ class NumericInput extends TextInput
    public override function layout(inW:Float, inH:Float)
    {
       super.layout(inW-SLIDER_W, inH);
-      slider.x = inW-SLIDER_W;
+      sliderX = slider.x = inW-SLIDER_W;
    }
 }
