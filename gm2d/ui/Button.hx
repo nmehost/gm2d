@@ -49,7 +49,7 @@ class Button extends Control
       noFocus = false;
       var me = this;
       mRenderer = inRenderer==null ? Skin.current.buttonRenderer : inRenderer;
-      addEventListener(MouseEvent.CLICK, function(_) { mCallback(); } );
+      addEventListener(MouseEvent.CLICK, function(_) { if (mCallback!=null) mCallback(); } );
       addEventListener(MouseEvent.MOUSE_DOWN, function(_) { me.setDown(true); } );
       addEventListener(MouseEvent.MOUSE_UP, function(_) { me.setDown(false); } );
 

@@ -20,13 +20,14 @@ class NumericInput extends TextInput
    static var SLIDER_W = 22;
 
    public function new(inVal:Float,inInteger:Bool,inMin:Float, inMax:Float, inStep:Float,
-      ?onUpdate:Float->Void)
+      ?inOnUpdateFloat:Float->Void)
    {
       super(Std.string(inVal),onUpdateText);
       min = inMin;
       max = inMax;
       step = inStep;
       slider = new Sprite();
+      onUpdateFloat = inOnUpdateFloat;
       addChild(slider);
       slider.addEventListener(MouseEvent.MOUSE_DOWN, onSliderDown );
       renderSlider();
@@ -52,6 +53,8 @@ class NumericInput extends TextInput
       if (val<min) val = min;
       if (val>max) val = max;
       mText.text = Std.string(val);
+      if (onUpdateFloat!=null)
+         onUpdateFloat(val);
    }
    function onSliderUp(e:MouseEvent)
    {
