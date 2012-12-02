@@ -46,7 +46,8 @@ class TextInput extends Control
    override public function onCurrentChanged(inCurrent:Bool)
    {
       super.onCurrentChanged(inCurrent);
-      stage.focus = inCurrent ? mText : null;
+      if (stage!=null)
+         stage.focus = inCurrent ? mText : null;
    }
 
 
