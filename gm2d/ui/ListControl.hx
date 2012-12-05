@@ -24,6 +24,7 @@ class ListControl extends ScrollWidget
    public var mXGap:Float;
    public var mTextSelectable:Bool;
   
+   public var autoItemHeight:Bool;
    public var selectColour:Int;
    public var selectAlpha:Float;
    public var evenColour:Int;
@@ -40,6 +41,7 @@ class ListControl extends ScrollWidget
        selectColour = 0xd0d0f0;
        evenColour = 0xffffff;
        oddColour = 0xf0f0ff;
+       autoItemHeight = true;
 
        mOrigItemHeight = inItemHeight;
        mItemHeight = mOrigItemHeight;
@@ -157,7 +159,7 @@ class ListControl extends ScrollWidget
                h = tf.textHeight;
             }
 
-            if (h>mItemHeight)
+            if (h>mItemHeight && autoItemHeight)
             {
                mItemHeight = h;
                scrollWheelStep = h;

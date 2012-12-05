@@ -25,6 +25,10 @@ class ChoiceButtons extends Control
       buttonLayout.add(inButton.getLayout().pixelAlign());
       group.add(inButton,inKey);
    }
+   public function setState(inKey:String)
+   {
+      group.setState(inKey);
+   }
 
    override public function createLayout() : Layout
    {
