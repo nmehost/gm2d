@@ -48,6 +48,7 @@ class Button extends Control
       mCurrentDX = mCurrentDY = 0;
       noFocus = false;
       var me = this;
+      mouseChildren = false;
       mRenderer = inRenderer==null ? Skin.current.buttonRenderer : inRenderer;
       addEventListener(MouseEvent.CLICK, function(_) { if (mCallback!=null) mCallback(); } );
       addEventListener(MouseEvent.MOUSE_DOWN, function(_) { me.setDown(true); } );

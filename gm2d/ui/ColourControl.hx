@@ -164,6 +164,7 @@ class ColourSlider extends Widget
       mVertical = inVertical;
       mColour = 0xff0000;
       mPos = 1;
+      mWidth = mHeight = 1;
       var layout = getLayout();
       layout.minWidth = 20;
       layout.minHeight = 20;

@@ -19,6 +19,11 @@ class RadioGroup<Key>
       for(i in 0...keys.length)
          buttons[i].down = keys[i]==inKey;
    }
+   public function setIndex(inIndex:Int)
+   {
+      setState(keys[inIndex]);
+   }
+
    public function add(inButton:Button, inKey:Key) : Button
    {
       buttons.push(inButton);

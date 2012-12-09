@@ -30,6 +30,12 @@ class ChoiceButtons extends Control
       group.setState(inKey);
    }
 
+   public function setIndex(inIndex:Int)
+   {
+      group.setIndex(inIndex);
+   }
+
+
    override public function createLayout() : Layout
    {
       var layout = new ChildStackLayout( );
