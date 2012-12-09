@@ -133,6 +133,13 @@ class Panel extends Widget
       addLabel(inLabel,inName,inAlign);
       addObj(inObj,inAlign);
    }
+
+   
+   public function addLabelUI(inLabel:String,inObj:Widget,?inAlign:Null<Int>)
+   {
+      addLabel(inLabel,null,inAlign);
+      addUI(inObj);
+   }
  
    public function addLabel(inText:String,?inName:String,?inAlign:Null<Int>)
    {
