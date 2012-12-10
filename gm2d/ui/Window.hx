@@ -4,8 +4,8 @@ import gm2d.events.MouseEvent;
 
 class Window extends Widget
 {
-   var mCurrent:Widget;
-   var mDeactive:Widget;
+   var mCurrent:IWidget;
+   var mDeactive:IWidget;
 
    public function new()
    {
@@ -20,10 +20,10 @@ class Window extends Widget
       removeEventListener(MouseEvent.MOUSE_MOVE, windowMouseMove);
    }
 
-   public function getItemList() : Array<Widget>
+   public function getIWidgetList() : Array<IWidget>
    {
-      var result = new Array<Widget>();
-      Widget.getItemsRecurse(this,result);
+      var result = new Array<IWidget>();
+      Widget.getIWidgetsRecurse(this,result);
       return result;
    }
 
@@ -47,10 +47,10 @@ class Window extends Widget
       var target:gm2d.display.DisplayObject = inEvent.target;
       while(target!=null && target!=this)
       {
-         if (Std.is(target,Widget))
+         if (Std.is(target,IWidget))
          {
-             var widget:Widget = cast target;
-             if (widget.wantFocus)
+             var widget:IWidget = cast target;
+             if (widget.wantsFocus())
                 setCurrentItem(widget);
              return;
          }
@@ -59,7 +59,7 @@ class Window extends Widget
    }
 
 
-   public function setCurrentItem(inItem:gm2d.ui.Widget)
+   public function setCurrentItem(inItem:gm2d.ui.IWidget)
    {
       if (inItem!=mCurrent)
       {
@@ -91,7 +91,7 @@ class Window extends Widget
 
       if (dir!=0)
       {
-         var items = getItemList();
+         var items = getIWidgetList();
          var l = items.length;
          if (l>0)
          {

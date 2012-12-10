@@ -45,7 +45,7 @@ class Screen extends gm2d.ui.Window
    public function updateFixed() {  }
    public function render(inFraction:Float) {  }
    public function wantsCursor() : Bool { return true; }
-   public function goBack() : Void { Game.close(); }
+   public function goBack() : Bool { Game.close(); return true; }
 
    public function getScaleMode() : ScreenScaleMode { return ScreenScaleMode.CENTER_SCALED; }
 

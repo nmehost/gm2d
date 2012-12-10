@@ -401,8 +401,10 @@ class Game
          if (mCurrentDialog!=null)
             mCurrentDialog.goBack();
          else if (mCurrentScreen!=null)
-            mCurrentScreen.goBack();
-         return;
+         {
+            if (mCurrentScreen.goBack())
+               return;
+         }
       }
 
       var used = false;

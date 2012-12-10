@@ -5,7 +5,7 @@ import gm2d.geom.Point;
 import gm2d.ui.Layout;
 
 
-class Widget extends gm2d.display.Sprite
+class Widget extends gm2d.display.Sprite, implements IWidget
 {
    public var wantFocus:Bool;
    var mLayout:Layout;
@@ -19,23 +19,25 @@ class Widget extends gm2d.display.Sprite
       //highlightColour = 0x0000ff;
    }
 
-   static public function getItemsRecurse(inParent:DisplayObjectContainer,outList : Array<Widget>)
+   static public function getIWidgetsRecurse(inParent:DisplayObjectContainer,outList : Array<IWidget>)
    {
       if (!inParent.mouseEnabled || !inParent.visible) return;
 
       for(i in 0...inParent.numChildren)
       {
          var child = inParent.getChildAt(i);
-         if (Std.is(child,Widget))
+         if (Std.is(child,IWidget))
          {
-            var child:Widget = cast child;
-            if (child.wantFocus)
+            var child:IWidget = cast child;
+            if (child.wantsFocus())
                outList.push(child);
          }
          if (Std.is(child,DisplayObjectContainer))
-           getItemsRecurse(cast child, outList);
+           getIWidgetsRecurse(cast child, outList);
       }
    }
+
+   public function wantsFocus() { return wantFocus; }
 
    public function createLayout() : Layout
    {
