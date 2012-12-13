@@ -110,6 +110,7 @@ class MultiDock implements IDock, implements IDockable
 
          currentDockable.setRect(rect.x,rect.y,rect.width,rect.height);
       }
+      else trace("No current?");
       bestSize[getSlot()] = new Size(w,h);
 
       setDirty(false,true);

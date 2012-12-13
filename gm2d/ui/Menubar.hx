@@ -11,6 +11,8 @@ import gm2d.text.TextField;
 import gm2d.events.MouseEvent;
 import gm2d.text.TextFieldAutoSize;
 import gm2d.skin.Skin;
+import gm2d.ui.IDock;
+import gm2d.ui.DockPosition;
 
 #if (waxe && !nme_menu)
 import wx.Menu;
@@ -26,7 +28,8 @@ interface Menubar
    public function closeMenu(inItem:MenuItem):Void;
 } 
 
-class SpriteMenubar extends Sprite, implements Menubar
+class SpriteMenubar extends Sprite, implements Menubar, implements IDock
+
 {
    var mWidth:Float;
    var mHeight:Float;
@@ -37,7 +40,7 @@ class SpriteMenubar extends Sprite, implements Menubar
    var mItems:Array<MenuItem>;
    var mButtons:Array<Button>;
 
-   public function new(inParent:DisplayObjectContainer)
+   public function new(inParent:DisplayObjectContainer,?dummy:Int)
    {
       super();
       if (inParent!=null)
@@ -110,6 +113,43 @@ class SpriteMenubar extends Sprite, implements Menubar
           but.y = (mHeight-but.height)/2;
        return mHeight;
    }
+
+
+
+
+   // IDock....
+   public function getDock():IDock { return this; }
+   public function canAddDockable(inPos:DockPosition):Bool { return inPos==DOCK_OVER; }
+   public function addDockable(child:IDockable,inPos:DockPosition,inSlot:Int):Void
+   {
+   }
+   public function getDockablePosition(child:IDockable):Int
+   {
+      return -1;
+   }
+   public function removeDockable(child:IDockable):IDockable
+   {
+      return null;
+   }
+   public function raiseDockable(child:IDockable):Bool
+   {
+      return false;
+   }
+   public function minimizeDockable(child:IDockable):Bool
+   {
+      return false;
+   }
+   public function addSibling(inReference:IDockable,inIncoming:IDockable,inPos:DockPosition):Void
+   {
+   }
+   public function getSlot():Int
+   {
+      return -1;
+   }
+   public function setDirty(inLayout:Bool, inChrome:Bool):Void
+   {
+   }
+
 }
 
 

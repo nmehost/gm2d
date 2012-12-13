@@ -184,6 +184,7 @@ class TopLevelDock implements IDock
          new gm2d.icons.NorthSouth().render(gfx);
    }
 
+
    public function onOverDockSize(inDock:SideDock, inIndex:Int, inX:Float, inY:Float, inRect:Rectangle )
    {
       showResizeHint(inX,inY,inDock.isHorizontal());

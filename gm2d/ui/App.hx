@@ -15,13 +15,19 @@ class App extends Screen
 {
    var _menubar:Menubar;
    public var menubar(getMenuBar,null):Menubar;
-   var topSlideBar:SlideBar;
+   var topMenuBar:SpriteMenubar;
+   var leftSlider:SlideBar;
+   var rightSlider:SlideBar;
+   var bottomSlider:SlideBar;
    var dock:TopLevelDock;
    var mMDI:MDIParent;
+   var slideBorders:Int;
 
    public function new()
    {
       super();
+
+      slideBorders = 3;
 
       mMDI = new MDIParent();
 
@@ -29,18 +35,61 @@ class App extends Screen
 
       makeCurrent();
 
+      addEventListener(gm2d.events.Event.RENDER, checkSliderLayouts);
+
       doLayout();
    }
 
-   public function createTopSlideBar()
+   public function createMenubar()
    {
-      if (topSlideBar==null)
+      if (topMenuBar==null)
       {
-          topSlideBar = new SlideBar(this,Layout.AlignTop);
+          topMenuBar = new SpriteMenubar(this,Layout.AlignTop);
       }
    }
 
    override public function getScaleMode():ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
+
+   public function setSlider(inPane:IDockable, inPos:DockPosition, ?inMax:Null<Int>)
+   {
+      switch(inPos)
+      {
+         case DOCK_LEFT:
+            if (leftSlider!=null)
+               throw "Left slider already set";
+            leftSlider = new SlideBar(this,inPos,inMax);
+            leftSlider.addDockable(inPane,DOCK_OVER,0);
+            addChild(leftSlider);
+
+         case DOCK_RIGHT:
+            if (rightSlider!=null)
+               throw "Right slider already set";
+            rightSlider = new SlideBar(this,inPos,inMax);
+            rightSlider.addDockable(inPane,DOCK_OVER,0);
+            addChild(rightSlider);
+
+         case DOCK_BOTTOM:
+            if (bottomSlider!=null)
+               throw "Bottom slider already set";
+            bottomSlider = new SlideBar(this,inPos,inMax);
+            bottomSlider.addDockable(inPane,DOCK_OVER,0);
+            addChild(bottomSlider);
+         default:
+            throw "Invalid slider position";
+      }
+   }
+
+   public function checkSliderLayouts(_)
+   {
+       var dirty = (leftSlider!=null && leftSlider.isDirty() ) ||
+                   (rightSlider!=null && rightSlider.isDirty() ) ||
+                   (bottomSlider!=null && bottomSlider.isDirty() );
+       if (dirty)
+          doLayout();
+       if (leftSlider!=null) leftSlider.checkChrome();
+       if (rightSlider!=null) rightSlider.checkChrome();
+       if (bottomSlider!=null) bottomSlider.checkChrome();
+   }
 
    public function addPane(inPane:IDockable, inPos:DockPosition,inSlot:Int=-1)
    {
@@ -81,9 +130,9 @@ class App extends Screen
       var w:Float = stage.stageWidth;
       var h:Float = stage.stageHeight;
  
-      if (topSlideBar!=null)
+      if (topMenuBar!=null)
       {
-         var menu_h = topSlideBar.layout(w);
+         var menu_h = topMenuBar.layout(w);
          y0 += menu_h;
          h -= menu_h;
       }
@@ -95,6 +144,26 @@ class App extends Screen
          h -= menu_h;
       }
 
+      if (leftSlider!=null)
+      {
+         var size = leftSlider.setRect(x0,y0,w-slideBorders,h);
+         x0+=size+slideBorders;
+         w -=size+slideBorders;
+      }
+
+      if (rightSlider!=null)
+      {
+         var size = rightSlider.setRect(x0+slideBorders,y0,w-slideBorders,h);
+         w -=size+slideBorders;
+      }
+
+      if (bottomSlider!=null)
+      {
+         var size = bottomSlider.setRect(x0,y0+slideBorders,w,h-slideBorders);
+         h -=size+slideBorders;
+      }
+ 
+ 
       dock.setRect(x0,y0,w,h);
    }
 
@@ -102,8 +171,8 @@ class App extends Screen
 
    public function getMenuBar() : Menubar
    {
-      if (topSlideBar!=null)
-         return topSlideBar;
+      if (topMenuBar!=null)
+         return topMenuBar;
 
       if (_menubar==null)
       {
