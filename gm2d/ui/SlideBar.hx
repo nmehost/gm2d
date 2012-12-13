@@ -20,15 +20,18 @@ class SlideBar extends Sprite, implements IDock
    var maxSize:Null<Int>;
    var background:Sprite;
    var hitBoxes:HitBoxes;
+   var offset:Null<Int>;
 
 
-   public function new(inParent:DisplayObjectContainer,inPos:DockPosition,?inMaxSize:Null<Int>)
+   public function new(inParent:DisplayObjectContainer,inPos:DockPosition,
+             ?inMaxSize:Null<Int>, ?inOffset:Null<Int>)
    {
       super();
       pos = inPos;
       container = inParent;
       horizontal = pos==DOCK_LEFT || pos==DOCK_RIGHT;
       maxSize = inMaxSize;
+      offset = inOffset;
 
       background = new Sprite();
       addChild(background);
@@ -92,9 +95,19 @@ class SlideBar extends Sprite, implements IDock
       }
 
       if (pos==DOCK_LEFT || pos==DOCK_RIGHT)
-         this.y = y + Std.int((h-size.y)*0.5);
+      {
+         if (offset==null)
+            this.y = y + Std.int((h-size.y)*0.5);
+         else
+            this.y = y + offset;
+      }
       else
-         this.x = x + Std.int((w-size.x)*0.5);
+      {
+         if (offset==null)
+            this.x = x + Std.int((w-size.x)*0.5);
+         else
+            this.x = x + offset;
+      }
 
       chromeDirty = true;
 

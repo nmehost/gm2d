@@ -47,6 +47,7 @@ class Skin
    public var controlBorder:Int;
    public var mdiBGColor:Int;
    public var buttonCorner:Float;
+   public var tabGradientColor:Int;
 
    public var guiLight:Int;
    public var guiMedium:Int;
@@ -63,6 +64,11 @@ class Skin
    public var buttonRenderer:ButtonRenderer;
    public var sliderRenderer:SliderRenderer;
    public var labelRenderer:LabelRenderer;
+   public var tabRenderer:TabRenderer;
+
+   public var tabHeight:Int;
+   public var title_h:Int;
+   public var borders:Int;
 
    public static var svgInterior = ~/\.interior/;
    public static var svgScaleX = ~/\.scaleX/;
@@ -71,8 +77,8 @@ class Skin
    public static var svgActive = ~/\.active/;
    public static var svgThumb = ".thumb";
 
-   var mDrawing:Shape;
-   var mText:TextField;
+   public var mDrawing:Shape;
+   public var mText:TextField;
 
    public function new()
    {
@@ -93,7 +99,12 @@ class Skin
       controlColor = guiLight;
       disableColor = 0x808080;
       controlBorder = 0x000000;
+      tabGradientColor = 0x909080;
       buttonCorner = 6.0;
+      tabHeight = 24;
+      title_h = 22;
+      borders = 3;
+
 
       initGfx();
 
@@ -109,6 +120,7 @@ class Skin
       buttonRenderer = createButtonRenderer();
       sliderRenderer = createSliderRenderer();
       labelRenderer = createLabelRenderer();
+      tabRenderer = createTabRenderer();
    }
 
    public function createDialogRenderer()
@@ -141,6 +153,11 @@ class Skin
    {
       var result = new LabelRenderer();
       result.styleLabel = styleLabel;
+      return result;
+   }
+   public function createTabRenderer()
+   {
+      var result = new TabRenderer();
       return result;
    }
 
@@ -298,7 +315,7 @@ class Skin
 
    public function getMultiDockChromePadding(inN:Int,tabStyle:Bool) : Size
    {
-      return new Size(0,tabStyle ? tab_height : inN*24);
+      return new Size(0,tabStyle ? tabHeight : inN*24);
    }
 
 
@@ -381,13 +398,22 @@ class Skin
 
    }
 
+    public function renderTabs(inTabContainer:Sprite,
+                              inRect:Rectangle,
+                              inPanes:Array<IDockable>,
+                              inCurrent:IDockable,
+                              outHitBoxes:HitBoxes,
+                              inShowRestore:Bool  )
+      { tabRenderer.renderTabs(inTabContainer, inRect, inPanes, inCurrent, outHitBoxes, inShowRestore); }
+
+
    public function renderMultiDock(dock:MultiDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable,tabStyle:Bool)
    {
       var gfx = inContainer.graphics;
       if (tabStyle)
       {
          gfx.beginFill(panelColor);
-         gfx.drawRect(inRect.x,inRect.y+tab_height,inRect.width,inRect.height-tab_height);
+         gfx.drawRect(inRect.x,inRect.y+tabHeight,inRect.width,inRect.height-tabHeight);
          gfx.endFill();
          renderTabs(inContainer,inRect,inDockables, current, outHitBoxes, false );
          return;
@@ -449,7 +475,7 @@ class Skin
    public function getMultiDockRect(inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable,tabStyle:Bool) : Rectangle
    {
       if (tabStyle)
-         return new Rectangle(inRect.x, inRect.y + tab_height, inRect.width, inRect.height-tab_height);
+         return new Rectangle(inRect.x, inRect.y + tabHeight, inRect.width, inRect.height-tabHeight);
 
       var pos = 0;
       for(i in 0...inDockables.length)
@@ -709,17 +735,18 @@ class Skin
       return bmp;
    }
 
-   function getButtonBitmapData(inButton:Int, inState:Int) : BitmapData
+   public function getButtonBitmapData(inButton:Int, inState:Int) : BitmapData
    {
       if (mBitmaps[inState][inButton]==null)
          mBitmaps[inState][inButton]=createButtonBitmap(inButton,inState);
       return mBitmaps[inState][inButton];
    }
 
-   function getButtonBitmap(inButton:Int, inState:Int) : Bitmap { return new Bitmap(getButtonBitmapData(inButton,inState)); }
+   public function getButtonBitmap(inButton:Int, inState:Int) : Bitmap
+   {
+      return new Bitmap(getButtonBitmapData(inButton,inState));
+   }
 
-   static var title_h = 22;
-   static var borders = 3;
 
    public function getFrameClientOffset() : Point
    {
@@ -936,7 +963,6 @@ class Skin
    }
 
 
-   static var tab_height = 24;
 
    function initGfx()
    {
@@ -949,123 +975,9 @@ class Skin
       }
    }
 
-   public function getMDIClientChrome() { return new Rectangle(0,tab_height, 0, tab_height); }
+   public function getMDIClientChrome() { return new Rectangle(0,tabHeight, 0, tabHeight); }
 
-   public function renderTabs(inTabContainer:Sprite,
-                              inRect:Rectangle,
-                              inPanes:Array<IDockable>,
-                              inCurrent:IDockable,
-                              outHitBoxes:HitBoxes,
-                              inShowRestore:Bool  )
-   {
-      var w = inRect.width;
-      var bitmap = new BitmapData(Std.int(w), tab_height ,true, #if neko { a:0, rgb:0 } #else 0 #end );
-      var display = new Bitmap(bitmap);
-      var boxOffset = outHitBoxes.getHitBoxOffset(inTabContainer,inRect.x,inRect.y);
-      display.x = inRect.x;
-      display.y = inRect.y;
-      inTabContainer.addChild(display);
-
-      var gfx = mDrawing.graphics;
-      gfx.clear();
-      var mtx = new gm2d.geom.Matrix();
-
-      mtx.createGradientBox(tab_height,tab_height,Math.PI * 0.5);
-
-      var cols:Array<Int> = [ guiDark, 0x909080];
-      var alphas:Array<Float> = [1.0, 1.0];
-      var ratio:Array<Int> = [0, 255];
-      gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
-      gfx.drawRect(0,0,w,tab_height);
-      bitmap.draw(mDrawing);
-
-
-
-      var buts = [ MiniButton.POPUP ];
-      if (inShowRestore)
-         buts.push( MiniButton.RESTORE );
-      var x = bitmap.width - 4;
-      for(but in buts)
-      {
-         var bmp = getButtonBitmapData(but,HitBoxes.BUT_STATE_UP);
-         if (bmp!=null) 
-         {
-            x-= bmp.width;
-            var y = (tab_height-bmp.height)/2;
-
-            bitmap.copyPixels( bmp, new Rectangle(0,0,bmp.width,bmp.height), new Point(x,y), null, null, true );
-
-            outHitBoxes.add( new Rectangle(boxOffset.x + x,boxOffset.y +  y,bmp.width,bmp.height), HitAction.BUTTON(null,but) );
-         }
-      }
-
-      var trans = new gm2d.geom.Matrix();
-      trans.tx = 1;
-      trans.ty = 2;
-
-      var cx = trans.tx;
-      var text_offset = 4-2;
-      var extra_width = 8;
-      var gap = 2;
-      for(pane in inPanes)
-      {
-         mText.text = pane.getShortTitle();
-         var tw = mText.textWidth + extra_width;
-         var r = new Rectangle(trans.tx,0,tw,tab_height);
-         outHitBoxes.add(new Rectangle(trans.tx+boxOffset.x,boxOffset.y,tw,tab_height), TITLE(pane) );
-
-         if (pane==inCurrent)
-         {
-            cx = trans.tx;
-            trans.tx+=tw+gap;
-         }
-         else
-         {
-            gfx.clear();
-            gfx.lineStyle(1,0x404040);
-            gfx.beginFill(guiDark);
-            gfx.drawRoundRect(0.5,0.5,tw,tab_height+2,6,6);
-            bitmap.draw(mDrawing,trans);
-            trans.tx+=text_offset;
-            bitmap.draw(mText,trans);
-            trans.tx+=tw-text_offset+gap;
-         }
-      }
-      if (inCurrent!=null)
-      {
-         cx -=2;
-         text_offset += 2;
-         extra_width += 4;
- 
-         mText.text = inCurrent.getShortTitle();
-         var tw = mText.textWidth + extra_width;
-         trans.ty = 0;
-
-         trans.tx = 0;
-         gfx.clear();
-         gfx.lineStyle(1,0x404040);
-         gfx.beginFill(guiMedium);
-         gfx.moveTo(-1,tab_height-4);
-         gfx.lineTo(cx,tab_height-4);
-         gfx.lineTo(cx,6);
-         gfx.curveTo(cx,2,cx+5,1);
-         gfx.lineTo(cx+tw-5,1);
-         gfx.curveTo(cx+tw,1,cx+tw,6);
-         gfx.lineTo(cx+tw,tab_height-4);
-         gfx.lineTo(w+2,tab_height-4);
-         gfx.lineTo(w+2,tab_height);
-         gfx.lineTo(-2,tab_height);
-         bitmap.draw(mDrawing,trans);
-         trans.tx = cx+text_offset;
-         trans.ty = 2;
-         bitmap.draw(mText,trans);
-      }
-
-      gfx.clear();
-      gfx.beginFill(guiMedium);
-      gfx.drawRect(0,tab_height-2,w,8);
-      bitmap.draw(mDrawing);
-   }
+  
 
    public function renderDropZone(inRect:Rectangle, outZones:DockZones, inPosition:DockPosition,
       inCentred:Bool, onDock:IDockable->Void):Void

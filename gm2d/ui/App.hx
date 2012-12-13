@@ -50,28 +50,29 @@ class App extends Screen
 
    override public function getScaleMode():ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
 
-   public function setSlider(inPane:IDockable, inPos:DockPosition, ?inMax:Null<Int>)
+   public function setSlider(inPane:IDockable, inPos:DockPosition,
+      ?inMax:Null<Int>, ?inOffset:Null<Int>)
    {
       switch(inPos)
       {
          case DOCK_LEFT:
             if (leftSlider!=null)
                throw "Left slider already set";
-            leftSlider = new SlideBar(this,inPos,inMax);
+            leftSlider = new SlideBar(this,inPos,inMax,inOffset);
             leftSlider.addDockable(inPane,DOCK_OVER,0);
             addChild(leftSlider);
 
          case DOCK_RIGHT:
             if (rightSlider!=null)
                throw "Right slider already set";
-            rightSlider = new SlideBar(this,inPos,inMax);
+            rightSlider = new SlideBar(this,inPos,inMax,inOffset);
             rightSlider.addDockable(inPane,DOCK_OVER,0);
             addChild(rightSlider);
 
          case DOCK_BOTTOM:
             if (bottomSlider!=null)
                throw "Bottom slider already set";
-            bottomSlider = new SlideBar(this,inPos,inMax);
+            bottomSlider = new SlideBar(this,inPos,inMax,inOffset);
             bottomSlider.addDockable(inPane,DOCK_OVER,0);
             addChild(bottomSlider);
          default:
