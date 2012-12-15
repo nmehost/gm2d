@@ -92,17 +92,18 @@ class TabRenderer
       trans.ty = 2;
 
       var cx = trans.tx;
-      var text_offset = 4-2;
-      var extra_width = 8;
-      var gap = 2;
+      var borderLeft = 2;
+      var borderRight = 8;
+      var bmpPad = 2;
+      var tabGap = 0;
       for(pane in inPanes)
       {
          tmpText.text = pane.getShortTitle();
-         var tw = tmpText.textWidth + extra_width;
+         var tw = borderLeft + tmpText.textWidth + borderRight;
          var icon = pane.getIcon();
          var iconWidth = 0;
          if (icon!=null)
-            iconWidth = icon.width + gap;
+            iconWidth = icon.width + bmpPad*2;
          tw += iconWidth;
 
 
@@ -112,7 +113,7 @@ class TabRenderer
          if (pane==inCurrent)
          {
             cx = trans.tx;
-            trans.tx+=tw+gap;
+            trans.tx+=tw+tabGap;
          }
          else
          {
@@ -120,35 +121,39 @@ class TabRenderer
             gfx.lineStyle(1,0x404040);
             gfx.beginFill(skin.guiDark);
             gfx.drawRoundRect(0.5,0.5,tw,tabHeight+2,6,6);
+            trans.ty = 2;
             bitmap.draw(shape,trans);
-            trans.tx+=text_offset;
+            trans.tx+=borderLeft;
             if (icon!=null)
             {
                var bmp = new Bitmap(icon);
+               trans.tx+=bmpPad;
+               trans.ty = Std.int( (tabHeight - bmp.height)* 0.5 );
                bitmap.draw(bmp,trans);
-               trans.tx+=iconWidth;
+               trans.tx+=iconWidth-bmpPad;
             }
+            trans.ty = Std.int( (tabHeight - tmpText.textHeight)*0.5 );
             bitmap.draw(tmpText,trans);
-            trans.tx+=tw-text_offset+gap-iconWidth;
+            trans.tx += tw-borderLeft+tabGap-iconWidth;
          }
       }
       if (inCurrent!=null)
       {
          cx -=2;
-         text_offset += 2;
-         extra_width += 4;
+         borderLeft += 2;
+         borderRight += 2;
  
          tmpText.text = inCurrent.getShortTitle();
-         var tw = tmpText.textWidth + extra_width;
+         var tw = borderLeft + tmpText.textWidth + borderRight;
 
          var icon = inCurrent.getIcon();
          var iconWidth = 0;
          if (icon!=null)
-            iconWidth = icon.width + gap;
+            iconWidth = icon.width + bmpPad*2;
          tw+=iconWidth;
          trans.ty = 0;
-
          trans.tx = 0;
+
          gfx.clear();
          gfx.lineStyle(1,0x404040);
          gfx.beginFill(skin.guiMedium);
@@ -163,15 +168,18 @@ class TabRenderer
          gfx.lineTo(w+2,tabHeight);
          gfx.lineTo(-2,tabHeight);
          bitmap.draw(shape,trans);
-         trans.tx = cx+text_offset;
-         trans.ty = 2;
+         trans.tx = cx+borderLeft;
 
          if (icon!=null)
          {
             var bmp = new Bitmap(icon);
+            trans.tx += bmpPad;
+            trans.ty = (tabHeight - icon.height) >> 1;
             bitmap.draw(bmp,trans);
-            trans.tx+=iconWidth;
+            trans.tx+=bmpPad;
+            trans.tx+=iconWidth-bmpPad;
          }
+         trans.ty = Std.int( (tabHeight - tmpText.textHeight)*0.5 );
          bitmap.draw(tmpText,trans);
       }
 

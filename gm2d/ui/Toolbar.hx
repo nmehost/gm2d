@@ -44,6 +44,7 @@ class Toolbar extends Pane
       var h = inHeight!=null ? inHeight : inTool.height;
       items.push(new ToolbarItem(inTool,w,h));
    }
+   public function getRoot() { return root; }
 
    public function layout(inW:Float, inDoMove:Bool)
    {

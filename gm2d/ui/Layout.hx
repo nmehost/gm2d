@@ -95,6 +95,12 @@ class Layout
       throw "Can't add to this layout";
       return null;
    }
+   public function insert(inPos:Int, inLayout:Layout) : Layout
+   {
+      throw "Can't insert in this layout";
+      return null;
+   }
+
    public function setOffset(inDX:Float, inDY:Float)
    {
       mBLeft = inDX;
@@ -479,6 +485,27 @@ class GridLayout extends Layout
       mPos++;
       return this;
    }
+
+   public override function insert(inPos:Int, inLayout:Layout) : Layout
+   {
+      if (inPos>=mPos)
+         return add(inLayout);
+
+      if (mCols==1)
+      {
+         mRowInfo.insert(inPos,new RowInfo(mDefaultStretch));
+         mRowInfo[inPos].mCols.push(inLayout);
+      }
+      else if (mCols==null)
+      {
+         mRowInfo[inPos].mCols.insert(inPos,inLayout);
+      }
+      else // TODO:
+         throw("Can only insert in 1xN or Nx1");
+
+      return this;
+   }
+
 
    public override function setSpacing(inX:Float,inY:Float) : Layout
    {
