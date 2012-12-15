@@ -191,6 +191,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
    // Display
    public function getTitle():String { return ""; }
    public function getShortTitle():String { return ""; }
+   public function getIcon():nme.display.BitmapData { return null; }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
    // Layout

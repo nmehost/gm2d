@@ -2,6 +2,7 @@ package gm2d.ui;
 
 import gm2d.display.DisplayObjectContainer;
 import gm2d.display.Sprite;
+import gm2d.display.BitmapData;
 import gm2d.ui.DockPosition;
 import gm2d.geom.Rectangle;
 import gm2d.skin.Skin;
@@ -21,6 +22,7 @@ class SideDock implements IDock, implements IDockable
    var toolbarGripperTop:Bool;
    var flags:Int;
    public var shortTitle:String;
+   public var icon:BitmapData;
    public var title:String;
 
    public function new(inPos:DockPosition)
@@ -52,6 +54,7 @@ class SideDock implements IDock, implements IDockable
    // Display
    public function getTitle():String { return title; }
    public function getShortTitle():String { return shortTitle; }
+   public function getIcon():BitmapData { return icon; }
    public function buttonStates():Array<Int> { return null; }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }

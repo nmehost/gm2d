@@ -2,6 +2,7 @@ package gm2d.ui;
 
 import gm2d.ui.Pane;
 import gm2d.display.DisplayObjectContainer;
+import gm2d.display.BitmapData;
 import gm2d.display.Sprite;
 
 
@@ -23,6 +24,7 @@ interface IDockable
    // Display
    public function getTitle():String;
    public function getShortTitle():String;
+   public function getIcon():BitmapData;
    public function getFlags():Int;
    public function setFlags(inFlags:Int):Void;
    // Layout

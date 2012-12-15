@@ -99,6 +99,13 @@ class TabRenderer
       {
          tmpText.text = pane.getShortTitle();
          var tw = tmpText.textWidth + extra_width;
+         var icon = pane.getIcon();
+         var iconWidth = 0;
+         if (icon!=null)
+            iconWidth = icon.width + gap;
+         tw += iconWidth;
+
+
          var r = new Rectangle(trans.tx,0,tw,tabHeight);
          outHitBoxes.add(new Rectangle(trans.tx+boxOffset.x,boxOffset.y,tw,tabHeight), TITLE(pane) );
 
@@ -115,8 +122,14 @@ class TabRenderer
             gfx.drawRoundRect(0.5,0.5,tw,tabHeight+2,6,6);
             bitmap.draw(shape,trans);
             trans.tx+=text_offset;
+            if (icon!=null)
+            {
+               var bmp = new Bitmap(icon);
+               bitmap.draw(bmp,trans);
+               trans.tx+=iconWidth;
+            }
             bitmap.draw(tmpText,trans);
-            trans.tx+=tw-text_offset+gap;
+            trans.tx+=tw-text_offset+gap-iconWidth;
          }
       }
       if (inCurrent!=null)
@@ -127,6 +140,12 @@ class TabRenderer
  
          tmpText.text = inCurrent.getShortTitle();
          var tw = tmpText.textWidth + extra_width;
+
+         var icon = inCurrent.getIcon();
+         var iconWidth = 0;
+         if (icon!=null)
+            iconWidth = icon.width + gap;
+         tw+=iconWidth;
          trans.ty = 0;
 
          trans.tx = 0;
@@ -146,6 +165,13 @@ class TabRenderer
          bitmap.draw(shape,trans);
          trans.tx = cx+text_offset;
          trans.ty = 2;
+
+         if (icon!=null)
+         {
+            var bmp = new Bitmap(icon);
+            bitmap.draw(bmp,trans);
+            trans.tx+=iconWidth;
+         }
          bitmap.draw(tmpText,trans);
       }
 

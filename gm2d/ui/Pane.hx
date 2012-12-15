@@ -5,6 +5,7 @@ import gm2d.display.DisplayObjectContainer;
 import gm2d.geom.Rectangle;
 import gm2d.geom.Point;
 import gm2d.display.Sprite;
+import gm2d.display.BitmapData;
 import gm2d.ui.IDockable;
 import gm2d.skin.Skin;
 
@@ -29,6 +30,7 @@ class Pane implements IDockable
    public var itemLayout:Layout;
    public var bestSize:Array<Size>;
    public var properties:Dynamic;
+   public var icon:BitmapData;
    //public var bestPos:Array<Point>;
    var flags:Int;
    var posX:Float;
@@ -130,6 +132,7 @@ class Pane implements IDockable
    public function getDock():IDock { return dock; }
    public function getTitle():String { return title; }
    public function getShortTitle():String { return shortTitle; }
+   public function getIcon():BitmapData { return icon; }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int) : Void { flags=inFlags; }
    public function getBestSize(inSlot):Size
