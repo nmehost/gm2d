@@ -6,6 +6,9 @@ import gm2d.ui.DockPosition;
 import gm2d.display.Sprite;
 import gm2d.ui.HitBoxes;
 import gm2d.events.MouseEvent;
+import gm2d.skin.TabRenderer;
+import gm2d.skin.Skin;
+import gm2d.geom.Rectangle;
 
 
 
@@ -21,6 +24,9 @@ class SlideBar extends Sprite, implements IDock
    var background:Sprite;
    var hitBoxes:HitBoxes;
    var offset:Null<Int>;
+   var tabSide:Int;
+   var tabRenderer:TabRenderer;
+   var fullRect:Rectangle;
 
 
    public function new(inParent:DisplayObjectContainer,inPos:DockPosition,
@@ -32,6 +38,15 @@ class SlideBar extends Sprite, implements IDock
       horizontal = pos==DOCK_LEFT || pos==DOCK_RIGHT;
       maxSize = inMaxSize;
       offset = inOffset;
+      tabRenderer = Skin.current.tabRenderer;
+      tabSide = switch(pos) {
+         case DOCK_LEFT: TabRenderer.RIGHT;
+         case DOCK_RIGHT: TabRenderer.LEFT;
+         case DOCK_BOTTOM: TabRenderer.TOP;
+         case DOCK_TOP: TabRenderer.BOTTOM;
+         default:0;
+      };
+
 
       background = new Sprite();
       addChild(background);
@@ -108,6 +123,8 @@ class SlideBar extends Sprite, implements IDock
          else
             this.x = x + offset;
       }
+   
+      fullRect = new Rectangle(0,0,size.x,size.y);
 
       chromeDirty = true;
 
@@ -125,7 +142,11 @@ class SlideBar extends Sprite, implements IDock
          background.graphics.clear();
          while(background.numChildren>0)
             background.removeChildAt(0);
+
          child.renderChrome(background,hitBoxes);
+      
+         tabRenderer.renderTabs(background, fullRect, [child], child, hitBoxes, false, tabSide,
+                                 true, horizontal, true );
       }
    }
 

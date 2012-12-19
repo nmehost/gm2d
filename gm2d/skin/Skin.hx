@@ -404,7 +404,7 @@ class Skin
                               inCurrent:IDockable,
                               outHitBoxes:HitBoxes,
                               inShowRestore:Bool  )
-      { tabRenderer.renderTabs(inTabContainer, inRect, inPanes, inCurrent, outHitBoxes, inShowRestore); }
+      { tabRenderer.renderTabs(inTabContainer, inRect, inPanes, inCurrent, outHitBoxes, inShowRestore, TabRenderer.TOP, false, true, true ); }
 
 
    public function renderMultiDock(dock:MultiDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable,tabStyle:Bool)

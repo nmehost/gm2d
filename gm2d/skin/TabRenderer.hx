@@ -21,6 +21,11 @@ import gm2d.geom.Matrix;
 
 class TabRenderer
 {
+   public static inline var TOP = 0;
+   public static inline var LEFT = 1;
+   public static inline var RIGHT = 2;
+   public static inline var BOTTOM = 3;
+
    public function new() { }
 
    public dynamic function renderBackground(bitmap:BitmapData)
@@ -49,14 +54,44 @@ class TabRenderer
                               inPanes:Array<IDockable>,
                               inCurrent:IDockable,
                               outHitBoxes:HitBoxes,
-                              inShowRestore:Bool  )
+                              inShowRestore:Bool,
+                              inSide:Int,
+                              inOverlapped:Bool,
+                              inShowText:Bool,
+                              inShowIcon:Bool )
    {
       var skin = Skin.current;
       var tabHeight = skin.tabHeight;
       var tmpText = skin.mText;
       var shape = skin.mDrawing;
 
-      var w = inRect.width;
+      var borderLeft = 2;
+      var borderRight = 8;
+      var bmpPad = 2;
+      var tabGap = 0;
+      var tabX = new Array<Float>();
+
+      var w = inSide==TOP || inSide==BOTTOM ? inRect.width : inRect.height;
+      if (inOverlapped)
+      {
+         // Calculate actual width
+         var tx = 1.0;
+         tabX.push(tx);
+         for(pane in inPanes)
+         {
+            var text = pane.getShortTitle();
+            if (text=="") text="Tab";
+            tmpText.text = text;
+            tx += borderLeft + tmpText.textWidth + borderRight;
+            var icon = pane.getIcon();
+            if (icon!=null)
+               tx += icon.width + bmpPad*2;
+            tx+=tabGap;
+         }
+         tabX.push(tx);
+         w = tx + 3;
+      }
+
       var bitmap = new BitmapData(Std.int(w), tabHeight ,true, #if neko { a:0, rgb:0 } #else 0 #end );
       var display = new Bitmap(bitmap);
       var boxOffset = outHitBoxes.getHitBoxOffset(inTabContainer,inRect.x,inRect.y);
@@ -88,17 +123,16 @@ class TabRenderer
       }
 
       var trans = new gm2d.geom.Matrix();
+      var y0 = inOverlapped ? 4 : 2;
       trans.tx = 1;
-      trans.ty = 2;
+      trans.ty = y0;
 
       var cx = trans.tx;
-      var borderLeft = 2;
-      var borderRight = 8;
-      var bmpPad = 2;
-      var tabGap = 0;
       for(pane in inPanes)
       {
-         tmpText.text = pane.getShortTitle();
+         var text = pane.getShortTitle();
+         if (text=="") text="Tab";
+         tmpText.text = text;
          var tw = borderLeft + tmpText.textWidth + borderRight;
          var icon = pane.getIcon();
          var iconWidth = 0;
@@ -108,7 +142,8 @@ class TabRenderer
 
 
          var r = new Rectangle(trans.tx,0,tw,tabHeight);
-         outHitBoxes.add(new Rectangle(trans.tx+boxOffset.x,boxOffset.y,tw,tabHeight), TITLE(pane) );
+         if (!inOverlapped)
+            outHitBoxes.add(new Rectangle(trans.tx+boxOffset.x,boxOffset.y,tw,tabHeight), TITLE(pane) );
 
          if (pane==inCurrent)
          {
@@ -121,7 +156,7 @@ class TabRenderer
             gfx.lineStyle(1,0x404040);
             gfx.beginFill(skin.guiDark);
             gfx.drawRoundRect(0.5,0.5,tw,tabHeight+2,6,6);
-            trans.ty = 2;
+            trans.ty = y0;
             bitmap.draw(shape,trans);
             trans.tx+=borderLeft;
             if (icon!=null)
@@ -139,11 +174,22 @@ class TabRenderer
       }
       if (inCurrent!=null)
       {
-         cx -=2;
-         borderLeft += 2;
+         if (inCurrent!=inPanes[0])
+         {
+            cx -=2;
+            borderLeft += 2;
+         }
+         else
+         {
+            cx -=1;
+            borderLeft += 1;
+         }
          borderRight += 2;
  
-         tmpText.text = inCurrent.getShortTitle();
+         var text = inCurrent.getShortTitle();
+         if (text=="") text="Tab";
+         tmpText.text = text;
+
          var tw = borderLeft + tmpText.textWidth + borderRight;
 
          var icon = inCurrent.getIcon();
@@ -151,7 +197,7 @@ class TabRenderer
          if (icon!=null)
             iconWidth = icon.width + bmpPad*2;
          tw+=iconWidth;
-         trans.ty = 0;
+         trans.ty = y0-1;
          trans.tx = 0;
 
          gfx.clear();
@@ -183,10 +229,37 @@ class TabRenderer
          bitmap.draw(tmpText,trans);
       }
 
-      gfx.clear();
-      gfx.beginFill(skin.guiMedium);
-      gfx.drawRect(0,tabHeight-2,w,8);
-      bitmap.draw(shape);
+      if (!inOverlapped)
+      {
+         gfx.clear();
+         gfx.beginFill(skin.guiMedium);
+         gfx.drawRect(0,tabHeight-2,w,8);
+         bitmap.draw(shape);
+      }
+
+      if (inOverlapped)
+      {
+         var centre = true;
+         switch(inSide)
+         {
+            case TOP:
+               display.y -= tabHeight-2;
+               if (centre)
+                  display.x += Std.int((inRect.width-w)*0.5);
+               for(i in 0...tabX.length-1)
+                  outHitBoxes.add(new Rectangle(display.x+boxOffset.x ,boxOffset.y+display.y,
+                           tabX[i+1]-tabX[i],tabHeight), TITLE(inPanes[i]) );
+            case BOTTOM:
+               display.y += inRect.height;
+            case RIGHT:
+               display.rotation = 90;
+               display.x += inRect.width + tabHeight;
+            case LEFT:
+               display.rotation = -90;
+               display.x -= tabHeight;
+               display.y += inRect.height;
+         }
+      }
    }
 }
 
