@@ -17,7 +17,6 @@ class SlideBar extends Sprite, implements IDock
 {
    var pos:DockPosition;
    var container:DisplayObjectContainer;
-   var child:IDockable;
    var layoutDirty:Bool;
    var chromeDirty:Bool;
    var horizontal:Bool;
@@ -35,6 +34,8 @@ class SlideBar extends Sprite, implements IDock
    var mouseWatcher:MouseWatcher;
    var beginShowPos:Float;
 
+   var current:IDockable;
+   var children:Array<IDockable>;
 
    public function new(inParent:DisplayObjectContainer,inPos:DockPosition,
              inMinSize:Null<Int>, inMaxSize:Null<Int>,
@@ -60,6 +61,9 @@ class SlideBar extends Sprite, implements IDock
          case DOCK_TOP: TabRenderer.BOTTOM;
          default:0;
       };
+
+      children = new Array<IDockable>();
+      current = null;
 
 
       background = new Sprite();
@@ -102,7 +106,7 @@ class SlideBar extends Sprite, implements IDock
          delta = e.stageY - mouseWatcher.downPos.y;
       if (pos==DOCK_RIGHT || pos==DOCK_BOTTOM)
          delta = -delta;
-       
+
       setShowing( Std.int(beginShowPos + delta) );
    }
 
@@ -136,7 +140,7 @@ class SlideBar extends Sprite, implements IDock
    public function setRect(x:Float, y:Float, w:Float, h:Float) : Float
    {
       layoutDirty = false;
-      if (child==null)
+      if (current==null)
          return 0;
 
       if (horizontal)
@@ -168,9 +172,9 @@ class SlideBar extends Sprite, implements IDock
       }
 
 
-      var size = child.getLayoutSize(w,h,!horizontal);
+      var size = current.getLayoutSize(w,h,!horizontal);
 
-      child.setRect(0,0,size.x,size.y);
+      current.setRect(0,0,size.x,size.y);
 
       if (horizontal)
       {
@@ -216,7 +220,7 @@ class SlideBar extends Sprite, implements IDock
 
     public function checkChrome()
     {
-      if (child==null)
+      if (current==null)
          return;
       if (chromeDirty)
       {
@@ -226,28 +230,52 @@ class SlideBar extends Sprite, implements IDock
          while(background.numChildren>0)
             background.removeChildAt(0);
 
-         child.renderChrome(background,hitBoxes);
+         current.renderChrome(background,hitBoxes);
       
          if (tabRenderer!=null)
-            tabRenderer.renderTabs(background, fullRect, [child], child, hitBoxes, false, tabSide,
-                                 true, horizontal, true, tabPos );
+            tabRenderer.renderTabs(background, fullRect, children, current,
+               hitBoxes, false, tabSide,
+               true, horizontal, true, tabPos );
       }
    }
 
+   public function setCurrent(inCurrent:IDockable)
+   {
+      if (inCurrent!=current)
+      {
+         current = inCurrent;
+         var found = false;
+
+         for(child in children)
+         {
+             if (current==child)
+             {
+                found = true;
+                child.setDock(this,this);
+             }
+             else
+                child.setDock(this,null);
+         }
+
+         if (!found && children.length>0)
+            setCurrent(children[0]);
+
+         setDirty(true,true);
+      }
+   }
 
 
    // IDock....
    public function getDock():IDock { return this; }
    public function canAddDockable(inPos:DockPosition):Bool
    {
-      return inPos==DOCK_OVER && child==null;
+      return inPos==DOCK_OVER;
    }
    public function addDockable(inChild:IDockable,inPos:DockPosition,inSlot:Int):Void
    {
-      child = inChild;
-      Dock.remove(child);
-      child.setDock(this,this);
-      setDirty(true,true);
+      children.push(inChild);
+      Dock.remove(inChild);
+      setCurrent(inChild);
    }
 
    public function getDockablePosition(child:IDockable):Int
@@ -260,6 +288,12 @@ class SlideBar extends Sprite, implements IDock
    }
    public function raiseDockable(child:IDockable):Bool
    {
+      for(i in 0...children.length)
+        if (child==children[i])
+        {
+           setCurrent(child);
+           return true;
+        }
       return false;
    }
    public function minimizeDockable(child:IDockable):Bool

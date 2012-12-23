@@ -50,7 +50,7 @@ class App extends Screen
 
    override public function getScaleMode():ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
 
-   public function setSlider(inPane:IDockable, inPos:DockPosition,
+   public function createSlider(inPos:DockPosition,
       inMin:Null<Int>, inMax:Null<Int>,
       inSlideOver:Bool, inShowTab:Bool,
       ?inOffset:Null<Int>, inTabPos:Null<Int>) : SlideBar
@@ -61,7 +61,6 @@ class App extends Screen
             if (leftSlider!=null)
                throw "Left slider already set";
             leftSlider = new SlideBar(this,inPos,inMin,inMax,inSlideOver,inShowTab,inOffset,inTabPos);
-            leftSlider.addDockable(inPane,DOCK_OVER,0);
             addChild(leftSlider);
             return leftSlider;
 
@@ -69,7 +68,6 @@ class App extends Screen
             if (rightSlider!=null)
                throw "Right slider already set";
             rightSlider = new SlideBar(this,inPos,inMin,inMax,inSlideOver,inShowTab,inOffset,inTabPos);
-            rightSlider.addDockable(inPane,DOCK_OVER,0);
             addChild(rightSlider);
             return rightSlider;
 
@@ -77,7 +75,6 @@ class App extends Screen
             if (bottomSlider!=null)
                throw "Bottom slider already set";
             bottomSlider = new SlideBar(this,inPos,inMin,inMax,inSlideOver,inShowTab,inOffset,inTabPos);
-            bottomSlider.addDockable(inPane,DOCK_OVER,0);
             addChild(bottomSlider);
             return bottomSlider;
 
@@ -86,6 +83,7 @@ class App extends Screen
       }
       return null;
    }
+
 
    public function checkSliderLayouts(_)
    {

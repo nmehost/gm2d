@@ -77,9 +77,9 @@ class TabRenderer
       {
          // Calculate actual width
          var tx = 1.0;
-         tabX.push(tx);
          for(pane in inPanes)
          {
+            tabX.push(tx);
             var text = pane.getShortTitle();
             if (text=="") text="Tab";
             tmpText.text = text;
@@ -249,17 +249,30 @@ class TabRenderer
                else
                   display.x += inTabPos;
                for(i in 0...tabX.length-1)
-                  outHitBoxes.add(new Rectangle(display.x+boxOffset.x ,boxOffset.y+display.y,
+                  outHitBoxes.add(new Rectangle(display.x+boxOffset.x+tabX[i],boxOffset.y+display.y,
                            tabX[i+1]-tabX[i],tabHeight), TITLE(inPanes[i]) );
             case BOTTOM:
                display.y += inRect.height;
+
             case RIGHT:
                display.rotation = 90;
                display.x += inRect.width + tabHeight;
+
             case LEFT:
                display.rotation = -90;
                display.x -= tabHeight;
-               display.y += inRect.height;
+
+               if (inTabPos!=null)
+                  display.y += w + inTabPos;
+               else
+                  display.y += Std.int((inRect.height+w)*0.5);
+
+               for(i in 0...tabX.length-1)
+               {
+                  outHitBoxes.add(new Rectangle(display.x+boxOffset.x,
+                           boxOffset.y+display.y - tabX[i+1],
+                           tabHeight,tabX[i+1]-tabX[i]), TITLE(inPanes[i]) );
+                }
          }
       }
    }

@@ -272,7 +272,7 @@ class MultiDock implements IDock, implements IDockable
             }
          }
       }
-      
+
       return this;
    }
 
@@ -280,7 +280,7 @@ class MultiDock implements IDock, implements IDockable
    {
       currentDockable = child;
       var found = false;
-           
+
       for(d in mDockables)
       {
           if (d==child)
