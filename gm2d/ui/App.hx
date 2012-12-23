@@ -51,33 +51,40 @@ class App extends Screen
    override public function getScaleMode():ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
 
    public function setSlider(inPane:IDockable, inPos:DockPosition,
-      ?inMax:Null<Int>, ?inOffset:Null<Int>)
+      inMin:Null<Int>, inMax:Null<Int>,
+      inSlideOver:Bool, inShowTab:Bool,
+      ?inOffset:Null<Int>, inTabPos:Null<Int>) : SlideBar
    {
       switch(inPos)
       {
          case DOCK_LEFT:
             if (leftSlider!=null)
                throw "Left slider already set";
-            leftSlider = new SlideBar(this,inPos,inMax,inOffset);
+            leftSlider = new SlideBar(this,inPos,inMin,inMax,inSlideOver,inShowTab,inOffset,inTabPos);
             leftSlider.addDockable(inPane,DOCK_OVER,0);
             addChild(leftSlider);
+            return leftSlider;
 
          case DOCK_RIGHT:
             if (rightSlider!=null)
                throw "Right slider already set";
-            rightSlider = new SlideBar(this,inPos,inMax,inOffset);
+            rightSlider = new SlideBar(this,inPos,inMin,inMax,inSlideOver,inShowTab,inOffset,inTabPos);
             rightSlider.addDockable(inPane,DOCK_OVER,0);
             addChild(rightSlider);
+            return rightSlider;
 
          case DOCK_BOTTOM:
             if (bottomSlider!=null)
                throw "Bottom slider already set";
-            bottomSlider = new SlideBar(this,inPos,inMax,inOffset);
+            bottomSlider = new SlideBar(this,inPos,inMin,inMax,inSlideOver,inShowTab,inOffset,inTabPos);
             bottomSlider.addDockable(inPane,DOCK_OVER,0);
             addChild(bottomSlider);
+            return bottomSlider;
+
          default:
             throw "Invalid slider position";
       }
+      return null;
    }
 
    public function checkSliderLayouts(_)
@@ -145,6 +152,8 @@ class App extends Screen
          h -= menu_h;
       }
 
+      var bottomX = x0;
+      var bottomW = w;
       if (leftSlider!=null)
       {
          var size = leftSlider.setRect(x0,y0,w-slideBorders,h);
@@ -156,11 +165,14 @@ class App extends Screen
       {
          var size = rightSlider.setRect(x0+slideBorders,y0,w-slideBorders,h);
          w -=size+slideBorders;
+         bottomW -=size+slideBorders;
       }
 
       if (bottomSlider!=null)
       {
-         var size = bottomSlider.setRect(x0,y0+slideBorders,w,h-slideBorders);
+         //var size = bottomSlider.setRect(x0,y0+slideBorders,w,h-slideBorders);
+         //h -=size+slideBorders;
+         var size = bottomSlider.setRect(bottomX,y0+slideBorders,bottomW,h-slideBorders);
          h -=size+slideBorders;
       }
  

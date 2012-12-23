@@ -58,7 +58,8 @@ class TabRenderer
                               inSide:Int,
                               inOverlapped:Bool,
                               inShowText:Bool,
-                              inShowIcon:Bool )
+                              inShowIcon:Bool,
+                              ?inTabPos:Null<Int> )
    {
       var skin = Skin.current;
       var tabHeight = skin.tabHeight;
@@ -239,13 +240,14 @@ class TabRenderer
 
       if (inOverlapped)
       {
-         var centre = true;
          switch(inSide)
          {
             case TOP:
                display.y -= tabHeight-2;
-               if (centre)
+               if (inTabPos==null)
                   display.x += Std.int((inRect.width-w)*0.5);
+               else
+                  display.x += inTabPos;
                for(i in 0...tabX.length-1)
                   outHitBoxes.add(new Rectangle(display.x+boxOffset.x ,boxOffset.y+display.y,
                            tabX[i+1]-tabX[i],tabHeight), TITLE(inPanes[i]) );

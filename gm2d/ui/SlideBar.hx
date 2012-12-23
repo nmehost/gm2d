@@ -20,25 +20,35 @@ class SlideBar extends Sprite, implements IDock
    var layoutDirty:Bool;
    var chromeDirty:Bool;
    var horizontal:Bool;
+   var minSize:Null<Int>;
    var maxSize:Null<Int>;
+   var tabPos:Null<Int>;
    var background:Sprite;
+   var slideOver:Bool;
    var hitBoxes:HitBoxes;
-   var offset:Null<Int>;
+   var posOffset:Int;
    var tabSide:Int;
+   var scroll:Float;
    var tabRenderer:TabRenderer;
    var fullRect:Rectangle;
 
 
    public function new(inParent:DisplayObjectContainer,inPos:DockPosition,
-             ?inMaxSize:Null<Int>, ?inOffset:Null<Int>)
+             inMinSize:Null<Int>, inMaxSize:Null<Int>,
+             inSlideOver:Bool, inShowTab:Bool,
+             inOffset:Null<Int>, inTabPos:Null<Int>)
    {
       super();
       pos = inPos;
       container = inParent;
       horizontal = pos==DOCK_LEFT || pos==DOCK_RIGHT;
       maxSize = inMaxSize;
-      offset = inOffset;
-      tabRenderer = Skin.current.tabRenderer;
+      minSize = inMinSize;
+      slideOver = inSlideOver;
+      tabPos = inTabPos;
+      scroll = 0;
+      posOffset = inOffset == null ? 0 : inOffset;
+      tabRenderer = inShowTab ? Skin.current.tabRenderer : null;
       tabSide = switch(pos) {
          case DOCK_LEFT: TabRenderer.RIGHT;
          case DOCK_RIGHT: TabRenderer.LEFT;
@@ -74,6 +84,13 @@ class SlideBar extends Sprite, implements IDock
       }
    }
 
+   public function setScroll(inScroll:Float)
+   {
+      scroll = inScroll;
+
+      layoutDirty = true;
+   }
+
 
    public function isDirty()
    {
@@ -86,6 +103,17 @@ class SlideBar extends Sprite, implements IDock
       if (child==null)
          return 0;
 
+      if (horizontal)
+      {
+         y+=posOffset;
+         h-=posOffset;
+      }
+      else
+      {
+         x+=posOffset;
+         w-=posOffset;
+      }
+
       var right = x+w;
       var bottom = y+h;
       if (maxSize!=null)
@@ -95,40 +123,62 @@ class SlideBar extends Sprite, implements IDock
          else if (!horizontal && h>maxSize)
             h = maxSize;
       }
-   
+      if (minSize!=null)
+      {
+         if (horizontal && w<minSize)
+            w = minSize;
+         else if (!horizontal && h<minSize)
+            h = minSize;
+      }
+
+
       var size = child.getLayoutSize(w,h,!horizontal);
 
       child.setRect(0,0,size.x,size.y);
 
-      if (pos==DOCK_RIGHT)
+      var showing = 0.0;
+      if (horizontal)
       {
-         this.x = right-size.x;
-      }
-      else if (pos==DOCK_BOTTOM)
-      {
-         this.y = bottom-size.y;
-      }
-
-      if (pos==DOCK_LEFT || pos==DOCK_RIGHT)
-      {
-         if (offset==null)
-            this.y = y + Std.int((h-size.y)*0.5);
-         else
-            this.y = y + offset;
+         if (scroll>size.x)
+            scroll = size.x;
+         showing = size.x - scroll;
       }
       else
       {
-         if (offset==null)
-            this.x = x + Std.int((w-size.x)*0.5);
-         else
-            this.x = x + offset;
+         if (scroll>size.y)
+            scroll = size.y;
+         showing = size.y - scroll;
       }
-   
+
+      switch(pos)
+      {
+         case DOCK_LEFT:
+            this.x = showing - size.x;
+            this.y = y;
+
+         case DOCK_RIGHT:
+            this.x = right-showing;
+            this.y = y;
+
+         case DOCK_BOTTOM:
+            this.x = x;
+            this.y = bottom-showing;
+
+         case DOCK_TOP:
+            this.x = x;
+            this.y = showing - size.y;
+
+         default:
+      }
+
       fullRect = new Rectangle(0,0,size.x,size.y);
 
       chromeDirty = true;
 
-      return horizontal ? size.x : size.y;
+      if (slideOver)
+         return 0;
+
+      return showing;
     }
 
     public function checkChrome()
@@ -145,8 +195,9 @@ class SlideBar extends Sprite, implements IDock
 
          child.renderChrome(background,hitBoxes);
       
-         tabRenderer.renderTabs(background, fullRect, [child], child, hitBoxes, false, tabSide,
-                                 true, horizontal, true );
+         if (tabRenderer!=null)
+            tabRenderer.renderTabs(background, fullRect, [child], child, hitBoxes, false, tabSide,
+                                 true, horizontal, true, tabPos );
       }
    }
 
