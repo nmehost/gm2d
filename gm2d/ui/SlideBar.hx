@@ -3,6 +3,7 @@ package gm2d.ui;
 import gm2d.ui.Menubar;
 import gm2d.display.DisplayObjectContainer;
 import gm2d.ui.DockPosition;
+import gm2d.ui.MouseWatcher;
 import gm2d.display.Sprite;
 import gm2d.ui.HitBoxes;
 import gm2d.events.MouseEvent;
@@ -28,9 +29,11 @@ class SlideBar extends Sprite, implements IDock
    var hitBoxes:HitBoxes;
    var posOffset:Int;
    var tabSide:Int;
-   var scroll:Float;
+   var showing:Float;
    var tabRenderer:TabRenderer;
    var fullRect:Rectangle;
+   var mouseWatcher:MouseWatcher;
+   var beginShowPos:Float;
 
 
    public function new(inParent:DisplayObjectContainer,inPos:DockPosition,
@@ -46,7 +49,8 @@ class SlideBar extends Sprite, implements IDock
       minSize = inMinSize;
       slideOver = inSlideOver;
       tabPos = inTabPos;
-      scroll = 0;
+      showing = 0;
+      layoutDirty = true;
       posOffset = inOffset == null ? 0 : inOffset;
       tabRenderer = inShowTab ? Skin.current.tabRenderer : null;
       tabSide = switch(pos) {
@@ -78,17 +82,49 @@ class SlideBar extends Sprite, implements IDock
               Dock.minimize(pane);
          */
          case TITLE(pane):
-            Dock.raise(pane);
+            if (inEvent.type==MouseEvent.MOUSE_DOWN)
+            {
+               Dock.raise(pane);
+               beginScroll(inEvent);
+            }
 
          default:
       }
    }
 
-   public function setScroll(inScroll:Float)
+   function onUp(_) { mouseWatcher=null; }
+   function onScroll(e:MouseEvent)
    {
-      scroll = inScroll;
+      var delta = 0.0;
+      if (horizontal)
+         delta = e.stageX - mouseWatcher.downPos.x;
+      else
+         delta = e.stageY - mouseWatcher.downPos.y;
+      if (pos==DOCK_RIGHT || pos==DOCK_BOTTOM)
+         delta = -delta;
+       
+      setShowing( Std.int(beginShowPos + delta) );
+   }
 
-      layoutDirty = true;
+   public function beginScroll(e)
+   {
+      mouseWatcher = new MouseWatcher(this, null, onScroll, onUp, e.stageX, e.stageY, false);
+      beginShowPos = showing;
+   }
+
+   public function setShowing(inShowing:Float)
+   {
+      if (inShowing<0)
+         inShowing = 0;
+      if (maxSize!=null && inShowing>maxSize)
+         inShowing = maxSize;
+    
+      if (inShowing!=showing)
+      {
+         showing = inShowing;
+
+         setDirty(true,false);
+      }
    }
 
 
@@ -136,18 +172,15 @@ class SlideBar extends Sprite, implements IDock
 
       child.setRect(0,0,size.x,size.y);
 
-      var showing = 0.0;
       if (horizontal)
       {
-         if (scroll>size.x)
-            scroll = size.x;
-         showing = size.x - scroll;
+         if (showing>size.x || tabRenderer==null)
+            showing = size.x;
       }
       else
       {
-         if (scroll>size.y)
-            scroll = size.y;
-         showing = size.y - scroll;
+         if (showing>size.y || tabRenderer==null)
+            showing = size.y;
       }
 
       switch(pos)

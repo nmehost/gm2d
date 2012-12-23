@@ -107,7 +107,6 @@ class App extends Screen
    public function saveLayout(inKey:String)
    {
       var layout = dock.getLayoutInfo();
-      trace(layout);
       var def = SharedObject.getLocal("layout");
       if (def!=null)
       {
@@ -124,7 +123,6 @@ class App extends Screen
          var layout = Reflect.field(def.data,inKey);
          if (layout!=null)
          {
-            trace(layout);
             dock.setLayoutInfo(layout);
          }
       }
