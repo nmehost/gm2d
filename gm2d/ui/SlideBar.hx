@@ -226,12 +226,18 @@ class SlideBar extends Sprite, implements IDock
       {
          chromeDirty = false;
          hitBoxes.clear();
-         background.graphics.clear();
+
+         var gfx = background.graphics;
+         gfx.clear();
          while(background.numChildren>0)
             background.removeChildAt(0);
 
+         gfx.beginFill(Skin.current.panelColor);
+         gfx.drawRect(fullRect.x, fullRect.y, fullRect.width, fullRect.height);
+         gfx.endFill();
+
          current.renderChrome(background,hitBoxes);
-      
+
          if (tabRenderer!=null)
             tabRenderer.renderTabs(background, fullRect, children, current,
                hitBoxes, false, tabSide,
