@@ -310,10 +310,50 @@ class StackLayout extends Layout
          height = getBestHeight(width);
    }
 
+   function alignChild(child:Layout, x:Float, y:Float, w:Float, h:Float)
+   {
+
+      switch(child.mAlign & Layout.AlignMaskX)
+      {
+         case Layout.AlignRight:
+            var bw = child.getBestWidth(h);
+            if (bw>w) bw = w;
+            x += w-bw;
+            w = bw;
+         case Layout.AlignCenterX:
+            var bw = child.getBestWidth(h);
+            if (bw>w) bw = w;
+            x += (w-bw)/2;
+            w = bw;
+      }
+
+      switch(child.mAlign & Layout.AlignMaskY)
+      {
+         case Layout.AlignBottom:
+            var bh = child.getBestHeight(w);
+            if (bh>h) bh = h;
+            y += h - bh;
+            h = bh;
+         case Layout.AlignCenterY:
+            var bh = child.getBestHeight(w);
+            if (bh>h) bh = h;
+            y += (h - bh)/2;
+            h = bh;
+      }
+      child.setRect(x,y,w,h);
+
+      if (Std.is(child,Widget))
+      {
+         var widget:Widget = cast child;
+         widget.layout(w,h);
+      }
+   }
+
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
       for(child in mChildren)
-         child.setRect( inX+mBLeft, inY+mBTop, inW-mBLeft-mBRight, inH-mBTop-mBBottom );
+         alignChild(child,inX+mBLeft, inY+mBTop, inW-mBLeft-mBRight, inH-mBTop-mBBottom );
+
       if (onLayout!=null)
          onLayout(inX,inY,inW,inH);
    }
@@ -373,13 +413,14 @@ class ChildStackLayout extends StackLayout
          var child = mChildren[i];
          if (i==0)
          {
-            child.setRect( inX+mBLeft, inY+mBTop, new_w, new_h );
+            alignChild(child, inX+mBLeft, inY+mBTop, new_w, new_h );
          }
          else
          {
-            child.setRect(0,0,new_w,new_h);
+            alignChild(child,0,0,new_w,new_h);
          }
-      }
+
+     }
 
       if (Layout.mDebug!=null)
       {
