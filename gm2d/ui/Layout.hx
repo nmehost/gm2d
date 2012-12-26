@@ -33,6 +33,8 @@ class Layout
    public var width:Float;
    public var height:Float;
 
+   public var name:String;
+
    public var mDebugCol:Int;
 
    public var mAlign:Int;
@@ -138,6 +140,11 @@ class Layout
             if (bw>w) bw = w;
             x += (w-bw)/2;
             w = bw;
+         case Layout.AlignLeft:
+            var bw = child.getBestWidth(h);
+            if (bw>w) bw = w;
+            w = bw;
+         default:
       }
 
       switch(child.mAlign & Layout.AlignMaskY)
@@ -151,6 +158,10 @@ class Layout
             var bh = child.getBestHeight(w);
             if (bh>h) bh = h;
             y += (h - bh)/2;
+            h = bh;
+         case Layout.AlignTop:
+            var bh = child.getBestHeight(w);
+            if (bh>h) bh = h;
             h = bh;
       }
       child.setRect(x,y,w,h);
@@ -474,7 +485,6 @@ class GridLayout extends Layout
    var mSpaceY:Float;
    var mDefaultStretch:Float;
    var mPos:Int;
-   var mName:String;
    static var mID = 0;
 
    public function new(?inCols:Null<Int>,?inName:String,inDefaultStretch:Float=1.0)
@@ -493,7 +503,7 @@ class GridLayout extends Layout
       {
          mRowInfo[0] = new RowInfo(mDefaultStretch);
       }
-      mName =  (inName==null) ? ("Layout:" + mID++) : inName;
+      name =  (inName==null) ? ("Layout:" + mID++) : inName;
       mPos = 0;
       mSpaceX = 10;
       mSpaceY = 10;
@@ -746,7 +756,7 @@ class GridLayout extends Layout
                if ((item.mAlign & Layout.AlignMaskX)!=0)
                    w = item.getBestWidth();
                if ((item.mAlign & Layout.AlignMaskY)!=0)
-                   h = item.getBestHeight();
+                   h = item.getBestHeight(col_w);
 
                if ( (item.mAlign & Layout.AlignKeepAspect)>0 && item.minWidth>0 && item.minHeight>0 )
                {
@@ -815,9 +825,16 @@ class FlowLayout extends Layout
 
    public function new()
    {
+      super();
       rowAlign = Layout.AlignLeft;
       mChildren = [];
-      super();
+      setAlignment(Layout.AlignStretch);
+   }
+
+   public function setRowAlign(inAlign:Int)
+   {
+      rowAlign = inAlign;
+      return this;
    }
 
    public override function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void

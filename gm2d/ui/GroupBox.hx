@@ -48,6 +48,7 @@ class GroupBox extends Control
    override public function createLayout() : Layout
    {
       var layout = new ChildStackLayout( );
+      layout.name = "GroupBox " + (title==null ? "?" : title.text);
       layout.setBorders(left,top,right,bottom);
       var meLayout = new DisplayLayout(this).setOrigin(0,0);
       meLayout.mAlign = Layout.AlignStretch | Layout.AlignPixel;
@@ -63,6 +64,7 @@ class GroupBox extends Control
    public function setLayout(inLayout:Layout)
    {
       topLayout = inLayout;
+      topLayout.name = "GroupBox contents " + (title==null ? "?" : title.text);
       var layout = getLayout();
       layout.add(inLayout);
       return layout;
