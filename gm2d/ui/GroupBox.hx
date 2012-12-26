@@ -15,6 +15,7 @@ class GroupBox extends Control
    var right:Float;
    var title:TextField;
    var tw:Float;
+   var topLayout:Layout;
 
    public function new(inTitle:String, inIcon:BitmapData)
    {
@@ -54,8 +55,14 @@ class GroupBox extends Control
       return layout;
    }
 
+   public function getItemLayout() : Layout
+   {
+      return topLayout;
+   }
+
    public function setLayout(inLayout:Layout)
    {
+      topLayout = inLayout;
       var layout = getLayout();
       layout.add(inLayout);
       return layout;

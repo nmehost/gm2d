@@ -121,6 +121,47 @@ class Layout
       var h = getBestHeight(w);
       return new Size(w,h);
    }
+
+
+   function alignChild(child:Layout, x:Float, y:Float, w:Float, h:Float)
+   {
+
+      switch(child.mAlign & Layout.AlignMaskX)
+      {
+         case Layout.AlignRight:
+            var bw = child.getBestWidth(h);
+            if (bw>w) bw = w;
+            x += w-bw;
+            w = bw;
+         case Layout.AlignCenterX:
+            var bw = child.getBestWidth(h);
+            if (bw>w) bw = w;
+            x += (w-bw)/2;
+            w = bw;
+      }
+
+      switch(child.mAlign & Layout.AlignMaskY)
+      {
+         case Layout.AlignBottom:
+            var bh = child.getBestHeight(w);
+            if (bh>h) bh = h;
+            y += h - bh;
+            h = bh;
+         case Layout.AlignCenterY:
+            var bh = child.getBestHeight(w);
+            if (bh>h) bh = h;
+            y += (h - bh)/2;
+            h = bh;
+      }
+      child.setRect(x,y,w,h);
+
+      if (Std.is(child,Widget))
+      {
+         var widget:Widget = cast child;
+         widget.layout(w,h);
+      }
+   }
+
 }
 
 typedef LayoutList = Array<Layout>;
@@ -308,45 +349,6 @@ class StackLayout extends Layout
          height = inHeight;
       else
          height = getBestHeight(width);
-   }
-
-   function alignChild(child:Layout, x:Float, y:Float, w:Float, h:Float)
-   {
-
-      switch(child.mAlign & Layout.AlignMaskX)
-      {
-         case Layout.AlignRight:
-            var bw = child.getBestWidth(h);
-            if (bw>w) bw = w;
-            x += w-bw;
-            w = bw;
-         case Layout.AlignCenterX:
-            var bw = child.getBestWidth(h);
-            if (bw>w) bw = w;
-            x += (w-bw)/2;
-            w = bw;
-      }
-
-      switch(child.mAlign & Layout.AlignMaskY)
-      {
-         case Layout.AlignBottom:
-            var bh = child.getBestHeight(w);
-            if (bh>h) bh = h;
-            y += h - bh;
-            h = bh;
-         case Layout.AlignCenterY:
-            var bh = child.getBestHeight(w);
-            if (bh>h) bh = h;
-            y += (h - bh)/2;
-            h = bh;
-      }
-      child.setRect(x,y,w,h);
-
-      if (Std.is(child,Widget))
-      {
-         var widget:Widget = cast child;
-         widget.layout(w,h);
-      }
    }
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
@@ -803,3 +805,155 @@ class GridLayout extends Layout
          onLayout(inX,inY,inW,inH);
    }
 }
+
+// --- FlowLayout --------------------------------
+
+class FlowLayout extends Layout
+{
+   var mChildren:LayoutList;
+   public var rowAlign:Int;
+
+   public function new()
+   {
+      rowAlign = Layout.AlignLeft;
+      mChildren = [];
+      super();
+   }
+
+   public override function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void
+   {
+      if (inWidth!=null)
+         width = inWidth;
+      else
+         width = getBestWidth(inHeight);
+
+      if (inHeight!=null)
+         height = inHeight;
+      else
+         height = getBestHeight(width);
+   }
+
+   function layoutRow(i0:Int, i1:Int, x0:Float, y0:Float, rowW:Float, rowH:Float, maxW:Float)
+   {
+      switch(rowAlign & Layout.AlignMaskX)
+      {
+         case Layout.AlignCenterX:
+            x0 += (maxW-rowW)*0.5;
+         case Layout.AlignRight:
+            x0 += (maxW-rowW);
+      }
+
+      for(i in i0...i1)
+      {
+         var child = mChildren[i];
+         var w = child.getBestWidth(null);
+         if (w>rowW) w = rowW;
+         var h = child.getBestHeight(w);
+
+         var y = y0;
+         var setH = rowH;
+
+         switch(rowAlign & Layout.AlignMaskY)
+         {
+            case Layout.AlignCenterY:
+               y += (rowH-h)*0.5;
+               setH = h;
+            case Layout.AlignBottom:
+               y += (maxW-rowW);
+               setH = h;
+            case Layout.AlignTop:
+               setH = h;
+         }
+
+         alignChild(child, x0, y, w, setH );
+
+         x0 += w;
+      }
+   }
+
+   public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
+   {
+      var y = mBTop + inY;
+      var rowWidth = 0.0;
+      var rowHeight = 0.0;
+      var c0 = 0;
+      var maxW = inW - mBLeft - mBRight;
+
+      for(i in 0...mChildren.length)
+      {
+         var child = mChildren[i];
+
+         var w = child.getBestWidth(null);
+         var h = child.getBestHeight(w);
+         if (rowWidth>0 && rowWidth+w > maxW)
+         {
+            layoutRow(c0,i,inX+mBLeft, y, rowWidth,rowHeight, maxW);
+            rowWidth = 0;
+            c0 = i;
+            y += rowHeight;
+            rowHeight = 0;
+         }
+
+         rowWidth += w;
+         if (h>rowHeight)
+            rowHeight = h;
+      }
+      if (c0<mChildren.length)
+      {
+        layoutRow(c0,mChildren.length,inX+mBLeft, y, rowWidth,rowHeight, maxW);
+      }
+
+      if (onLayout!=null)
+         onLayout(inX,inY,inW,inH);
+   }
+
+   public override function add(inLayout:Layout) : Layout
+   {
+      mChildren.push(inLayout);
+      return this;
+   }
+
+
+   public override function getBestWidth(?inHeight:Null<Float>) : Float
+   {
+      width = 0;
+      for(child in mChildren)
+      {
+         var w = child.getBestWidth(inHeight);
+         width += w;
+      }
+      width += mBLeft + mBRight;
+      if (minWidth>width) width = minWidth;
+      return width;
+
+   }
+   public override function getBestHeight(?inWidth:Null<Float>) : Float
+   {
+      height = mBTop + mBBottom;
+      var rowHeight = 0.0;
+      var x = 0.0;
+      for(child in mChildren)
+      {
+         var w = child.getBestWidth(null);
+         if (inWidth!=null && w>inWidth)
+            w = inWidth;
+         var h = child.getBestHeight(w);
+         if (x>0 && inWidth!=null && x+w > inWidth)
+         {
+            x = 0;
+            height += rowHeight;
+            rowHeight = 0;
+         }
+         x+=w;
+         if (h>rowHeight)
+            rowHeight = h;
+      }
+      height += rowHeight;
+      if (minHeight>height) height = minHeight;
+      return height;
+   }
+
+
+}
+
+

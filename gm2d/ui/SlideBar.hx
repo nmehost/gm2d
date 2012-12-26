@@ -171,7 +171,6 @@ class SlideBar extends Sprite, implements IDock
             h = minSize;
       }
 
-
       var size = current.getLayoutSize(w,h,!horizontal);
 
       current.setRect(0,0,size.x,size.y);
