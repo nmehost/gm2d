@@ -380,10 +380,11 @@ class StackLayout extends Layout
 
    public override function getBestWidth(?inHeight:Null<Float>) : Float
    {
+      var h:Null<Float> = inHeight==null ? null  : inHeight - mBTop - mBBottom;
       width = 0;
       for(child in mChildren)
       {
-         var w = child.getBestWidth(inHeight);
+         var w = child.getBestWidth(h);
          if (w>width) width=w;
       }
       width += mBLeft + mBRight;
@@ -393,10 +394,11 @@ class StackLayout extends Layout
    }
    public override function getBestHeight(?inWidth:Null<Float>) : Float
    {
+      var w:Null<Float> = inWidth==null ? null  : inWidth - mBLeft - mBRight;
       height = 0;
       for(child in mChildren)
       {
-         var h = child.getBestHeight(inWidth);
+         var h = child.getBestHeight(w);
          if (h>height) height=h;
       }
       height += mBTop + mBBottom;
@@ -822,18 +824,28 @@ class FlowLayout extends Layout
 {
    var mChildren:LayoutList;
    public var rowAlign:Int;
+   var spaceX:Float;
+   var spaceY:Float;
 
    public function new()
    {
       super();
       rowAlign = Layout.AlignLeft;
       mChildren = [];
+      spaceX = spaceY = 0.0;
       setAlignment(Layout.AlignStretch);
    }
 
    public function setRowAlign(inAlign:Int)
    {
       rowAlign = inAlign;
+      return this;
+   }
+
+   public override function setSpacing(inX:Float, inY:Float)
+   {
+      spaceX = inX;
+      spaceY = inY;
       return this;
    }
 
@@ -884,7 +896,7 @@ class FlowLayout extends Layout
 
          alignChild(child, x0, y, w, setH );
 
-         x0 += w;
+         x0 += w + spaceX;
       }
    }
 
@@ -904,20 +916,20 @@ class FlowLayout extends Layout
          var h = child.getBestHeight(w);
          if (rowWidth>0 && rowWidth+w > maxW)
          {
-            layoutRow(c0,i,inX+mBLeft, y, rowWidth,rowHeight, maxW);
+            layoutRow(c0,i,inX+mBLeft, y, rowWidth - spaceX,rowHeight, maxW);
             rowWidth = 0;
             c0 = i;
-            y += rowHeight;
+            y += rowHeight + spaceY;
             rowHeight = 0;
          }
 
-         rowWidth += w;
+         rowWidth += w + spaceX;
          if (h>rowHeight)
             rowHeight = h;
       }
       if (c0<mChildren.length)
       {
-        layoutRow(c0,mChildren.length,inX+mBLeft, y, rowWidth,rowHeight, maxW);
+        layoutRow(c0,mChildren.length,inX+mBLeft, y, rowWidth - spaceX,rowHeight, maxW);
       }
 
       if (onLayout!=null)
@@ -936,6 +948,8 @@ class FlowLayout extends Layout
       width = 0;
       for(child in mChildren)
       {
+         if (width>0)
+            width += spaceX;
          var w = child.getBestWidth(inHeight);
          width += w;
       }
@@ -949,24 +963,32 @@ class FlowLayout extends Layout
       height = mBTop + mBBottom;
       var rowHeight = 0.0;
       var x = 0.0;
+      var maxW = inWidth==null ? 0 : inWidth-mBLeft- mBRight;
       for(child in mChildren)
       {
          var w = child.getBestWidth(null);
-         if (inWidth!=null && w>inWidth)
-            w = inWidth;
+         var checkW = x>0 ? w+spaceX : w;
+         if (inWidth!=null && w>maxW)
+            w = maxW;
          var h = child.getBestHeight(w);
-         if (x>0 && inWidth!=null && x+w > inWidth)
+         if (x>0 && inWidth!=null && x+checkW > maxW)
          {
             x = 0;
+            if (height>0)
+               height += spaceY;
             height += rowHeight;
             rowHeight = 0;
          }
+         if (x>0)
+            x+=spaceX;
          x+=w;
          if (h>rowHeight)
             rowHeight = h;
       }
+      if (height>0) height+=spaceY;
       height += rowHeight;
       if (minHeight>height) height = minHeight;
+
       return height;
    }
 
