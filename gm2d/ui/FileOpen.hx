@@ -16,12 +16,14 @@ class FileHandler
    var onResult:String->ByteArray->Void;
    var fileReference:FileReference;
    var progressDialog:ProgressDialog;
+   var flags:Int;
 
-   public function new(inRef:FileReference,inOnResult:String->ByteArray->Void)
+   public function new(inRef:FileReference,inOnResult:String->ByteArray->Void,inFlags:Int=0)
    {
       fileReference = inRef;
       onResult = inOnResult;
       progressDialog = null;
+      flags = inFlags;
 
       inRef.addEventListener(Event.CANCEL, cancelHandler);
       inRef.addEventListener(Event.COMPLETE, completeHandler);
@@ -108,11 +110,13 @@ import wx.FileDialog;
 
 class FileOpen
 {
+   public static inline var NO_DATA   = 0x0001;
 
    public static function load(inMessage:String,
             onResult:String->ByteArray->Void,
             ?inFilter:String,
-            ?inDefaultPath:String)
+            ?inDefaultPath:String,
+            inFlags:Int = 0)
    {
       #if waxe
         var dialog = new wx.FileDialog(null,inMessage);
@@ -124,7 +128,7 @@ class FileOpen
         {
            var dir = dialog.directory;
            var name = dir + "/" + dialog.file;
-           var data = ByteArray.readFile(name);
+           var data = (inFlags & NO_DATA)==0 ? ByteArray.readFile(name) : null;
            onResult(name,data);
         }
         else
@@ -132,7 +136,7 @@ class FileOpen
       #elseif flash
 
         var ref = new FileReference( );
-        new FileHandler(ref,onResult);
+        new FileHandler(ref,onResult, inFlags);
 
 
         var extensions = new Array<FileFilter>();
@@ -151,7 +155,7 @@ class FileOpen
 
       #else
 
-      new gm2d.ui.FileOpenScreen(inMessage, inDefaultPath==null?"":inDefaultPath, onResult, inFilter);
+      new gm2d.ui.FileOpenScreen(inMessage, inDefaultPath==null?"":inDefaultPath, onResult, inFilter, inFlags);
 
       #end
    }

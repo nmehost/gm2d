@@ -47,10 +47,12 @@ class FileOpenScreen extends Screen
    var files:Array<String>;
    var onResult:String->ByteArray->Void;
    var returnScreen:Screen;
+   var flags:Int;
 
-   public function new(inMessage:String,inDir:String,inOnResult:String->ByteArray->Void,inFilter:String,?inReturnScreen:Screen)
+   public function new(inMessage:String,inDir:String,inOnResult:String->ByteArray->Void,inFilter:String,?inReturnScreen:Screen,inFlags:Int = 0)
    {
       super();
+      flags = inFlags;
       message = inMessage;
       
       filter = inFilter;
@@ -208,20 +210,23 @@ class FileOpenScreen extends Screen
          }
 
          var result:ByteArray = null;
-         try
+         if ( (flags & FileOpen.NO_DATA)==0 )
          {
-            result = ByteArray.readFile(baseDir + "/" + inFile);
+            try
+            {
+               result = ByteArray.readFile(baseDir + "/" + inFile);
+            }
+            catch(e:Dynamic) { }
          }
-         catch(e:Dynamic) { }
          Game.setCurrentScreen(returnScreen);
-         onResult(inFile,result);
+         onResult(baseDir + "/" + inFile,result);
       }
    }
 
 
    public function setDir(inLink:String)
    {
-      var screen = new FileOpenScreen(message,inLink,onResult,filter,returnScreen);
+      var screen = new FileOpenScreen(message,inLink,onResult,filter,returnScreen,flags);
    }
 
    override public function scaleScreen(inScale:Float)
