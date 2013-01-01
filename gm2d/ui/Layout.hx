@@ -9,19 +9,19 @@ import gm2d.geom.Point;
 
 class Layout
 {
-   public static var AlignStretch  = 0x0000;
-   public static var AlignLeft     = 0x0001;
-   public static var AlignRight    = 0x0002;
-   public static var AlignCenterX  = 0x0004;
-   public static var AlignTop      = 0x0008;
-   public static var AlignBottom   = 0x0010;
-   public static var AlignCenterY  = 0x0020;
+   public static inline var AlignStretch  = 0x0000;
+   public static inline var AlignLeft     = 0x0001;
+   public static inline var AlignRight    = 0x0002;
+   public static inline var AlignCenterX  = 0x0004;
+   public static inline var AlignTop      = 0x0008;
+   public static inline var AlignBottom   = 0x0010;
+   public static inline var AlignCenterY  = 0x0020;
    public static var AlignMaskX    = AlignLeft | AlignRight | AlignCenterX;
    public static var AlignMaskY    = AlignTop | AlignBottom | AlignCenterY;
    public static var AlignCenter   = AlignCenterX | AlignCenterY;
-   public static var AlignPixel    = 0x0100;
-   public static var AlignHalfPixel= 0x0200;
-   public static var AlignKeepAspect= 0x0400;
+   public static inline var AlignPixel    = 0x0100;
+   public static inline var AlignHalfPixel= 0x0200;
+   public static inline var AlignKeepAspect= 0x0400;
 
    public var mBLeft:Float;
    public var mBTop:Float;

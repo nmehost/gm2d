@@ -17,6 +17,7 @@ import gm2d.text.TextFieldAutoSize;
 import gm2d.geom.Point;
 import gm2d.geom.Rectangle;
 import gm2d.geom.Matrix;
+import gm2d.CInt;
 
 
 class TabRenderer
@@ -41,7 +42,7 @@ class TabRenderer
 
       mtx.createGradientBox(tabHeight,tabHeight,Math.PI * 0.5);
 
-      var cols:Array<Int> = [ skin.guiDark, skin.tabGradientColor];
+      var cols:Array<CInt> = [ skin.guiDark, skin.tabGradientColor];
       var alphas:Array<Float> = [1.0, 1.0];
       var ratio:Array<Int> = [0, 255];
       gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );

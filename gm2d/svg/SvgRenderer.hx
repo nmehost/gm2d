@@ -296,6 +296,7 @@ class SvgRenderer
     {
        var shape = new Shape();
        renderObject(shape,shape.graphics,inMatrix,inFilter,inScale9);
+       trace("Size " + shape.width );
        return shape;
     }
 

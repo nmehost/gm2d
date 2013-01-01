@@ -33,12 +33,14 @@ import gm2d.ui.Slider;
 import nme.display.SimpleButton;
 import gm2d.svg.Svg;
 import gm2d.svg.SvgRenderer;
+import gm2d.CInt;
 
 
 
 class Skin
 {
-   public static var current(getCurrent,setCurrent):Skin;
+   static var sCurrent:Skin;
+   public static var current(get_current,set_current):Skin;
 
    public var labelColor:Int;
    public var panelColor:Int;
@@ -217,13 +219,12 @@ class Skin
 
 
 
-   public static function getCurrent():Skin
+   public static function get_current():Skin
    {
-      if (current==null)
-      {
-         current = new Skin();
-      }
-      return current;
+      if (sCurrent==null)
+         sCurrent = new Skin();
+
+      return sCurrent;
    }
 
    public function getTextFormat()
@@ -235,10 +236,10 @@ class Skin
    }
 
 
-   public static function setCurrent(skin:Skin):Skin
+   public static function set_current(skin:Skin):Skin
    {
-      current = skin;
-      return current;
+      sCurrent = skin;
+      return sCurrent;
    }
 
 
@@ -258,7 +259,7 @@ class Skin
       gfx.clear();
       var mtx = new gm2d.geom.Matrix();
       mtx.createGradientBox(inH,inH,Math.PI * 0.5);
-      var cols:Array<Int> = [guiLight, guiMedium, guiDark];
+      var cols:Array<CInt> = [guiLight, guiMedium, guiDark];
       var alphas:Array<Float> = [1.0, 1.0, 1.0];
       var ratio:Array<Int> = [0, 128, 255];
       gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
@@ -791,7 +792,7 @@ class Skin
       {
          var mtx = new gm2d.geom.Matrix();
          mtx.createGradientBox(title_h+borders,title_h+borders,Math.PI * 0.5);
-         var cols:Array<Int> = [guiLight, guiMedium, guiDark];
+         var cols:Array<CInt> = [guiLight, guiMedium, guiDark];
          var alphas:Array<Float> = [1.0, 1.0, 1.0];
          var ratio:Array<Int> = [0, 128, 255];
          gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
@@ -989,6 +990,7 @@ class Skin
       var showY = 0;
       var showW = 32;
       var showH = 32;
+
       switch(inPosition)
       {
          case DOCK_LEFT:
@@ -1025,8 +1027,6 @@ class Skin
             y0 = inRect.y +inRect.height*0.5 - 16;
             showX = showY = 4;
             showW = showH = 24;
-         default:
-             return;
       }
 
       var gfx = outZones.container.graphics;

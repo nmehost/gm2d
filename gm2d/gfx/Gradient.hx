@@ -7,6 +7,7 @@ import gm2d.display.InterpolationMethod;
 import gm2d.display.CapsStyle;
 import gm2d.display.JointStyle;
 import gm2d.display.LineScaleMode;
+import gm2d.CInt;
 
 class Gradient
 {
@@ -23,7 +24,7 @@ class Gradient
    }
 
    public var type:GradientType;
-   public var colors:Array<Int>;
+   public var colors:Array<CInt>;
    public var alphas:Array<Float>;
    public var ratios:Array<Int>;
    public var matrix: Matrix;

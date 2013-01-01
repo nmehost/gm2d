@@ -40,6 +40,7 @@ class GfxBytes extends Gfx
    {
        super();
        buffer = inBuffer==null ? new ByteArray() : inBuffer;
+       buffer.endian = nme.utils.Endian.BIG_ENDIAN;
    }
 
    public function toString() : String
@@ -81,13 +82,14 @@ class GfxBytes extends Gfx
    static var jointStyles = [ JointStyle.ROUND, JointStyle.MITER, JointStyle.BEVEL ];
    static var spreadMethods = [ SpreadMethod.PAD, SpreadMethod.REPEAT, SpreadMethod.REFLECT ];
    static var interpolationMethods = [ InterpolationMethod.RGB, InterpolationMethod.LINEAR_RGB ];
+   static var gradientTypes = [ GradientType.LINEAR, GradientType.RADIAL ];
 
    public function iterate(inGfx:Gfx)
    {
       buffer.position = 0;
       while(true)
       {
-         switch(buffer.readByte())
+         switch(buffer.readUnsignedByte())
          {
             case EOF:
                return;
@@ -104,13 +106,13 @@ class GfxBytes extends Gfx
 
             case GRADIENT_FILL:
               var grad = new Gradient();
-              grad.type = Type.createEnumIndex(GradientType,buffer.readByte());
-              var len = buffer.readByte();
+              grad.type = gradientTypes[buffer.readUnsignedByte()];
+              var len = buffer.readUnsignedByte();
               for(i in 0...len)
               {
                  grad.colors.push(readRGB());
-                 grad.alphas.push(buffer.readByte()/255.0);
-                 grad.ratios.push(buffer.readByte());
+                 grad.alphas.push(buffer.readUnsignedByte()/255.0);
+                 grad.ratios.push(buffer.readUnsignedByte());
               }
               grad.matrix.a = buffer.readFloat();
               grad.matrix.b = buffer.readFloat();
@@ -118,8 +120,8 @@ class GfxBytes extends Gfx
               grad.matrix.d = buffer.readFloat();
               grad.matrix.tx = buffer.readFloat();
               grad.matrix.ty = buffer.readFloat();
-              grad.spread = spreadMethods[buffer.readByte()];
-              grad.interp = interpolationMethods[buffer.readByte()];
+              grad.spread = spreadMethods[buffer.readUnsignedByte()];
+              grad.interp = interpolationMethods[buffer.readUnsignedByte()];
               grad.focus = buffer.readFloat();
               inGfx.beginGradientFill(grad);
 
@@ -131,10 +133,10 @@ class GfxBytes extends Gfx
               style.thickness = buffer.readFloat();
               style.color = readRGB();
               style.alpha = buffer.readFloat();
-              style.pixelHinting = buffer.readByte() > 0;
-              style.scaleMode = scaleModes[buffer.readByte()];
-              style.capsStyle = capsStyles[buffer.readByte()];
-              style.jointStyle = jointStyles[buffer.readByte()];
+              style.pixelHinting = buffer.readUnsignedByte() > 0;
+              style.scaleMode = scaleModes[buffer.readUnsignedByte()];
+              style.capsStyle = capsStyles[buffer.readUnsignedByte()];
+              style.jointStyle = jointStyles[buffer.readUnsignedByte()];
               style.miterLimit = buffer.readFloat();
               inGfx.lineStyle(style);
 
@@ -183,9 +185,9 @@ class GfxBytes extends Gfx
    }
    function readRGB()
    {
-      var r = buffer.readByte();
-      var g = buffer.readByte();
-      var b = buffer.readByte();
+      var r = buffer.readUnsignedByte();
+      var g = buffer.readUnsignedByte();
+      var b = buffer.readUnsignedByte();
       return (r<<16) | (g<<8) | b;
    }
 
@@ -194,7 +196,7 @@ class GfxBytes extends Gfx
    override public function beginGradientFill(grad:Gradient)
    {
       buffer.writeByte(GRADIENT_FILL);
-      buffer.writeByte(Type.enumIndex(grad.type));
+      buffer.writeByte(grad.type==gradientTypes[1] ? 1 : 0);
       buffer.writeByte(grad.colors.length);
       for(i in 0...grad.colors.length)
       {
