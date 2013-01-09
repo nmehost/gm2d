@@ -50,6 +50,16 @@ class Panel extends Widget
        mItemLayout.setMinColWidth(1,inSize);
    }
 
+   public function setStretchX()
+   {
+      mGridLayout.mAlign =  Layout.AlignTop;
+      mGridLayout.setColStretch(0,1);
+      mItemLayout.mAlign =  Layout.AlignTop;
+      mItemLayout.setColStretch(0,1);
+      mItemLayout.setColStretch(1,3);
+      return this;
+   }
+
    public function getPane()
    {
       if (mPane==null)

@@ -152,6 +152,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
          if (idx<0)
             return false;
          current = child;
+         current.raiseDockable(current);
          if (idx>=0 && clientArea.getChildIndex(mChildren[idx])<mChildren.length-1)
          {
             clientArea.setChildIndex(mChildren[idx], mChildren.length-1);
@@ -280,15 +281,29 @@ class MDIParent extends Widget, implements IDock, implements IDockable
   
    public function maximize(inPane:IDockable)
    {
+      if (inPane==mMaximizedPane)
+         return;
+
+      if (mMaximizedPane!=null)
+         mMaximizedPane.setDock(this,null);
+
       current = inPane;
       for(child in mChildren)
          child.destroy();
       mChildren = [];
       if (clientArea.numChildren==1)
          clientArea.removeChildAt(0);
-      if (mMaximizedPane==null)
-         clientArea.graphics.clear();
+
       mMaximizedPane = inPane;
+      if (mMaximizedPane!=null)
+      {
+         mMaximizedPane.raiseDockable(mMaximizedPane);
+         clientArea.graphics.clear();
+      }
+
+      for(child in mChildren)
+         child.setCurrent(child.pane==current);
+
       inPane.setDock(this,clientArea);
       inPane.setRect(0,0,clientWidth,clientHeight);
       redrawTabs();

@@ -27,6 +27,7 @@ class Pane implements IDockable
    public var scrollY(default,null):Float;
    public var onLayout:Void->Void;
    public var onClose:Void->Void;
+   public var onRaise:Void->Void;
    public var itemLayout:Layout;
    public var bestSize:Array<Size>;
    public var properties:Dynamic;
@@ -92,6 +93,8 @@ class Pane implements IDockable
    }
    public function raiseDockable(child:IDockable):Bool
    {
+      if (child==this && onRaise!=null)
+         onRaise();
       return child==this;
    }
 

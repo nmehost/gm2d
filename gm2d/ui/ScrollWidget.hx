@@ -18,12 +18,13 @@ class ScrollWidget extends Control
    public var windowWidth:Float;
    public var windowHeight:Float;
    public var viscousity:Float;
+   public var onScroll:Void->Void;
    var mScrollX:Float;
    var mScrollY:Float;
    var mDownPos:Point;
    var mLastPos:Point;
    var mEventStage:Stage;
-   var mScrolling:Bool;
+   public var mScrolling(default,null):Bool;
    var mDownScrollX:Float;
    var mDownScrollY:Float;
 
@@ -69,6 +70,8 @@ class ScrollWidget extends Control
       if (maxScrollY>0 && scrollWheelStep>0)
       {
           setScrollY(mScrollY - scrollWheelStep * event.delta);
+          if (onScroll!=null)
+             onScroll();
       }
    }
 
@@ -81,6 +84,7 @@ class ScrollWidget extends Control
        mEventStage.addEventListener(MouseEvent.MOUSE_MOVE, onStageDrag);
        mEventStage.addEventListener(MouseEvent.MOUSE_UP, onStageUp);
        mScrolling = false;
+       //trace("Not scrolling!");
        mDownScrollX= mScrollX;
        mDownScrollY= mScrollY;
        speedX.clear();
@@ -109,17 +113,37 @@ class ScrollWidget extends Control
          var local = globalToLocal(mDownPos);
          onClick(local.x,local.y);
       }
-      else if (speedY.isValid)
+      else
       {
-         var pixels_per_second = speedY.mean;
-         //trace("pixels_per_second : " + pixels_per_second);
-         var time = Math.abs(pixels_per_second/viscousity);
-         var dest = 0.5*pixels_per_second*time;
- 
-         gm2d.Game.screen.timeline.createTween(name,mScrollY,mScrollY-dest, time,
-             function(y) scrollY = y, null, Tween.DECELERATE );
+         if (speedX.isValid)
+         {
+            var pixels_per_second = speedX.mean;
+            //trace("pixels_per_second : " + pixels_per_second);
+            var time = Math.abs(pixels_per_second/viscousity);
+            var dest = 0.5*pixels_per_second*time;
+    
+            gm2d.Game.screen.timeline.createTween(name,mScrollX,mScrollX-dest, time,
+                function(x) scrollX = x, finishScroll, Tween.DECELERATE );
+         }
+         if (speedY.isValid)
+         {
+            var pixels_per_second = speedY.mean;
+            //trace("pixels_per_second : " + pixels_per_second);
+            var time = Math.abs(pixels_per_second/viscousity);
+            var dest = 0.5*pixels_per_second*time;
+    
+            gm2d.Game.screen.timeline.createTween(name,mScrollY,mScrollY-dest, time,
+                function(y) scrollY = y, finishScroll, Tween.DECELERATE );
+         }
+         if (!speedX.isValid && !speedY.isValid)
+            finishScroll();
       }
       removeStageListeners();
+   }
+   public function finishScroll()
+   {
+      //if (mScrolling) trace("Scrolling done");
+      mScrolling = false;
    }
    public function getScrollX() { return mScrollX; }
    public function setScrollX(val:Float) : Float
@@ -128,6 +152,8 @@ class ScrollWidget extends Control
       if (mScrollX<0) mScrollX=0;
       if (mScrollX>maxScrollX) mScrollX = maxScrollX;
       scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
+      if (onScroll!=null)
+         onScroll();
       return mScrollX;
    }
    public function getScrollY() { return mScrollY; }
@@ -137,6 +163,8 @@ class ScrollWidget extends Control
       if (mScrollY<0) mScrollY=0;
       if (mScrollY>maxScrollY) mScrollY = maxScrollY;
       scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
+      if (onScroll!=null)
+         onScroll();
       return mScrollY;
    }
 
@@ -148,8 +176,10 @@ class ScrollWidget extends Control
       var p1 = globalToLocal(pos);
       var dx = p1.x-p0.x;
       var dy = p1.y-p0.y;
-      if (Math.abs(dx)>10 || Math.abs(dy)>10)
+      if (!mScrolling && (Math.abs(dx)>10 || Math.abs(dy)>10))
+      {
          mScrolling = true;
+      }
       if (mScrolling)
       {
          mScrollX = mDownScrollX - dx;
@@ -167,6 +197,8 @@ class ScrollWidget extends Control
             speedY.add( (p1.y - plast.y)/dt, dt );
             mLastPos = pos;
          }
+         if (onScroll!=null)
+            onScroll();
       }
       mLastT = now;
    }

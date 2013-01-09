@@ -84,6 +84,15 @@ class ListControl extends ScrollWidget
       mColAlign[inIdx] = inAlign;
    }
 
+   public function deselect()
+   {
+      if (mSelected>=0)
+      {
+         mSelected = -1;
+         drawBG();
+      }
+   }
+
    public function getColPos(inIdx:Int)
    {
       return mColPos[inIdx];

@@ -582,7 +582,7 @@ class Skin
    {
       clearSprite(outChrome);
       var gfx = outChrome.graphics;
-      gfx.beginFill(inState==BUTTON_DISABLE ? disableColor : controlColor);
+      gfx.beginFill(inState==BUTTON_DISABLE ? disableColor : inState==BUTTON_UP ? controlColor : guiMedium );
       gfx.lineStyle(1,controlBorder);
       gfx.drawRoundRect(inRect.x+0.5,inRect.y+0.5,inRect.width-1,inRect.height-1,buttonCorner,buttonCorner);
    }

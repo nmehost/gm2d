@@ -125,7 +125,7 @@ class Layout
    }
 
 
-   function alignChild(child:Layout, x:Float, y:Float, w:Float, h:Float)
+   public function alignChild(child:Layout, x:Float, y:Float, w:Float, h:Float)
    {
 
       switch(child.mAlign & Layout.AlignMaskX)
@@ -492,24 +492,30 @@ class GridLayout extends Layout
    public function new(?inCols:Null<Int>,?inName:String,inDefaultStretch:Float=1.0)
    {
       super();
+      mSpaceX = 10;
+      mSpaceY = 10;
       mCols = inCols;
+      mDefaultStretch = inDefaultStretch;
+      name =  (inName==null) ? ("Layout:" + mID++) : inName;
+      clear();
+   }
+
+   public function clear( )
+   {
       mColInfo = [];
       mRowInfo = [];
-      mDefaultStretch = inDefaultStretch;
-      if (inCols!=null)
+      if (mCols!=null)
       {
-         for(i in 0...inCols)
+         for(i in 0...mCols)
             mColInfo[i] = new ColInfo(mDefaultStretch);
       }
       else
       {
          mRowInfo[0] = new RowInfo(mDefaultStretch);
       }
-      name =  (inName==null) ? ("Layout:" + mID++) : inName;
       mPos = 0;
-      mSpaceX = 10;
-      mSpaceY = 10;
    }
+
 
    public static function createKeepAspect(inMinWidth:Float, inMinHeight:Float, inBase:Layout)
    {
