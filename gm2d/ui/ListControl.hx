@@ -211,6 +211,11 @@ class ListControl extends ScrollWidget
       }
    }
 
+   public function showSelection()
+   {
+      showItem(mSelected);
+   }
+
 
    public function select(inIndex:Int)
    {

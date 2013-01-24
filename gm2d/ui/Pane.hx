@@ -69,6 +69,15 @@ class Pane implements IDockable
    }
    static public function allPanes() { return sPanes.copy(); }
 
+   public function screenIntersection():Rectangle
+   {
+      var stage = displayObject.stage;
+      if (stage==null)
+         return null;
+      var ox = displayObject.localToGlobal( new Point(0,0) );
+      return new Rectangle(0,0,stage.stageWidth,stage.stageHeight).intersection( new Rectangle(ox.x,ox.y,sizeX,sizeY) );
+   }
+
    public function setMinSize(inX:Float, inY:Float)
    {
       minSizeX = inX;
