@@ -273,7 +273,7 @@ class SvgRenderer
     }
 
     public function renderObject(inObj:DisplayObject,inGfx:Graphics,
-                    ?inMatrix:Matrix,?inFilter:ObjectFilter,inScale9:Rectangle)
+                    ?inMatrix:Matrix,?inFilter:ObjectFilter,?inScale9:Rectangle)
     {
        render(inGfx,inMatrix,inFilter,inScale9);
        var rect = getExtent(inMatrix, function(_,groups) { return groups[1]==".scale9"; } );

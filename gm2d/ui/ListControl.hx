@@ -10,6 +10,8 @@ import gm2d.skin.Skin;
 class ListControl extends ScrollWidget
 {
    var mRows:Array<Array<DisplayObject>>;
+   var mRowHeights:Array<Float>;
+   var mRowPos:Array<Float>;
    var mOrigItemHeight:Float;
    var mItemHeight:Float;
    var mSelected :Int;
@@ -24,7 +26,6 @@ class ListControl extends ScrollWidget
    public var mXGap:Float;
    public var mTextSelectable:Bool;
   
-   public var autoItemHeight:Bool;
    public var selectColour:Int;
    public var selectAlpha:Float;
    public var evenColour:Int;
@@ -34,39 +35,42 @@ class ListControl extends ScrollWidget
 
    public function new(inWidth:Float = 100, inItemHeight:Float=0)
    {
-       super();
-       selectAlpha = 1.0;
-       evenAlpha = 1.0;
-       oddAlpha = 1.0;
-       selectColour = 0xd0d0f0;
-       evenColour = 0xffffff;
-       oddColour = 0xf0f0ff;
-       autoItemHeight = true;
+      super();
+      selectAlpha = 1.0;
+      evenAlpha = 1.0;
+      oddAlpha = 1.0;
+      selectColour = 0xd0d0f0;
+      evenColour = 0xffffff;
+      oddColour = 0xf0f0ff;
 
-       mOrigItemHeight = inItemHeight;
-       mItemHeight = mOrigItemHeight;
-       scrollWheelStep = mOrigItemHeight;
-       mControlHeight = 0.0;
-       mWidth = inWidth;
-       mHeight = inItemHeight;
-       mRows = [];
-       mColWidths = [];
-       mColPos = [];
-       mChildrenClean = 0;
-       mSelected = -1;
-       mXGap = 2.0;
-       mTextSelectable = false;
-		 wantFocus = false;
-       onSelect = null;
-       mColAlign = [];
-       setScrollRange(inWidth,inWidth,inItemHeight,inItemHeight);
+      mOrigItemHeight = inItemHeight;
+      mItemHeight = mOrigItemHeight;
+      scrollWheelStep = mOrigItemHeight;
+      mControlHeight = 0.0;
+      mWidth = inWidth;
+      mHeight = inItemHeight;
+      mRows = [];
+      mColWidths = [];
+      mColPos = [0.0];
+      mRowHeights = [];
+      mRowPos = [0.0];
+      mChildrenClean = 0;
+      mSelected = -1;
+      mXGap = 2.0;
+      mTextSelectable = false;
+      wantFocus = false;
+      onSelect = null;
+      mColAlign = [];
+      setScrollRange(inWidth,inWidth,inItemHeight,inItemHeight);
    }
 
    public function clear()
    {
       mRows = [];
       mColWidths = [];
-      mColPos = [];
+      mColPos = [0.0];
+      mRowHeights = [];
+      mRowPos = [0.0];
       mChildrenClean = 0;
       mSelected = -1;
       mItemHeight = mOrigItemHeight;
@@ -123,6 +127,15 @@ class ListControl extends ScrollWidget
          pos += mColWidths[i] + mXGap;
       }
       mColPos.push(pos);
+
+      var pos = 0.0;
+      for(i in 0...mRowHeights.length)
+      {
+         mRowPos[i] = pos;
+         pos += mRowHeights[i];
+      }
+      mRowPos[mRowHeights.length]=pos;
+
    }
 
    public function stringToItem(inString:String) : DisplayObject
@@ -141,9 +154,11 @@ class ListControl extends ScrollWidget
       return new Bitmap(inData);
    }
 
-   public function addRow(inRow:Array<Dynamic>)
+   public function addRow(inRow:Array<Dynamic>,?inHeight:Null<Float>)
    {
       var row = new Array<DisplayObject>();
+      var rowHeight = 0.0;
+      var needRecalcPos = false;
       for(i in 0...inRow.length)
       {
          if (i==mColAlign.length)
@@ -167,26 +182,51 @@ class ListControl extends ScrollWidget
                w = tf.textWidth;
                h = tf.textHeight;
             }
+            h = Std.int(h+0.99);
 
-            if (h>mItemHeight && autoItemHeight)
-            {
-               mItemHeight = h;
-               scrollWheelStep = h;
-               mChildrenClean = 0;
-            }
+            if (inHeight!=null)
+               h = inHeight;
+            if (h>rowHeight)
+               rowHeight = h;
+
             if (mColWidths.length<=i || mColWidths[i]<w)
             {
                mColWidths[i] = w;
-               recalcPos();
+               needRecalcPos = true;
             }
             row.push(obj);
             addChild(obj);
          }
          else
          {
-            mColWidths.push(0);
             row.push(null);
+            if (mColWidths.length<i)
+               mColWidths.push(0);
          }
+      }
+
+      if (inHeight==null)
+      {
+         if (rowHeight>mItemHeight)
+         {
+            for(i in 0...mRowHeights.length)
+               mRowHeights[i] = mItemHeight;
+            mItemHeight = rowHeight;
+            scrollWheelStep = rowHeight;
+            needRecalcPos = true;
+            mChildrenClean = 0;
+         }
+         else
+           rowHeight = mItemHeight;
+      }
+
+      mRowHeights.push(rowHeight);
+      if (needRecalcPos)
+        recalcPos();
+      else
+      {
+         var pos = mRowPos[mRowPos.length-1];
+         mRowPos.push(pos+rowHeight);
       }
       mRows.push(row);
       layout(mWidth,mHeight);
@@ -200,14 +240,14 @@ class ListControl extends ScrollWidget
    {
       if (idx>=0)
       {
-         var top = idx*mItemHeight;
+         var top = mRowPos[idx];
          // If above, put on top row ...
          if (top<mScrollY)
             setScrollY(top);
-    
+
          // if below, raise to bottom line
-         else if (top-mScrollY > mHeight-mItemHeight)
-            setScrollY(top+mItemHeight-mHeight);
+         else if (top-mScrollY > mHeight-mRowHeights[idx])
+            setScrollY(mRowPos[idx+1]-mHeight);
       }
    }
 
@@ -231,11 +271,14 @@ class ListControl extends ScrollWidget
 
    public function selectByY(inY:Float):Int
    {
-      if (inY>=0 && inY<mItemHeight*mRows.length)
+      if (inY>=0 && inY<mRowPos[mRowPos.length-1])
       {
-         var idx = Std.int(inY/mItemHeight);
-         select(idx);
-         return idx;
+         for(idx in 0...mRowHeights.length)
+            if (mRowPos[idx+1]>inY)
+            {
+               select(idx);
+               return idx;
+            }
       }
       return -1;
    }
@@ -255,8 +298,9 @@ class ListControl extends ScrollWidget
       {
          gfx.beginFill( (i==mSelected) ? selectColour : ( (i & 1) > 0 ? oddColour: evenColour ),
                         (i==mSelected) ? selectAlpha  : ( (i & 1) > 0 ? oddAlpha : evenAlpha  ) );
-         gfx.drawRect(0,i*mItemHeight,mWidth,mItemHeight);
+         gfx.drawRect(0,mRowPos[i],mWidth,mRowHeights[i]);
       }
+
       if (mControlHeight<mHeight)
       {
          gfx.beginFill( evenColour, evenAlpha );
@@ -274,7 +318,15 @@ class ListControl extends ScrollWidget
             var item = row[i];
             if (item!=null)
             {
-               var w = item.width;
+                var h = item.height;
+                var w = item.width;
+                if (Std.is(item,TextField))
+                {
+                   var tf:TextField = cast item;
+                   w = tf.textWidth;
+                   h = tf.textHeight;
+                }
+
                switch(mColAlign[i] & Layout.AlignMaskX)
                {
                   case Layout.AlignRight:
@@ -288,24 +340,23 @@ class ListControl extends ScrollWidget
                }
  
 
-               var h = item.height;
                switch(mColAlign[i] & Layout.AlignMaskY)
                {
                   case Layout.AlignTop:
-                      item.y = row_idx*mItemHeight;
+                      item.y = mRowPos[row_idx];
 
                   case Layout.AlignBottom:
-                      item.y = row_idx*mItemHeight + (mItemHeight-h);
+                      item.y = mRowPos[row_idx+1] - h;
 
                   default:
-                      item.y = row_idx*mItemHeight + (mItemHeight-h)*0.5;
+                      item.y = mRowPos[row_idx] + (mRowHeights[row_idx]-h)*0.5;
                }
             }
          }
       }
       mChildrenClean = mRows.length;
 
-      mControlHeight = mItemHeight*mRows.length;
+      mControlHeight = mRowPos[mRowHeights.length];
       mWidth = inWidth;
       mHeight = inHeight;
       drawBG();
