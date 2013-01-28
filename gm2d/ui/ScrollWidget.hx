@@ -75,8 +75,16 @@ class ScrollWidget extends Control
       }
    }
 
+   public dynamic function shouldBeginScroll(ev:MouseEvent) : Bool
+   {
+      return true;
+   }
+
    function onMouseDown(ev:MouseEvent)
    {
+       if (!shouldBeginScroll(ev))
+          return;
+
        mLastT = Timer.stamp();
        mEventStage = stage;
        mDownPos = new Point(ev.stageX,ev.stageY);
