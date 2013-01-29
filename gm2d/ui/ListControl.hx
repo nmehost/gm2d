@@ -269,17 +269,22 @@ class ListControl extends ScrollWidget
       showItem(inIndex);
    }
 
-   public function selectByY(inY:Float):Int
+   public function itemFromY(inY:Float):Float
    {
       if (inY>=0 && inY<mRowPos[mRowPos.length-1])
       {
          for(idx in 0...mRowHeights.length)
             if (mRowPos[idx+1]>inY)
-            {
-               select(idx);
-               return idx;
-            }
+               return idx + (inY-mRowPos[idx+1])/mRowHeights[idx];
       }
+      return mRowPos.length;
+   }
+
+   public function selectByY(inY:Float):Int
+   {
+      var idx = Std.int(itemFromY(inY));
+      if (idx<mRowPos.length)
+         select(idx);
       return -1;
    }
 
