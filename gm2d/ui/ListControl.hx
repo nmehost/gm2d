@@ -271,11 +271,13 @@ class ListControl extends ScrollWidget
 
    public function itemFromY(inY:Float):Float
    {
-      if (inY>=0 && inY<mRowPos[mRowPos.length-1])
+      if (inY<=0)
+         return 0.0;
+      if (inY<mRowPos[mRowPos.length-1])
       {
          for(idx in 0...mRowHeights.length)
             if (mRowPos[idx+1]>inY)
-               return idx + (inY-mRowPos[idx+1])/mRowHeights[idx];
+               return idx + (inY-mRowPos[idx])/mRowHeights[idx];
       }
       return mRowPos.length;
    }
