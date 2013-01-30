@@ -97,6 +97,22 @@ class ListControl extends ScrollWidget
       }
    }
 
+   public function getRowPos(inIdx:Int)
+   {
+      if (inIdx>mRowPos.length)
+         inIdx = mRowPos.length - 1;
+      if (inIdx<0)
+        inIdx = 0;
+      return mRowPos[inIdx];
+   }
+
+   public function getRowHeight(inIdx:Int)
+   {
+      return mRowHeights[inIdx];
+   }
+
+
+
    public function getColPos(inIdx:Int)
    {
       return mColPos[inIdx];
