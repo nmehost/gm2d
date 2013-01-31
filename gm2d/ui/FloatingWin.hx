@@ -85,7 +85,7 @@ class FloatingWin extends Sprite, implements IDock
    {
       switch(inAction)
       {
-         case DRAG(pane):
+         case DRAG(_pane):
             doStartDrag(inEvent);
          case TITLE(_):
             Dock.raise(pane);

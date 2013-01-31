@@ -156,14 +156,14 @@ class HitBoxes
          {
             switch(r.action)
             {
-               case BUTTON(pane,id) :
+               case BUTTON(_pane,_id) :
                   //var states = pane==null ? buttonState : pane.buttonStates();
                   //states[id] = BUT_STATE_DOWN;
                   //mCallback(HitAction.REDRAW,inEvent);
                case TITLE(pane) :
                   downPane = pane;
                   mCallback(r.action,inEvent);
-               case RESIZE(pane,flags) :
+               case RESIZE(_pane,_flags) :
                   mCallback(r.action,inEvent);
                case DOCKSIZE(dock,index):
                   if (onDockSizeDown!=null && r.rect.contains(inX,inY))
@@ -184,7 +184,7 @@ class HitBoxes
          {
             switch(r.action)
             {
-               case BUTTON(pane,id):
+               case BUTTON(_pane,_id):
                   //var states = pane==null ? buttonState : pane.buttonStates();
                   //if (states[id]==BUT_STATE_DOWN)
                   //{
@@ -205,7 +205,7 @@ class HitBoxes
       {
          switch(rect.action)
          {
-            case BUTTON(pane,id):
+            case BUTTON(_pane,_id):
                /*
                var states = pane==null ? buttonState : pane.buttonStates();
                if (rect.rect.contains(inX,inY))

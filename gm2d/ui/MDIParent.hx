@@ -538,7 +538,7 @@ class MDIChildFrame extends Sprite
    {
       switch(inAction)
       {
-         case DRAG(pane):
+         case DRAG(_pane):
             stage.addEventListener(MouseEvent.MOUSE_UP,onEndDrag);
             mDragStage = stage;
             startDrag();
@@ -552,7 +552,7 @@ class MDIChildFrame extends Sprite
             redraw();
          case REDRAW:
             redraw();
-         case RESIZE(pane,flags):
+         case RESIZE(_pane,_flags):
             stage.addEventListener(MouseEvent.MOUSE_UP,onEndDrag);
             stage.addEventListener(MouseEvent.MOUSE_MOVE,onUpdateSize);
             mDragStage = stage;
