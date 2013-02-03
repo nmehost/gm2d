@@ -65,4 +65,9 @@ class Grad extends gm2d.gfx.Gradient
 
 }
 
+#if haxe_211
+typedef GradHash = haxe.ds.StringMap<Grad>;
+#else
 typedef GradHash = Hash<Grad>;
+#end
+

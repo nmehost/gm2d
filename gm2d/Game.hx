@@ -15,6 +15,10 @@ import gm2d.filters.BitmapFilter;
 import gm2d.filters.DropShadowFilter;
 import gm2d.display.DisplayObject;
 
+#if haxe_211
+typedef Hash<T> = haxe.ds.StringMap<T>;
+#end
+
 
 class Game
 {

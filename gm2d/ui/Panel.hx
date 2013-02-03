@@ -9,6 +9,11 @@ import gm2d.ui.Layout;
 import gm2d.skin.LabelRenderer;
 import gm2d.skin.Skin;
 
+#if haxe_211
+typedef Hash<T> = haxe.ds.StringMap<T>;
+#end
+
+
 class Panel extends Widget
 {
    var mGridLayout:GridLayout;

@@ -2,6 +2,11 @@ package gm2d.reso;
 
 import gm2d.utils.IDataInput;
 
+#if haxe_211
+typedef Hash<T> = haxe.ds.StringMap<T>;
+#end
+
+
 class Resources
 {
    static var mLoaded = new Hash<Dynamic>();

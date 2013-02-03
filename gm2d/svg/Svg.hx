@@ -16,7 +16,11 @@ import gm2d.svg.FillType;
 
 
 
+#if haxe_211
+typedef Styles = haxe.ds.StringMap<String>;
+#else
 typedef Styles = Hash<String>;
+#end
 
 
 class Svg extends Group
