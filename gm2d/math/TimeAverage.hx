@@ -18,8 +18,8 @@ class TimeAverage
 {
    public var window:Float;
    public var samples:Array<TimedValue>;
-   public var mean(getMean,null):Float;
-   public var isValid(getIsValid,null):Bool;
+   public var mean(get_mean,null):Float;
+   public var isValid(get_isValid,null):Bool;
 
    public function new(inWindow:Float)
    {
@@ -36,7 +36,7 @@ class TimeAverage
    {
       samples = [];
    }
-   public function getIsValid() : Bool { return samples.length>0; }
+   public function get_isValid() : Bool { return samples.length>0; }
    function removeOld(inTime:Float)
    {
       var keepFirst = 0;
@@ -49,7 +49,7 @@ class TimeAverage
       if (keepFirst>0)
          samples.splice(0,keepFirst);
    }
-   public function getMean() : Float
+   public function get_mean() : Float
    {
       if (samples.length<1)
          return 0.0;

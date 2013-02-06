@@ -28,8 +28,11 @@ interface Menubar
    public function closeMenu(inItem:MenuItem):Void;
 } 
 
+#if haxe3
+class SpriteMenubar extends Sprite implements Menubar implements IDock
+#else
 class SpriteMenubar extends Sprite, implements Menubar, implements IDock
-
+#end
 {
    var mWidth:Float;
    var mHeight:Float;

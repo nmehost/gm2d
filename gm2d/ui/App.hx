@@ -14,7 +14,7 @@ import nme.net.SharedObject;
 class App extends Screen
 {
    var _menubar:Menubar;
-   public var menubar(getMenuBar,null):Menubar;
+   public var menubar(get_menubar,null):Menubar;
    var topMenuBar:SpriteMenubar;
    var leftSlider:SlideBar;
    var rightSlider:SlideBar;
@@ -178,7 +178,7 @@ class App extends Screen
 
    override public function scaleScreen(inScale:Float) { doLayout(); }
 
-   public function getMenuBar() : Menubar
+   public function get_menubar() : Menubar
    {
       if (topMenuBar!=null)
          return topMenuBar;

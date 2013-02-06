@@ -16,7 +16,7 @@ import gm2d.svg.FillType;
 
 
 
-#if haxe_211
+#if haxe3
 typedef Styles = haxe.ds.StringMap<String>;
 #else
 typedef Styles = Hash<String>;

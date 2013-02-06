@@ -8,7 +8,7 @@ import gm2d.skin.Skin;
 
 class TextInput extends Control
 {
-   public var text(getText,setText):String;
+   public var text(get_text,set_text):String;
    var mText:TextField;
    var mWidth:Float;
    static var boxHeight = 22;
@@ -33,7 +33,7 @@ class TextInput extends Control
        addChild(mText);
    }
 
-   public function setText(inText:String)
+   public function set_text(inText:String)
    {
        mText.text = inText;
        return inText;
@@ -66,7 +66,7 @@ class TextInput extends Control
    }
 
 
-   public function getText() { return mText.text; }
+   public function get_text() { return mText.text; }
 
    public override function layout(inW:Float, inH:Float)
    {

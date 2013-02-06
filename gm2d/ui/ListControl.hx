@@ -259,11 +259,11 @@ class ListControl extends ScrollWidget
          var top = mRowPos[idx];
          // If above, put on top row ...
          if (top<mScrollY)
-            setScrollY(top);
+            set_scrollY(top);
 
          // if below, raise to bottom line
          else if (top-mScrollY > mHeight-mRowHeights[idx])
-            setScrollY(mRowPos[idx+1]-mHeight);
+            set_scrollY(mRowPos[idx+1]-mHeight);
       }
    }
 

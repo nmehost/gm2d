@@ -264,7 +264,7 @@ class ColourSlider extends Widget
 class ColourWheel extends Widget
 {
    public var onChange:RGBHSV->Void;
-   public var colour(getColour,setColour):RGBHSV;
+   public var colour(get_colour,set_colour):RGBHSV;
 
    var mWidth :Float;
    var mHeight : Float;
@@ -345,7 +345,7 @@ class ColourWheel extends Widget
       updateAlpha();
    }
 
-   public function getColour() : RGBHSV
+   public function get_colour() : RGBHSV
    {
       return new RGBHSV().setHSV(hue, saturation, value);
    }
@@ -364,7 +364,7 @@ class ColourWheel extends Widget
       }
    }
  
-   public function setColour(inHSV:RGBHSV) : RGBHSV
+   public function set_colour(inHSV:RGBHSV) : RGBHSV
    {
       hue = inHSV.h;
       saturation = inHSV.s;
@@ -605,7 +605,7 @@ class ColourControl extends Widget
       if (onColourChange!=null)
       {
          updateLockout++;
-         var col = wheel.getColour();
+         var col = wheel.get_colour();
          onColourChange(col.getRGB(), alphaSlider.getValue() );
          updateLockout--;
       }
@@ -628,7 +628,7 @@ class ColourControl extends Widget
    public function onValue(inValue:Float)
    {
       wheel.setValue(inValue);
-      var col = wheel.getColour();
+      var col = wheel.get_colour();
       box.setColour(col.getRGB());
       alphaSlider.updateComponents(col);
       send();

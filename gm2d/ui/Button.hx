@@ -18,7 +18,7 @@ class Button extends Control
    var mDisplayObj : DisplayObject;
    public var mChrome : Sprite;
    public var mRect : Rectangle;
-   public var down(getDown,setDown):Bool;
+   public var down(get_down,set_down):Bool;
    public var isToggle:Bool;
 	public var noFocus:Bool;
    public var mCallback : Void->Void;
@@ -70,17 +70,17 @@ class Button extends Control
    {
       if (isToggle)
       {
-         setDown(!getDown());
+         set_down(!get_down());
          if (mCallback!=null)
             mCallback();
       }
       else
-         setDown(true);
+         set_down(true);
    }
    function onUp(e:MouseEvent)
    {
       if (!isToggle)
-         setDown(false);
+         set_down(false);
    }
 
    public function getItemLayout()
@@ -137,8 +137,8 @@ class Button extends Control
       mItemLayout.setRect(0,0,w,h);
       down = !mIsDown;
    }
-   public function getDown() : Bool { return mIsDown; }
-   public function setDown(inDown:Bool) : Bool
+   public function get_down() : Bool { return mIsDown; }
+   public function set_down(inDown:Bool) : Bool
    {
       if (inDown!=mIsDown)
       {
@@ -260,7 +260,7 @@ class Button extends Control
       if (inDirection>=0)
       {
         if (isToggle)
-           setDown(!getDown());
+           set_down(!get_down());
         if (mCallback!=null)
            mCallback();
       }

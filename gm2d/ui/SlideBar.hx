@@ -12,8 +12,11 @@ import gm2d.skin.Skin;
 import gm2d.geom.Rectangle;
 
 
-
+#if haxe3
+class SlideBar extends Sprite implements IDock
+#else
 class SlideBar extends Sprite, implements IDock
+#end
 {
    var pos:DockPosition;
    var container:DisplayObjectContainer;

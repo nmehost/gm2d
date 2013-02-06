@@ -2,7 +2,7 @@ package gm2d.reso;
 
 import gm2d.utils.IDataInput;
 
-#if haxe_211
+#if haxe3
 typedef Hash<T> = haxe.ds.StringMap<T>;
 #end
 

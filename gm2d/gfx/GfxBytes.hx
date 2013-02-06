@@ -11,7 +11,7 @@ import gm2d.geom.Matrix;
 import gm2d.utils.ByteArray;
 
 import haxe.io.Bytes;
-#if haxe_211
+#if haxe3
 import haxe.crypto.BaseCode;
 #else
 import haxe.BaseCode;

@@ -15,7 +15,7 @@ import gm2d.filters.BitmapFilter;
 import gm2d.filters.DropShadowFilter;
 import gm2d.display.DisplayObject;
 
-#if haxe_211
+#if haxe3
 typedef Hash<T> = haxe.ds.StringMap<T>;
 #end
 
@@ -28,11 +28,11 @@ class Game
    static public var isResizable = true;
    static public var frameRate = 30.0;
    static public var rotation:Int = 0;
-   static public var showFPS(getShowFPS,setShowFPS):Bool;
-   static public var fpsColor(getFPSColor,setFPSColor):Int;
+   static public var showFPS(get_showFPS,set_showFPS):Bool;
+   static public var fpsColor(get_fpsColor,set_fpsColor):Int;
    static public var backgroundColor = 0xffffff;
-   static public var title(default,setTitle):String;
-   static public var icon(default,setIcon):String;
+   static public var title(default,set_title):String;
+   static public var icon(default,set_icon):String;
    static public var pixelAccurate:Bool = false;
    static public var toggleFullscreenOnAltEnter:Bool = true;
    static public var mapEscapeToBack:Bool = true;
@@ -58,7 +58,7 @@ class Game
    static var mKeyDown = new Array<Bool>();
    static var mPopupFilters:Array<BitmapFilter>;
 
-   static public var screen(getCurrent,null):Screen;
+   static public var screen(get_screen,null):Screen;
 
 
    static public function create()
@@ -142,7 +142,7 @@ class Game
       mScreenMap.set(inName,inScreen);
    }
 
-   static function getCurrent() { return mCurrentScreen; }
+   static function get_screen() { return mCurrentScreen; }
 
    public static function onMouseMove(inEvent)
    {
@@ -304,8 +304,8 @@ class Game
       }
    }
 
-   static function getShowFPS() { return mShowFPS; } 
-   static function setShowFPS(inShowFPS:Bool) : Bool
+   static function get_showFPS() { return mShowFPS; } 
+   static function set_showFPS(inShowFPS:Bool) : Bool
    {
       mShowFPS = inShowFPS;
       if (mFPSControl!=null)
@@ -313,8 +313,8 @@ class Game
       return inShowFPS;
    }
 
-   static function getFPSColor() { return mFPSColor; } 
-   static function setFPSColor(inCol:Int) : Int
+   static function get_fpsColor() { return mFPSColor; } 
+   static function set_fpsColor(inCol:Int) : Int
    {
       mFPSColor = inCol;
       if (mFPSControl!=null)
@@ -431,13 +431,13 @@ class Game
    }
 
 
-   static function setTitle(inTitle:String) : String
+   static function set_title(inTitle:String) : String
    {
       title = inTitle;
       return inTitle;
    }
 
-   static function setIcon(inIcon:String) : String
+   static function set_icon(inIcon:String) : String
    {
       icon = inIcon;
       return inIcon;

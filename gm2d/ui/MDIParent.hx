@@ -17,8 +17,11 @@ import gm2d.Game;
 import gm2d.skin.Skin;
 
 
-
+#if haxe3
+class MDIParent extends Widget implements IDock implements IDockable
+#else
 class MDIParent extends Widget, implements IDock, implements IDockable
+#end
 {
    var parentDock:IDock;
    var mChildren:Array<MDIChildFrame>;

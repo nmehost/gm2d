@@ -14,18 +14,14 @@ import gm2d.geom.Matrix;
 import gm2d.display.BitmapData;
 import gm2d.display.Bitmap;
 
-#if cpp
+import haxe.io.Path;
+
+#if haxe3
+import sys.FileSystem;
+#elseif cpp
 import cpp.FileSystem;
 #elseif neko
 import neko.FileSystem;
-#end
-
-#if haxe_209
-import haxe.io.Path;
-#elseif neko
-import neko.FileSystem;
-#elseif cpp
-import cpp.io.Path;
 #end
 
 import nme.filesystem.File;

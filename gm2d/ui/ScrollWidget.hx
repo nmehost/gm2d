@@ -10,8 +10,8 @@ import gm2d.Timer;
 
 class ScrollWidget extends Control
 {
-   public var scrollX(getScrollX,setScrollX):Float;
-   public var scrollY(getScrollY,setScrollY):Float;
+   public var scrollX(get_scrollX,set_scrollX):Float;
+   public var scrollY(get_scrollY,set_scrollY):Float;
    public var scrollWheelStep:Float;
    public var maxScrollX:Float;
    public var maxScrollY:Float;
@@ -69,7 +69,7 @@ class ScrollWidget extends Control
    {
       if (maxScrollY>0 && scrollWheelStep>0)
       {
-          setScrollY(mScrollY - scrollWheelStep * event.delta);
+          set_scrollY(mScrollY - scrollWheelStep * event.delta);
           if (onScroll!=null)
              onScroll();
       }
@@ -153,8 +153,8 @@ class ScrollWidget extends Control
       //if (mScrolling) trace("Scrolling done");
       mScrolling = false;
    }
-   public function getScrollX() { return mScrollX; }
-   public function setScrollX(val:Float) : Float
+   public function get_scrollX() { return mScrollX; }
+   public function set_scrollX(val:Float) : Float
    {
       mScrollX = val;
       if (mScrollX<0) mScrollX=0;
@@ -164,8 +164,8 @@ class ScrollWidget extends Control
          onScroll();
       return mScrollX;
    }
-   public function getScrollY() { return mScrollY; }
-   public function setScrollY(val:Float) : Float
+   public function get_scrollY() { return mScrollY; }
+   public function set_scrollY(val:Float) : Float
    {
       mScrollY = val;
       if (mScrollY<0) mScrollY=0;

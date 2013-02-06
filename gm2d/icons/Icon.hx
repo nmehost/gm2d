@@ -6,11 +6,11 @@ import gm2d.geom.Matrix;
 
 class Icon
 {
-   public var width(getWidth,null) : Int;
-   public var height(getHeight,null) : Int;
+   public var width(get_width,null) : Int;
+   public var height(get_height,null) : Int;
 
-   function getWidth() : Int { return 48; }
-   function getHeight() : Int { return 48; }
+   function get_width() : Int { return 48; }
+   function get_height() : Int { return 48; }
 
    function new() { }
 

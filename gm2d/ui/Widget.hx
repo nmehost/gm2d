@@ -5,7 +5,11 @@ import gm2d.geom.Point;
 import gm2d.ui.Layout;
 
 
+#if haxe3
+class Widget extends gm2d.display.Sprite implements IWidget
+#else
 class Widget extends gm2d.display.Sprite, implements IWidget
+#end
 {
    public var wantFocus:Bool;
    var mLayout:Layout;

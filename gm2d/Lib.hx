@@ -4,12 +4,12 @@ import gm2d.display.DisplayObjectContainer;
 
 class Lib
 {
-   public static var current(getCurrent,null) : DisplayObjectContainer;
+   public static var current(get_current,null) : DisplayObjectContainer;
    public static var debug:Bool = false;
-   public static var isOpenGL(getIsOpenGL,null):Bool;
+   public static var isOpenGL(get_isOpenGL,null):Bool;
 
 
-   static function getCurrent() : DisplayObjectContainer
+   static function get_current() : DisplayObjectContainer
    {
       #if flash
       return flash.Lib.current;
@@ -18,7 +18,7 @@ class Lib
       #end
    }
 
-   static function getIsOpenGL()
+   static function get_isOpenGL()
    {
       #if flash
       return false;
