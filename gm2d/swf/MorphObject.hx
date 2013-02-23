@@ -1,6 +1,6 @@
 package gm2d.swf;
 
-class MorphObject extends flash.display.Sprite
+class MorphObject extends gm2d.display.Sprite
 {
    var mData:MorphShape;
 

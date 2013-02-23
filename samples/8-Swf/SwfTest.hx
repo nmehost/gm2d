@@ -19,7 +19,6 @@ class SwfTest extends Screen
       obj.scaleX = obj.scaleY = 5.0;
       addChild(obj);
       obj.cacheAsBitmap = true;
-*/
       var obj = new Sprite();
       addChild(obj);
       //obj.cacheAsBitmap = true;
@@ -36,6 +35,7 @@ class SwfTest extends Screen
       gfx.lineTo(120,180);
       gfx.lineTo(120,120);
 
+*/
 
       var test=[ "AdvancedLines", "Text", "GradientFillMotion", "ShapeMorph" ];
       var idx = 0;
@@ -46,16 +46,16 @@ class SwfTest extends Screen
          {
             gfx.drawRect(x*320+1, y*240+1, 318, 238 );
             var data = Resources.loadBytes("tests/" + test[idx++] + ".swf");
+            trace(data.length);
             var swf = new SWF(data);
             var obj = swf.createInstance();
-            //obj.cacheAsBitmap = true;
+            obj.cacheAsBitmap = true;
             obj.x = x*320;
             obj.y = y*240;
             obj.scaleX = 0.5;
             obj.scaleY = 0.5;
             addChild(obj);
          }
-
       makeCurrent();
    }
 

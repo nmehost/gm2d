@@ -8,10 +8,15 @@ import gm2d.display.Shape;
 import gm2d.display.Bitmap;
 import gm2d.display.BitmapData;
 
+#if haxe3
+typedef BitmapDataHash = haxe.ds.StringMap<BitmapData>;
+#else
+typedef BitmapDataHash = Hash<BitmapData>;
+#end
 
 class BitmapDataManager
 {
-   static var bitmaps = new Hash<BitmapData>();
+   static var bitmaps = new BitmapDataHash();
    static var mScale = 0.0;
 
    public static function create(inSVG:String, inGroup:String, inScale:Float, inCache=false)
@@ -23,20 +28,20 @@ class BitmapDataManager
       var svg:SvgRenderer = new SvgRenderer( Resources.loadSvg(inSVG) );
       var shape = new Shape();
       if (inGroup=="")
-         svg.RenderObject(shape,shape.graphics);
+         svg.renderObject(shape,shape.graphics);
       else
-         svg.RenderObject(shape,shape.graphics,null, function(_,groups) { return groups[0]==inGroup; });
+         svg.renderObject(shape,shape.graphics,null, function(_,groups) { return groups[0]==inGroup; });
 
       var matrix = new Matrix();
       matrix.scale(inScale,inScale);
 
       var w = Std.int(svg.width*inScale +  0.99);
       var h = Std.int(svg.height*inScale +  0.99);
-      var bmp = new BitmapData(w,h,true,0x00);
+      var bmp = new BitmapData(w,h,true,RGB.ZERO);
       var q = gm2d.Lib.current.stage.quality;
-      flash.Lib.current.stage.quality = flash.display.StageQuality.BEST;
+      gm2d.Lib.current.stage.quality = gm2d.display.StageQuality.BEST;
       bmp.draw(shape,matrix);
-      flash.Lib.current.stage.quality = q;
+      gm2d.Lib.current.stage.quality = q;
 
       if (inCache)
          bitmaps.set(key,bmp);
@@ -47,7 +52,7 @@ class BitmapDataManager
    {
       if (inScale!=mScale)
       {
-         bitmaps = new Hash<BitmapData>();
+         bitmaps = new BitmapDataHash();
          mScale = inScale;
       }
    }

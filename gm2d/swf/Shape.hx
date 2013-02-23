@@ -384,7 +384,7 @@ class Shape
             var spread = inStream.ReadSpreadMethod();
             var interp = inStream.ReadInterpolationMethod();
             var n = inStream.Bits(4);
-            var colors = [];
+            var colors = new Array<CInt>();
             var alphas = [];
             var ratios = [];
             for(i in 0...n)
@@ -394,8 +394,8 @@ class Shape
                alphas.push( inVersion>=3 ? inStream.ReadByte()/255.0 : 1.0 );
             }
             var focus = fill==ftRadialF ?  inStream.ReadByte()/255.0 : 0.0;
-            var type = fill==ftLinear ? flash.display.GradientType.LINEAR :
-                                         flash.display.GradientType.RADIAL;
+            var type = fill==ftLinear ? gm2d.display.GradientType.LINEAR :
+                                         gm2d.display.GradientType.RADIAL;
 
             result.push( function(g:Graphics) {
                g.beginGradientFill(type,colors,alphas,ratios,matrix,
@@ -515,7 +515,7 @@ class Shape
                   var spread = inStream.ReadSpreadMethod();
                   var interp = inStream.ReadInterpolationMethod();
                   var n = inStream.Bits(4);
-                  var colors = [];
+                  var colors = new Array<CInt>();
                   var alphas = [];
                   var ratios = [];
                   for(i in 0...n)
@@ -524,9 +524,10 @@ class Shape
                      colors.push( inStream.ReadRGB() );
                      alphas.push( inStream.ReadByte()/255.0 );
                   }
+
                   var focus = fill==ftRadialF ?  inStream.ReadByte()/255.0 : 0.0;
-                  var type = fill==ftLinear ? flash.display.GradientType.LINEAR :
-                                               flash.display.GradientType.RADIAL;
+                  var type = fill==ftLinear ? gm2d.display.GradientType.LINEAR :
+                                               gm2d.display.GradientType.RADIAL;
       
                   result.push( function(g:Graphics) {
                      g.lineStyle(w,0,1,pixel_hint,scale,start_caps,joints,miter);

@@ -27,7 +27,7 @@
 	</assets>
 
   
-  <classpath name="../.." />
+  <haxelib name="gm2d" />
   <haxelib name="nme" />
 
   <ndll name="nme" haxelib="nme" nekoapi="1"/>

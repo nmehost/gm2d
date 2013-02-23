@@ -3,13 +3,13 @@ package gm2d.blit;
 
 class Layer
 {
-   public var offsetX(default,setOffsetX):Float;
-   public var offsetY(default,setOffsetY):Float;
-   public var worldWidth(getWorldWidth,null):Float;
-   public var worldHeight(getWorldHeight,null):Float;
-   public var viewWidth(getViewWidth,null):Float;
-   public var viewHeight(getViewHeight,null):Float;
-   public var visible(default,setVisible):Bool;
+   public var offsetX(default,set_offsetX):Float;
+   public var offsetY(default,set_offsetY):Float;
+   public var worldWidth(get_worldWidth,null):Float;
+   public var worldHeight(get_worldHeight,null):Float;
+   public var viewWidth(get_viewWidth,null):Float;
+   public var viewHeight(get_viewHeight,null):Float;
+   public var visible(default,set_visible):Bool;
    public var blendAdd:Bool;
  
 
@@ -38,7 +38,7 @@ class Layer
 
    public function isPersistent() : Bool { return false; }
 
-   public function setVisible(inVis:Bool) : Bool
+   public function set_visible(inVis:Bool) : Bool
    {
       visible= inVis;
       if (mViewport!=null) { mViewport.invalidate(); }
@@ -52,20 +52,20 @@ class Layer
    }
 
 
-   function setOffsetX(inVal:Float):Float
+   function set_offsetX(inVal:Float):Float
    {
       offsetX = Std.int(inVal);
       return inVal;
    }
 
-   function setOffsetY(inVal:Float):Float
+   function set_offsetY(inVal:Float):Float
    {
       offsetY = Std.int(inVal);
       return inVal;
    }
 
-   function getWorldWidth() { return mViewport.worldWidth; }
-   function getWorldHeight() { return mViewport.worldWidth; }
-   function getViewWidth() { return mViewport.viewWidth; }
-   function getViewHeight() { return mViewport.viewWidth; }
+   function get_worldWidth() { return mViewport.worldWidth; }
+   function get_worldHeight() { return mViewport.worldWidth; }
+   function get_viewWidth() { return mViewport.viewWidth; }
+   function get_viewHeight() { return mViewport.viewWidth; }
 }

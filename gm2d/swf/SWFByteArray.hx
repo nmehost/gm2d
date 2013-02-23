@@ -4,7 +4,7 @@ package gm2d.swf;
 
 typedef SWFByteArray = flash.utils.ByteArray;
 
-#else true
+#else
 
 typedef SWFByteArray = String;
 

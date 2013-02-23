@@ -110,7 +110,7 @@ class BitmapFont extends gm2d.blit.Tilesheets
 		var mtx = new gm2d.geom.Matrix();
 		mtx.createGradientBox(inHeight,inHeight,Math.PI*0.5,0,inHeight*0.25);
 
-		var cols:Array<Int> = [0xff0000, 0xffffff, 0xffff00 ];
+		var cols:Array<CInt> = [0xff0000, 0xffffff, 0xffff00 ];
       var alphas:Array<Float> = [1.0, 1.0, 1.0];
       var ratio:Array<Int> = [0, 128, 255];
       gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );

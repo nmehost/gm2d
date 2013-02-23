@@ -38,7 +38,7 @@ class Bitmap
          var h = inStream.ReadUI16();
          var table_size = fmt==3 ? (inStream.ReadByte()+1) : 0;
          
-         var buffer:flash.utils.ByteArray = inStream.readFlashBytes(inStream.BytesLeft());
+         var buffer:gm2d.utils.ByteArray = inStream.readFlashBytes(inStream.BytesLeft());
          buffer.uncompress();
 
          if (inVersion==2)
@@ -104,7 +104,7 @@ class Bitmap
       return mBitmap;
    }
 
-   function AddAlpha(inEvt:flash.events.Event)
+   function AddAlpha(inEvt:gm2d.events.Event)
    {
 #if flash
       var bitmap = GetBitmap();

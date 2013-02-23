@@ -1,10 +1,10 @@
 package gm2d.ui;
 
-import flash.display.Sprite;
-import flash.events.MouseEvent;
-import flash.events.TouchEvent;
-import flash.display.Bitmap;
-import flash.display.BitmapData;
+import gm2d.display.Sprite;
+import gm2d.events.MouseEvent;
+import gm2d.events.TouchEvent;
+import gm2d.display.Bitmap;
+import gm2d.display.BitmapData;
 
 import gm2d.svg.BitmapDataManager;
 
@@ -50,7 +50,7 @@ class Joystick extends Sprite
       backgroundFilename = inBackgroundFilename;
       knobFilename = inKnobFilename;
 
-      #if nme
+      #if !flash
       var addMouseListeners = !nme.ui.Multitouch.supportsTouchEvents;
       #else
       var addMouseListeners = true;

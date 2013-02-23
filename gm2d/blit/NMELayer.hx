@@ -1,5 +1,6 @@
 package gm2d.blit;
 
+#if !flash
 import nme.display.Graphics;
 
 class NMELayer extends Layer
@@ -74,10 +75,10 @@ class NMELayer extends Layer
       mXYID.push(inTile.id);
    }
 
-   override public function setVisible(inVis:Bool) : Bool
+   override public function set_visible(inVis:Bool) : Bool
    {
       gm2dShape.visible = inVis;
-      return super.setVisible(inVis);
+      return super.set_visible(inVis);
    }
 
 
@@ -89,3 +90,5 @@ class NMELayer extends Layer
    }
 
 }
+
+#end

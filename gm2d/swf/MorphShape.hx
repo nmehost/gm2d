@@ -476,7 +476,7 @@ class MorphShape
                                          //gm2d.display.GradientType.RADIAL;
 
             result.push( function(g:Graphics,f:Float) {
-               var cols = [];
+               var cols = new Array<CInt>();
                var alphas = [];
                var ratios = [];
                for(i in 0...n)
@@ -639,7 +639,7 @@ class MorphShape
                                                //gm2d.display.GradientType.RADIAL;
       
                   result.push( function(g:Graphics,f:Float) {
-                     var cols = [];
+                     var cols = new Array<CInt>();
                      var alphas = [];
                      var ratios = [];
                      for(i in 0...n)

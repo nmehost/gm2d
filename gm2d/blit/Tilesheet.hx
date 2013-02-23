@@ -15,10 +15,10 @@ class Tilesheet
    var mSmooth:Bool;
    var mSpace:Int;
 
-   public var tileCount(getTileCount,null):Int;
+   public var tileCount(get_tileCount,null):Int;
 
-	public var width(getWidth,null):Int;
-	public var height(getHeight,null):Int;
+	public var width(get_width,null):Int;
+	public var height(get_height,null):Int;
 
    static public inline var BORDERS_NONE        = 0x00;
    static public inline var BORDERS_TRANSPARENT = 0x01;
@@ -142,9 +142,9 @@ class Tilesheet
       return result;
    }
 
-	inline public function getWidth() : Int { return gm2dData.width; }
-	inline public function getHeight() : Int { return gm2dData.height; }
+	inline public function get_width() : Int { return gm2dData.width; }
+	inline public function get_height() : Int { return gm2dData.height; }
 
-   function getTileCount() { return mTiles.length; }
+   function get_tileCount() { return mTiles.length; }
 }
 

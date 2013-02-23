@@ -19,8 +19,8 @@ class Viewport extends Sprite
    var mBackground:Int;
    var mDirty:Bool;
 
-   public var originX(default,setOriginX):Float;
-   public var originY(default,setOriginY):Float;
+   public var originX(default,set_originX):Float;
+   public var originY(default,set_originY):Float;
    public var worldWidth:Float;
    public var worldHeight:Float;
 
@@ -136,14 +136,14 @@ class Viewport extends Sprite
 
  
 
-   function setOriginX(inVal:Float):Float
+   function set_originX(inVal:Float):Float
    {
       invalidate();
       originX = inVal;
       return inVal;
    }
 
-   function setOriginY(inVal:Float):Float
+   function set_originY(inVal:Float):Float
    {
       invalidate();
       originY = inVal;

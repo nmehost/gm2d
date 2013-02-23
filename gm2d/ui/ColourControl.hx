@@ -240,14 +240,14 @@ class ColourSlider extends Widget
             x+=10;
             y=10-y;
          }
-	      var cols:Array<Int> = [mColour, mColour];
+	      var cols:Array<CInt> = [mColour, mColour];
          var alphas:Array<Float> = [0.0, 1.0];
          var ratio:Array<Int> = [0, 255];
          gfx.beginGradientFill(GradientType.LINEAR, cols, alphas, ratio, gradientBox() );
       }
       else if (mMode==VALUE)
       {
-	      var cols:Array<Int> = [mColour,0];
+	      var cols:Array<CInt> = [mColour,0];
          var alphas:Array<Float> = [1.0, 1.0];
          var ratio:Array<Int> = [0, 255];
          gfx.beginGradientFill(GradientType.LINEAR, cols, alphas, ratio, gradientBox() );

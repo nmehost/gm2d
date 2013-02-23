@@ -11,7 +11,11 @@ import gm2d.swf.SWF;
 import gm2d.display.BlendMode;
 import gm2d.filters.Filter;
 
+#if haxe3
+typedef FrameLabels = haxe.ds.StringMap<Int>;
+#else
 typedef FrameLabels = Hash<Int>;
+#end
 
 
 class Sprite

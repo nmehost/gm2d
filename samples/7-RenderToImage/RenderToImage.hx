@@ -2,6 +2,12 @@ import gm2d.display.Sprite;
 import gm2d.display.BitmapData;
 import gm2d.svg.SVG2Gfx;
 
+#if haxe3
+import haxe.io.Path;
+#else
+import neko.io.Path;
+#end
+
 class RenderToImage
 {
    static public function Usage()
@@ -24,7 +30,9 @@ class RenderToImage
       var bg = 0xffffff;
       var quality = 0.75;
 
-      #if neko
+      #if haxe3
+      var args = Sys.args();
+      #elseif neko
       var args = neko.Sys.args();
       #elseif cpp
       var args = cpp.Sys.args();
@@ -106,7 +114,7 @@ class RenderToImage
 
       bmp.draw(shape);
 
-      var bytes = bmp.encode(neko.io.Path.extension(out_file),quality);
+      var bytes = bmp.encode(Path.extension(out_file),quality);
 
       bytes.writeFile(out_file);
       

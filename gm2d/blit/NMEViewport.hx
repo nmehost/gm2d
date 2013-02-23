@@ -1,5 +1,7 @@
 package gm2d.blit;
 
+#if !flash
+
 import gm2d.display.Sprite;
 import gm2d.display.Stage;
 import gm2d.events.Event;
@@ -44,3 +46,4 @@ class NMEViewport extends Viewport
 
 }
 
+#end

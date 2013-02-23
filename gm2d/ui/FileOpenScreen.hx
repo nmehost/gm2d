@@ -16,7 +16,9 @@ import gm2d.display.Bitmap;
 
 import haxe.io.Path;
 
-#if haxe3
+#if flash
+// Nothing
+#elseif haxe3
 import sys.FileSystem;
 #elseif cpp
 import cpp.FileSystem;
@@ -48,6 +50,10 @@ class FileOpenScreen extends Screen
    public function new(inMessage:String,inDir:String,inOnResult:String->ByteArray->Void,inFilter:String,?inReturnScreen:Screen,inFlags:Int = 0)
    {
       super();
+
+      #if flash
+      throw "FileOpenScreen Not supported on flash";
+      #else
       flags = inFlags;
       message = inMessage;
       
@@ -172,6 +178,7 @@ class FileOpenScreen extends Screen
       screenLayout = top;
 
       Game.setCurrentScreen(this);
+      #end
    }
 
    override public function getScaleMode() : ScreenScaleMode
@@ -193,6 +200,9 @@ class FileOpenScreen extends Screen
 
    function setResult(inFile:String)
    {
+      #if flash
+      throw "Not supported";
+      #else
       //trace("Selected file: " + inFile);
       if (inFile=="")
         onResult(null,null);
@@ -217,6 +227,7 @@ class FileOpenScreen extends Screen
          Game.setCurrentScreen(returnScreen);
          onResult(baseDir + "/" + inFile,result);
       }
+      #end
    }
 
 

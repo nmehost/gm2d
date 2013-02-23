@@ -7,7 +7,11 @@ import gm2d.geom.Matrix;
 import gm2d.geom.ColorTransform;
 
 
+#if haxe3
+typedef DepthObjects = haxe.ds.IntMap<DepthSlot>;
+#else
 typedef DepthObjects = IntHash<DepthSlot>;
+#end
 
 
 class Frame

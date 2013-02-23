@@ -37,8 +37,8 @@ class BitmapText extends Control
    var mTimer:Timer;
 
    // TextField-like API
-   public var text(getText,setText):String;
-   public var type(getType,setType) : TextFieldType;
+   public var text(get_text,set_text):String;
+   public var type(get_type,set_type) : TextFieldType;
    public var selectable:Bool;
 
 
@@ -59,7 +59,7 @@ class BitmapText extends Control
 
       setCaret("|".charCodeAt(0));
 
-      setText(inVal);
+      set_text(inVal);
       mCharPos = [];
       mCurrent = false;
       #if !flash
@@ -311,8 +311,8 @@ class BitmapText extends Control
    }
 
 
-   public function getText() { return mText; }
-   public function setText(inText:String)
+   public function get_text() { return mText; }
+   public function set_text(inText:String)
    {
       mText = inText;
       ClearSelection();
@@ -413,8 +413,8 @@ class BitmapText extends Control
          mSelectionOverlay.visible = false;
    }
 
-   public function getType() { return mInput ? TextFieldType.INPUT : TextFieldType.DYNAMIC;}
-   public function setType(inType:TextFieldType)
+   public function get_type() { return mInput ? TextFieldType.INPUT : TextFieldType.DYNAMIC;}
+   public function set_type(inType:TextFieldType)
    {
       wantFocus = mInput = inType==TextFieldType.INPUT;
       RebuildText(true);

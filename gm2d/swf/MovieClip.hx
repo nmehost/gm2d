@@ -10,19 +10,22 @@ import gm2d.swf.Sprite;
 import gm2d.swf.Frame;
 
 #if flash
-
 typedef MovieClipBase = flash.display.Sprite;
-
 #else
-
 typedef MovieClipBase = gm2d.display.MovieClip;
-
 #end
+
+#if haxe3
+typedef ObjectPool = haxe.ds.IntMap<ObjectList>;
+#else
+typedef ObjectPool = IntHash<ObjectList>;
+#end
+
 
 
 typedef ActiveObject =
 {
-   var mObj: flash.display.DisplayObject;
+   var mObj: gm2d.display.DisplayObject;
    var mDepth : Int;
    var mID: Int;
    var mIndex : Int;
@@ -32,7 +35,6 @@ typedef ActiveObject =
 typedef ActiveObjects = Array<ActiveObject>;
 
 typedef ObjectList = List<DisplayObject>;
-typedef ObjectPool = IntHash<ObjectList>;
 
 
 // Available for both flash and neko.
@@ -160,14 +162,14 @@ class MovieClip extends MovieClipBase
             for(depth in frame_objs.keys())
             {
                var slot = frame_objs.get(depth);
-               var disp_object:flash.display.DisplayObject = null;
+               var disp_object:gm2d.display.DisplayObject = null;
                var pool = mObjectPool.get(slot.mID);
                if (pool != null && pool.length > 0)
                {
                    disp_object = pool.pop();
                    switch(slot.mCharacter)
                    {
-                      case charSprite(sprite):
+                      case charSprite(_sprite):
                          var clip:gm2d.swf.MovieClip = untyped disp_object;
                          clip.gotoAndPlay(1);
 
@@ -185,7 +187,7 @@ class MovieClip extends MovieClipBase
                          disp_object = movie;
 
                       case charShape(shape):
-                         var s = new flash.display.Shape();
+                         var s = new gm2d.display.Shape();
                           //trace( s );
                          //shape.Render(new gm2d.display.DebugGfx());
                          waiting_loader = shape.Render(s.graphics);
@@ -197,7 +199,7 @@ class MovieClip extends MovieClipBase
                          disp_object = morph;
 
                       case charStaticText(text):
-                         var s = new flash.display.Shape();
+                         var s = new gm2d.display.Shape();
                          text.Render(s.graphics);
                          disp_object = s;
  
@@ -206,10 +208,10 @@ class MovieClip extends MovieClipBase
                          text.Apply(t);
                          disp_object = t;
                          
-                      case charBitmap(shape):
+                      case charBitmap(_shape):
                          throw("Adding bitmap?");
 
-                      case charFont(font):
+                      case charFont(_font):
                          throw("Adding font?");
 
                    }

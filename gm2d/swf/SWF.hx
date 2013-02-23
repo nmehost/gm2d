@@ -15,6 +15,11 @@ import gm2d.utils.ByteArray;
 import gm2d.geom.Rectangle;
 
 
+#if haxe3
+typedef SymbolMap = haxe.ds.StringMap<Int>;
+#else
+typedef SymbolMap = Hash<Int>;
+#end
 
 class SWF
 {
@@ -23,7 +28,7 @@ class SWF
    var mFrameRate : Float;
    var mBackground : Int;
    var mDictionary:Array<Character>;
-   var mSymbols:Hash<Int>;
+   var mSymbols:SymbolMap;
    var mMain:Sprite;
    var mVersion:Int;
 
@@ -36,7 +41,7 @@ class SWF
       mFrameRate = mStream.FrameRate();
       var count = mStream.Frames();
       mDictionary = [];
-      mSymbols = new Hash<Int>();
+      mSymbols = new SymbolMap();
 
       mMain = new Sprite(this,0,count);
 

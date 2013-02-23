@@ -3,13 +3,15 @@ package gm2d.reso;
 import gm2d.utils.IDataInput;
 
 #if haxe3
-typedef Hash<T> = haxe.ds.StringMap<T>;
+typedef ResourceMap<T> = haxe.ds.StringMap<T>;
+#else
+typedef ResourceMap<T> = Hash<T>;
 #end
 
 
 class Resources
 {
-   static var mLoaded = new Hash<Dynamic>();
+   static var mLoaded = new ResourceMap<Dynamic>();
 
    static public function loadAsset(inAssetName:String, inCache=false) : Dynamic
    {

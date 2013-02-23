@@ -6,6 +6,7 @@ import gm2d.skin.Skin;
 import gm2d.ui.Layout;
 import gm2d.display.Sprite;
 import gm2d.geom.Point;
+import gm2d.geom.Rectangle;
 import gm2d.ui.HitBoxes;
 import gm2d.events.MouseEvent;
 
@@ -37,7 +38,7 @@ class MiniWin extends Sprite
       mClientWidth = 200;
       mClientHeight = 200;
       //pane.displayObject.scrollRect = new Rectangle(20,20,mClientWidth, mClientHeight);
-      Skin.current.renderMiniWin(this,inPane,mClientWidth,mClientHeight,mHitBoxes);
+      Skin.current.renderMiniWin(this,pane,new Rectangle(0,0,mClientWidth,mClientHeight),mHitBoxes,true);
       addChild(pane.displayObject);
       mScreen.addChild(this);
    }
@@ -47,19 +48,19 @@ class MiniWin extends Sprite
       parent.removeChild(this);
    }
 
-   function onHitBox(inAction:HitAction)
+   function onHitBox(inAction:HitAction, e)
    {
       switch(inAction)
       {
-         case DRAG(pane):
+         case DRAG(_pane):
             stage.addEventListener(MouseEvent.MOUSE_UP,onEndDrag);
             mDragStage = stage;
             startDrag();
          case TITLE(pane):
-            pane.raise();
+            Dock.raise(pane);
          case BUTTON(pane,id):
             if (id==MiniButton.CLOSE)
-               pane.close(false);
+               pane.closeRequest(false);
             redraw();
          case REDRAW:
             redraw();
@@ -73,7 +74,7 @@ class MiniWin extends Sprite
 
    function redraw()
    {
-      Skin.current.renderMiniWin(this,pane,mClientWidth,mClientHeight,mHitBoxes);
+      Skin.current.renderMiniWin(this,pane,new Rectangle(0,0,mClientWidth,mClientHeight),mHitBoxes,true);
    }
 
    function onEndDrag(_)

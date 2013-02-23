@@ -177,7 +177,11 @@ class SampleApp extends App
       Game.backgroundColor = 0xffffff;
       var app = new SampleApp();
       #if (neko||cpp)
-      var args = #if neko neko #else cpp #end .Sys.args();
+        #if haxe3
+        var args = Sys.args();
+        #else
+        var args = #if neko neko #else cpp #end .Sys.args();
+        #end
       if (args.length>0)
          app.openFile(args[0]);
       #end

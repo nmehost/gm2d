@@ -1,9 +1,9 @@
 package gm2d.swf;
 
-import gm2d.display.GraphicsLike;
 import gm2d.geom.Matrix;
+import gm2d.display.Graphics;
 
-class ScaledFont  implements gm2d.text.Font
+class ScaledFont
 {
    var mFont : gm2d.swf.Font;
    var mMatrix : Matrix;
@@ -26,7 +26,7 @@ class ScaledFont  implements gm2d.text.Font
    public function CanRenderSolid():Bool { return false; }
    public function CanRenderOutline():Bool { return true; }
 
-   public function Render(inGfx:GraphicsLike,inChar:Int,inX:Int,inY:Int,inOutline:Bool):Int
+   public function Render(inGfx:Graphics,inChar:Int,inX:Int,inY:Int,inOutline:Bool):Int
    {
       mMatrix.tx = inX;
       mMatrix.ty = inY + mAscent;

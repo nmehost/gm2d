@@ -2,6 +2,7 @@ package gm2d.swf;
 
 import gm2d.geom.ColorTransform;
 import gm2d.geom.Matrix;
+import gm2d.display.DisplayObject;
 
 
 class DisplayAttributes
@@ -27,7 +28,7 @@ class DisplayAttributes
       return n;
    }
 
-   public function Apply(inObj:flash.display.DisplayObject)
+   public function Apply(inObj:DisplayObject)
    {
       if (mMatrix!=null)
          inObj.transform.matrix = mMatrix.clone();
