@@ -6,6 +6,6 @@
     <tag v="game"/>
     <tag v="svg"/>
     <description>GM2D helper classes for rapid game making in 2D.</description>
-    <version name="1.1">Add tile add blend mode.  Improved SVG parser - now looks at root node. Add FileOpen code.  Start on docking framework.  Flash decoding frame number fixes.  Fix {} compile error.  Add some waxe integration.  Added a binary gfx format.</version>
+    <version name="2.0">Compile fixes for haxe3. Some layout work.</version>
 </project>
 
