@@ -338,10 +338,13 @@ class ListControl extends ScrollWidget
 
    public function setMultiSelect(inSelection:Array<Bool>, inClearCurrent:Bool)
    {
-      mMultiSelect = inSelection;
-      if (inClearCurrent)
-         mSelected = -1;
-      drawBG();
+      if (mMultiSelect!=null || inSelection!=null || (inClearCurrent && mSelected!=-1))
+      {
+         mMultiSelect = inSelection;
+         if (inClearCurrent)
+            mSelected = -1;
+         drawBG();
+      }
    }
 
    public override function layout(inWidth:Float,inHeight:Float)
