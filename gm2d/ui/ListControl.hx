@@ -21,6 +21,7 @@ class ListControl extends ScrollWidget
    var mColWidths:Array<Float>;
    var mColPos:Array<Float>;
    var mColAlign:Array<Int>;
+   var mMultiSelect:Array<Bool>;
    var mControlHeight:Float;
    public var onSelect:Int->Void;
    public var mXGap:Float;
@@ -61,6 +62,7 @@ class ListControl extends ScrollWidget
       wantFocus = false;
       onSelect = null;
       mColAlign = [];
+      mMultiSelect = null;
       setScrollRange(inWidth,inWidth,inItemHeight,inItemHeight);
    }
 
@@ -90,8 +92,9 @@ class ListControl extends ScrollWidget
 
    public function deselect()
    {
-      if (mSelected>=0)
+      if (mSelected>=0 || mMultiSelect!=null)
       {
+         mMultiSelect = null;
          mSelected = -1;
          drawBG();
       }
@@ -275,9 +278,10 @@ class ListControl extends ScrollWidget
 
    public function select(inIndex:Int)
    {
-      if (mSelected!=inIndex)
+      if (mSelected!=inIndex || mMultiSelect!=null)
       {
          mSelected = inIndex;
+         mMultiSelect = null;
          drawBG();
          if (onSelect!=null)
             onSelect(inIndex);
@@ -295,7 +299,7 @@ class ListControl extends ScrollWidget
             if (mRowPos[idx+1]>inY)
                return idx + (inY-mRowPos[idx])/mRowHeights[idx];
       }
-      return mRowPos.length;
+      return mRowHeights.length;
    }
 
    public function selectByY(inY:Float):Int
@@ -319,8 +323,9 @@ class ListControl extends ScrollWidget
       gfx.clear();
       for(i in 0...mRows.length)
       {
-         gfx.beginFill( (i==mSelected) ? selectColour : ( (i & 1) > 0 ? oddColour: evenColour ),
-                        (i==mSelected) ? selectAlpha  : ( (i & 1) > 0 ? oddAlpha : evenAlpha  ) );
+         var selected = i==mSelected || (mMultiSelect!=null && mMultiSelect[i]);
+         gfx.beginFill( selected ? selectColour : ( (i & 1) > 0 ? oddColour: evenColour ),
+                        selected ? selectAlpha  : ( (i & 1) > 0 ? oddAlpha : evenAlpha  ) );
          gfx.drawRect(0,mRowPos[i],mWidth,mRowHeights[i]);
       }
 
@@ -329,6 +334,14 @@ class ListControl extends ScrollWidget
          gfx.beginFill( evenColour, evenAlpha );
          gfx.drawRect(0,mControlHeight,mWidth,mHeight-mControlHeight);
       }
+   }
+
+   public function setMultiSelect(inSelection:Array<Bool>, inClearCurrent:Bool)
+   {
+      mMultiSelect = inSelection;
+      if (inClearCurrent)
+         mSelected = -1;
+      drawBG();
    }
 
    public override function layout(inWidth:Float,inHeight:Float)
