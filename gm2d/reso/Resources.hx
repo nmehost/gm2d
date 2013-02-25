@@ -1,6 +1,8 @@
 package gm2d.reso;
 
 import gm2d.utils.IDataInput;
+import gm2d.svg.Svg;
+import gm2d.svg.SvgRenderer;
 
 #if haxe3
 typedef ResourceMap<T> = haxe.ds.StringMap<T>;
@@ -66,16 +68,26 @@ class Resources
       return xml;
    }
 
-   static public function loadSvg(inAssetName:String, inCache=false) : gm2d.svg.Svg
+   static public function loadSvg(inAssetName:String, inCache=false) : Svg
    {
+      var cached = mLoaded.get(inAssetName);
+      if (cached!=null && Std.is(cached,Svg))
+         return cached;
+
       var xml:Xml = loadXml(inAssetName,false);
       if (xml==null)
          return null;
-      var svg = new gm2d.svg.Svg(xml);
+      var svg = new Svg(xml);
       if (inCache)
          mLoaded.set(inAssetName,svg);
       return svg;
    }
+
+   static public function loadSvgRenderer(inAssetName:String, inCache=false) : SvgRenderer
+   {
+      return new SvgRenderer(loadSvg(inAssetName,inCache));
+   }
+
 
 
    static public function loadSound(inAssetName:String, inCache=false) : gm2d.media.Sound
