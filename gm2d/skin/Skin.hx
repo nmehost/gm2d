@@ -611,7 +611,7 @@ class Skin
       var gfx = outChrome.graphics;
       gfx.clear();
       gfx.beginFill(panelColor);
-      gfx.lineStyle(1,guiLight);
+      gfx.lineStyle(1,guiDark);
 
       gfx.drawRoundRect(ox,ox,w, h, 7,7 );
 

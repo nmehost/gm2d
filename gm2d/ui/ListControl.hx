@@ -5,6 +5,7 @@ import gm2d.display.BitmapData;
 import gm2d.display.Bitmap;
 import gm2d.geom.Rectangle;
 import gm2d.text.TextField;
+import gm2d.text.TextFieldAutoSize;
 import gm2d.skin.Skin;
 
 class ListControl extends ScrollWidget
@@ -19,6 +20,7 @@ class ListControl extends ScrollWidget
    var mHeight:Float;
    var mChildrenClean :Int;
    var mColWidths:Array<Float>;
+   var mMinColWidths:Array<Float>;
    var mColPos:Array<Float>;
    var mColAlign:Array<Int>;
    var mMultiSelect:Array<Bool>;
@@ -52,6 +54,7 @@ class ListControl extends ScrollWidget
       mHeight = inItemHeight;
       mRows = [];
       mColWidths = [];
+      mMinColWidths = [];
       mColPos = [0.0];
       mRowHeights = [];
       mRowPos = [0.0];
@@ -69,7 +72,7 @@ class ListControl extends ScrollWidget
    public function clear()
    {
       mRows = [];
-      mColWidths = [];
+      mColWidths = mMinColWidths.copy();
       mColPos = [0.0];
       mRowHeights = [];
       mRowPos = [0.0];
@@ -128,6 +131,7 @@ class ListControl extends ScrollWidget
 
    public function setMinColWidth(inCol:Int, inWidth:Float)
    {
+      mMinColWidths[inCol] = inWidth;
       if (mColWidths[inCol]<inWidth)
       {
          mColWidths[inCol] = inWidth;
@@ -162,7 +166,9 @@ class ListControl extends ScrollWidget
       var t = new TextField();
       Skin.current.labelRenderer.styleLabel(t);
       t.text = inString;
+      t.autoSize = TextFieldAutoSize.LEFT;
       t.selectable = mTextSelectable;
+      //t.border = true; t.borderColor = 0;
       if (!mTextSelectable)
          t.mouseEnabled = false;
       t.height = 20;
@@ -182,6 +188,8 @@ class ListControl extends ScrollWidget
       {
          if (i==mColAlign.length)
             mColAlign.push(Layout.AlignCenterY | Layout.AlignLeft);
+         if (mColWidths.length<=i)
+            mColWidths.push(mMinColWidths[i]);
          var item:Dynamic = inRow[i];
          if (item!=null)
          {
@@ -208,7 +216,7 @@ class ListControl extends ScrollWidget
             if (h>rowHeight)
                rowHeight = h;
 
-            if (mColWidths.length<=i || mColWidths[i]<w)
+            if (w>mColWidths[i])
             {
                mColWidths[i] = w;
                needRecalcPos = true;
@@ -217,11 +225,7 @@ class ListControl extends ScrollWidget
             addChild(obj);
          }
          else
-         {
             row.push(null);
-            if (mColWidths.length<i)
-               mColWidths.push(0);
-         }
       }
 
       if (inHeight==null)
@@ -359,12 +363,14 @@ class ListControl extends ScrollWidget
             {
                 var h = item.height;
                 var w = item.width;
+                /*
                 if (Std.is(item,TextField))
                 {
                    var tf:TextField = cast item;
                    w = tf.textWidth;
                    h = tf.textHeight;
                 }
+                */
 
                switch(mColAlign[i] & Layout.AlignMaskX)
                {

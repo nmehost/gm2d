@@ -72,6 +72,7 @@ class MouseWatcher
    public function draggedX() { return pos.x - downPos.x; }
    public function draggedY() { return pos.y - downPos.y; }
 
+   public function ignoreDown() { isDown = false; }
 
    function onMouseDown(ev:MouseEvent)
    {
@@ -81,10 +82,13 @@ class MouseWatcher
        prevPos = new Point(ev.stageX,ev.stageY);
        isDown = true;
        wasDragged = false;
-       mEventStage.addEventListener(MouseEvent.MOUSE_MOVE, onStageDrag);
-       mEventStage.addEventListener(MouseEvent.MOUSE_UP, onStageUp);
        if (onDown!=null)
           onDown(ev);
+       if (isDown)
+       {
+          mEventStage.addEventListener(MouseEvent.MOUSE_MOVE, onStageDrag);
+          mEventStage.addEventListener(MouseEvent.MOUSE_UP, onStageUp);
+       }
    }
    function removeStageListeners()
    {
