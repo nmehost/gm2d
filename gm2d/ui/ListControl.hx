@@ -83,6 +83,7 @@ class ListControl extends ScrollWidget
       graphics.clear();
       while(numChildren>0)
          removeChildAt(0);
+      recalcPos();
    }
 
    public function setColAlign(inIdx:Int, inAlign:Int)
