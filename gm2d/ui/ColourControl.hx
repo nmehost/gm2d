@@ -491,13 +491,13 @@ class RGBBox extends Widget
    var textField:TextField;
    var mWidth:Float;
    var mHeight:Float;
-   var mCol:Int;
+   public var colour(default,null):Int;
    var mAlpha:Float;
 
    public function new(inCol:Int, inAlpha:Float)
    {
       super();
-      mCol = inCol;
+      colour = inCol;
       mAlpha = inAlpha;
       mWidth = mHeight = 32;
       getLayout().setMinSize(20,32);
@@ -516,7 +516,7 @@ class RGBBox extends Widget
 
    public function setColour(inCol:Int)
    {
-      mCol = inCol;
+      colour = inCol;
       redraw();
    }
 
@@ -524,8 +524,8 @@ class RGBBox extends Widget
    {
       textField.width = mWidth;
       textField.height = mHeight;
-      textField.backgroundColor = mCol;
-      textField.text = StringTools.hex(mCol,6);
+      textField.backgroundColor = colour;
+      textField.text = StringTools.hex(colour,6);
    }
 
    public override function layout(inWidth:Float,inHeight:Float)
@@ -599,6 +599,10 @@ class ColourControl extends Widget
       alphaSlider.updateComponents(col);
       wheel.colour = col;
    }
+
+   public function getRGB() { return box.colour; }
+
+   public function getAlpha() { return alphaSlider.getValue(); }
 
    function send()
    {
