@@ -39,20 +39,19 @@ class Resources
 
    static public function loadString(inAssetName:String, inCache=false) : String
    {
-      return loadAsset(inAssetName,inCache);
-      /*
-      var bytes = loadBytes(inAssetName,false);
+      var bytes = loadAsset(inAssetName,inCache);
+      var string:String;
+      #if neko
       if (bytes==null)
          return null;
-      #if !flash
-      var result = bytes.asString();
+      string = Std.string(bytes);
       #else
-      var result = bytes.toString();
+      string = bytes;
       #end
+
       if (inCache)
-         mLoaded.set(inAssetName,result);
-      return result;
-      */
+         mLoaded.set(inAssetName,string);
+      return string;
    }
 
    static public function loadXml(inAssetName:String, inCache=false) : Xml
