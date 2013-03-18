@@ -148,6 +148,7 @@ class ListControl extends ScrollWidget
       for(i in 0...mColWidths.length)
       {
          mColPos[i] = pos;
+         #if neko if (mColWidths[i]==null) mColWidths[i] = 0; #end
          pos += mColWidths[i] + mXGap;
       }
       mColPos.push(pos);
@@ -246,7 +247,9 @@ class ListControl extends ScrollWidget
 
       mRowHeights.push(rowHeight);
       if (needRecalcPos)
-        recalcPos();
+      {
+         recalcPos();
+      }
       else
       {
          var pos = mRowPos[mRowPos.length-1];
