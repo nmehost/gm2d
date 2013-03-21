@@ -34,6 +34,7 @@ class SlideBar extends Sprite, implements IDock
    var showing:Float;
    var tabRenderer:TabRenderer;
    var fullRect:Rectangle;
+   var popOnUp:Bool;
    var mouseWatcher:MouseWatcher;
    var beginShowPos:Float;
 
@@ -91,6 +92,7 @@ class SlideBar extends Sprite, implements IDock
          case TITLE(pane):
             if (inEvent.type==MouseEvent.MOUSE_DOWN)
             {
+               popOnUp = pane == current;
                Dock.raise(pane);
                beginScroll(inEvent);
             }
@@ -99,7 +101,20 @@ class SlideBar extends Sprite, implements IDock
       }
    }
 
-   function onUp(_) { mouseWatcher=null; }
+   function onUp(_)
+   {
+      if (!mouseWatcher.wasDragged)
+      {
+         if (showing<=0)
+         {
+            if (maxSize!=null)
+               setShowing(maxSize);
+         }
+         else if (popOnUp)
+            setShowing(0);
+      }
+      mouseWatcher=null;
+   }
    function onScroll(e:MouseEvent)
    {
       var delta = 0.0;
@@ -116,6 +131,7 @@ class SlideBar extends Sprite, implements IDock
    public function beginScroll(e)
    {
       mouseWatcher = new MouseWatcher(this, null, onScroll, onUp, e.stageX, e.stageY, false);
+      mouseWatcher.minDragDistance = 10.0;
       beginShowPos = showing;
    }
 
