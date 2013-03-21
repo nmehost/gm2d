@@ -32,6 +32,7 @@ class SlideBar extends Sprite, implements IDock
    var posOffset:Int;
    var tabSide:Int;
    var showing:Float;
+   var lastPopDown:Float;
    var tabRenderer:TabRenderer;
    var fullRect:Rectangle;
    var popOnUp:Bool;
@@ -55,6 +56,7 @@ class SlideBar extends Sprite, implements IDock
       slideOver = inSlideOver;
       tabPos = inTabPos;
       showing = 0;
+      lastPopDown = 0;
       layoutDirty = true;
       posOffset = inOffset == null ? 0 : inOffset;
       tabRenderer = inShowTab ? Skin.current.tabRenderer : null;
@@ -109,9 +111,14 @@ class SlideBar extends Sprite, implements IDock
          {
             if (maxSize!=null)
                setShowing(maxSize);
+            else if (lastPopDown!=0)
+               setShowing(lastPopDown);
          }
          else if (popOnUp)
+         {
+            lastPopDown = showing;
             setShowing(0);
+         }
       }
       mouseWatcher=null;
    }

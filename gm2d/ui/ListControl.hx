@@ -265,7 +265,7 @@ class ListControl extends ScrollWidget
 
    public function showItem(idx:Int)
    {
-      if (idx>=0)
+      if (idx>=0 && idx<mRows.length)
       {
          var top = mRowPos[idx];
          // If above, put on top row ...
@@ -276,6 +276,8 @@ class ListControl extends ScrollWidget
          else if (top-mScrollY > mHeight-mRowHeights[idx])
             set_scrollY(mRowPos[idx+1]-mHeight);
       }
+      else
+         set_scrollY(0);
    }
 
    public function showSelection()
