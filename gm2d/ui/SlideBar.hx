@@ -99,6 +99,10 @@ class SlideBar extends Sprite, implements IDock
                beginScroll(inEvent);
             }
 
+         case BUTTON(_,but):
+            if (but==MiniButton.PIN)
+               trace("PIN!");
+
          default:
       }
    }
@@ -264,9 +268,12 @@ class SlideBar extends Sprite, implements IDock
          current.renderChrome(background,hitBoxes);
 
          if (tabRenderer!=null)
+         {
+            var flags = TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_PIN |
+                  TabRenderer.IS_OVERLAPPED;
             tabRenderer.renderTabs(background, fullRect, children, current,
-               hitBoxes, false, tabSide,
-               true, horizontal, true, tabPos );
+               hitBoxes, tabSide, flags, tabPos );
+         }
       }
    }
 

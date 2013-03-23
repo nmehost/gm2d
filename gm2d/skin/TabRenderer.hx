@@ -29,6 +29,14 @@ class TabRenderer
 
    public function new() { }
 
+   public static inline var SHOW_RESTORE  = 0x0001;
+   public static inline var SHOW_TEXT     = 0x0002;
+   public static inline var SHOW_ICON     = 0x0004;
+   public static inline var SHOW_PIN      = 0x0008;
+   public static inline var SHOW_POPUP    = 0x0010;
+
+   public static inline var IS_OVERLAPPED = 0x0020;
+
    public dynamic function renderBackground(bitmap:BitmapData)
    {
       var skin = Skin.current;
@@ -55,11 +63,8 @@ class TabRenderer
                               inPanes:Array<IDockable>,
                               inCurrent:IDockable,
                               outHitBoxes:HitBoxes,
-                              inShowRestore:Bool,
                               inSide:Int,
-                              inOverlapped:Bool,
-                              inShowText:Bool,
-                              inShowIcon:Bool,
+                              inFlags:Int,
                               ?inTabPos:Null<Int> )
    {
       var skin = Skin.current;
@@ -74,7 +79,19 @@ class TabRenderer
       var tabX = new Array<Float>();
 
       var w = inSide==TOP || inSide==BOTTOM ? inRect.width : inRect.height;
-      if (inOverlapped)
+
+      var buts = new Array<Int>();
+      var butPos = new Array<Int>();
+      var butWidth = new Array<Int>();
+
+      if ((inFlags & SHOW_POPUP) > 0)
+         buts.push( MiniButton.POPUP );
+      if ((inFlags & SHOW_RESTORE) > 0)
+         buts.push( MiniButton.RESTORE );
+      if ((inFlags & SHOW_PIN) > 0)
+         buts.push( MiniButton.PIN );
+
+      if ((inFlags & IS_OVERLAPPED)>0)
       {
          // Calculate actual width
          var tx = 1.0;
@@ -91,6 +108,14 @@ class TabRenderer
             tx+=tabGap;
          }
          tabX.push(tx);
+         if (buts.length>0)
+            tx+= 6;
+         for(but in buts)
+         {
+            var bmp = skin.getButtonBitmapData(but,HitBoxes.BUT_STATE_UP);
+            if (bmp!=null) 
+               tx+=bmp.width;
+         }
          w = tx + 3;
       }
 
@@ -106,12 +131,10 @@ class TabRenderer
       gfx.clear();
 
 
-      var buts = [ MiniButton.POPUP ];
-      if (inShowRestore)
-         buts.push( MiniButton.RESTORE );
       var x = bitmap.width - 4;
-      for(but in buts)
+      for(b in 0...buts.length)
       {
+         var but = buts[b];
          var bmp = skin.getButtonBitmapData(but,HitBoxes.BUT_STATE_UP);
          if (bmp!=null) 
          {
@@ -120,12 +143,18 @@ class TabRenderer
 
             bitmap.copyPixels( bmp, new Rectangle(0,0,bmp.width,bmp.height), new Point(x,y), null, null, true );
 
-            outHitBoxes.add( new Rectangle(boxOffset.x + x,boxOffset.y +  y,bmp.width,bmp.height), HitAction.BUTTON(null,but) );
+            if ((inFlags & IS_OVERLAPPED)==0)
+               outHitBoxes.add( new Rectangle(boxOffset.x + x,boxOffset.y +  y,bmp.width,bmp.height), HitAction.BUTTON(null,but) );
+            else
+            {
+               butPos[b] = x;
+               butWidth[b] = bmp.width;
+            }
          }
       }
 
       var trans = new gm2d.geom.Matrix();
-      var y0 = inOverlapped ? 4 : 2;
+      var y0 = (inFlags & IS_OVERLAPPED)>0 ? 4 : 2;
       trans.tx = 1;
       trans.ty = y0;
 
@@ -144,7 +173,7 @@ class TabRenderer
 
 
          var r = new Rectangle(trans.tx,0,tw,tabHeight);
-         if (!inOverlapped)
+         if ((inFlags & IS_OVERLAPPED)==0)
             outHitBoxes.add(new Rectangle(trans.tx+boxOffset.x,boxOffset.y,tw,tabHeight), TITLE(pane) );
 
          if (pane==inCurrent)
@@ -231,15 +260,14 @@ class TabRenderer
          bitmap.draw(tmpText,trans);
       }
 
-      if (!inOverlapped)
+      if ((inFlags & IS_OVERLAPPED) == 0)
       {
          gfx.clear();
          gfx.beginFill(skin.guiMedium);
          gfx.drawRect(0,tabHeight-2,w,8);
          bitmap.draw(shape);
       }
-
-      if (inOverlapped)
+      else
       {
          switch(inSide)
          {
@@ -252,6 +280,10 @@ class TabRenderer
                for(i in 0...tabX.length-1)
                   outHitBoxes.add(new Rectangle(display.x+boxOffset.x+tabX[i],boxOffset.y+display.y,
                            tabX[i+1]-tabX[i],tabHeight), TITLE(inPanes[i]) );
+               for(b in 0...buts.length)
+                  outHitBoxes.add(new Rectangle(display.x+boxOffset.x+butPos[b],boxOffset.y+display.y,
+                           butWidth[b],tabHeight),  HitAction.BUTTON(null,buts[b]));
+
             case BOTTOM:
                display.y += inRect.height;
 
@@ -273,7 +305,11 @@ class TabRenderer
                   outHitBoxes.add(new Rectangle(display.x+boxOffset.x,
                            boxOffset.y+display.y - tabX[i+1],
                            tabHeight,tabX[i+1]-tabX[i]), TITLE(inPanes[i]) );
-                }
+               }
+               for(b in 0...buts.length)
+                  outHitBoxes.add(new Rectangle(display.x+boxOffset.x,boxOffset.y+display.y-butPos[b]-butWidth[b],
+                           tabHeight, butWidth[b]),  HitAction.BUTTON(null,buts[b]));
+
          }
       }
    }

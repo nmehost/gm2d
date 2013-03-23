@@ -405,7 +405,10 @@ class Skin
                               inCurrent:IDockable,
                               outHitBoxes:HitBoxes,
                               inShowRestore:Bool  )
-      { tabRenderer.renderTabs(inTabContainer, inRect, inPanes, inCurrent, outHitBoxes, inShowRestore, TabRenderer.TOP, false, true, true ); }
+      {
+         var flags = (inShowRestore ? TabRenderer.SHOW_RESTORE : 0) |
+               TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_POPUP;
+         tabRenderer.renderTabs(inTabContainer, inRect, inPanes, inCurrent, outHitBoxes, TabRenderer.TOP, flags ); }
 
 
    public function renderMultiDock(dock:MultiDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable,tabStyle:Bool)
@@ -720,10 +723,19 @@ class Skin
          gfx.lineTo(8,10);
          gfx.lineTo(5,7);
       }
-      if (inState==HitBoxes.BUT_STATE_DOWN)
+
+      else if (inButton==MiniButton.PIN)
       {
-         matrix.tx = matrix.ty = 1;
+         gfx.moveTo(1,7);
+         gfx.lineTo(5,7);
+         gfx.drawRect(5,3,2,9);
+         gfx.drawRect(7,5,6,5);
       }
+
+      if (inState==HitBoxes.BUT_STATE_DOWN)
+         matrix.tx = matrix.ty = 1.5;
+      else
+         matrix.tx = matrix.ty = 0.5;
 
       if (inState!=HitBoxes.BUT_STATE_UP)
       {

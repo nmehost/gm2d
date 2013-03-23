@@ -174,9 +174,16 @@ class App extends Screen
  
  
       dock.setRect(x0,y0,w,h);
+
+      if (leftSlider!=null) leftSlider.checkChrome();
+      if (rightSlider!=null) rightSlider.checkChrome();
+      if (bottomSlider!=null) bottomSlider.checkChrome();
    }
 
-   override public function scaleScreen(inScale:Float) { doLayout(); }
+   override public function scaleScreen(inScale:Float)
+   {
+      doLayout();
+   }
 
    public function get_menubar() : Menubar
    {
