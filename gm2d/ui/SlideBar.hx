@@ -41,6 +41,7 @@ class SlideBar extends Sprite, implements IDock
 
    var current:IDockable;
    var children:Array<IDockable>;
+   public var pinned(default,set_pinned):Bool;
 
    public function new(inParent:DisplayObjectContainer,inPos:DockPosition,
              inMinSize:Null<Int>, inMaxSize:Null<Int>,
@@ -70,6 +71,7 @@ class SlideBar extends Sprite, implements IDock
 
       children = new Array<IDockable>();
       current = null;
+      pinned = false;
 
 
       background = new Sprite();
@@ -101,7 +103,7 @@ class SlideBar extends Sprite, implements IDock
 
          case BUTTON(_,but):
             if (but==MiniButton.PIN)
-               trace("PIN!");
+               pinned = !pinned;
 
          default:
       }
@@ -161,6 +163,13 @@ class SlideBar extends Sprite, implements IDock
       }
    }
 
+   public function set_pinned(inPinned:Bool):Bool
+   {
+      pinned = inPinned;
+      setDirty(true,true);
+      return inPinned;
+   }
+
 
    public function isDirty()
    {
@@ -173,20 +182,29 @@ class SlideBar extends Sprite, implements IDock
       if (current==null)
          return 0;
 
+      var offset = pinned ? 0 : posOffset;
       if (horizontal)
       {
-         y+=posOffset;
-         h-=posOffset;
+         y+=offset;
+         h-=offset;
       }
       else
       {
-         x+=posOffset;
-         w-=posOffset;
+         x+=offset;
+         w-=offset;
       }
 
+      var oy = 0.0;
       var right = x+w;
       var bottom = y+h;
-      if (maxSize!=null)
+      if (pinned && maxSize!=null)
+      {
+         if (horizontal)
+            w = maxSize;
+         else
+            h = maxSize - Skin.current.tabHeight;
+      }
+      else if (maxSize!=null)
       {
          if (horizontal && w>maxSize)
             w = maxSize;
@@ -201,9 +219,15 @@ class SlideBar extends Sprite, implements IDock
             h = minSize;
       }
 
+      if (pinned)
+      {
+         oy = Skin.current.tabHeight;
+         h- Skin.current.tabHeight;
+      }
+
       var size = current.getLayoutSize(w,h,!horizontal);
 
-      current.setRect(0,0,size.x,size.y);
+      current.setRect(0,oy,size.x,size.y);
 
       if (horizontal)
       {
@@ -232,7 +256,7 @@ class SlideBar extends Sprite, implements IDock
 
          case DOCK_TOP:
             this.x = x;
-            this.y = showing - size.y;
+            this.y = showing - size.y - oy;
 
          default:
       }
@@ -269,10 +293,19 @@ class SlideBar extends Sprite, implements IDock
 
          if (tabRenderer!=null)
          {
-            var flags = TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_PIN |
-                  TabRenderer.IS_OVERLAPPED;
-            tabRenderer.renderTabs(background, fullRect, children, current,
-               hitBoxes, tabSide, flags, tabPos );
+            if (pinned)
+            {
+               var flags = TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_PIN;
+               tabRenderer.renderTabs(background, fullRect, children, current,
+                  hitBoxes,  TabRenderer.TOP, flags, tabPos );
+            }
+            else
+            {
+               var flags = TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_PIN |
+                     TabRenderer.IS_OVERLAPPED;
+               tabRenderer.renderTabs(background, fullRect, children, current,
+                  hitBoxes, tabSide, flags, tabPos );
+            }
          }
       }
    }
