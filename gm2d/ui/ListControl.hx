@@ -4,7 +4,9 @@ import gm2d.display.DisplayObject;
 import gm2d.display.BitmapData;
 import gm2d.display.Bitmap;
 import gm2d.geom.Rectangle;
+import gm2d.geom.Point;
 import gm2d.text.TextField;
+import gm2d.events.MouseEvent;
 import gm2d.text.TextFieldAutoSize;
 import gm2d.skin.Skin;
 
@@ -288,16 +290,34 @@ class ListControl extends ScrollWidget
 
    public function select(inIndex:Int)
    {
-      if (mSelected!=inIndex || mMultiSelect!=null)
+      var i = inIndex < 0 ? 0 : inIndex>=mRows.length ? mRows.length-1 : inIndex;
+      if (i>=0)
       {
-         mSelected = inIndex;
-         mMultiSelect = null;
-         drawBG();
-         if (onSelect!=null)
-            onSelect(inIndex);
+         if (mSelected!=i || mMultiSelect!=null)
+         {
+            mSelected = i;
+            mMultiSelect = null;
+            drawBG();
+            if (onSelect!=null)
+               onSelect(i);
+         }
+         showItem(i);
       }
-      showItem(inIndex);
    }
+
+   public function rowFromMouse(ev:MouseEvent):Array<DisplayObject>
+   {
+      var local =  globalToLocal( new Point(ev.stageX,ev.stageY) );
+      if (local.y<=0)
+         return null;
+
+      for(idx in 0...mRowHeights.length)
+         if (mRowPos[idx+1]>=local.y)
+             return mRows[idx];
+
+      return null;
+   }
+
 
    public function itemFromY(inY:Float):Float
    {
