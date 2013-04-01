@@ -305,6 +305,19 @@ class ListControl extends ScrollWidget
       }
    }
 
+   public function getRow(inIdx:Int) : Array<DisplayObject>
+   {
+      return mRows[inIdx];
+   }
+
+   public function findRow( inFunc: Array<DisplayObject> -> Bool ) : Int
+   {
+      for(idx in 0...mRows.length)
+         if (inFunc(mRows[idx]))
+            return idx;
+      return -1;
+   }
+
    public function rowFromMouse(ev:MouseEvent):Array<DisplayObject>
    {
       var local =  globalToLocal( new Point(ev.stageX,ev.stageY) );
