@@ -109,7 +109,7 @@ class ScrollWidget extends Control
       }
    }
 
-   function onClick(inX:Float, inY:Float)
+   function onClick(inX:Float, inY:Float,ev:MouseEvent)
    {
       trace(inX+","+inY);
    }
@@ -119,7 +119,7 @@ class ScrollWidget extends Control
       if (!mScrolling)
       {
          var local = globalToLocal(mDownPos);
-         onClick(local.x,local.y);
+         onClick(local.x,local.y,ev);
       }
       else
       {

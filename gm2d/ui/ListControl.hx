@@ -28,6 +28,7 @@ class ListControl extends ScrollWidget
    var mMultiSelect:Array<Bool>;
    var mControlHeight:Float;
    public var onSelect:Int->Void;
+   public var onMultiSelect:Array<Bool>->Void;
    public var mXGap:Float;
    public var mTextSelectable:Bool;
   
@@ -288,18 +289,46 @@ class ListControl extends ScrollWidget
    }
 
 
-   public function select(inIndex:Int)
+   public static inline var SELECT_RANGE  = 0x01;
+   public static inline var SELECT_TOGGLE = 0x02;
+
+   public function select(inIndex:Int,inFlags:Int=0)
    {
       var i = inIndex < 0 ? 0 : inIndex>=mRows.length ? mRows.length-1 : inIndex;
       if (i>=0)
       {
-         if (mSelected!=i || mMultiSelect!=null)
+         if (mSelected!=i || mMultiSelect!=null || (inFlags!=0))
          {
-            mSelected = i;
-            mMultiSelect = null;
+            var toggle = (inFlags&SELECT_TOGGLE)!=0;
+            var range = (inFlags&SELECT_RANGE)!=0;
+            if (range)
+            {
+               if (mMultiSelect==null || !toggle)
+                  mMultiSelect = new Array<Bool>();
+
+               var s0 = mSelected<i ? mSelected : i;
+               var s1 = mSelected<i ? i+1 : mSelected+1;
+               for(s in s0...s1)
+                  mMultiSelect[s] = toggle ? !mMultiSelect[s] : true;
+               onMultiSelect(mMultiSelect);
+            }
+            else if (toggle)
+            {
+               if (mMultiSelect==null)
+                  mMultiSelect = new Array<Bool>();
+               mMultiSelect[i] = !mMultiSelect[i];
+               mSelected = i;
+               onMultiSelect(mMultiSelect);
+            }
+            else
+            {
+               mSelected = i;
+               mMultiSelect = null;
+               if (onSelect!=null)
+                  onSelect(i);
+            }
+
             drawBG();
-            if (onSelect!=null)
-               onSelect(i);
          }
          showItem(i);
       }
@@ -345,17 +374,25 @@ class ListControl extends ScrollWidget
       return mRowHeights.length;
    }
 
-   public function selectByY(inY:Float):Int
+   public function selectByY(inY:Float,inFlags:Int=0):Int
    {
       var idx = Std.int(itemFromY(inY));
       if (idx<mRowPos.length)
-         select(idx);
+         select(idx,inFlags);
       return -1;
    }
 
-   override function onClick(inX:Float, inY:Float)
+   override function onClick(inX:Float, inY:Float,ev:MouseEvent)
    {
-      selectByY(inY);
+      var flags = 0;
+      if (onMultiSelect!=null)
+      {
+         if (ev.ctrlKey)
+           flags |= SELECT_TOGGLE;
+         if (ev.shiftKey)
+           flags |= SELECT_RANGE;
+      }
+      selectByY(inY,flags);
    }
 
 
@@ -366,7 +403,7 @@ class ListControl extends ScrollWidget
       gfx.clear();
       for(i in 0...mRows.length)
       {
-         var selected = i==mSelected || (mMultiSelect!=null && mMultiSelect[i]);
+         var selected = mMultiSelect==null ?  i==mSelected : mMultiSelect[i];
          gfx.beginFill( selected ? selectColour : ( (i & 1) > 0 ? oddColour: evenColour ),
                         selected ? selectAlpha  : ( (i & 1) > 0 ? oddAlpha : evenAlpha  ) );
          gfx.drawRect(0,mRowPos[i],mWidth,mRowHeights[i]);
