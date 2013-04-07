@@ -339,6 +339,16 @@ class ListControl extends ScrollWidget
       return mRows[inIdx];
    }
 
+   public function getItem(inRow:Int,inCol:Int) : DisplayObject
+   {
+      if (inRow<0) return null;
+      var row = mRows[inRow];
+      if (row==null)
+         return null;
+      return row[inCol];
+   }
+
+
    public function findRow( inFunc: Array<DisplayObject> -> Bool ) : Int
    {
       for(idx in 0...mRows.length)
@@ -347,17 +357,25 @@ class ListControl extends ScrollWidget
       return -1;
    }
 
-   public function rowFromMouse(ev:MouseEvent):Array<DisplayObject>
+   public function indexFromMouse(ev:MouseEvent):Int
    {
       var local =  globalToLocal( new Point(ev.stageX,ev.stageY) );
       if (local.y<=0)
-         return null;
+         return -1;
 
       for(idx in 0...mRowHeights.length)
          if (mRowPos[idx+1]>=local.y)
-             return mRows[idx];
+             return idx;
 
-      return null;
+      return -1;
+   }
+
+   public function rowFromMouse(ev:MouseEvent):Array<DisplayObject>
+   {
+      var idx = indexFromMouse(ev);
+      if (idx<0)
+         return null;
+      return mRows[idx];
    }
 
 
