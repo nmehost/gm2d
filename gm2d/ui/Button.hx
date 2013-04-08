@@ -267,3 +267,51 @@ class Button extends Control
    }
 }
 
+class BmpButton extends Button
+{
+   public var bitmap(default,null):Bitmap;
+   public var normal:BitmapData;
+   public var disabled:BitmapData;
+
+   public function new(inBitmapData:BitmapData,?inOnClick:Void->Void)
+   {
+      normal = inBitmapData;
+      bitmap = new Bitmap(normal);
+      super(bitmap,inOnClick);
+   }
+
+   public function createDisabled(inBmp:BitmapData)
+   {
+      var w = inBmp.width;
+      var h = inBmp.height;
+      var result = new BitmapData(w,h,true,gm2d.RGB.CLEAR);
+
+      for(y in 0...h)
+         for(x in 0...w)
+         {
+            var pix = inBmp.getPixel32(x,y);
+            var val = (pix&0xff) + ( (pix>>8)&0xff ) + ( (pix>>16)&0xff ); 
+            if (val<255) val=0;
+            else if (val>512) val = 255;
+            else val = 128;
+            val = (val * 0x10101) | (pix&0xff000000);
+            result.setPixel32(x,y,val);
+         }
+
+      return result;
+   }
+
+   public function enable(inEnable:Bool)
+   {
+      mouseEnabled = inEnable;
+      if (inEnable)
+         bitmap.bitmapData = normal;
+      else
+      {
+         if (disabled==null)
+            disabled = createDisabled(normal);
+         bitmap.bitmapData = disabled;
+      }
+   }
+}
+
