@@ -1,6 +1,7 @@
 package gm2d.ui;
 
 import gm2d.events.MouseEvent;
+import gm2d.events.Event;
 import gm2d.display.Stage;
 import gm2d.geom.Point;
 import gm2d.geom.Rectangle;
@@ -27,6 +28,9 @@ class ScrollWidget extends Control
    public var mScrolling(default,null):Bool;
    var mDownScrollX:Float;
    var mDownScrollY:Float;
+   var mAutoScrollMouseWatch:MouseWatcher;
+   var mAutoScrollTime:Float;
+   public var autoScrollRate = 500.0;
 
 
    var speedX:TimeAverage;
@@ -107,6 +111,48 @@ class ScrollWidget extends Control
          mEventStage.removeEventListener(MouseEvent.MOUSE_UP, onStageUp);
          mEventStage = null;
       }
+   }
+
+   function removeAutoScrollCheck(_)
+   {
+      if (mAutoScrollMouseWatch!=null)
+          removeEventListener(Event.ENTER_FRAME,onAutoScrollMouseCheck);
+      mAutoScrollMouseWatch = null;
+      trace("Remove");
+   }
+   function onAutoScrollMouseCheck(e)
+   {
+      var now =  haxe.Timer.stamp();
+      var dt = now - mAutoScrollTime;
+      mAutoScrollTime = now;
+      if (dt>1.0)
+         dt = 1.0;
+
+      if (maxScrollX>0)
+      {
+         var x = mAutoScrollMouseWatch.pos.x;
+      }
+      if (maxScrollY>0)
+      {
+         var y = mAutoScrollMouseWatch.pos.y;
+         if (y<5)
+            scrollY = scrollY - dt*autoScrollRate;
+         if (y>windowHeight-5)
+            scrollY = scrollY + dt*autoScrollRate;
+      }
+   }
+
+   public function beginScrollToMouse(ev:MouseEvent)
+   {
+      var pos = globalToLocal( new Point(ev.stageX,ev.stageY) );
+      removeAutoScrollCheck(null);
+      mAutoScrollTime = haxe.Timer.stamp();
+      mAutoScrollMouseWatch = new MouseWatcher(this,
+                null,
+                null,
+                removeAutoScrollCheck,
+                pos.x, pos.y, false);
+      addEventListener(Event.ENTER_FRAME,onAutoScrollMouseCheck);
    }
 
    function onClick(inX:Float, inY:Float,ev:MouseEvent)
