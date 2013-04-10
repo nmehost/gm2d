@@ -388,10 +388,11 @@ class Svg extends Group
           var x = inPath.exists("cx") ? Std.parseFloat(inPath.get("cx")) : 0;
           var y = inPath.exists("cy") ? Std.parseFloat(inPath.get("cy")) : 0;
 
-          var w = inPath.exists("rx") ? Std.parseFloat(inPath.get("rx")) : 0.0;
+          var defaultRad = inPath.exists("r") ? Std.parseFloat(inPath.get("r")) : 0.0;
+          var w = inPath.exists("rx") ? Std.parseFloat(inPath.get("rx")) : defaultRad;
           var w_ = w*SIN45;
           var cw_ = w*TAN22;
-          var h = inPath.exists("ry") ? Std.parseFloat(inPath.get("ry")) : 0.0;
+          var h = inPath.exists("ry") ? Std.parseFloat(inPath.get("ry")) : defaultRad;
           var h_ = h*SIN45;
           var ch_ = h*TAN22;
 
@@ -489,7 +490,7 @@ class Svg extends Group
           {
              g.children.push( DisplayPath( loadPath(el,matrix, styles, false, false) ) );
           }
-          else if (name=="ellipse")
+          else if (name=="ellipse" || name=="circle")
           {
              g.children.push( DisplayPath( loadPath(el,matrix, styles, false, true) ) );
           }
