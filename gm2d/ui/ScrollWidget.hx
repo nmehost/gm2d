@@ -118,7 +118,6 @@ class ScrollWidget extends Control
       if (mAutoScrollMouseWatch!=null)
           removeEventListener(Event.ENTER_FRAME,onAutoScrollMouseCheck);
       mAutoScrollMouseWatch = null;
-      trace("Remove");
    }
    function onAutoScrollMouseCheck(e)
    {

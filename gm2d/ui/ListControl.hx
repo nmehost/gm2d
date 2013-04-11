@@ -334,6 +334,8 @@ class ListControl extends ScrollWidget
       }
    }
 
+   public function getLength() { return mRows.length; }
+
    public function getRow(inIdx:Int) : Array<DisplayObject>
    {
       return mRows[inIdx];
