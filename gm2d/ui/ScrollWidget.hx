@@ -127,17 +127,20 @@ class ScrollWidget extends Control
       if (dt>1.0)
          dt = 1.0;
 
-      if (maxScrollX>0)
+      if (mAutoScrollMouseWatch.wasDragged)
       {
-         var x = mAutoScrollMouseWatch.pos.x;
-      }
-      if (maxScrollY>0)
-      {
-         var y = mAutoScrollMouseWatch.pos.y;
-         if (y<5)
-            scrollY = scrollY - dt*autoScrollRate;
-         if (y>windowHeight-5)
-            scrollY = scrollY + dt*autoScrollRate;
+         if (maxScrollX>0)
+         {
+            var x = mAutoScrollMouseWatch.pos.x;
+         }
+         if (maxScrollY>0)
+         {
+            var y = mAutoScrollMouseWatch.pos.y;
+            if (y<5)
+               scrollY = scrollY - dt*autoScrollRate;
+            if (y>windowHeight-5)
+               scrollY = scrollY + dt*autoScrollRate;
+         }
       }
    }
 
@@ -212,12 +215,16 @@ class ScrollWidget extends Control
    public function get_scrollY() { return mScrollY; }
    public function set_scrollY(val:Float) : Float
    {
-      mScrollY = val;
-      if (mScrollY<0) mScrollY=0;
-      if (mScrollY>maxScrollY) mScrollY = maxScrollY;
-      scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
-      if (onScroll!=null)
-         onScroll();
+      var s = val;
+      if (s<0) s=0;
+      if (s>maxScrollY) s = maxScrollY;
+      if (s!=mScrollY)
+      {
+         mScrollY = s;
+         scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
+         if (onScroll!=null)
+            onScroll();
+      }
       return mScrollY;
    }
 

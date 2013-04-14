@@ -270,13 +270,15 @@ class ListControl extends ScrollWidget
    {
       if (idx>=0 && idx<mRows.length)
       {
+         recalcPos();
          var top = mRowPos[idx];
+         //trace("Show item " + idx + ":" + top + " / " + mScrollY + "/" + mHeight);
          // If above, put on top row ...
-         if (top<mScrollY)
+         if (top<=mScrollY)
             set_scrollY(top);
 
          // if below, raise to bottom line
-         else if (top-mScrollY > mHeight-mRowHeights[idx])
+         else if (mHeight>0 && top-mScrollY > mHeight-mRowHeights[idx])
             set_scrollY(mRowPos[idx+1]-mHeight);
       }
       else
@@ -289,8 +291,10 @@ class ListControl extends ScrollWidget
    }
 
 
-   public static inline var SELECT_RANGE  = 0x01;
-   public static inline var SELECT_TOGGLE = 0x02;
+   public static inline var SELECT_RANGE       = 0x01;
+   public static inline var SELECT_TOGGLE      = 0x02;
+   public static inline var SELECT_NO_CALLBACK = 0x04;
+   public static inline var SELECT_SHOW_ITEM   = 0x08;
 
    public function select(inIndex:Int,inFlags:Int=0)
    {
@@ -324,13 +328,14 @@ class ListControl extends ScrollWidget
             {
                mSelected = i;
                mMultiSelect = null;
-               if (onSelect!=null)
+               if (onSelect!=null && (inFlags&SELECT_NO_CALLBACK)==0)
                   onSelect(i);
             }
 
             drawBG();
+            if (mSelected>=0 && (inFlags&SELECT_SHOW_ITEM)!=0 )
+               showItem(mSelected);
          }
-         showItem(i);
       }
    }
 
