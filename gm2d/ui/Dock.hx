@@ -7,6 +7,7 @@ class Dock
    public static inline var RESIZABLE     = 0x0001;
    public static inline var TOOLBAR       = 0x0002;
    public static inline var DONT_DESTROY  = 0x0004;
+   public static inline var COLLAPSED     = 0x0008;
 
    public static inline var DOCK_SLOT_HORIZ = 0;
    public static inline var DOCK_SLOT_VERT  = 1;
@@ -16,6 +17,14 @@ class Dock
 
    public static function isResizeable(i:IDockable) { return (i.getFlags()&RESIZABLE)!=0; }
    public static function isToolbar(i:IDockable) { return (i.getFlags()&TOOLBAR)!=0; }
+   public static function isCollapsed(i:IDockable) { return (i.getFlags()&COLLAPSED)!=0; }
+   public static function setCollapsed(i:IDockable,inVal:Bool)
+   {
+      if (inVal)
+         i.setFlags( i.getFlags() | COLLAPSED );
+      else
+         i.setFlags( i.getFlags() & (0xfffffff -COLLAPSED) );
+   }
 
    public static function remove(child:IDockable)
    {

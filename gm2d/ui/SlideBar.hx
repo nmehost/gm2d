@@ -106,6 +106,7 @@ class SlideBar extends Sprite, implements IDock
                pinned = !pinned;
 
          default:
+            trace(inAction);
       }
    }
 
