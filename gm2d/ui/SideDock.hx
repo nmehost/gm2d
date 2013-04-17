@@ -370,7 +370,8 @@ class SideDock implements IDock, implements IDockable
                       new Rectangle( mRect.x, mPositions[d], mRect.width, mWidths[d] );
          if (pane!=null)
          {
-            Skin.current.renderPaneChrome(pane,inContainer,outHitBoxes,rect, toolbarGripperTop);
+            Skin.current.renderPaneChrome(pane,inContainer,outHitBoxes,rect,
+               toolbarGripperTop?Skin.TOOLBAR_GRIP_TOP:0);
          }
          else
          {

@@ -82,6 +82,10 @@ class Skin
    public var mDrawing:Shape;
    public var mText:TextField;
 
+   public static inline var TOOLBAR_GRIP_TOP = 0x0001;
+   public static inline var SHOW_COLLAPSE    = 0x0002;
+   public static inline var SHOW_EXPAND      = 0x0004;
+
    public function new()
    {
       textFormat = new gm2d.text.TextFormat();
@@ -329,7 +333,7 @@ class Skin
       gfx.endFill();
    }
 
-   public function renderPaneChrome(inPane:Pane,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inTopGrip:Bool):Void
+   public function renderPaneChrome(inPane:Pane,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inFlags:Int):Void
    {
       var gfx = inContainer.graphics;
       gfx.lineStyle();
@@ -341,7 +345,7 @@ class Skin
       {
          var px = inPane.sizeX;
          var py = inPane.sizeY;
-         if (inTopGrip)
+         if ( (inFlags & TOOLBAR_GRIP_TOP) != 0 )
          {
             outHitBoxes.add(new Rectangle(inRect.x+1, inRect.y+1, px+4, 6), TITLE(inPane) );
             gfx.drawRect(inRect.x+1.5,inRect.y+1.5,px+2,py+8);
@@ -382,6 +386,26 @@ class Skin
          gfx.drawRect(inRect.x+1, inRect.y, inRect.width-2, 21);
          gfx.endFill();
  
+         var w = inRect.width;
+         var flags = [ SHOW_COLLAPSE, SHOW_EXPAND ];
+         var buts = [MiniButton.MINIMIZE, MiniButton.MAXIMIZE ];
+         for(i in 0...2)
+            if ( (inFlags&flags[i])!=0 )
+            {
+               var but = buts[i];
+               var state = getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
+               var button = new SimpleButton( state,
+                                  getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
+                                  getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
+               inContainer.addChild(button);
+               button.x = inRect.x + w - 16 - 2;
+               w-=16+2;
+               button.y = Std.int( inRect.y + 1);
+
+               if (outHitBoxes.mCallback!=null)
+                  button.addEventListener( MouseEvent.CLICK,
+                     function(e) outHitBoxes.mCallback( BUTTON(inPane,but), e ) );
+            }
 
          var text = new TextField();
          styleText(text);
@@ -390,11 +414,11 @@ class Skin
          text.text = inPane.shortTitle;
          text.x = inRect.x+2;
          text.y = inRect.y+2;
-         text.width = inRect.width-4;
+         text.width = w-4;
          text.height = inRect.height-4;
          inContainer.addChild(text);
 
-         outHitBoxes.add(new Rectangle(inRect.x+2, inRect.y+2, inRect.width-4, 18), TITLE(inPane) );
+         outHitBoxes.add(new Rectangle(inRect.x+2, inRect.y+2, w-4, 18), TITLE(inPane) );
       }
 
    }

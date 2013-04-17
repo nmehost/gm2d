@@ -11,7 +11,6 @@ class Control extends Widget
    public function new()
    {
       super();
-      name = "control";
 		wantFocus = true;
    }
 

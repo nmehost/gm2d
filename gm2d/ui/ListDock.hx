@@ -6,17 +6,64 @@ import gm2d.display.BitmapData;
 import gm2d.ui.DockPosition;
 import gm2d.geom.Rectangle;
 import gm2d.skin.Skin;
+import gm2d.events.MouseEvent;
+import gm2d.ui.HitBoxes;
 
 class ListDock extends SideDock
 {
    var mScroll:ScrollWidget;
+   var mBackground:Sprite;
+   var hitBoxes:HitBoxes;
+   //var chromeDirty:Bool;
+   //var layoutDirty:Bool;
 
    public function new( )
    {
       super(DOCK_TOP);
       mScroll = new ScrollWidget();
+      mScroll.wantFocus = false;
       container = mScroll;
+      mScroll.shouldBeginScroll = shouldBeginScroll;
+      mBackground = new Sprite();
+      mScroll.addChild(mBackground);
+      hitBoxes = new HitBoxes(mBackground,onHitBox);
    }
+
+   function shouldBeginScroll(ev:MouseEvent) : Bool
+   {
+      return ev.target==mScroll || ev.target==mBackground;
+   }
+
+   function onHitBox(inAction:HitAction,inEvent:MouseEvent)
+   {
+      switch(inAction)
+      {
+         //case DRAG(_pane):
+         //   doStartDrag(inEvent);
+         case TITLE(pane):
+            Dock.raise(pane);
+         case BUTTON(pane,id):
+            if (id==MiniButton.CLOSE)
+            {
+               pane.closeRequest(false);
+            }
+            else if (id==MiniButton.MINIMIZE)
+            {
+               Dock.setCollapsed(pane,true);
+               setDirty(true,true);
+            }
+            else if (id==MiniButton.MAXIMIZE)
+            {
+               Dock.setCollapsed(pane,false);
+               setDirty(true,true);
+            }
+            //redraw();
+         case REDRAW:
+            //redraw();
+         default:
+      }
+   }
+
 
    override public function setDock(inDock:IDock,inParent:DisplayObjectContainer):Void
    {
@@ -115,28 +162,35 @@ class ListDock extends SideDock
 
    override public function renderChrome(inContainer:Sprite,outHitBoxes:HitBoxes):Void
    {
+      mBackground.graphics.clear();
+      while(mBackground.numChildren>0)
+         mBackground.removeChildAt(0);
+      hitBoxes.clear();
+
       //Skin.current.renderResizeBars(this,inContainer,outHitBoxes,mRect,horizontal,mWidths);
       for(d in 0...mDockables.length)
       {
          var pane = mDockables[d].asPane();
-         var rect = horizontal ?
-                      new Rectangle( mPositions[d], mRect.y, mWidths[d], mRect.height ) :
-                      new Rectangle( mRect.x, mPositions[d], mRect.width, mWidths[d] );
+         var rect = new Rectangle( mRect.x, mPositions[d], mRect.width, mWidths[d] );
+
          if (pane!=null)
          {
-            Skin.current.renderPaneChrome(pane,mScroll,outHitBoxes,rect, toolbarGripperTop);
+            Skin.current.renderPaneChrome(pane,mBackground,hitBoxes,rect,
+               (toolbarGripperTop? Skin.TOOLBAR_GRIP_TOP : 0) |
+                 (Dock.isCollapsed(pane) ? Skin.SHOW_EXPAND : Skin.SHOW_COLLAPSE )
+               );
          }
          else
          {
-            mDockables[d].renderChrome(mScroll,outHitBoxes);
+            mDockables[d].renderChrome(mBackground,hitBoxes);
             var r = mDockables[d].getDockRect();
             var gap = horizontal ? mRect.height - r.height : mRect.width-r.width;
             if (gap>0.5)
             {
                if (horizontal)
-                  Skin.current.renderToolbarGap(mScroll,rect.x, rect.bottom-gap, rect.width, gap);
+                  Skin.current.renderToolbarGap(mBackground,rect.x, rect.bottom-gap, rect.width, gap);
                else
-                  Skin.current.renderToolbarGap(mScroll,rect.right - gap, rect.y, gap, rect.height);
+                  Skin.current.renderToolbarGap(mBackground,rect.right - gap, rect.y, gap, rect.height);
             }
          }
       }

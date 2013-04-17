@@ -18,7 +18,6 @@ class Widget extends gm2d.display.Sprite, implements IWidget
    public function new()
    {
       super();
-      name = "item";
 		wantFocus = false;
       //highlightColour = 0x0000ff;
    }
