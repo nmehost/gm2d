@@ -33,6 +33,10 @@ class NumericInput extends TextInput
       renderSlider();
    }
 
+   public function setValue(inValue:Float) : Void
+   {
+      mText.text = Std.string(inValue);
+   }
 
    function onSliderDown(e:MouseEvent)
    {

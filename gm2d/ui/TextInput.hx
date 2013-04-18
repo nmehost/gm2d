@@ -33,6 +33,11 @@ class TextInput extends Control
        addChild(mText);
    }
 
+   public function setTextWidth(inW:Float)
+   {
+      mText.width = inW;
+   }
+
    public function set_text(inText:String)
    {
        mText.text = inText;

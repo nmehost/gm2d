@@ -44,8 +44,8 @@ class RGBHSV
       v = inV;
 
       var rgb = hsv2rgb(h,s,v);
-      r = (rgb>>16);
-      g = (rgb>>8);
+      r = (rgb>>16) & 0xff;
+      g = (rgb>>8) & 0xff;
       b = (rgb) & 0xff;
 
       return this;
@@ -542,6 +542,14 @@ class ColourControl extends Widget
    var box:RGBBox;
    var valueSlider:ColourSlider;
    var alphaSlider:ColourSlider;
+
+   var redIn:NumericInput;
+   var greenIn:NumericInput;
+   var blueIn:NumericInput;
+   var hueIn:NumericInput;
+   var saturationIn:NumericInput;
+   var valueIn:NumericInput;
+
    var updateLockout:Int;
    public var onColourChange:Int->Float->Void;
 
@@ -549,8 +557,38 @@ class ColourControl extends Widget
    {
       super();
   
+      updateLockout = 1;
+
+      var all =  new GridLayout(3,"All",0);
+      all.add( createNumberBoxes() );
+
+      valueSlider = new ColourSlider(ColourSlider.VALUE, true);
+      valueSlider.onChange = onValue;
+      addChild(valueSlider);
+      all.add(valueSlider.getLayout());
+
+      wheel = new ColourWheel(inCol,inAlpha);
+      wheel.onChange = onWheel;
+      addChild(wheel);
+      all.add(wheel.getLayout());
+
+      box = new RGBBox(inCol,inAlpha);
+      addChild(box);
+      all.add(box.getLayout().setAlignment( Layout.AlignStretch).setBorders(2,2,2,2));
+
+      all.add(null);
+
+      alphaSlider = new ColourSlider(ColourSlider.ALPHA, false);
+      alphaSlider.onChange = onAlpha;
+      addChild(alphaSlider);
+      all.add(alphaSlider.getLayout());
+
+      all.setColStretch(2,1);
+
       updateLockout = 0;
 
+      setBoxes(wheel.get_colour());
+      /*
       var all =  new GridLayout(1,"All",0);
       all.setColStretch(0,1);
       all.setRowStretch(1,1);
@@ -585,8 +623,49 @@ class ColourControl extends Widget
       layout.add(alphaSlider.getLayout());
 
       all.add(layout.setAlignment(Layout.AlignStretch | Layout.AlignKeepAspect));
+      */
 
       mLayout = all;
+   }
+
+   function setComponent(inWhich:Int, inVal:Float)
+   {
+      if (updateLockout==0)
+      {
+         //trace('$inWhich -> $inVal');
+      }
+   }
+
+   function makeInput(inMode:Int)
+   {
+      var result = new NumericInput(128,true,0,255,1, function(f) setComponent(inMode,f) );
+      result.setTextWidth(60);
+      result.addEventListener( MouseEvent.MOUSE_DOWN, function(_) trace('Set mode $inMode') );
+      return result;
+   }
+
+   function createNumberBoxes()
+   {
+      var panel = new Panel("Values");
+      addChild(panel);
+      panel.addLabelObj("R",redIn   = makeInput( ColourSlider.RED ) );
+      panel.addLabelObj("G",greenIn = makeInput( ColourSlider.GREEN) );
+      panel.addLabelObj("B",blueIn   = makeInput( ColourSlider.BLUE) );
+
+      panel.addLabelObj("H",hueIn         = makeInput( ColourSlider.HUE) );
+      panel.addLabelObj("S",saturationIn  = makeInput( ColourSlider.SATURATION ) );
+      panel.addLabelObj("V",valueIn       = makeInput( ColourSlider.VALUE ) );
+      return panel.getLayout();
+   }
+
+   function setBoxes(col:RGBHSV)
+   {
+      redIn.setValue(col.r);
+      greenIn.setValue(col.g);
+      blueIn.setValue(col.b);
+      hueIn.setValue(col.h);
+      saturationIn.setValue(col.s);
+      valueIn.setValue(col.v);
    }
 
    public function setColour(inCol:Int, inAlpha:Float)
@@ -595,6 +674,7 @@ class ColourControl extends Widget
 
       var col = new RGBHSV(inCol);
       box.setColour(inCol);
+      setBoxes(col);
       valueSlider.updateComponents(col);
       alphaSlider.updateComponents(col);
       wheel.colour = col;
@@ -621,6 +701,7 @@ class ColourControl extends Widget
       box.setColour(inCol.getRGB());
       valueSlider.updateComponents(inCol);
       alphaSlider.updateComponents(inCol);
+      setBoxes(inCol);
       send();
    }
 
@@ -634,6 +715,7 @@ class ColourControl extends Widget
       wheel.setValue(inValue);
       var col = wheel.get_colour();
       box.setColour(col.getRGB());
+      setBoxes(col);
       alphaSlider.updateComponents(col);
       send();
    }
@@ -648,12 +730,12 @@ class ColourControl extends Widget
       wheel.setSaturation(inValue);
    }
 
-
-
+   /*
    public override function layout(inWidth:Float,inHeight:Float)
    {
       super.layout(inWidth,inHeight);
    }
+   */
 }
 
 
