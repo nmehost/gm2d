@@ -34,7 +34,8 @@ class RGBHSV
    */
    public function new(inColour:Int=0)
    {
-     setRGB(inColour);
+      h = 0;
+      setRGB(inColour);
    }
 
    public function setHSV(inH:Float, inS:Float, inV:Float)
@@ -59,7 +60,7 @@ class RGBHSV
 
       if (r==g && r==b)
       {
-         h = 0;
+         // keep h
          s = 0;
          v = r;
       }
@@ -106,6 +107,10 @@ class RGBHSV
          v = b/(1-s);
       }
    }
+   public function setRGBs(r:Int, g:Int, b:Int) { setRGB((r<<16)|(g<<8)|b); }
+   public function setR(r:Int):Int { setRGBs(r,g,b); return r; }
+   public function setG(g:Int):Int { setRGBs(r,g,b); return g; }
+   public function setB(b:Int):Int { setRGBs(r,g,b); return b; }
 
    public function getRGB() : Int
    {
@@ -133,6 +138,9 @@ class RGBHSV
       var blue =  Std.int((1-(1-b)*s)*v);
       return (red<<16)|(green<<8)|blue;
    }
+   public function setH(h:Float):Float { setHSV(h,s,v); return h; }
+   public function setS(s:Float):Float { setHSV(h,s,v); return s; }
+   public function setV(v:Float):Float { setHSV(h,s,v); return v; }
 }
 
 class ColourSlider extends Widget
@@ -205,10 +213,30 @@ class ColourSlider extends Widget
       {
          mColour = RGBHSV.hsv2rgb( inCol.h, inCol.s, 255 );
       }
+      else if (mMode==HUE)
+      {
+         // TODO
+         mColour = RGBHSV.hsv2rgb( inCol.h, inCol.s, inCol.v );
+      }
+      else if (mMode==SATURATION)
+      {
+         mColour =  RGBHSV.hsv2rgb( inCol.h, 1.0, inCol.v );
+      }
       else if (mMode==ALPHA)
       {
-         mColour = inCol.getRGB();
-         //mPos = inCol.alpha; 
+         mColour = inCol.getRGB(); //mPos = inCol.alpha; 
+      }
+      else if (mMode==RED)
+      {
+         mColour = inCol.getRGB() & 0xff0000;
+      }
+      else if (mMode==GREEN)
+      {
+         mColour = inCol.getRGB() & 0x00ff00;
+      }
+      else if (mMode==BLUE)
+      {
+         mColour = inCol.getRGB() & 0x0000ff;
       }
       redraw();
    }
@@ -632,15 +660,33 @@ class ColourControl extends Widget
    {
       if (updateLockout==0)
       {
-         //trace('$inWhich -> $inVal');
+         var col = new RGBHSV(getRGB());
+
+         switch(inWhich)
+         {
+            case ColourSlider.RED : col.setR(Std.int(inVal));
+            case ColourSlider.GREEN: col.setG( Std.int(inVal));
+            case ColourSlider.BLUE: col.setB(Std.int(inVal));
+
+            case ColourSlider.HUE: col.setH(inVal);
+            case ColourSlider.SATURATION: col.setS(inVal);
+            case ColourSlider.VALUE: col.setV(inVal);
+         }
+         updateLockout++;
+         wheel.colour = col;
+         box.setColour(col.getRGB());
+         valueSlider.updateComponents(col);
+         alphaSlider.updateComponents(col);
+         updateLockout--;
       }
    }
 
-   function makeInput(inMode:Int)
+   function makeInput(inMode:Int,inMax:Float=255.0)
    {
-      var result = new NumericInput(128,true,0,255,1, function(f) setComponent(inMode,f) );
+      var delta = inMax<= 6 ? 0.01 : 1;
+      var result = new NumericInput(inMax*0.5,inMax==255,0,inMax,delta, function(f) setComponent(inMode,f) );
       result.setTextWidth(60);
-      result.addEventListener( MouseEvent.MOUSE_DOWN, function(_) trace('Set mode $inMode') );
+      result.addEventListener( MouseEvent.MOUSE_DOWN, function(val:Float) setComponent(inMode,val) );
       return result;
    }
 
@@ -652,20 +698,22 @@ class ColourControl extends Widget
       panel.addLabelObj("G",greenIn = makeInput( ColourSlider.GREEN) );
       panel.addLabelObj("B",blueIn   = makeInput( ColourSlider.BLUE) );
 
-      panel.addLabelObj("H",hueIn         = makeInput( ColourSlider.HUE) );
-      panel.addLabelObj("S",saturationIn  = makeInput( ColourSlider.SATURATION ) );
+      panel.addLabelObj("H",hueIn         = makeInput( ColourSlider.HUE,6) );
+      panel.addLabelObj("S",saturationIn  = makeInput( ColourSlider.SATURATION,1 ) );
       panel.addLabelObj("V",valueIn       = makeInput( ColourSlider.VALUE ) );
       return panel.getLayout();
    }
 
    function setBoxes(col:RGBHSV)
    {
+      updateLockout++;
       redIn.setValue(col.r);
       greenIn.setValue(col.g);
       blueIn.setValue(col.b);
       hueIn.setValue(col.h);
       saturationIn.setValue(col.s);
       valueIn.setValue(col.v);
+      updateLockout--;
    }
 
    public function setColour(inCol:Int, inAlpha:Float)
@@ -698,10 +746,12 @@ class ColourControl extends Widget
 
    public function onWheel(inCol:RGBHSV)
    {
+      updateLockout++;
       box.setColour(inCol.getRGB());
       valueSlider.updateComponents(inCol);
       alphaSlider.updateComponents(inCol);
       setBoxes(inCol);
+      updateLockout--;
       send();
    }
 

@@ -81,7 +81,18 @@ class NumericInput extends TextInput
    {
       if (onUpdateFloat!=null)
       {
-         onUpdateFloat( Std.parseFloat(inText) );
+         var val = Std.parseFloat(inText);
+         if (val<min)
+         {
+            val = min;
+            mText.text = Std.string(val);
+         }
+         if (val>max)
+         {
+            val = max;
+            mText.text = Std.string(val);
+         }
+         onUpdateFloat(min);
       }
    }
 
