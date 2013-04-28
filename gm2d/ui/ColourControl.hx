@@ -28,10 +28,27 @@ class ColourSlider extends Widget
    var mPos:Float;
 
    var watcher:MouseWatcher;
+   public static var markerBitmap:BitmapData;
+   var marker:Bitmap;
 
    public function new(inMode:Int,inVertical:Bool)
    {
       super();
+      if (markerBitmap==null)
+      {
+         markerBitmap = new BitmapData(28,10,true,gm2d.RGB.CLEAR);
+         var s = new Shape();
+         var gfx = s.graphics;
+         gfx.lineStyle(4,0xffffff);
+         gfx.drawRect(2,2,24,6);
+         gfx.lineStyle(2,0x000000);
+         gfx.drawRect(2,2,24,6);
+         markerBitmap.draw(s);
+      }
+      //marker = new Bitmap(markerBitmap);
+      //addChild(marker);
+ 
+
       watcher = MouseWatcher.create(this, onMouse, onMouse, onMouse );
       mMode = inMode;
       mVertical = inVertical;
@@ -125,6 +142,8 @@ class ColourSlider extends Widget
       }
       gfx.lineStyle(1,0x000000);
       gfx.drawRect(0,0,mWidth,mHeight);
+
+      
    }
 }
 
