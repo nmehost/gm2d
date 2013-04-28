@@ -88,6 +88,23 @@ class RGBHSV
       }
    }
 
+   public function get(inComponent:Int) : Float
+   {
+      switch(inComponent)
+      {
+         case ALPHA: return a;
+
+         case RED:   return r;
+         case GREEN: return g;
+         case BLUE:  return b;
+
+         case HUE:        return h;
+         case SATURATION: return s;
+         case VALUE:      return v;
+      }
+      return 0;
+   }
+
    public static function getRange(inComponent:Int):Int { return range[inComponent]; }
 
    public function setHSV(inH:Float, inS:Float, inV:Float)
@@ -178,13 +195,13 @@ class RGBHSV
       return (r<<16)|(g<<8)|b;
    }
 
-   public function getSpectrum()
+   public static function getSpectrum()
    {
-      if (spectrum!=null)
+      if (spectrum==null)
       {
-         spectrum = new BitmapData(255*6,1);
+         spectrum = new BitmapData(1,255*6);
          var pixels = new nme.utils.ByteArray();
-         var col = 0xff0000;
+         var col = 0xffff0000;
          for(hex in 0...6)
          {
             for(x in 0...255)
@@ -202,7 +219,7 @@ class RGBHSV
             }
          }
          pixels.position = 0;
-         spectrum.setPixels(new Rectangle(0,0,255*6,1),pixels);
+         spectrum.setPixels(new Rectangle(0,0,1,255*6),pixels);
       }
       return spectrum;
    }

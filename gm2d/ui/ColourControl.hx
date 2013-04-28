@@ -40,18 +40,20 @@ class ColourSlider extends Widget
          var s = new Shape();
          var gfx = s.graphics;
          gfx.lineStyle(4,0xffffff);
-         gfx.drawRect(2,2,24,6);
+         gfx.drawRect(2.5,2.5,24,6);
          gfx.lineStyle(2,0x000000);
-         gfx.drawRect(2,2,24,6);
+         gfx.drawRect(2.5,2.5,24,6);
          markerBitmap.draw(s);
       }
-      //marker = new Bitmap(markerBitmap);
-      //addChild(marker);
+      marker = new Bitmap(markerBitmap);
+      addChild(marker);
  
 
       watcher = MouseWatcher.create(this, onMouse, onMouse, onMouse );
       mMode = inMode;
       mVertical = inVertical;
+      if (!mVertical)
+         marker.rotation = 90;
       mColour = new RGBHSV(0xff0000);
       mPos = 1;
       mWidth = mHeight = 1;
@@ -61,8 +63,29 @@ class ColourSlider extends Widget
       layout.setBestSize(20,20);
       layout.setBorders(2,2,2,2);
       layout.mAlign = inVertical ? Layout.AlignCenterX : Layout.AlignCenterY;
+      updateMarker();
    }
 
+   public function setInputMode(inMode:Int)
+   {
+      mMode = inMode;
+      redraw();
+   }
+
+
+   function updateMarker()
+   {
+      if (mVertical)
+      {
+         marker.x = -5;
+         marker.y = mHeight * (1.0-mPos) - 5;
+      }
+      else
+      {
+         marker.x = mWidth * mPos + 5;
+         marker.y = -4;
+      }
+   }
    public function getValue() : Float
    {
       return mPos * RGBHSV.getRange(mMode);
@@ -71,10 +94,11 @@ class ColourSlider extends Widget
    function onMouse(inEvent:MouseEvent)
    {
       var local = globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
-      var val = 1-local.y/mHeight;
+      var val = mVertical ? 1-local.y/mHeight  : local.x/mWidth;
       if (val<0) val = 0;
       if (val>=1) val = 0.999999;
       mPos = val;
+      updateMarker();
 
       if (onChange!=null)
          onChange(getValue());
@@ -93,6 +117,7 @@ class ColourSlider extends Widget
    public function setColour(inCol:RGBHSV)
    {
       mColour = inCol.clone();
+      mPos = mColour.get(mMode) / RGBHSV.getRange(mMode);
       redraw();
    }
 
@@ -128,22 +153,25 @@ class ColourSlider extends Widget
          var ratio:Array<Int> = [0, 255];
          gfx.beginGradientFill(GradientType.LINEAR, cols, alphas, ratio, gradientBox() );
       }
-      else if (mMode==RGBHSV.VALUE)
+      else if (mMode==RGBHSV.HUE)
       {
-	      var rgb = mColour.with(mMode,255).getRGB();
+	      var bmp = RGBHSV.getSpectrum();
+         var mtx = new Matrix();
+         mtx.d = mHeight/bmp.height;
+         gfx.beginBitmapFill(bmp,mtx);
+      }
+      else
+      {
+	      var rgb = mColour.with(mMode, RGBHSV.getRange(mMode) ).getRGB();
 	      var cols:Array<CInt> = [rgb,0];
          var alphas:Array<Float> = [1.0, 1.0];
          var ratio:Array<Int> = [0, 255];
          gfx.beginGradientFill(GradientType.LINEAR, cols, alphas, ratio, gradientBox() );
       }
-      else
-      {
-         gfx.beginFill(mColour.getRGB());
-      }
+
       gfx.lineStyle(1,0x000000);
       gfx.drawRect(0,0,mWidth,mHeight);
-
-      
+      updateMarker();
    }
 }
 
@@ -234,6 +262,11 @@ class ColourWheel extends Widget
          updateOverlays();
       }
    }
+
+   public function setInputMode(inMode:Int)
+   {
+   }
+
 
 
 
@@ -427,10 +460,11 @@ class RGBBox extends Widget
 
 class ColourControl extends Widget
 {
+   var mMode:Int;
    var mColour:RGBHSV;
    var wheel:ColourWheel;
    var box:RGBBox;
-   var valueSlider:ColourSlider;
+   var mainSlider:ColourSlider;
    var alphaSlider:ColourSlider;
 
    var redIn:NumericInput;
@@ -439,6 +473,7 @@ class ColourControl extends Widget
    var hueIn:NumericInput;
    var saturationIn:NumericInput;
    var valueIn:NumericInput;
+
 
    var updateLockout:Int;
    public var onColourChange:Int->Float->Void;
@@ -450,14 +485,15 @@ class ColourControl extends Widget
       mColour = new RGBHSV(inCol,inAlpha);
   
       updateLockout = 1;
+      mMode = RGBHSV.VALUE;
 
       var all =  new GridLayout(3,"All",0);
       all.add( createNumberBoxes() );
 
-      valueSlider = new ColourSlider(RGBHSV.VALUE, true);
-      valueSlider.onChange = onValue;
-      addChild(valueSlider);
-      all.add(valueSlider.getLayout());
+      mainSlider = new ColourSlider(mMode, true);
+      mainSlider.onChange = onMainChange;
+      addChild(mainSlider);
+      all.add(mainSlider.getLayout());
 
       wheel = new ColourWheel(mColour);
       wheel.onChange = onWheel;
@@ -489,6 +525,7 @@ class ColourControl extends Widget
       {
          mColour.set(inWhich,inVal);
          setAll();
+         send();
       }
    }
 
@@ -497,7 +534,7 @@ class ColourControl extends Widget
       updateLockout++;
       wheel.setColour(mColour);
       box.setColour(mColour);
-      valueSlider.setColour(mColour);
+      mainSlider.setColour(mColour);
       alphaSlider.setColour(mColour);
       redIn.setValue(mColour.r);
       greenIn.setValue(mColour.g);
@@ -518,8 +555,15 @@ class ColourControl extends Widget
                setComponent(inMode,f);
          });
       result.setTextWidth(60);
-      //result.addEventListener( MouseEvent.MOUSE_DOWN, function(_) setMode(inMode) );
+      result.addEventListener( MouseEvent.MOUSE_DOWN, function(_) setInputMode(inMode) );
       return result;
+   }
+
+   function setInputMode(inMode:Int)
+   {
+      mMode = inMode;
+      wheel.setInputMode(inMode);
+      mainSlider.setInputMode(inMode);
    }
 
    function createNumberBoxes()
@@ -569,16 +613,9 @@ class ColourControl extends Widget
       send();
    }
 
-   public function onValue(inValue:Float)
+   public function onMainChange(inValue:Float)
    {
-      mColour.setV(inValue);
-      setAll();
-      send();
-   }
-
-   public function setSaturation(inValue:Float)
-   {
-      mColour.setS(inValue);
+      mColour.set(mMode,inValue);
       setAll();
       send();
    }
