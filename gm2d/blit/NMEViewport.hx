@@ -19,7 +19,7 @@ class NMEViewport extends Viewport
   {
      super.onAdded();
      if (!mTransparent)
-        opaqueBackground = #if neko getBG().rgb; #else getBG(); #end
+        opaqueBackground = #if ((neko_v1 || !haxe3) && neko) getBG().rgb; #else getBG(); #end
   }
 
 

@@ -44,17 +44,20 @@ class Window extends Widget
 
    function windowMouseMove(inEvent:MouseEvent)
    {
-      var target:gm2d.display.DisplayObject = inEvent.target;
-      while(target!=null && target!=this)
+      if (!inEvent.buttonDown)
       {
-         if (Std.is(target,IWidget))
+         var target:gm2d.display.DisplayObject = inEvent.target;
+         while(target!=null && target!=this)
          {
-             var widget:IWidget = cast target;
-             if (widget.wantsFocus())
-                setCurrentItem(widget);
-             return;
+            if (Std.is(target,IWidget))
+            {
+                var widget:IWidget = cast target;
+                if (widget.wantsFocus())
+                   setCurrentItem(widget);
+                return;
+            }
+            target = target.parent;
          }
-         target = target.parent;
       }
    }
 

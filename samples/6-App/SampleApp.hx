@@ -87,13 +87,13 @@ class SampleApp extends App
       
       addPane( pane, DOCK_OVER );
 
-      #if neko
+      /*
       var commands = SvgRenderer.toHaxe(xml);
       for(c in commands)
          neko.Lib.println(c);
       var bytes = SvgRenderer.toBytes(xml);
       trace(bytes);
-      #end
+      */
    }
 
    function addSWFDocument(inName:String, inData:ByteArray)

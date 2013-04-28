@@ -119,7 +119,7 @@ class TabRenderer
          w = tx + 3;
       }
 
-      var bitmap = new BitmapData(Std.int(w), tabHeight ,true, #if neko { a:0, rgb:0 } #else 0 #end );
+      var bitmap = new BitmapData(Std.int(w), tabHeight ,true, gm2d.RGB.CLEAR );
       var display = new Bitmap(bitmap);
       var boxOffset = outHitBoxes.getHitBoxOffset(inTabContainer,inRect.x,inRect.y);
       display.x = inRect.x;

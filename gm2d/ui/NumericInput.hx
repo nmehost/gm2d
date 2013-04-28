@@ -17,16 +17,23 @@ class NumericInput extends TextInput
    var slider:Sprite;
    var sliderX:Float;
    var sliderWatcher:MouseWatcher;
+   var value:Float;
    static var SLIDER_W = 22;
 
    public function new(inVal:Float,inInteger:Bool,inMin:Float, inMax:Float, inStep:Float,
       ?inOnUpdateFloat:Float->Void)
    {
-      super(Std.string(inVal),onUpdateText);
       min = inMin;
       max = inMax;
+      value = inVal;
+      if (value<min)
+         value = min;
+      if (value>max)
+         value = max;
+      super(Std.string(value),onUpdateText);
       step = inStep;
       slider = new Sprite();
+      slider.cacheAsBitmap = true;
       onUpdateFloat = inOnUpdateFloat;
       addChild(slider);
       slider.addEventListener(MouseEvent.MOUSE_DOWN, onSliderDown );
@@ -35,7 +42,14 @@ class NumericInput extends TextInput
 
    public function setValue(inValue:Float) : Void
    {
-      mText.text = Std.string(inValue);
+      var v = inValue;
+      if (v<min) v = min;
+      if (v>max) v = max;
+      if (v!=value)
+      {
+         value = v;
+         mText.text = Std.string(value);
+      }
    }
 
    function onSliderDown(e:MouseEvent)
@@ -52,13 +66,12 @@ class NumericInput extends TextInput
    {
       var dy = sliderWatcher.pos.y - sliderWatcher.prevPos.y;
       slider.y += dy;
-      var val = Std.parseFloat(mText.text);
-      val -= dy*step;
-      if (val<min) val = min;
-      if (val>max) val = max;
-      mText.text = Std.string(val);
+      value -= dy*step;
+      if (value<min) value = min;
+      if (value>max) value = max;
+      mText.text = Std.string(value);
       if (onUpdateFloat!=null)
-         onUpdateFloat(val);
+         onUpdateFloat(value);
    }
    function onSliderUp(e:MouseEvent)
    {
@@ -74,31 +87,35 @@ class NumericInput extends TextInput
       gfx.clear();
       gfx.lineStyle(1,0x000040);
       gfx.beginFill(0xffffff);
-      gfx.drawRoundRect(1,1,20,20,5,5);
+      gfx.drawRoundRect(1.5,1.5,20,20,7,7);
    }
 
    function onUpdateText(inText:String)
    {
-      if (onUpdateFloat!=null)
+      var v = Std.parseFloat(inText);
+      if (v!=value)
       {
-         var val = Std.parseFloat(inText);
-         if (val<min)
+         value = v;
+         if (value<min)
          {
-            val = min;
-            mText.text = Std.string(val);
+            value = min;
+            mText.text = Std.string(value);
          }
-         if (val>max)
+
+         if (value>max)
          {
-            val = max;
-            mText.text = Std.string(val);
+            value = max;
+            mText.text = Std.string(value);
          }
-         onUpdateFloat(min);
+
+         if (onUpdateFloat!=null)
+            onUpdateFloat(value);
       }
    }
 
    public override function layout(inW:Float, inH:Float)
    {
       super.layout(inW-SLIDER_W, inH);
-      sliderX = slider.x = inW-SLIDER_W;
+      sliderX = slider.x = Std.int(inW-SLIDER_W);
    }
 }

@@ -900,7 +900,7 @@ class Skin
       var tw = Std.int(Math.min(text_size+0.99,inWidth));
       if (inText=="" || tw<1)
          return null;
-      var bmp = new BitmapData(tw,Std.int(inHeight),true, #if neko { a:0, rgb:0 } #else 0 #end );
+      var bmp = new BitmapData(tw,Std.int(inHeight),true, gm2d.RGB.CLEAR );
 
       var mtx = new Matrix();
       mtx.tx = -2;

@@ -110,7 +110,7 @@ class RenderToImage
       if (oy!=null)
          shape.y = oy;
 
-      var bmp = new BitmapData(bmp_w,bmp_h, alpha<255, {a:alpha, rgb:bg} );
+      var bmp = new BitmapData(bmp_w,bmp_h, alpha<255, gm2d.RGB.CLEAR);
 
       bmp.draw(shape);
 
