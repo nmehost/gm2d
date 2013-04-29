@@ -10,7 +10,8 @@ import gm2d.skin.Skin;
 
 class NumericInput extends TextInput
 {
-   var onUpdateFloat:Float->Void;
+   public var onUpdate:Float->Void;
+   public var onEnter:Float->Void;
    var min:Float;
    var max:Float;
    var step:Float;
@@ -34,7 +35,7 @@ class NumericInput extends TextInput
       step = inStep;
       slider = new Sprite();
       slider.cacheAsBitmap = true;
-      onUpdateFloat = inOnUpdateFloat;
+      onUpdate = inOnUpdateFloat;
       addChild(slider);
       slider.addEventListener(MouseEvent.MOUSE_DOWN, onSliderDown );
       renderSlider();
@@ -70,8 +71,8 @@ class NumericInput extends TextInput
       if (value<min) value = min;
       if (value>max) value = max;
       mText.text = Std.string(value);
-      if (onUpdateFloat!=null)
-         onUpdateFloat(value);
+      if (onUpdate!=null)
+         onUpdate(value);
    }
    function onSliderUp(e:MouseEvent)
    {
@@ -79,6 +80,8 @@ class NumericInput extends TextInput
       slider.x = sliderX;
       slider.y = 0;
       sliderWatcher = null;
+      if (onEnter!=null)
+         onEnter(value);
    }
 
    function renderSlider()
@@ -108,8 +111,10 @@ class NumericInput extends TextInput
             mText.text = Std.string(value);
          }
 
-         if (onUpdateFloat!=null)
-            onUpdateFloat(value);
+         if (onEnter!=null)
+            onEnter(value);
+         else if (onUpdate!=null)
+            onUpdate(value);
       }
    }
 

@@ -86,6 +86,7 @@ class RGBHSV
          case SATURATION: s = inValue; if (s>0.99999) s = 1; recalcRGB();
          case VALUE:      v = Std.int(inValue); recalcRGB();
       }
+      return this;
    }
 
    public function get(inComponent:Int) : Float
@@ -115,7 +116,6 @@ class RGBHSV
 
       recalcRGB();
    }
-
 
    public function recalcRGB()
    {
@@ -189,6 +189,7 @@ class RGBHSV
    public function setH(inH:Float) { h=inH; recalcRGB(); return this; }
    public function setS(inS:Float) { s=inS; recalcRGB(); return this; }
    public function setV(inV:Float) { v=inV; recalcRGB(); return this; }
+   public function setA(inA:Float) { a=inA; return this; }
 
    public function getRGB() : Int
    {
