@@ -3,6 +3,7 @@ package gm2d.ui;
 import gm2d.display.DisplayObject;
 import gm2d.display.BitmapData;
 import gm2d.display.Shape;
+import gm2d.display.Sprite;
 import gm2d.display.Bitmap;
 import gm2d.geom.Rectangle;
 import gm2d.text.TextField;
@@ -180,6 +181,51 @@ class ColourSlider extends Widget
       gfx.lineStyle(1,0x000000);
       gfx.drawRect(0,0,mWidth,mHeight);
       updateMarker();
+   }
+}
+
+class SwatchBox extends Widget
+{
+   var swatch:Swatch;
+   public function new(inSwatch:Swatch, inControl:ColourControl,inSize:Int)
+   {
+      super();
+      swatch = inSwatch;
+      var gfx = graphics;
+      gfx.beginBitmapFill(swatch.bitmapData);
+      gfx.lineStyle(1,0x000000);
+      gfx.drawRect(0.5,0.5,inSize,inSize);
+      addEventListener(MouseEvent.MOUSE_DOWN, function(_) inControl.applyColour(inSwatch.colour) );
+   }
+   public function dropColour(inCol:RGBHSV)
+   {
+     swatch.setColour(inCol);
+   }
+}
+
+class Swatch
+{
+   public var colour(default,null):RGBHSV;
+   public var bitmapData:BitmapData;
+   public function new(index:Int, of:Int)
+   {
+      var cycle = of>>1;
+      var idx = index % cycle;
+      if (idx==0)
+         colour = new RGBHSV( index==0 ? 0x000000 : 0xffffff);
+      else
+      {
+         idx--;
+         cycle--;
+         colour = new RGBHSV(0xffffff);
+         colour.setHSV( idx/cycle * 360, 1.0, (index<of/2) ? 255 : 128 );
+      }
+      bitmapData = new BitmapData(1,1,true, colour.getRGBA());
+   }
+   public function setColour(inCol:RGBHSV)
+   {
+      colour = inCol.clone();
+      bitmapData.setPixel32(0,0,colour.getRGBA());
    }
 }
 
@@ -572,6 +618,7 @@ class ColourControl extends Widget
    var hueIn:NumericInput;
    var saturationIn:NumericInput;
    var valueIn:NumericInput;
+   var dragShape:Sprite;
 
 
    var updateLockout:Int;
@@ -602,7 +649,9 @@ class ColourControl extends Widget
 
       box = new RGBBox(mColour,true);
       addChild(box);
+      new MouseWatcher(box,null,onRGBDrag,onRGBDrop,0,0,true);
       all.add(box.getLayout().setAlignment( Layout.AlignStretch).setBorders(2,2,2,2));
+      all.setAlignment( Layout.AlignStretch);
 
       all.add(null);
 
@@ -613,11 +662,64 @@ class ColourControl extends Widget
 
       all.setColStretch(2,1);
 
+      var swatches = new GridLayout(10);
+      swatches.setSpacing(4,4);
+      for(i in 0...20)
+      {
+         var swatch = new Swatch(i,20);
+         var box = new SwatchBox(swatch,this,16);
+         addChild(box);
+         swatches.add(box.getLayout());
+      }
+      var vstack = new GridLayout(1);
+      vstack.add(swatches);
+      vstack.add(all);
+      vstack.setAlignment(Layout.AlignStretch).setSpacing(0,4);
+
       setInputMode(mMode);
       setAll();
       updateLockout = 0;
 
-      mLayout = all;
+      mLayout = vstack;
+   }
+
+   function onRGBDrag(e:MouseEvent)
+   {
+      if (e.target == box)
+      {
+         if (dragShape!=null)
+         {
+            removeChild(dragShape);
+            dragShape = null;
+         }
+      }
+      else
+      {
+         if (dragShape==null)
+         {
+            dragShape = new Sprite();
+            dragShape.mouseEnabled = false;
+            var gfx = dragShape.graphics;
+            gfx.beginFill(mColour.getRGB());
+            gfx.lineStyle(1,0x000000);
+            gfx.drawCircle(0,0,7);
+            stage.addChild(dragShape);
+         }
+         dragShape.x = e.stageX;
+         dragShape.y = e.stageY;
+      }
+   }
+
+   function onRGBDrop(e:MouseEvent)
+   {
+      if (dragShape!=null)
+      {
+         stage.removeChild(dragShape);
+         dragShape = null;
+      }
+      var swbox:SwatchBox = e.target;
+      if (swbox!=null)
+         swbox.dropColour(mColour);
    }
 
    function setComponent(inWhich:Int, inVal:Float,inEntered:Bool)
@@ -677,6 +779,14 @@ class ColourControl extends Widget
       panel.addLabelObj("V",valueIn       = makeInput( RGBHSV.VALUE ) );
       return panel.getLayout();
    }
+
+   public function applyColour(inCol:RGBHSV)
+   {
+      mColour = inCol.clone();
+      setAll(true);
+      send();
+   }
+
 
    public function setColour(inCol:Int, inAlpha:Float)
    {

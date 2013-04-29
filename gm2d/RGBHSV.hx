@@ -195,6 +195,13 @@ class RGBHSV
    {
       return (r<<16)|(g<<8)|b;
    }
+   public function getRGBA() : Int
+   {
+      var alpha = Std.int(a*255);
+      if (alpha<0) alpha = 0;
+      else if (alpha>255) alpha = 255;
+      return (alpha<<24) | (r<<16)|(g<<8)|b;
+   }
 
    public static function getSpectrum()
    {
