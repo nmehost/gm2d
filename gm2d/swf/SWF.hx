@@ -31,6 +31,7 @@ class SWF
    var mSymbols:SymbolMap;
    var mMain:Sprite;
    var mVersion:Int;
+   var mABC:Array<ByteArray>;
 
 
    public function new(inStream:ByteArray)
@@ -44,6 +45,8 @@ class SWF
       mSymbols = new SymbolMap();
 
       mMain = new Sprite(this,0,count);
+
+      mABC = [];
 
 
       var count:Array<Int> = [];
@@ -131,10 +134,11 @@ class SWF
 
             case Tags.DoAction:
                // todo:
+            case Tags.DoABC:
+               mABC.push( mStream.ReadBytes( mStream.BytesLeft() ) );
 
-            case Tags.DoABC2:
-               // todo:
-
+            case Tags.DoABC2: //?
+               mABC.push( mStream.ReadBytes( mStream.BytesLeft() ) );
 
             case Tags.FileAttributes:
                ReadFileAttributes();
@@ -162,6 +166,13 @@ class SWF
       mStream.close();
       mStream = null;
       //trace(this);
+   }
+
+   public function getABC()
+   {
+      if (mABC.length==0)
+         return null;
+      return mABC[0];
    }
 
    public function createInstance() : gm2d.swf.MovieClip

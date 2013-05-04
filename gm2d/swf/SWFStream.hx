@@ -37,8 +37,8 @@ class SWFStream
       if (sig!="FWS" && sig!="CWS")
          throw "Invalid signature";
 
-      if (ver>9)
-         throw("unknown swf version");
+      if (ver>13)
+         throw("unknown swf version " + ver);
 
       mVersion = ver;
 
