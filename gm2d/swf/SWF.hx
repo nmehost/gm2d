@@ -17,8 +17,10 @@ import gm2d.geom.Rectangle;
 
 #if haxe3
 typedef SymbolMap = haxe.ds.StringMap<Int>;
+typedef DataMap = haxe.ds.IntMap<ByteArray>;
 #else
 typedef SymbolMap = Hash<Int>;
+typedef DataMap = IntHash<ByteArray>;
 #end
 
 class SWF
@@ -32,6 +34,7 @@ class SWF
    var mMain:Sprite;
    var mVersion:Int;
    var mABC:Array<ByteArray>;
+   var mDataMap:DataMap;
 
 
    public function new(inStream:ByteArray)
@@ -42,6 +45,7 @@ class SWF
       mFrameRate = mStream.FrameRate();
       var count = mStream.Frames();
       mDictionary = [];
+      mDataMap = new DataMap();
       mSymbols = new SymbolMap();
 
       mMain = new Sprite(this,0,count);
@@ -109,6 +113,8 @@ class SWF
             case Tags.DefineBitsLossless2:
                DefineBitmap(true,2);
 
+            case Tags.DefineBinaryData:
+               DefineBinaryData();
 
             case Tags.DefineFont:
                DefineFont(1);
@@ -301,6 +307,11 @@ class SWF
           new MorphShape(this,mStream,inVersion) );
    }
 
+   function DefineBinaryData()
+   {
+      var id = mStream.ReadID();
+      mDataMap.set(id,  mStream.ReadBytes( mStream.BytesLeft()) );
+   }
 
    function DefineBitmap(inLossless:Bool,inVersion:Int)
    {
