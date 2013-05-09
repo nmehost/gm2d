@@ -84,6 +84,14 @@ class Layout
       mDebug = mDebugObject==null ? null : mDebugObject.graphics;
    }
 
+   public function setPadding(inX:Float, inY:Float) : Layout
+   {
+      mBLeft = inX;
+      mBTop = inY;
+      mBRight = inX;
+      mBBottom = inY;
+      return this;
+   }
    public function setBorders(inL:Float,inT:Float,inR:Float,inB:Float) : Layout
    {
       mBLeft = inL;
@@ -287,7 +295,7 @@ class DisplayLayout extends Layout
       }
 
       if (onLayout!=null)
-         onLayout(inX,inY,inW,inH);
+         onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
    }
 
    public function renderDebug(pos:Point, w:Float, h:Float)
@@ -368,7 +376,7 @@ class StackLayout extends Layout
          alignChild(child,inX+mBLeft, inY+mBTop, inW-mBLeft-mBRight, inH-mBTop-mBBottom );
 
       if (onLayout!=null)
-         onLayout(inX,inY,inW,inH);
+         onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
    }
 
    public override function add(inLayout:Layout) : Layout
@@ -444,7 +452,7 @@ class ChildStackLayout extends StackLayout
       }
 
       if (onLayout!=null)
-         onLayout(inX,inY,inW,inH);
+         onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
    }
 }
 
@@ -820,7 +828,7 @@ class GridLayout extends Layout
       }
 
       if (onLayout!=null)
-         onLayout(inX,inY,inW,inH);
+         onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
    }
 }
 
@@ -939,7 +947,7 @@ class FlowLayout extends Layout
       }
 
       if (onLayout!=null)
-         onLayout(inX,inY,inW,inH);
+         onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
    }
 
    public override function add(inLayout:Layout) : Layout
