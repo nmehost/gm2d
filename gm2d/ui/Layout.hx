@@ -66,10 +66,11 @@ class Layout
       return this;
    }
 
-   public function setMinSize(inWidth:Float,inHeight:Float) : Void
+   public function setMinSize(inWidth:Float,inHeight:Float) : Layout
    {
       minWidth = inWidth;
       minHeight = inHeight;
+      return this;
    }
 
    public function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void

@@ -83,6 +83,8 @@ class GradientControl extends Widget
    public var gradBox:Sprite;
    var mWidth:Float;
    var mHeight:Float;
+   var colourBox:RGBBox;
+   var position:NumericInput;
 
    var gradient:Gradient;
 
@@ -95,9 +97,26 @@ class GradientControl extends Widget
       gradBox = new Sprite();
       mWidth = mHeight = 32;
       addChild(gradBox);
-      var layout = new DisplayLayout(gradBox,Layout.AlignCenterY|Layout.AlignStretch,32,32);
-      layout.setPadding(8,0);
-      layout.onLayout = renderGradBox;
+      var gradLayout = new DisplayLayout(gradBox,Layout.AlignCenterY|Layout.AlignStretch,32,32);
+      gradLayout.setPadding(8,0);
+      gradLayout.onLayout = renderGradBox;
+
+      var stopControls = new GridLayout(1);
+      colourBox = new RGBBox(new RGBHSV(0xff00ff,1), false);
+      addChild(colourBox);
+      stopControls.add(colourBox.getLayout().setMinSize(64,28));
+
+      position = new NumericInput(0.0, false, 0, 1, 0.004);
+      addChild(position);
+      position.setTextWidth(64);
+      stopControls.add(position.getLayout());
+
+
+      var controls = new GridLayout(2,0);
+      controls.add(stopControls);
+      controls.add(gradLayout);
+      controls.setColStretch(1,1);
+      controls.setAlignment(Layout.AlignStretch);
 
       var swatches = new GridLayout(10);
       swatches.setSpacing(4,4);
@@ -110,9 +129,10 @@ class GradientControl extends Widget
       }
 
       gradient = (new GradSwatch(0,20)).gradient.clone();
-      var vstack = new GridLayout(1);
+      var vstack = new GridLayout(1,0);
       vstack.add(swatches);
-      vstack.add(layout);
+      vstack.add(controls);
+      vstack.setColStretch(0,1);
       vstack.setAlignment(Layout.AlignStretch).setSpacing(0,4);
       updateLockout = 0;
 
