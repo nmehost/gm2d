@@ -756,6 +756,20 @@ class Skin
          gfx.drawRect(7,5,6,5);
       }
 
+      else if (inButton==MiniButton.ADD)
+      {
+         gfx.moveTo(3,7);
+         gfx.lineTo(11,7);
+         gfx.moveTo(7,11);
+         gfx.lineTo(7,11);
+      }
+      else if (inButton==MiniButton.REMOVE)
+      {
+         gfx.moveTo(3,7);
+         gfx.lineTo(11,7);
+      }
+
+
       if (inState==HitBoxes.BUT_STATE_DOWN)
          matrix.tx = matrix.ty = 1.5;
       else

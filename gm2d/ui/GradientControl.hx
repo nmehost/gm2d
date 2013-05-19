@@ -10,6 +10,7 @@ import gm2d.Gradient;
 import gm2d.text.TextField;
 import gm2d.ui.MouseWatcher;
 import gm2d.ui.Layout;
+import gm2d.ui.HitBoxes;
 import gm2d.display.GradientType;
 import gm2d.display.InterpolationMethod;
 import gm2d.geom.Matrix;
@@ -110,7 +111,15 @@ class GradientControl extends Widget
       addChild(position);
       position.setTextWidth(64);
       stopControls.add(position.getLayout());
-
+      var skin = Skin.current;
+      var addRemoveLayout = new GridLayout(2);
+      var addStop = Button.BMPButton(skin.getButtonBitmapData(MiniButton.ADD,0),0,0,onAddStop);
+      addChild(addStop);
+      addRemoveLayout.add(addStop.getLayout());
+      var removeStop = Button.BMPButton(skin.getButtonBitmapData(MiniButton.REMOVE,0),0,0,onRemoveStop);
+      addChild(removeStop);
+      addRemoveLayout.add(removeStop.getLayout());
+      stopControls.add(addRemoveLayout);
 
       var controls = new GridLayout(2,0);
       controls.add(stopControls);
@@ -137,6 +146,13 @@ class GradientControl extends Widget
       updateLockout = 0;
 
       mLayout = vstack;
+   }
+
+   function onAddStop()
+   {
+   }
+   function onRemoveStop()
+   {
    }
 
    function renderGradBox(inX:Float,inY:Float,inW:Float,inH:Float) : Void

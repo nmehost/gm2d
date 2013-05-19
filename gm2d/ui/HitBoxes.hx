@@ -24,9 +24,12 @@ class MiniButton
    public static inline var POPUP = 4;
    public static inline var EXPAND = 6;
    public static inline var PIN  = 7;
-   public static inline var COUNT = 8;
+   public static inline var ADD  = 8;
+   public static inline var REMOVE  = 9;
 
-   public static inline var TITLE = 8;
+   public static inline var COUNT = 10;
+
+   public static inline var TITLE = 10;
 }
 
 enum HitAction
