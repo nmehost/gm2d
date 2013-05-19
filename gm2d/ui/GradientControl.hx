@@ -86,24 +86,30 @@ class GradientControl extends Widget
    var mHeight:Float;
    var colourBox:RGBBox;
    var position:NumericInput;
+   var stopX0:Float;
+   var stopW:Float;
 
    var gradient:Gradient;
+   var currentId:Int;
 
    public function new( )
    {
       super();
 
       updateLockout = 1;
+      stopX0 = 0;
+      stopW = 1;
 
       gradBox = new Sprite();
       mWidth = mHeight = 32;
       addChild(gradBox);
-      var gradLayout = new DisplayLayout(gradBox,Layout.AlignCenterY|Layout.AlignStretch,32,32);
+      var gradLayout = new DisplayLayout(gradBox,Layout.AlignCenterY|Layout.AlignStretch,32,64);
       gradLayout.setPadding(8,0);
       gradLayout.onLayout = renderGradBox;
+      gradBox.addEventListener(MouseEvent.MOUSE_DOWN, onMouse);
 
       var stopControls = new GridLayout(1);
-      colourBox = new RGBBox(new RGBHSV(0xff00ff,1), false);
+      colourBox = new RGBBox(new RGBHSV(0xff00ff,1), false, true);
       addChild(colourBox);
       stopControls.add(colourBox.getLayout().setMinSize(64,28));
 
@@ -112,14 +118,18 @@ class GradientControl extends Widget
       position.setTextWidth(64);
       stopControls.add(position.getLayout());
       var skin = Skin.current;
-      var addRemoveLayout = new GridLayout(2);
+      var addRemoveLayout = new GridLayout(2,0);
+      addRemoveLayout.setSpacing(0,0);
       var addStop = Button.BMPButton(skin.getButtonBitmapData(MiniButton.ADD,0),0,0,onAddStop);
       addChild(addStop);
-      addRemoveLayout.add(addStop.getLayout());
+      addStop.getItemLayout().setBorders(5,5,5,5);
+      addRemoveLayout.add(addStop.getLayout().setBorders(5,5,5,5));
       var removeStop = Button.BMPButton(skin.getButtonBitmapData(MiniButton.REMOVE,0),0,0,onRemoveStop);
       addChild(removeStop);
-      addRemoveLayout.add(removeStop.getLayout());
+      removeStop.getItemLayout().setBorders(5,5,5,5);
+      addRemoveLayout.add(removeStop.getLayout().setBorders(5,5,5,5));
       stopControls.add(addRemoveLayout);
+      stopControls.setSpacing(4,4);
 
       var controls = new GridLayout(2,0);
       controls.add(stopControls);
@@ -146,10 +156,47 @@ class GradientControl extends Widget
       updateLockout = 0;
 
       mLayout = vstack;
+
+      setCurrentStop(0);
+   }
+
+   public function setCurrentStop(stopId:Int)
+   {
+      currentId = stopId;
+      var stop = gradient.stops[stopId];
+      if (stop!=null)
+      {
+         colourBox.setColour( stop.colour );
+         position.setValue( stop.position );
+      }
+   }
+
+   function onMouse(ev:MouseEvent)
+   {
+      if (ev.localY>32)
+      {
+         var stop = Std.int((ev.localX-stopX0)/stopW);
+         if (stop>=0 && stop<gradient.stops.length)
+            setCurrentStop(stop);
+      }
    }
 
    function onAddStop()
    {
+      var pos = gradient.stops[currentId].position;
+      var col = gradient.stops[currentId].colour;
+
+      if (currentId+1 < gradient.stops.length )
+         pos = (pos + gradient.stops[currentId+1].position) * 0.5;
+      else if (pos<1.0)
+         pos = 1.0;
+      else if (currentId>0)
+         pos = (pos + gradient.stops[currentId-1].position) * 0.5;
+      else
+         pos = 0;
+
+      setCurrentStop( gradient.add( new GradStop(col, pos) ) );
+      render();
    }
    function onRemoveStop()
    {
@@ -169,7 +216,7 @@ class GradientControl extends Widget
       gradient.beginFill(gfx);
 
       gfx.beginFill(0xffffff);
-      gfx.drawRect(0,0,mWidth,mHeight);
+      gfx.drawRect(0,0,mWidth,32);
       gfx.beginFill(0x808080);
       var x = 0;
       var y = 0;
@@ -182,14 +229,28 @@ class GradientControl extends Widget
          y=16-y;
       }
       gfx.lineStyle(1,0x000000);
-      gradient.beginFillBox(gfx,0,0,mWidth,mHeight);
-      gfx.drawRect(0,0,mWidth,mHeight);
+      gradient.beginFillBox(gfx,0,0,mWidth,32);
+      gfx.drawRect(0,0,mWidth,32);
+
+      stopW = Std.int(mWidth/gradient.stops.length);
+      if (stopW>32)
+         stopW = 32;
+      stopX0 = Std.int((mWidth - stopW*gradient.stops.length) * 0.5) + 4.5;
+      var x = stopX0;
+      for(i in 0...gradient.stops.length)
+      {
+         var stop = gradient.stops[i];
+         gfx.beginFill(stop.colour.getRGB());
+         gfx.drawRect(x,36,stopW-8,24);
+         x+=stopW;
+      }
    }
 
    public function setGradient(inGrad:Gradient)
    {
       gradient = inGrad.clone();
       render();
+      setCurrentStop(0);
    }
 }
 

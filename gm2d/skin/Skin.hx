@@ -758,15 +758,31 @@ class Skin
 
       else if (inButton==MiniButton.ADD)
       {
-         gfx.moveTo(3,7);
-         gfx.lineTo(11,7);
-         gfx.moveTo(7,11);
-         gfx.lineTo(7,11);
+         gfx.lineStyle(1,0x000000);
+         gfx.beginFill(0x00ff00);
+         gfx.moveTo(3,5);
+         gfx.lineTo(5,5);
+         gfx.lineTo(5,3);
+         gfx.lineTo(9,3);
+         gfx.lineTo(9,5);
+         gfx.lineTo(11,5);
+         gfx.lineTo(11,9);
+         gfx.lineTo(9,9);
+         gfx.lineTo(9,11);
+         gfx.lineTo(5,11);
+         gfx.lineTo(5,9);
+         gfx.lineTo(3,9);
+         gfx.lineTo(3,5);
       }
       else if (inButton==MiniButton.REMOVE)
       {
-         gfx.moveTo(3,7);
-         gfx.lineTo(11,7);
+         gfx.lineStyle(1,0x000000);
+         gfx.beginFill(0xff0000);
+         gfx.moveTo(3,5);
+         gfx.lineTo(11,5);
+         gfx.lineTo(11,9);
+         gfx.lineTo(3,9);
+         gfx.lineTo(3,5);
       }
 
 

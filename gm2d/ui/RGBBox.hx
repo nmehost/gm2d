@@ -2,7 +2,21 @@ package gm2d.ui;
 
 import gm2d.text.TextField;
 import gm2d.ui.Layout;
+import gm2d.events.MouseEvent;
 import gm2d.RGBHSV;
+
+class RGBDialog extends Dialog
+{
+   public function new(inRGB:RGBHSV)
+   {
+      var cc = new ColourControl(inRGB.getRGB(), 1.0);
+
+      var pane = new Pane(cc, "Select Colour", Dock.RESIZABLE);
+      pane.itemLayout = cc.getLayout();
+      pane.setMinSize(400,400);
+      super(pane);
+   }
+}
 
 
 class RGBBox extends Widget
@@ -12,9 +26,10 @@ class RGBBox extends Widget
    var mHeight:Float;
    var mColour:RGBHSV;
    var updateLockout:Int;
+   public var showPopup:Bool;
    var mShowAlpha:Bool;
 
-   public function new(inColour:RGBHSV,inShowAlpha:Bool)
+   public function new(inColour:RGBHSV,inShowAlpha:Bool,inShowPopup=false)
    {
       super();
       mShowAlpha = inShowAlpha;
@@ -32,7 +47,23 @@ class RGBBox extends Widget
       textField.borderColor = 0x000000;
       textField.background = true;
       addChild(textField);
+
+      if (inShowPopup)
+      {
+         textField.addEventListener(MouseEvent.CLICK, onShowPopup);
+      }
       redraw();
+   }
+
+   public function onShowPopup(ev:MouseEvent)
+   {
+      var dlg = new RGBDialog(mColour);
+      Game.doShowDialog(dlg,true);
+   }
+
+   public function getColour():RGBHSV
+   {
+      return mColour.clone();
    }
 
    public function setColour(inCol:RGBHSV)

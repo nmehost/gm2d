@@ -46,12 +46,21 @@ class Gradient
       result.spreadMethod = spreadMethod;
       result.focal = focal;
       for(stop in stops)
-         result.add(stop);
+         result.stops.push(stop.clone());
       return result;
    }
-   public function add(inStop:GradStop)
+   public function add(inStop:GradStop) : Int
    {
+      for(i in 0...stops.length)
+      {
+         if (stops[i].position>=inStop.position)
+         {
+            stops.insert(i,inStop.clone());
+            return i;
+         }
+      }
       stops.push(inStop.clone());
+      return stops.length-1;
    }
    public function addStop(inColour:RGBHSV, inPosition:Float)
    {
