@@ -43,6 +43,7 @@ class Dialog extends Window
       {
          renderer.render(mChrome,mPane,new Rectangle(inX,inY,inW,inH),mHitBoxes);
       }
+      layout.includeBorderOnLayout = true;
 
       mSize = layout.getBestSize();
       layout.setRect(0,0,mSize.x,mSize.y);
@@ -70,20 +71,13 @@ class Dialog extends Window
 
    function onHitBox(inAction:HitAction,inEvent:MouseEvent)
    {
-      /*
       switch(inAction)
       {
-         case DRAG(pane):
-            doStartDrag(inEvent);
          case BUTTON(_,id):
             if (id==MiniButton.CLOSE)
-               pane.closeRequest(false);
-            redraw();
-         case REDRAW:
-            redraw();
+               goBack();
          default:
       }
-      */
    }
 
    public function center(inWidth:Float,inHeight:Float)

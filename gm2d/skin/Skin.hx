@@ -635,6 +635,8 @@ class Skin
       var w = inRect.width;
       var h = inRect.height;
 
+      var titleWidth = inRect.width;
+
       var gfx = outChrome.graphics;
       gfx.clear();
       gfx.beginFill(panelColor);
@@ -655,6 +657,24 @@ class Skin
       }
 
       var pane = inPane.asPane();
+
+      if (true)
+      {
+         var but = MiniButton.CLOSE;
+         var state =  getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
+         var button =  new SimpleButton( state,
+                                        getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
+                                        getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
+         outChrome.addChild(button);
+         button.y = Std.int( (title_h - button.height)/2 );
+         titleWidth -= button.width + 2;
+         button.x = titleWidth;
+
+         if (outHitBoxes.mCallback!=null)
+            button.addEventListener( MouseEvent.CLICK,
+               function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
+      }
+
       var title = pane==null ? "" : pane.title;
       if (title!="")
       {
@@ -677,7 +697,7 @@ class Skin
          outChrome.addChild(titleField);
 
          if (centerTitle)
-            titleField.x = ox + Std.int((inRect.width-titleField.textWidth)/2);
+            titleField.x = ox + Std.int((titleWidth-titleField.textWidth)/2);
       }
 
       outHitBoxes.add( new Rectangle(ox,ox,w,title_h), TITLE(inPane) );

@@ -33,6 +33,7 @@ class FrameRenderer
 
    public var titleHeight:Float;
    public var borders:Float;
+
    public dynamic function createLayout(inInteriorLayout:Layout):Layout
    {
       var layout = new StackLayout();

@@ -34,6 +34,7 @@ class NumericInput extends TextInput
       super(Std.string(value),onUpdateText);
       step = inStep;
       slider = new Sprite();
+      slider.name = "Numeric slider";
       slider.cacheAsBitmap = true;
       onUpdate = inOnUpdateFloat;
       addChild(slider);

@@ -102,9 +102,13 @@ class Game
       parent.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp );
       parent.stage.addEventListener(Event.RESIZE, onSize);
       parent.stage.addEventListener(Event.ENTER_FRAME, onEnter);
-      parent.stage.addEventListener("mouseMove", onMouseMove);
-      parent.stage.addEventListener("mouseDown", onMouseDown);
-      parent.stage.addEventListener("mouseUp", onMouseUp);
+
+      parent.stage.addEventListener(MouseEvent.MOUSE_MOVE, onPreMouseMove, true);
+      parent.stage.addEventListener(MouseEvent.MOUSE_DOWN, onPreMouseDown, true);
+
+      parent.stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+      parent.stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+      parent.stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 
       setStageTransform();
    }
@@ -144,35 +148,84 @@ class Game
 
    static function get_screen() { return mCurrentScreen; }
 
+   static function getCurrentWindow() : Window
+   {
+      return  mCurrentPopup!=null ? mCurrentPopup :
+              mCurrentDialog!=null ? mCurrentDialog :
+              mCurrentScreen;
+   }
+
    public static function onMouseMove(inEvent)
    {
-      if (mCurrentPopup!=null)
+      var window = getCurrentWindow();
+      if (window!=null)
       {
-         var pos = mCurrentPopup.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
-         mCurrentPopup.onMouseMove(pos.x,pos.y);
-      }
-      else if (mCurrentScreen!=null)
-      {
-         var pos = mCurrentScreen.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
-         mCurrentScreen.onMouseMove(pos.x,pos.y);
+         var pos = window.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
+         window.onMouseMove(pos.x,pos.y);
       }
    }
 
-   public static function onMouseDown(inEvent:MouseEvent)
+   public static function filterMouseEvent(inEvent:MouseEvent,inCloseIfNeeded:Bool)
    {
-      if (inEvent.target == gm2d.Lib.current.stage)
+      if (mCurrentPopup!=null)
       {
-         if (mCurrentPopup!=null)
+         var target:DisplayObject = inEvent.target;
+         var found = false;
+         while(target!=null && !found)
          {
-             closePopup();
-             return;
+            found = target==mCurrentPopup;
+            target = target.parent;
+         }
+
+         if (!found)
+         {
+            if (inCloseIfNeeded)
+               closePopup();
+            inEvent.stopImmediatePropagation();
          }
       }
-
-      if (mCurrentScreen!=null)
+      else if (mCurrentDialog!=null)
       {
-         var pos = mCurrentScreen.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
-         mCurrentScreen.onMouseDown(pos.x,pos.y);
+         var target:DisplayObject = inEvent.target;
+         var found = false;
+         while(target!=null && !found)
+         {
+            found = target==mCurrentDialog;
+            target = target.parent;
+         }
+
+         if (!found)
+         {
+            if (inCloseIfNeeded)
+               closeDialog();
+            inEvent.stopImmediatePropagation();
+         }
+      }
+   }
+
+   public static function onPreMouseDown(inEvent:MouseEvent)
+   {
+      filterMouseEvent(inEvent,true);
+   }
+
+   public static function onPreMouseMove(inEvent:MouseEvent)
+   {
+      filterMouseEvent(inEvent,false);
+   }
+
+   public static function onPreMouseUp(inEvent:MouseEvent)
+   {
+      filterMouseEvent(inEvent,true);
+   }
+
+
+   public static function onMouseDown(inEvent:MouseEvent)
+   {
+      var window = getCurrentWindow();
+      if (window!=null)
+      {
+         var pos = window.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
+         window.onMouseDown(pos.x,pos.y);
       }
    }
 

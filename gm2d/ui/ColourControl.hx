@@ -560,13 +560,14 @@ class ColourControl extends Widget
 
 
    var updateLockout:Int;
-   public var onColourChange:Int->Float->Void;
+   public var onColourChange:RGBHSV->Void;
 
-   public function new(inCol:Int, inAlpha:Float)
+   public function new(inColour:RGBHSV, ?inOnChange:RGBHSV->Void)
    {
       super();
 
-      mColour = new RGBHSV(inCol,inAlpha);
+      mColour = inColour.clone();
+      onColourChange = inOnChange;
   
       updateLockout = 1;
       mMode = RGBHSV.HUE;
@@ -741,7 +742,7 @@ class ColourControl extends Widget
       if (onColourChange!=null)
       {
          updateLockout++;
-         onColourChange(mColour.getRGB(), mColour.a);
+         onColourChange(mColour.clone());
          updateLockout--;
       }
    }

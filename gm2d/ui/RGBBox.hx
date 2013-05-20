@@ -7,13 +7,12 @@ import gm2d.RGBHSV;
 
 class RGBDialog extends Dialog
 {
-   public function new(inRGB:RGBHSV)
+   public function new(inRGB:RGBHSV, inOnColour:RGBHSV->Void)
    {
-      var cc = new ColourControl(inRGB.getRGB(), 1.0);
+      var cc = new ColourControl(inRGB, inOnColour);
 
       var pane = new Pane(cc, "Select Colour", Dock.RESIZABLE);
-      pane.itemLayout = cc.getLayout();
-      pane.setMinSize(400,400);
+      pane.itemLayout = cc.getLayout().setMinSize(300,300);
       super(pane);
    }
 }
@@ -27,12 +26,14 @@ class RGBBox extends Widget
    var mColour:RGBHSV;
    var updateLockout:Int;
    public var showPopup:Bool;
+   public var onColourChange:RGBHSV->Void;
    var mShowAlpha:Bool;
 
-   public function new(inColour:RGBHSV,inShowAlpha:Bool,inShowPopup=false)
+   public function new(inColour:RGBHSV,inShowAlpha:Bool,inShowPopup=false,?inOnColour:RGBHSV->Void)
    {
       super();
       mShowAlpha = inShowAlpha;
+      onColourChange = inOnColour;
       mColour = inColour.clone();
       mWidth = mHeight = 32;
       updateLockout = 0;
@@ -57,7 +58,11 @@ class RGBBox extends Widget
 
    public function onShowPopup(ev:MouseEvent)
    {
-      var dlg = new RGBDialog(mColour);
+      var dlg = new RGBDialog(mColour, function(colour) {
+         if (onColourChange!=null)
+            onColourChange(colour.clone());
+         setColour(colour);
+         } );
       Game.doShowDialog(dlg,true);
    }
 

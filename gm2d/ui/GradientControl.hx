@@ -109,7 +109,7 @@ class GradientControl extends Widget
       gradBox.addEventListener(MouseEvent.MOUSE_DOWN, onMouse);
 
       var stopControls = new GridLayout(1);
-      colourBox = new RGBBox(new RGBHSV(0xff00ff,1), false, true);
+      colourBox = new RGBBox(new RGBHSV(0xff00ff,1), false, true, onGradColour);
       addChild(colourBox);
       stopControls.add(colourBox.getLayout().setMinSize(64,28));
 
@@ -158,6 +158,15 @@ class GradientControl extends Widget
       mLayout = vstack;
 
       setCurrentStop(0);
+   }
+
+   public function onGradColour(inColour:RGBHSV)
+   {
+      if (currentId>=0 && currentId<gradient.stops.length)
+      {
+         gradient.stops[currentId].colour = inColour;
+         render();
+      }
    }
 
    public function setCurrentStop(stopId:Int)

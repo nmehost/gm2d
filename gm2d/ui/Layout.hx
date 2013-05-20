@@ -40,6 +40,7 @@ class Layout
    public var mAlign:Int;
 
    public var onLayout:Float->Float->Float->Float->Void;
+   public var includeBorderOnLayout = false;
 
    static var mDebug:gm2d.display.Graphics;
    static var mDebugObject:gm2d.display.Shape;
@@ -182,6 +183,16 @@ class Layout
       }
    }
 
+   function fireLayout(inX:Float, inY:Float, inW:Float, inH:Float)
+   {
+      if (onLayout!=null)
+      {
+         if (includeBorderOnLayout)
+            onLayout(inX,inY,inW,inH);
+         else
+            onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
+      }
+   }
 }
 
 typedef LayoutList = Array<Layout>;
@@ -295,8 +306,7 @@ class DisplayLayout extends Layout
          renderDebug(pos,w,h);
       }
 
-      if (onLayout!=null)
-         onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
+      fireLayout(inX,inY,inW,inH);
    }
 
    public function renderDebug(pos:Point, w:Float, h:Float)
@@ -376,8 +386,7 @@ class StackLayout extends Layout
       for(child in mChildren)
          alignChild(child,inX+mBLeft, inY+mBTop, inW-mBLeft-mBRight, inH-mBTop-mBBottom );
 
-      if (onLayout!=null)
-         onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
+      fireLayout(inX,inY,inW,inH);
    }
 
    public override function add(inLayout:Layout) : Layout
@@ -452,8 +461,7 @@ class ChildStackLayout extends StackLayout
          Layout.mDebug.drawRect(inX,inY,inW,inH);
       }
 
-      if (onLayout!=null)
-         onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
+      fireLayout(inX,inY,inW,inH);
    }
 }
 
@@ -828,8 +836,7 @@ class GridLayout extends Layout
          Layout.mDebug.drawRect(inX,inY,inW,inH);
       }
 
-      if (onLayout!=null)
-         onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
+      fireLayout(inX,inY,inW,inH);
    }
 }
 
@@ -947,8 +954,7 @@ class FlowLayout extends Layout
         layoutRow(c0,mChildren.length,inX+mBLeft, y, rowWidth - spaceX,rowHeight, maxW);
       }
 
-      if (onLayout!=null)
-         onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
+      fireLayout(inX,inY,inW,inH);
    }
 
    public override function add(inLayout:Layout) : Layout

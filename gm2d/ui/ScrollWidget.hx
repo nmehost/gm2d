@@ -160,7 +160,7 @@ class ScrollWidget extends Control
 
    function onClick(inX:Float, inY:Float,ev:MouseEvent)
    {
-      trace(inX+","+inY);
+      //trace(inX+","+inY);
    }
 
    function onStageUp(ev:MouseEvent)
