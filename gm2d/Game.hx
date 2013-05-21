@@ -196,9 +196,13 @@ class Game
 
          if (!found)
          {
-            if (inCloseIfNeeded)
-               closeDialog();
-            inEvent.stopImmediatePropagation();
+            if (mCurrentDialog.shouldConsumeEvent==null ||
+                 mCurrentDialog.shouldConsumeEvent(inEvent))
+            {
+               if (inCloseIfNeeded)
+                  closeDialog();
+               inEvent.stopImmediatePropagation();
+            }
          }
       }
    }

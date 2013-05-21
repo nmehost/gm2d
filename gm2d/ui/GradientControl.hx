@@ -110,6 +110,7 @@ class GradientControl extends Widget
 
       var stopControls = new GridLayout(1);
       colourBox = new RGBBox(new RGBHSV(0xff00ff,1), false, true, onGradColour);
+      colourBox.onDialogCreated = onColourDialog;
       addChild(colourBox);
       stopControls.add(colourBox.getLayout().setMinSize(64,28));
 
@@ -147,10 +148,21 @@ class GradientControl extends Widget
          swatches.add(box.getLayout());
       }
 
+      var properties = new GridLayout(4,0);
+      properties.add( addLabel("Spread") );
+      properties.add( addLabel("Pad") );
+      properties.add( addLabel("Interp") );
+      properties.add( addLabel("RGB") );
+      properties.add( addLabel("Type") );
+      properties.add( addLabel("Radial") );
+      properties.add( addLabel("Focal") );
+      properties.add( addLabel("1.0") );
+
       gradient = (new GradSwatch(0,20)).gradient.clone();
       var vstack = new GridLayout(1,0);
       vstack.add(swatches);
       vstack.add(controls);
+      vstack.add(properties);
       vstack.setColStretch(0,1);
       vstack.setAlignment(Layout.AlignStretch).setSpacing(0,4);
       updateLockout = 0;
@@ -158,6 +170,20 @@ class GradientControl extends Widget
       mLayout = vstack;
 
       setCurrentStop(0);
+   }
+
+   public function addLabel(inText:String)
+   {
+      var label = new TextField();
+      Skin.current.labelRenderer.styleLabel(label);
+      label.text = inText;
+      addChild(label);
+      return new TextLayout(label);
+   }
+
+   function onColourDialog(dialog:RGBDialog)
+   {
+      dialog.shouldConsumeEvent = function(event:MouseEvent) return event.target!=gradBox;
    }
 
    public function onGradColour(inColour:RGBHSV)
@@ -177,6 +203,7 @@ class GradientControl extends Widget
       {
          colourBox.setColour( stop.colour );
          position.setValue( stop.position );
+         render();
       }
    }
 
@@ -186,7 +213,12 @@ class GradientControl extends Widget
       {
          var stop = Std.int((ev.localX-stopX0)/stopW);
          if (stop>=0 && stop<gradient.stops.length)
-            setCurrentStop(stop);
+         {
+            if (stop==currentId)
+               colourBox.showDialog();
+            else
+               setCurrentStop(stop);
+         }
       }
    }
 
@@ -251,6 +283,11 @@ class GradientControl extends Widget
          var stop = gradient.stops[i];
          gfx.beginFill(stop.colour.getRGB());
          gfx.drawRect(x,36,stopW-8,24);
+         if (i==currentId)
+         {
+            gfx.endFill();
+            gfx.drawRect(x-2,36-2,stopW-4,28);
+         }
          x+=stopW;
       }
    }

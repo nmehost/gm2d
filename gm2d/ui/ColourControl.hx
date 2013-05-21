@@ -727,9 +727,9 @@ class ColourControl extends Widget
    }
 
 
-   public function setColour(inCol:Int, inAlpha:Float)
+   public function setColour(inColour:RGBHSV)
    {
-      mColour = new RGBHSV(inCol,inAlpha);
+      mColour = inColour.clone();
       setAll();
    }
 

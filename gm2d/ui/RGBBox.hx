@@ -5,18 +5,6 @@ import gm2d.ui.Layout;
 import gm2d.events.MouseEvent;
 import gm2d.RGBHSV;
 
-class RGBDialog extends Dialog
-{
-   public function new(inRGB:RGBHSV, inOnColour:RGBHSV->Void)
-   {
-      var cc = new ColourControl(inRGB, inOnColour);
-
-      var pane = new Pane(cc, "Select Colour", Dock.RESIZABLE);
-      pane.itemLayout = cc.getLayout().setMinSize(300,300);
-      super(pane);
-   }
-}
-
 
 class RGBBox extends Widget
 {
@@ -25,11 +13,12 @@ class RGBBox extends Widget
    var mHeight:Float;
    var mColour:RGBHSV;
    var updateLockout:Int;
-   public var showPopup:Bool;
    public var onColourChange:RGBHSV->Void;
+   public var onDialogCreated:RGBDialog->Void;
    var mShowAlpha:Bool;
+   var rgbDialog:RGBDialog;
 
-   public function new(inColour:RGBHSV,inShowAlpha:Bool,inShowPopup=false,?inOnColour:RGBHSV->Void)
+   public function new(inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Void)
    {
       super();
       mShowAlpha = inShowAlpha;
@@ -49,21 +38,28 @@ class RGBBox extends Widget
       textField.background = true;
       addChild(textField);
 
-      if (inShowPopup)
-      {
-         textField.addEventListener(MouseEvent.CLICK, onShowPopup);
-      }
+      if (inShouldShowPopup)
+         textField.addEventListener(MouseEvent.CLICK, function(_) showDialog() );
+
       redraw();
    }
 
-   public function onShowPopup(ev:MouseEvent)
+   public function showDialog( )
    {
-      var dlg = new RGBDialog(mColour, function(colour) {
-         if (onColourChange!=null)
-            onColourChange(colour.clone());
-         setColour(colour);
-         } );
-      Game.doShowDialog(dlg,true);
+      var isNew = false;
+      if (rgbDialog==null)
+      {
+         isNew = true;
+         rgbDialog = new RGBDialog(mColour, function(colour) {
+            if (onColourChange!=null && updateLockout==0)
+               onColourChange(colour.clone());
+            setColour(colour);
+            } );
+         rgbDialog.onClose = function() rgbDialog = null;
+         if (onDialogCreated!=null)
+            onDialogCreated(rgbDialog);
+      }
+      Game.doShowDialog(rgbDialog,isNew);
    }
 
    public function getColour():RGBHSV
@@ -73,10 +69,14 @@ class RGBBox extends Widget
 
    public function setColour(inCol:RGBHSV)
    {
+      updateLockout++;
       var draw =  (inCol.compare(mColour)!=0 || (inCol.a!=mColour.a && mShowAlpha) );
       mColour = inCol.clone();
+      if (rgbDialog!=null)
+         rgbDialog.setColour(inCol);
       if (draw)
          redraw();
+      updateLockout--;
    }
 
    function redraw()

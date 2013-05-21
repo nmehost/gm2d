@@ -23,6 +23,7 @@ class Dialog extends Window
    var mSize:Size;
    var mouseWatcher:MouseWatcher;
    var renderer:FrameRenderer;
+   public var shouldConsumeEvent : MouseEvent -> Bool;
 
 
    public function new(inPane:Pane, ?inRenderer:FrameRenderer)
