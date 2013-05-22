@@ -188,6 +188,15 @@ class Button extends Control
       return result;
    }
 
+   public static function BitmapButton(inBitmapData:BitmapData,?inOnClick:Void->Void,?inRenderer:ButtonRenderer)
+   {
+      var renderer = inRenderer==null ? Skin.current.buttonRenderer : inRenderer;
+      var bmp = new Bitmap(inBitmapData);
+      var result = new Button(bmp,inOnClick,renderer);
+      return result;
+   }
+
+
    public static function TextButton(inText:String,inOnClick:Void->Void,?inRenderer:ButtonRenderer)
    {
       var renderer = inRenderer==null ? Skin.current.buttonRenderer : inRenderer;

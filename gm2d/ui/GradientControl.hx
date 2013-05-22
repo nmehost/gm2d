@@ -5,6 +5,7 @@ import gm2d.display.BitmapData;
 import gm2d.display.Shape;
 import gm2d.display.Sprite;
 import gm2d.display.Bitmap;
+import gm2d.display.SpreadMethod;
 import gm2d.geom.Rectangle;
 import gm2d.Gradient;
 import gm2d.text.TextField;
@@ -17,6 +18,7 @@ import gm2d.geom.Matrix;
 import gm2d.geom.Point;
 import gm2d.events.MouseEvent;
 import gm2d.skin.Skin;
+import gm2d.skin.ButtonRenderer;
 import gm2d.RGBHSV;
 
 
@@ -92,6 +94,10 @@ class GradientControl extends Widget
    var gradient:Gradient;
    var currentId:Int;
 
+   static var spreads = [ SpreadMethod.PAD, SpreadMethod.REFLECT, SpreadMethod.REPEAT];
+   public static var createdBmps = false;
+   public static var bitmaps = new haxe.ds.StringMap<BitmapData>();
+
    public function new( )
    {
       super();
@@ -148,9 +154,15 @@ class GradientControl extends Widget
          swatches.add(box.getLayout());
       }
 
+      if (!createdBmps)
+         createBmps();
       var properties = new GridLayout(4,0);
+
       properties.add( addLabel("Spread") );
-      properties.add( addLabel("Pad") );
+      var spread = ChoiceButtons.create( onSpread, spreads, bitmaps );
+      addChild(spread);
+
+      properties.add( spread.getLayout() );
       properties.add( addLabel("Interp") );
       properties.add( addLabel("RGB") );
       properties.add( addLabel("Type") );
@@ -170,6 +182,47 @@ class GradientControl extends Widget
       mLayout = vstack;
 
       setCurrentStop(0);
+   }
+
+   public function createButton(inData:BitmapData)
+   {
+      var button = Button.BitmapButton(inData,null, ButtonRenderer.simple() );
+      return button;
+   }
+
+   public static function createBmps()
+   {
+      createdBmps = true;
+      var s = new Shape();
+      var gfx = s.graphics;
+
+      var gradient = new gm2d.Gradient( );
+      gradient.addStop( new RGBHSV(0,1), 0);
+      gradient.addStop( new RGBHSV(0xffffff,1), 1);
+      var matrix = new Matrix();
+      var size = 24;
+      matrix.createGradientBox(size*0.5,size,0,0,0);
+ 
+      for(spread in spreads)
+      {
+         var key:String = spread + "";
+         if (!bitmaps.exists(key))
+         {
+            gradient.spreadMethod = spread;
+            gfx.clear();
+            var bmp = new BitmapData(size,size);
+            gfx.lineStyle(1,0x000000);
+            gradient.beginFill(gfx,matrix);
+            gfx.drawRect(0.5,0.5,size-1,size-1);
+            bmp.draw(s);
+            bitmaps.set(key,bmp);
+         }
+      }
+   }
+
+   function onSpread(inSpread:Int)
+   {
+      trace(inSpread);
    }
 
    public function addLabel(inText:String)

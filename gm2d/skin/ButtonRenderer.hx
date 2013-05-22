@@ -27,6 +27,24 @@ class ButtonRenderer
    public dynamic function updateLayout(ioButton:Button):Void { }
    public dynamic function styleLabel(ioLabel:TextField):Void { Skin.current.styleLabel(ioLabel); }
 
+   public static function simple( )
+   {
+      var renderer = new ButtonRenderer();
+      renderer.updateLayout=function(ioButton) ioButton.getItemLayout().setBorders(2,2,2,2);
+      renderer.downOffset = new Point(0,0);
+      renderer.render = function(outChrome:Sprite, inRect:Rectangle, inState:ButtonState)
+      {
+         var gfx = outChrome.graphics;
+         gfx.clear();
+         if (inState!=BUTTON_UP)
+         {
+             gfx.beginFill(inState==BUTTON_DISABLE ? Skin.current.disableColor : Skin.current.guiMedium );
+             gfx.lineStyle(1,Skin.current.controlBorder);
+             gfx.drawRect(inRect.x+0.5,inRect.y+0.5,inRect.width-1,inRect.height-1);
+         }
+      }
+      return renderer;
+   }
 
    public static function fromSvg( inSvg:Svg,?inLayer:String)
    {

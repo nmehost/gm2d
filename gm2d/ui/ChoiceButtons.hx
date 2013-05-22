@@ -19,6 +19,25 @@ class ChoiceButtons extends Control
       buttonLayout = new GridLayout(null,"button");
       buttonLayout.setSpacing(1,1);
    }
+
+   public static function create(inOnIndex:Int->Void,inKeys:Array<Dynamic>, inBitmaps:haxe.ds.StringMap<BitmapData> )
+   {
+      // TODO - fix capture of Array<String> in closure ...
+      //var keys:Array<String> = inKeys.map( function(x) return Std.string(x) );
+      var keys:Array<String> = []; for(k in inKeys) keys.push(k);
+
+      var result = new ChoiceButtons( function(x) inOnIndex(Lambda.indexOf(keys,x)) );
+      var renderer = gm2d.skin.ButtonRenderer.simple();
+      for(key in keys)
+      {
+         if (!inBitmaps.exists(key))
+            throw "Missing bitmap " + key;
+         var button = Button.BitmapButton(inBitmaps.get(key),null, renderer);
+         result.add( button, key );
+      }
+      return result;
+   }
+
    public function add(inButton:Button,inKey:String)
    {
       addChild(inButton);
