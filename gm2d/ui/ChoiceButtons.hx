@@ -22,9 +22,7 @@ class ChoiceButtons extends Control
 
    public static function create(inOnIndex:Int->Void,inKeys:Array<Dynamic>, inBitmaps:haxe.ds.StringMap<BitmapData> )
    {
-      // TODO - fix capture of Array<String> in closure ...
-      //var keys:Array<String> = inKeys.map( function(x) return Std.string(x) );
-      var keys:Array<String> = []; for(k in inKeys) keys.push(k);
+      var keys:Array<String> = inKeys.map( function(x) return Std.string(x) );
 
       var result = new ChoiceButtons( function(x) inOnIndex(Lambda.indexOf(keys,x)) );
       var renderer = gm2d.skin.ButtonRenderer.simple();

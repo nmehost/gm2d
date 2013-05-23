@@ -49,6 +49,28 @@ class Gradient
          result.stops.push(stop.clone());
       return result;
    }
+   public function setStopPosition(inIdx:Int, inPos:Float):Int
+   {
+      stops[inIdx].position = inPos;
+      if ( (inIdx<stops.length-1 && stops[inIdx].position>stops[inIdx+1].position) ||
+           (inIdx>0 && stops[inIdx].position<stops[inIdx-1].position) )
+      {
+         var stop = stops.splice(inIdx,1)[0];
+         for(i in 0...stops.length)
+         {
+            if (stop.position<stops[i].position)
+            {
+               stops.insert(i,stop);
+               return i;
+            }
+         }
+         stops.push(stop);
+         return stops.length-1;
+      }
+
+      return inIdx;
+   }
+
    public function add(inStop:GradStop) : Int
    {
       for(i in 0...stops.length)

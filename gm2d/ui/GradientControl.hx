@@ -90,11 +90,18 @@ class GradientControl extends Widget
    var position:NumericInput;
    var stopX0:Float;
    var stopW:Float;
+   var spread:ChoiceButtons;
+   var interp:ChoiceButtons;
+   var type:ChoiceButtons;
+   var focal:NumericInput;
 
    var gradient:Gradient;
    var currentId:Int;
 
    static var spreads = [ SpreadMethod.PAD, SpreadMethod.REFLECT, SpreadMethod.REPEAT];
+   static var types = [ GradientType.LINEAR, GradientType.RADIAL ];
+   static var interps = [ InterpolationMethod.LINEAR_RGB, InterpolationMethod.RGB ];
+
    public static var createdBmps = false;
    public static var bitmaps = new haxe.ds.StringMap<BitmapData>();
 
@@ -120,10 +127,11 @@ class GradientControl extends Widget
       addChild(colourBox);
       stopControls.add(colourBox.getLayout().setMinSize(64,28));
 
-      position = new NumericInput(0.0, false, 0, 1, 0.004);
+      position = new NumericInput(0.0, false, 0, 1, 0.004, onPosition);
       addChild(position);
       position.setTextWidth(64);
       stopControls.add(position.getLayout());
+
       var skin = Skin.current;
       var addRemoveLayout = new GridLayout(2,0);
       addRemoveLayout.setSpacing(0,0);
@@ -159,18 +167,27 @@ class GradientControl extends Widget
       var properties = new GridLayout(4,0);
 
       properties.add( addLabel("Spread") );
-      var spread = ChoiceButtons.create( onSpread, spreads, bitmaps );
+      spread = ChoiceButtons.create( onSpread, spreads, bitmaps );
       addChild(spread);
-
       properties.add( spread.getLayout() );
-      properties.add( addLabel("Interp") );
-      properties.add( addLabel("RGB") );
-      properties.add( addLabel("Type") );
-      properties.add( addLabel("Radial") );
-      properties.add( addLabel("Focal") );
-      properties.add( addLabel("1.0") );
 
-      gradient = (new GradSwatch(0,20)).gradient.clone();
+      properties.add( addLabel("Interp") );
+      interp = ChoiceButtons.create( onInterp, interps, bitmaps );
+      addChild(interp);
+      properties.add( interp.getLayout() );
+
+
+      properties.add( addLabel("Type") );
+      type = ChoiceButtons.create( onType, types, bitmaps );
+      addChild(type);
+      properties.add( type.getLayout() );
+
+      properties.add( addLabel("Focal") );
+      focal = new NumericInput(0.0, false, 0, 1, 0.004);
+      focal.setTextWidth(64);
+      addChild(focal);
+      properties.add( focal.getLayout() );
+
       var vstack = new GridLayout(1,0);
       vstack.add(swatches);
       vstack.add(controls);
@@ -181,7 +198,7 @@ class GradientControl extends Widget
 
       mLayout = vstack;
 
-      setCurrentStop(0);
+      setGradient( gradient = (new GradSwatch(0,20)).gradient );
    }
 
    public function createButton(inData:BitmapData)
@@ -197,8 +214,8 @@ class GradientControl extends Widget
       var gfx = s.graphics;
 
       var gradient = new gm2d.Gradient( );
-      gradient.addStop( new RGBHSV(0,1), 0);
-      gradient.addStop( new RGBHSV(0xffffff,1), 1);
+      gradient.addStop( new RGBHSV(0x005580,1), 0);
+      gradient.addStop( new RGBHSV(0xa0b0b0,1), 1);
       var matrix = new Matrix();
       var size = 24;
       matrix.createGradientBox(size*0.5,size,0,0,0);
@@ -218,12 +235,80 @@ class GradientControl extends Widget
             bitmaps.set(key,bmp);
          }
       }
+
+      matrix.createGradientBox(size,size,0,0,0);
+      gradient.spreadMethod = spreads[2];
+      for(type in types)
+      {
+         var key:String = type + "";
+         if (!bitmaps.exists(key))
+         {
+            gradient.type = type;
+            gfx.clear();
+            var bmp = new BitmapData(size,size);
+            gfx.lineStyle(1,0x000000);
+            gradient.beginFill(gfx,matrix);
+            gfx.drawRect(0.5,0.5,size-1,size-1);
+            bmp.draw(s);
+            bitmaps.set(key,bmp);
+         }
+      }
+      gradient.type = types[0];
+      for(interp in interps)
+      {
+         var key:String = interp + "";
+         if (!bitmaps.exists(key))
+         {
+            gradient.interpolationMethod = interp;
+            gfx.clear();
+            var bmp = new BitmapData(size,size);
+            gfx.lineStyle(1,0x000000);
+            gradient.beginFill(gfx,matrix);
+            gfx.drawRect(0.5,0.5,size-1,size-1);
+            bmp.draw(s);
+            bitmaps.set(key,bmp);
+         }
+      }
+   }
+
+   function onGradientChange()
+   {
+      if (updateLockout==0  && onChange!=null)
+      {
+         updateLockout++;
+         onChange(gradient.clone());
+         updateLockout--;
+      }
+      render();
+   }
+
+   function onPosition(pos:Float)
+   {
+      if (currentId>=0 && currentId<gradient.stops.length)
+      {
+         currentId = gradient.setStopPosition(currentId,pos);
+         onGradientChange();
+      }
    }
 
    function onSpread(inSpread:Int)
    {
-      trace(inSpread);
+      gradient.spreadMethod = spreads[inSpread];
+      onGradientChange();
    }
+
+   function onInterp(inInterp:Int)
+   {
+      gradient.interpolationMethod = interps[inInterp];
+      onGradientChange();
+   }
+
+   function onType(inType:Int)
+   {
+      gradient.type = types[inType];
+      onGradientChange();
+   }
+
 
    public function addLabel(inText:String)
    {
@@ -244,7 +329,7 @@ class GradientControl extends Widget
       if (currentId>=0 && currentId<gradient.stops.length)
       {
          gradient.stops[currentId].colour = inColour;
-         render();
+         onGradientChange();
       }
    }
 
@@ -294,6 +379,19 @@ class GradientControl extends Widget
    }
    function onRemoveStop()
    {
+      if (currentId>=0 && currentId<gradient.stops.length && gradient.stops.length>1)
+      {
+         gradient.stops.splice(currentId,1);
+         if (currentId>=gradient.stops.length)
+            currentId--;
+         var stop = gradient.stops[currentId];
+         if (stop!=null)
+         {
+            colourBox.setColour( stop.colour );
+            position.setValue( stop.position );
+         }
+         onGradientChange();
+      }
    }
 
    function renderGradBox(inX:Float,inY:Float,inW:Float,inH:Float) : Void
@@ -350,6 +448,9 @@ class GradientControl extends Widget
       gradient = inGrad.clone();
       render();
       setCurrentStop(0);
+      spread.setIndex( Lambda.indexOf(spreads,gradient.spreadMethod) );
+      type.setIndex( Lambda.indexOf(types,gradient.type) );
+      interp.setIndex( Lambda.indexOf(interps,gradient.interpolationMethod) );
    }
 }
 
