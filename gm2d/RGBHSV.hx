@@ -65,6 +65,12 @@ class RGBHSV
       return b-inOther.b;
    }
 
+
+   public function same(inOther:RGBHSV) : Bool
+   {
+      return r==inOther.r && g==inOther.g && b==inOther.b && a==inOther.a;
+   }
+
    public function with(inComponent:Int, inValue:Float)
    {
       var result = clone();
@@ -232,6 +238,16 @@ class RGBHSV
          spectrum.setPixels(new Rectangle(0,0,1,255*6),pixels);
       }
       return spectrum;
+   }
+
+   public function blend(other:RGBHSV, f:Float)
+   {
+      var result = new RGBHSV(0,0);
+      result.a = Std.int(a + (other.a-a)*f);
+      result.r = Std.int(r + (other.r-r)*f);
+      result.g = Std.int(g + (other.g-g)*f);
+      result.b = Std.int(b + (other.b-b)*f);
+      return result.recalcHSV();
    }
 
    public static function hsv2rgb(h:Float, s:Float, v:Float ) : Int

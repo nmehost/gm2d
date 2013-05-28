@@ -51,7 +51,7 @@ class GradSwatch
       var colour0 : RGBHSV = null;
       gradient = new Gradient();
       if (idx==0)
-         colour0 = new RGBHSV( index==0 ? 0x000000 : 0xffffff);
+         colour0 = new RGBHSV( 0xffffff);
       else
       {
          idx--;
@@ -60,7 +60,8 @@ class GradSwatch
          colour0.setHSV( idx/cycle * 360, 1.0, (index<of/2) ? 255 : 128 );
       }
       gradient.addStop(colour0,0);
-      var colour1 = new RGBHSV(0xffffff, 0);
+      var colour1 = index*2>of ? new RGBHSV(0xffffff, 1) :
+                                new RGBHSV(0x000000, index>0 ? 1 : 0) ;
       gradient.addStop(colour1,1);
 
       bitmapData = new BitmapData(32,32,true,gm2d.RGB.WHITE);
@@ -71,7 +72,7 @@ class GradSwatch
    {
       var s = new Shape();
       var gfx = s.graphics;
-      gradient.beginFillBox(gfx, 0,0,32,32,45);
+      gradient.beginFillBox(gfx, 0,0,32*0.707,32*0.707,45);
       gfx.drawRect(0,0,32,32);
       bitmapData.draw(s);
    }
@@ -205,6 +206,8 @@ class GradientControl extends Widget
 
       setGradient( gradient = (new GradSwatch(0,20)).gradient );
    }
+
+   public function getGradient() { return gradient.clone(); }
 
    public function createButton(inData:BitmapData)
    {

@@ -18,6 +18,14 @@ class GradStop
    {
       return  new GradStop(colour,position);
    }
+   public function blend(other:GradStop,f:Float)
+   {
+      if (colour.same(other.colour))
+         return new GradStop(colour, position+(other.position-position)*f );
+
+      return new GradStop( colour.blend(other.colour,f), position+(other.position-position)*f );
+   }
+
    public var colour:RGBHSV;
    public var position:Float;
 }
@@ -49,6 +57,25 @@ class Gradient
          result.stops.push(stop.clone());
       return result;
    }
+   public function blend(other:Gradient,f:Float)
+   {
+      var result = new Gradient();
+      result.type = type;
+      result.interpolationMethod = interpolationMethod;
+      result.spreadMethod = spreadMethod;
+      result.focal = focal + (other.focal-focal)*f;
+      if (stops.length == other.stops.length)
+      {
+         for(s in 0...stops.length)
+            result.stops.push(stops[s].blend(other.stops[s],f));
+      }
+      else
+         for(stop in stops)
+            result.stops.push(stop.clone());
+      return result;
+   }
+
+
    public function setStopPosition(inIdx:Int, inPos:Float):Int
    {
       stops[inIdx].position = inPos;
