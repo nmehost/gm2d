@@ -734,6 +734,10 @@ class ColourControl extends Widget
       mColour = inColour.clone();
       setAll();
    }
+   public function getColour( )
+   {
+      return mColour.clone();
+   }
 
    public function getRGB() { return mColour.getRGB(); }
 
