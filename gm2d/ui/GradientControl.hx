@@ -13,7 +13,7 @@ import gm2d.ui.MouseWatcher;
 import gm2d.ui.Layout;
 import gm2d.ui.HitBoxes;
 import gm2d.display.GradientType;
-import gm2d.display.InterpolationMethod;
+import gm2d.InterpolationMethod;
 import gm2d.geom.Matrix;
 import gm2d.geom.Point;
 import gm2d.events.MouseEvent;
@@ -94,13 +94,14 @@ class GradientControl extends Widget
    var interp:ChoiceButtons;
    var type:ChoiceButtons;
    var focal:NumericInput;
+   var positionMarker:Bitmap;
 
    var gradient:Gradient;
    var currentId:Int;
 
    static var spreads = [ SpreadMethod.PAD, SpreadMethod.REFLECT, SpreadMethod.REPEAT];
    static var types = [ GradientType.LINEAR, GradientType.RADIAL ];
-   static var interps = [ InterpolationMethod.LINEAR_RGB, InterpolationMethod.RGB ];
+   static var interps = [ InterpolationMethod.LINEAR_RGB, InterpolationMethod.RGB, InterpolationMethod.STEP ];
 
    public static var createdBmps = false;
    public static var bitmaps = new haxe.ds.StringMap<BitmapData>();
@@ -198,6 +199,10 @@ class GradientControl extends Widget
 
       mLayout = vstack;
 
+      positionMarker = new Bitmap( bitmaps.get("positionMarker") );
+      positionMarker.y = -5;
+      gradBox.addChild(positionMarker);
+
       setGradient( gradient = (new GradSwatch(0,20)).gradient );
    }
 
@@ -215,6 +220,7 @@ class GradientControl extends Widget
 
       var gradient = new gm2d.Gradient( );
       gradient.addStop( new RGBHSV(0x005580,1), 0);
+      gradient.addStop( new RGBHSV(0x508080,1), 0.5);
       gradient.addStop( new RGBHSV(0xa0b0b0,1), 1);
       var matrix = new Matrix();
       var size = 24;
@@ -268,6 +274,30 @@ class GradientControl extends Widget
             bmp.draw(s);
             bitmaps.set(key,bmp);
          }
+      }
+
+      if (!bitmaps.exists("positionMarker"))
+      {
+         var h = 42;
+         var bmp = new BitmapData(7,h,true, gm2d.RGB.CLEAR );
+         gfx.clear();
+         gfx.lineStyle(1,0x000000);
+         gfx.beginFill(0xffffff);
+         gfx.moveTo(0.5,0.5);
+         gfx.lineTo(6.5,0.5);
+         gfx.lineTo(3.5,3.5);
+         gfx.lineTo(0.5,0.5);
+
+         gfx.moveTo(0.5,h-1-0.5);
+         gfx.lineTo(6.5,h-1-0.5);
+         gfx.lineTo(3.5,h-1-3.5);
+         gfx.lineTo(0.5,h-1-0.5);
+
+         gfx.moveTo(3.5,3.5);
+         gfx.lineTo(3.5,h-1-3.5);
+
+         bmp.draw(s);
+         bitmaps.set("positionMarker",bmp);
       }
    }
 
@@ -345,6 +375,22 @@ class GradientControl extends Widget
       }
    }
 
+   function posFromMouse(ev:MouseEvent)
+   {
+      var localX = gradBox.globalToLocal( new Point(ev.stageX, ev.stageY) ).x;
+      var pos = localX/mWidth;
+      if (pos<0)
+         pos = 0;
+      if (pos>1)
+         pos = 1;
+      if (currentId>=0 && currentId<gradient.stops.length)
+      {
+        currentId = gradient.setStopPosition(currentId,pos);
+        position.setValue( pos );
+        onGradientChange();
+      }
+   }
+
    function onMouse(ev:MouseEvent)
    {
       if (ev.localY>32)
@@ -357,6 +403,11 @@ class GradientControl extends Widget
             else
                setCurrentStop(stop);
          }
+      }
+      else
+      {
+         MouseWatcher.watchDrag(gradBox, ev.localX, ev.localY, posFromMouse );
+         posFromMouse(ev);
       }
    }
 
@@ -421,7 +472,7 @@ class GradientControl extends Widget
          y=16-y;
       }
       gfx.lineStyle(1,0x000000);
-      gradient.beginFillBox(gfx,0,0,mWidth,32);
+      gradient.beginFillBox(gfx,0,0,mWidth,32,0,GradientType.LINEAR);
       gfx.drawRect(0,0,mWidth,32);
 
       stopW = Std.int(mWidth/gradient.stops.length);
@@ -441,6 +492,9 @@ class GradientControl extends Widget
          }
          x+=stopW;
       }
+
+      if (currentId>=0 && currentId<gradient.stops.length)
+         positionMarker.x = Std.int(mWidth*gradient.stops[currentId].position - positionMarker.width*0.5);
    }
 
    public function setGradient(inGrad:Gradient)

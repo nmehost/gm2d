@@ -383,6 +383,7 @@ class StackLayout extends Layout
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
+      //trace("setRect " + inW + "x" + inH);
       for(child in mChildren)
          alignChild(child,inX+mBLeft, inY+mBTop, inW-mBLeft-mBRight, inH-mBTop-mBBottom );
 

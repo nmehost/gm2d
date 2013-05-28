@@ -1,7 +1,7 @@
 package gm2d;
 
 import gm2d.display.GradientType;
-import gm2d.display.InterpolationMethod;
+import gm2d.InterpolationMethod;
 import gm2d.display.SpreadMethod;
 import gm2d.geom.Matrix;
 import gm2d.display.Graphics;
@@ -92,37 +92,69 @@ class Gradient
    public function getAlphas()
    {
      var result = new Array<Float>();
-     for(stop in stops)
-       result.push(stop.colour.a);
+     if (interpolationMethod==InterpolationMethod.STEP && stops.length>1)
+     {
+        for(i in 1...stops.length)
+        {
+           result.push(stops[i-1].colour.a);
+           result.push(stops[i].colour.a);
+        }
+     }
+     else
+        for(stop in stops)
+          result.push(stop.colour.a);
      return result;
    }
 
    public function getColors()
    {
      var result = new Array<CInt>();
-     for(stop in stops)
-       result.push(stop.colour.getRGB());
+     if (interpolationMethod==InterpolationMethod.STEP && stops.length>1)
+     {
+        for(i in 1...stops.length)
+        {
+           result.push(stops[i-1].colour.getRGB());
+           result.push(stops[i].colour.getRGB());
+        }
+     }
+     else
+        for(stop in stops)
+          result.push(stop.colour.getRGB());
      return result;
    }
    public function getRatios()
    {
      var result = new Array<CInt>();
-     for(stop in stops)
-       result.push(Std.int(stop.position*255.0));
+     if (interpolationMethod==InterpolationMethod.STEP && stops.length>1)
+     {
+        for(i in 1...stops.length)
+        {
+           result.push(Std.int(stops[i].position*255.0));
+           result.push(Std.int(stops[i].position*255.0));
+        }
+     }
+     else
+        for(stop in stops)
+           result.push(Std.int(stop.position*255.0));
      return result;
    }
 
-   public function beginFill(inGfx:Graphics, ?inMatrix:Matrix)
+   public function beginFill(inGfx:Graphics, ?inMatrix:Matrix, ?inType:GradientType)
    {
-      inGfx.beginGradientFill(type, getColors(), getAlphas(), getRatios(), inMatrix,
-         spreadMethod, interpolationMethod, focal );
+      var t = inType==null ? type : inType;
+      if (interpolationMethod==InterpolationMethod.LINEAR_RGB)
+         inGfx.beginGradientFill(t, getColors(), getAlphas(), getRatios(), inMatrix,
+            spreadMethod, gm2d.display.InterpolationMethod.LINEAR_RGB, focal );
+      else
+         inGfx.beginGradientFill(t, getColors(), getAlphas(), getRatios(), inMatrix,
+            spreadMethod, gm2d.display.InterpolationMethod.RGB, focal );
    }
 
 
-   public function beginFillBox(inGfx:Graphics,inX0:Float, inY0:Float, inW:Float, inH:Float, inTheta:Float =0.0)
+   public function beginFillBox(inGfx:Graphics,inX0:Float, inY0:Float, inW:Float, inH:Float, inTheta:Float =0.0, ?inType:GradientType)
    {
       var matrix = new Matrix();
       matrix.createGradientBox(inW, inH, inTheta, inX0, inY0);
-      beginFill(inGfx, matrix);
+      beginFill(inGfx, matrix, inType);
    }
 }

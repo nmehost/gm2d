@@ -344,6 +344,8 @@ class ColourWheel extends Widget
             buildBmp();
          updateOverlays();
       }
+      else if (inColour.a != mColour.a)
+         mColour = inColour.clone();
    }
 
    public function setInputMode(inMode:Int)
@@ -759,6 +761,7 @@ class ColourControl extends Widget
    {
       mColour.setA(inValue);
       box.setColour(mColour);
+      wheel.setColour(mColour,false);
       send();
    }
 
