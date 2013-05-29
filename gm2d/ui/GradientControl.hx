@@ -107,10 +107,11 @@ class GradientControl extends Widget
    public static var createdBmps = false;
    public static var bitmaps = new haxe.ds.StringMap<BitmapData>();
 
-   public function new( )
+   public function new(inOnChange:Gradient->Void)
    {
       super();
 
+      onChange = inOnChange;
       updateLockout = 1;
       stopX0 = 0;
       stopW = 1;
