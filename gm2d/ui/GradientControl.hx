@@ -72,7 +72,7 @@ class GradSwatch
    {
       var s = new Shape();
       var gfx = s.graphics;
-      gradient.beginFillBox(gfx, 0,0,32*0.707,32*0.707,45);
+      gradient.beginFillBox(gfx, 0,0,32*0.707,32*0.707,Math.PI*0.25);
       gfx.drawRect(0,0,32,32);
       bitmapData.draw(s);
    }
@@ -503,12 +503,14 @@ class GradientControl extends Widget
 
    public function setGradient(inGrad:Gradient)
    {
+      updateLockout++;
       gradient = inGrad.clone();
-      render();
       setCurrentStop(0);
       spread.setIndex( Lambda.indexOf(spreads,gradient.spreadMethod) );
       type.setIndex( Lambda.indexOf(types,gradient.type) );
       interp.setIndex( Lambda.indexOf(interps,gradient.interpolationMethod) );
+      updateLockout--;
+      onGradientChange();
    }
 }
 
