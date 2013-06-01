@@ -4,6 +4,7 @@ import gm2d.text.TextField;
 import gm2d.ui.Layout;
 import gm2d.events.MouseEvent;
 import gm2d.RGBHSV;
+import gm2d.text.TextFieldAutoSize;
 
 
 class RGBBox extends Widget
@@ -24,9 +25,10 @@ class RGBBox extends Widget
       mShowAlpha = inShowAlpha;
       onColourChange = inOnColour;
       mColour = inColour.clone();
-      mWidth = mHeight = 32;
       updateLockout = 0;
-      getLayout().setMinSize(20,32);
+      mWidth = 72;
+      mHeight = 28;
+      getLayout().setMinSize(mWidth,mHeight);
 
       var fmt = new nme.text.TextFormat();
       fmt.align = nme.text.TextFormatAlign.CENTER;
@@ -41,6 +43,7 @@ class RGBBox extends Widget
       if (inShouldShowPopup)
          textField.addEventListener(MouseEvent.CLICK, function(_) showDialog() );
 
+      textField.text = "0x00000000";
       redraw();
    }
 

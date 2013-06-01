@@ -11,6 +11,7 @@ class ComboList extends Window
    var mList:ListControl;
    var mCombo:ComboBox;
    var mOptions:Array<String>;
+   var closeLockout = 0;
 
    public function new(inParent:ComboBox, inW:Float, inOptions:Array<String>)
    {
@@ -24,23 +25,36 @@ class ComboList extends Window
       for(o in mOptions)
          mList.addRow([o]);
       addChild(mList);
-      var gfx = graphics;
-      gfx.lineStyle(1,0x000000);
-      gfx.drawRect(-0.5,-0.5,inW+2, mList.height+2);
-      addEventListener( gm2d.events.MouseEvent.CLICK, onClick);
+      mList.scrollRect = null;
+
+      mList.onSelect = onSelect;
    }
+
+   public function getControlHeight() { return mList.getControlHeight(); }
+   public function getControlWidth() { return mList.getControlWidth(); }
 
    override function windowMouseMove(inEvent:MouseEvent)
    {
+      closeLockout++;
       mList.selectByY(inEvent.localY);
+      closeLockout--;
+   }
+   override public function layout(inW:Float, inH:Float)
+   {
+      var gfx = graphics;
+      gfx.lineStyle(1,0x000000);
+      gfx.beginFill(0xffffff);
+      gfx.drawRect(-0.5,-0.5,inW+2, inH+2);
+
+      mList.layout(inW, inH);
    }
 
-   public function onClick(inEvent)
+   public function onSelect(idx:Int)
    {
-      var idx = mList.selectByY(inEvent.localY);
       if (idx>=0)
          mCombo.setText(mOptions[idx]);
-      gm2d.Game.closePopup();
+      if (closeLockout==0)
+         gm2d.Game.closePopup();
    }
 
 
@@ -103,13 +117,32 @@ class ComboBox extends Control
    {
       var pop = new ComboList(this, mWidth, mOptions);
       var pos = this.localToGlobal( new gm2d.geom.Point(0,0) );
-      gm2d.Game.popup(pop,pos.x,pos.y+22);
+      var h = pop.getControlHeight();
+      var w = pop.getControlWidth();
+      var max = Std.int(stage.stageHeight/2);
+      var below = Math.min(max,stage.stageHeight - (pos.y+22));
+      var above = Math.min(max,pos.y);
+      if (h+pos.y+22 < stage.stageHeight)
+      {
+         pop.layout(w,h);
+         gm2d.Game.popup(pop,pos.x,pos.y+22);
+      }
+      else if (below>above)
+      {
+         pop.layout(w,below);
+         gm2d.Game.popup(pop,pos.x,pos.y+22);
+      }
+      else
+      {
+         pop.layout(w,above);
+         gm2d.Game.popup(pop,pos.x,pos.y-above);
+      }
    }
+
 
    public function setText(inText:String)
    {
        mText.text = inText;
-       mText.height = 100;
    }
 
    public override function layout(inW:Float, inH:Float)

@@ -208,9 +208,9 @@ class ListControl extends ScrollWidget
 
             var h = obj.height;
             var w = obj.width;
-            if (Std.is(item,TextField))
+            if (Std.is(obj,TextField))
             {
-               var tf:TextField = cast item;
+               var tf:TextField = cast obj;
                w = tf.textWidth;
                h = tf.textHeight;
             }
@@ -508,6 +508,8 @@ class ListControl extends ScrollWidget
       drawBG();
       setScrollRange(mWidth,mWidth,mControlHeight,mHeight);
    }
+   public function getControlHeight() { return mControlHeight; }
+   public function getControlWidth() { return mColPos[mColPos.length-1]; }
 }
 
 
