@@ -39,6 +39,7 @@ class ListControl extends ScrollWidget
    public var evenAlpha:Float;
    public var oddColour:Int;
    public var oddAlpha:Float;
+   public var variableHeightRows = false;
 
    public function new(inWidth:Float = 100, inItemHeight:Float=0)
    {
@@ -240,11 +241,18 @@ class ListControl extends ScrollWidget
 
       if (inHeight==null)
       {
-         if (rowHeight>mItemHeight)
+         if (variableHeightRows)
          {
+            if (rowHeight<mItemHeight)
+               rowHeight = mItemHeight;
+            if ( (rowHeight<scrollWheelStep||scrollWheelStep==0) && rowHeight>0)
+                scrollWheelStep = rowHeight;
+         }
+         else if (rowHeight>mItemHeight)
+         {
+            mItemHeight = rowHeight;
             for(i in 0...mRowHeights.length)
                mRowHeights[i] = mItemHeight;
-            mItemHeight = rowHeight;
             scrollWheelStep = rowHeight;
             needRecalcPos = true;
             mChildrenClean = 0;

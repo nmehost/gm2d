@@ -3,6 +3,7 @@ package gm2d.ui;
 import gm2d.text.TextField;
 import gm2d.display.BitmapData;
 import gm2d.events.MouseEvent;
+import gm2d.geom.Point;
 import gm2d.ui.Button;
 import gm2d.skin.Skin;
 
@@ -11,12 +12,15 @@ class ComboList extends Window
    var mList:ListControl;
    var mCombo:ComboBox;
    var closeLockout = 0;
+   var selectOnMove:Bool;
 
-   public function new(inCombo:ComboBox, inW:Float, inOptions:Array<Dynamic>)
+   public function new(inCombo:ComboBox, inW:Float, inOptions:Array<Dynamic>,inSelectOnMove:Bool)
    {
       super();
+      selectOnMove = inSelectOnMove;
       mCombo = inCombo;
       mList = new ListControl(inW);
+      mList.variableHeightRows = true;
       mList.addItems(inOptions);
       addChild(mList);
       mList.scrollRect = null;
@@ -40,9 +44,21 @@ class ComboList extends Window
 
    override function windowMouseMove(inEvent:MouseEvent)
    {
-      closeLockout++;
-      mList.selectByY(inEvent.localY);
-      closeLockout--;
+      if (selectOnMove)
+      {
+         closeLockout++;
+         var pos = mList.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
+         mList.selectByY(pos.y);
+         closeLockout--;
+      }
+   }
+
+   override function onMouseDown(_,_)
+   {
+      if (selectOnMove)
+      {
+         gm2d.Game.closePopup();
+      }
    }
 
    override public function layout(inW:Float, inH:Float)
@@ -81,6 +97,7 @@ class ComboBox extends Control
    static var mBMP:BitmapData;
    var onText:String->Void;
    var onItem:Int->Void;
+   public var selectOnMove = true;
 
    public function new(inVal="", ?inOptions:Array<String>, ?inDisplay:Array<Dynamic>,
        ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void)
@@ -134,8 +151,8 @@ class ComboBox extends Control
    function doPopup()
    {
       var pop = mDisplay != null ?
-            new ComboList(this, mWidth, mDisplay) :
-            new ComboList(this, mWidth, mOptions);
+            new ComboList(this, mWidth, mDisplay,selectOnMove) :
+            new ComboList(this, mWidth, mOptions,selectOnMove);
 
       var pos = this.localToGlobal( new gm2d.geom.Point(0,0) );
       var h = pop.getControlHeight();
