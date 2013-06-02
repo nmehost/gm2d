@@ -10,28 +10,33 @@ class ComboList extends Window
 {
    var mList:ListControl;
    var mCombo:ComboBox;
-   var mOptions:Array<String>;
    var closeLockout = 0;
 
-   public function new(inParent:ComboBox, inW:Float, inOptions:Array<String>)
+   public function new(inCombo:ComboBox, inW:Float, inOptions:Array<Dynamic>)
    {
       super();
-      mCombo = inParent;
+      mCombo = inCombo;
       mList = new ListControl(inW);
-      mOptions = inOptions;
-      if (mOptions.length==0)
-         mOptions.push("");
-
-      for(o in mOptions)
-         mList.addRow([o]);
+      mList.addItems(inOptions);
       addChild(mList);
       mList.scrollRect = null;
-
       mList.onSelect = onSelect;
    }
 
    public function getControlHeight() { return mList.getControlHeight(); }
    public function getControlWidth() { return mList.getControlWidth(); }
+   override public function getWindowWidth()
+   {
+      if (mList.scrollRect!=null)
+         return mList.scrollRect.width;
+      return width;
+   }
+   override public function getWindowHeight()
+   {
+      if (mList.scrollRect!=null)
+         return mList.scrollRect.height;
+      return height;
+   }
 
    override function windowMouseMove(inEvent:MouseEvent)
    {
@@ -39,6 +44,7 @@ class ComboList extends Window
       mList.selectByY(inEvent.localY);
       closeLockout--;
    }
+
    override public function layout(inW:Float, inH:Float)
    {
       var gfx = graphics;
@@ -52,12 +58,10 @@ class ComboList extends Window
    public function onSelect(idx:Int)
    {
       if (idx>=0)
-         mCombo.setText(mOptions[idx]);
+         mCombo.onListSelect(idx);
       if (closeLockout==0)
          gm2d.Game.closePopup();
    }
-
-
 
    override public function destroy()
    {
@@ -73,11 +77,17 @@ class ComboBox extends Control
    var mButtonX:Float;
    var mWidth:Float;
    var mOptions:Array<String>;
+   var mDisplay:Array<Dynamic>;
    static var mBMP:BitmapData;
+   var onText:String->Void;
+   var onItem:Int->Void;
 
-   public function new(inVal="", ?inOptions:Array<String>)
+   public function new(inVal="", ?inOptions:Array<String>, ?inDisplay:Array<Dynamic>,
+       ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void)
    {
        super();
+       onItem = inOnSelectIndex;
+       onText = inOnSelectString;
        mText = new TextField();
        mText.defaultTextFormat = Skin.current.textFormat;
        mText.text = inVal;
@@ -107,15 +117,26 @@ class ComboBox extends Control
           gfx.lineTo(8,8);
           mBMP.draw(shape);
        }
-       mOptions = inOptions==null ? [] : inOptions.copy();
+       mOptions = inOptions==null ? null : inOptions.copy();
+       mDisplay = inDisplay==null ? null : inDisplay.copy();
        addChild(mText);
        var me = this;
        addEventListener(MouseEvent.CLICK, function(ev)  if (ev.localX > me.mButtonX) me.doPopup()  );
    }
 
+
+   public function onListSelect(inIndex:Int)
+   {
+      if (mOptions!=null)
+         setText(mOptions[inIndex]);
+   }
+
    function doPopup()
    {
-      var pop = new ComboList(this, mWidth, mOptions);
+      var pop = mDisplay != null ?
+            new ComboList(this, mWidth, mDisplay) :
+            new ComboList(this, mWidth, mOptions);
+
       var pos = this.localToGlobal( new gm2d.geom.Point(0,0) );
       var h = pop.getControlHeight();
       var w = pop.getControlWidth();
@@ -127,7 +148,7 @@ class ComboBox extends Control
          pop.layout(w,h);
          gm2d.Game.popup(pop,pos.x,pos.y+22);
       }
-      else if (below>above)
+      else if (below>=above)
       {
          pop.layout(w,below);
          gm2d.Game.popup(pop,pos.x,pos.y+22);

@@ -117,6 +117,9 @@ class Window extends Widget
       return false;
    }
 
+   public function getWindowWidth() { return width; }
+   public function getWindowHeight() { return height; }
+
    public function onKeyUp(event:gm2d.events.KeyboardEvent):Bool { return false; }
    public dynamic function onAdded() { }
 

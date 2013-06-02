@@ -27,6 +27,7 @@ class ListControl extends ScrollWidget
    var mColAlign:Array<Int>;
    var mMultiSelect:Array<Bool>;
    var mControlHeight:Float;
+   var mHoldUpdates = false;
    public var onSelect:Int->Void;
    public var onMultiSelect:Array<Bool>->Void;
    public var mXGap:Float;
@@ -194,7 +195,11 @@ class ListControl extends ScrollWidget
          if (i==mColAlign.length)
             mColAlign.push(Layout.AlignCenterY | Layout.AlignLeft);
          if (mColWidths.length<=i)
+         {
+            if (mMinColWidths.length<=i)
+               mMinColWidths[i] = 0;
             mColWidths.push(mMinColWidths[i]);
+         }
          var item:Dynamic = inRow[i];
          if (item!=null)
          {
@@ -249,22 +254,48 @@ class ListControl extends ScrollWidget
       }
 
       mRowHeights.push(rowHeight);
-      if (needRecalcPos)
+
+      if (!mHoldUpdates)
       {
-         recalcPos();
-      }
-      else
-      {
-         var pos = mRowPos[mRowPos.length-1];
-         mRowPos.push(pos+rowHeight);
+         if (needRecalcPos)
+         {
+            recalcPos();
+         }
+         else
+         {
+            var pos = mRowPos[mRowPos.length-1];
+            mRowPos.push(pos+rowHeight);
+         }
       }
       mRows.push(row);
-      layout(mWidth,mHeight);
+
+      if (!mHoldUpdates)
+         layout(mWidth,mHeight);
    }
+
+   public function holdUpdates(inHold:Bool)
+   {
+      mHoldUpdates = inHold;
+      if (!mHoldUpdates)
+      {
+         recalcPos();
+         layout(mWidth,mHeight);
+      }
+   }
+
    public function addItem(inItem:Dynamic)
    {
       addRow([inItem]);
    }
+
+   public function addItems(inItems:Array<Dynamic>)
+   {
+      holdUpdates(true);
+      for(item in inItems)
+         addRow([item]);
+      holdUpdates(false);
+   }
+
 
    public function showItem(idx:Int)
    {
@@ -509,7 +540,11 @@ class ListControl extends ScrollWidget
       setScrollRange(mWidth,mWidth,mControlHeight,mHeight);
    }
    public function getControlHeight() { return mControlHeight; }
-   public function getControlWidth() { return mColPos[mColPos.length-1]; }
+   public function getControlWidth()
+   {
+      //recalcPos();
+      return mColPos[mColPos.length-1];
+   }
 }
 
 
