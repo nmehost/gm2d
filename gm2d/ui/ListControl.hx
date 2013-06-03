@@ -446,7 +446,7 @@ class ListControl extends ScrollWidget
       return -1;
    }
 
-   override function onClick(inX:Float, inY:Float,ev:MouseEvent)
+   override function doClick(inX:Float, inY:Float,ev:MouseEvent)
    {
       var flags = 0;
       if (onMultiSelect!=null)
@@ -457,6 +457,7 @@ class ListControl extends ScrollWidget
            flags |= SELECT_RANGE;
       }
       selectByY(inY,flags);
+      super.doClick(inX,inY,ev);
    }
 
 

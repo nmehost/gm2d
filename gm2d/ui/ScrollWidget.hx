@@ -32,6 +32,8 @@ class ScrollWidget extends Control
    var mAutoScrollTime:Float;
    public var autoScrollRate = 500.0;
 
+   // This is for a click, rather than mouse down-move-up
+   public var onClick:MouseEvent->Void;
 
    var speedX:TimeAverage;
    var speedY:TimeAverage;
@@ -158,9 +160,10 @@ class ScrollWidget extends Control
       addEventListener(Event.ENTER_FRAME,onAutoScrollMouseCheck);
    }
 
-   function onClick(inX:Float, inY:Float,ev:MouseEvent)
+   function doClick(inX:Float, inY:Float,ev:MouseEvent)
    {
-      //trace(inX+","+inY);
+      if (onClick!=null)
+         onClick(ev);
    }
 
    function onStageUp(ev:MouseEvent)
@@ -168,7 +171,7 @@ class ScrollWidget extends Control
       if (!mScrolling)
       {
          var local = globalToLocal(mDownPos);
-         onClick(local.x,local.y,ev);
+         doClick(local.x,local.y,ev);
       }
       else
       {

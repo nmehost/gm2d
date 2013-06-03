@@ -25,6 +25,7 @@ class ComboList extends Window
       addChild(mList);
       mList.scrollRect = null;
       mList.onSelect = onSelect;
+      mList.onClick = function(_)  gm2d.Game.closePopup();
    }
 
    public function getControlHeight() { return mList.getControlHeight(); }
@@ -53,6 +54,7 @@ class ComboList extends Window
       }
    }
 
+/*
    override function onMouseDown(_,_)
    {
       if (selectOnMove)
@@ -60,6 +62,7 @@ class ComboList extends Window
          gm2d.Game.closePopup();
       }
    }
+*/
 
    override public function layout(inW:Float, inH:Float)
    {
@@ -145,7 +148,13 @@ class ComboBox extends Control
    public function onListSelect(inIndex:Int)
    {
       if (mOptions!=null)
+      {
          setText(mOptions[inIndex]);
+         if (onText!=null)
+            onText( mOptions[inIndex]);
+      }
+      if (onItem!=null)
+         onItem(inIndex);
    }
 
    function doPopup()
