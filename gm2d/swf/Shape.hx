@@ -2,6 +2,7 @@ package gm2d.swf;
 
 import gm2d.geom.Rectangle;
 import gm2d.geom.Matrix;
+import gm2d.geom.Point;
 import gm2d.display.JointStyle;
 
 import gm2d.display.Graphics;
@@ -22,7 +23,6 @@ class ShapeEdge
    }
    public function asCommand()
    {
-      //trace("lineTo(" + x1 + "," + y1 + ")");
       if (isQuadratic)
          return function(gfx:Graphics) gfx.curveTo(cx,cy,x1,y1);
       else
@@ -30,12 +30,17 @@ class ShapeEdge
    }
    public function dump()
    {
-      trace(x0 + "," + y0 + " -> " + x1 + "," + y1 + " (" + fillStyle + ")" );
+      if (isQuadratic)
+         trace('$x0,$y0 -> $cx,$cy -> $x1,$y1 ($fillStyle)');
+      else
+         trace('$x0,$y0 -> $x1,$y1 ($fillStyle)');
    }
 
 
    public static function line(style:Int, x0:Float, y0:Float, x1:Float, y1:Float)
    {
+      if (Math.abs(x0-x1)<0.00025 && Math.abs(y0-y1)<0.00025)
+         return null;
       var result = new ShapeEdge();
       result.fillStyle = style;
       result.x0 = x0;
@@ -47,6 +52,8 @@ class ShapeEdge
    }
    public static function curve(style:Int, x0:Float, y0:Float, cx:Float, cy:Float, x1:Float, y1:Float)
    {
+      if (Math.abs(x0-x1)<0.00025 && Math.abs(y0-y1)<0.00025)
+         return null;
       var result = new ShapeEdge();
       result.fillStyle = style;
       result.x0 = x0;
@@ -67,6 +74,57 @@ class ShapeEdge
    public var isQuadratic:Bool;
    public var cx:Float;
    public var cy:Float;
+}
+
+class FillPolygon
+{
+   static inline var MOVE = 0;
+   static inline var LINE = 1;
+   static inline var CURVE = 2;
+
+   var points:Array<Point>;
+   var commands:Array<Int>;
+
+   public function new( )
+   {
+      points = [];
+      commands = [];
+   }
+   public function add(edge:ShapeEdge)
+   {
+      if (commands.length==0)
+      {
+         points.push(new Point(edge.x0,edge.y0));
+         commands.push(MOVE);
+      }
+      if (edge.isQuadratic)
+      {
+         points.push(new Point(edge.cx,edge.cy));
+         commands.push(CURVE);
+      }
+      else
+      {
+         commands.push(LINE);
+      }
+      points.push(new Point(edge.x1,edge.y1));
+   }
+
+   public function render(gfx:Graphics)
+   {
+      var pid = 0;
+      for(command in commands)
+      {
+         var p = points[pid++];
+         switch(command)
+         {
+            case MOVE: gfx.moveTo(p.x,p.y);
+            case LINE: gfx.lineTo(p.x,p.y);
+            case CURVE:
+               var end = points[pid++];
+               gfx.curveTo(p.x,p.y,end.x,end.y);
+         }
+      }
+   }
 }
 
 class Shape
@@ -254,10 +312,18 @@ class Shape
 
                //trace("Line to : " + px + "," + py  + " (" + current_fill0 + "," + current_fill1 + ")" );
                if (current_fill0>0)
-                 fills.push(ShapeEdge.line(current_fill0,pen_x,pen_y,px,py));
+               {
+                 var edge = ShapeEdge.line(current_fill0,pen_x,pen_y,px,py);
+                 if (edge!=null)
+                    fills.push(edge);
+               }
 
                if (current_fill1>0)
-                 fills.push(ShapeEdge.line(current_fill1,px,py,pen_x,pen_y));
+               {
+                  var edge =ShapeEdge.line(current_fill1,px,py,pen_x,pen_y); 
+                  if (edge!=null)
+                     fills.push(edge);
+               }
 
                pen_x = px;
                pen_y = py;
@@ -277,9 +343,17 @@ class Shape
                if (current_line>0)
                   edges.push( function(g:Graphics) { g.curveTo(cx,cy,px,py);} );
                if (current_fill0>0)
-                 fills.push(ShapeEdge.curve(current_fill0,pen_x,pen_y,cx,cy,px,py));
+               {
+                  var edge = ShapeEdge.curve(current_fill0,pen_x,pen_y,cx,cy,px,py);
+                  if (edge!=null)
+                     fills.push(edge);
+               }
                if (current_fill1>0)
-                 fills.push(ShapeEdge.curve(current_fill1,px,py,cx,cy,pen_x,pen_y));
+               {
+                  var edge = ShapeEdge.curve(current_fill1,px,py,cx,cy,pen_x,pen_y);
+                  if (edge!=null)
+                     fills.push(edge);
+               }
  
                pen_x = px;
                pen_y = py;
@@ -296,36 +370,34 @@ class Shape
    function FlushCommands(edges:RenderFuncList, fills:Array<ShapeEdge>)
    {
       var left = fills.length;
+
+      var styledPolys = new Array< Array<FillPolygon> >();
       while(left>0)
       {
          var first = fills[0];
          fills[0] = fills[--left];
          if (first.fillStyle>=mFillStyles.length)
             throw("Invalid fill style");
-         //if (first.connects(first))
-           //continue;
-         //trace("Loop start : " + first.x0 + "," + first.y0);
-         //trace("Fill style: " + first.fillStyle);
-         mCommands.push(mFillStyles[first.fillStyle]);
+
+         var style = first.fillStyle;
+
+         var poly = new FillPolygon();
          var mx = first.x0;
          var my = first.y0;
-         //trace("moveTo(" + mx + "," + my + ")");
-         mCommands.push(function(gfx:Graphics) gfx.moveTo(mx,my));
-         mCommands.push(first.asCommand());
+         poly.add(first);
+
          var prev = first;
          var loop = false;
          while(!loop)
          {
-            //trace("seeking " + prev.x1 + "," + prev.y1 + "   " + prev.fillStyle);
             var found = false;
             for(i in 0...left)
             {
-               //trace(" check " + fills[i].x0 + "," + fills[i].y0 + "   " + fills[i].fillStyle);
                if (prev.connects(fills[i]))
                {
                   prev = fills[i];
                   fills[i] = fills[--left];
-                  mCommands.push(prev.asCommand());
+                  poly.add(prev);
                   found = true;
                   if (prev.connects(first))
                      loop = true;
@@ -337,13 +409,28 @@ class Shape
                trace("Remaining:");
                for(f in 0...left)
                   fills[f].dump();
-              throw("Dangling fill : " + prev.x1 + "," + prev.y1 + "  " + prev.fillStyle);
+              trace("Dangling fill : " + prev.x1 + "," + prev.y1 + "  " + prev.fillStyle);
+              //throw("Dangling fill : " + prev.x1 + "," + prev.y1 + "  " + prev.fillStyle);
               break;
             }
          }
+         if (styledPolys[style]==null)
+            styledPolys[style] = new Array<FillPolygon>();
+         styledPolys[style].push(poly);
       }
-      if (fills.length>0)
-         mCommands.push( function(gfx:Graphics) gfx.endFill() );
+
+      for(p in 0...styledPolys.length)
+      {
+         var polys = styledPolys[p];
+         if (polys!=null)
+         {
+            mCommands.push(mFillStyles[p]);
+            for(poly in polys)
+               mCommands.push( poly.render );
+            mCommands.push(function(gfx) gfx.endFill() );
+         }
+      }
+
       mCommands = mCommands.concat(edges);
       if (edges.length>0)
          mCommands.push(function(gfx:Graphics) gfx.lineStyle() );
