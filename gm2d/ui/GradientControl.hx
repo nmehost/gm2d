@@ -83,7 +83,7 @@ class GradSwatch
 class GradientControl extends Widget
 {
    var updateLockout:Int;
-   public var onChange:Gradient->Void;
+   public var onChange:Gradient->Int->Void;
    public var gradBox:Sprite;
    var mWidth:Float;
    var mHeight:Float;
@@ -107,7 +107,7 @@ class GradientControl extends Widget
    public static var createdBmps = false;
    public static var bitmaps = new haxe.ds.StringMap<BitmapData>();
 
-   public function new(inOnChange:Gradient->Void)
+   public function new(inOnChange:Gradient->Int->Void)
    {
       super();
 
@@ -305,23 +305,23 @@ class GradientControl extends Widget
       }
    }
 
-   function onGradientChange()
+   function onGradientChange(inPhase:Int=Phase.ALL)
    {
       if (updateLockout==0  && onChange!=null)
       {
          updateLockout++;
-         onChange(gradient.clone());
+         onChange(gradient.clone(),inPhase);
          updateLockout--;
       }
       render();
    }
 
-   function onPosition(pos:Float)
+   function onPosition(pos:Float,inPhase:Int)
    {
       if (currentId>=0 && currentId<gradient.stops.length)
       {
          currentId = gradient.setStopPosition(currentId,pos);
-         onGradientChange();
+         onGradientChange(inPhase);
       }
    }
 
@@ -358,12 +358,12 @@ class GradientControl extends Widget
       dialog.shouldConsumeEvent = function(event:MouseEvent) return event.target!=gradBox;
    }
 
-   public function onGradColour(inColour:RGBHSV)
+   public function onGradColour(inColour:RGBHSV,inPhase:Int)
    {
       if (currentId>=0 && currentId<gradient.stops.length)
       {
          gradient.stops[currentId].colour = inColour;
-         onGradientChange();
+         onGradientChange(inPhase);
       }
    }
 

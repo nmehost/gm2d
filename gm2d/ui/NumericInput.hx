@@ -10,7 +10,7 @@ import gm2d.skin.Skin;
 
 class NumericInput extends TextInput
 {
-   public var onUpdate:Float->Void;
+   public var onUpdate:Float->Int->Void;
    public var onEnter:Float->Void;
    var min:Float;
    var max:Float;
@@ -22,7 +22,7 @@ class NumericInput extends TextInput
    static var SLIDER_W = 22;
 
    public function new(inVal:Float,inInteger:Bool,inMin:Float, inMax:Float, inStep:Float,
-      ?inOnUpdateFloat:Float->Void)
+      ?inOnUpdateFloat:Float->Int->Void)
    {
       min = inMin;
       max = inMax;
@@ -62,6 +62,8 @@ class NumericInput extends TextInput
       slider.y = pos.y;
       sliderWatcher = new MouseWatcher(slider, null, onSliderDrag, onSliderUp,
           pos.x, pos.y+e.localY, false );
+      if (onUpdate!=null)
+         onUpdate(value,Phase.BEGIN);
    }
 
    function onSliderDrag(e:MouseEvent)
@@ -73,7 +75,7 @@ class NumericInput extends TextInput
       if (value>max) value = max;
       mText.text = Std.string(value);
       if (onUpdate!=null)
-         onUpdate(value);
+         onUpdate(value,Phase.UPDATE);
    }
    function onSliderUp(e:MouseEvent)
    {
@@ -83,6 +85,8 @@ class NumericInput extends TextInput
       sliderWatcher = null;
       if (onEnter!=null)
          onEnter(value);
+      if (onUpdate!=null)
+         onUpdate(value,Phase.END);
    }
 
    function renderSlider()
@@ -115,7 +119,7 @@ class NumericInput extends TextInput
          if (onEnter!=null)
             onEnter(value);
          else if (onUpdate!=null)
-            onUpdate(value);
+            onUpdate(value,Phase.ALL);
       }
    }
 

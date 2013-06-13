@@ -14,12 +14,12 @@ class RGBBox extends Widget
    var mHeight:Float;
    var mColour:RGBHSV;
    var updateLockout:Int;
-   public var onColourChange:RGBHSV->Void;
+   public var onColourChange:RGBHSV->Int->Void;
    public var onDialogCreated:RGBDialog->Void;
    var mShowAlpha:Bool;
    var rgbDialog:RGBDialog;
 
-   public function new(inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Void)
+   public function new(inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Int->Void)
    {
       super();
       mShowAlpha = inShowAlpha;
@@ -53,9 +53,9 @@ class RGBBox extends Widget
       if (rgbDialog==null)
       {
          isNew = true;
-         rgbDialog = new RGBDialog(mColour, function(colour) {
+         rgbDialog = new RGBDialog(mColour, function(colour,phase) {
             if (onColourChange!=null && updateLockout==0)
-               onColourChange(colour.clone());
+               onColourChange(colour.clone(),phase);
             setColour(colour);
             } );
          rgbDialog.onClose = function() rgbDialog = null;

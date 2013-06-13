@@ -233,7 +233,7 @@ class Swatch
 
 class ColourWheel extends Widget
 {
-   public var onChange:RGBHSV->Void;
+   public var onChange:RGBHSV->Int->Void;
 
    var mWidth :Float;
    var mHeight : Float;
@@ -306,7 +306,9 @@ class ColourWheel extends Widget
       updateMarker();
 
       if (onChange!=null)
-         onChange( mColour.clone() );
+      {
+         onChange( mColour.clone(), Phase.fromMouseEvent(inEvent)  );
+      }
    }
 
    function getC0()
@@ -562,9 +564,9 @@ class ColourControl extends Widget
 
 
    var updateLockout:Int;
-   public var onColourChange:RGBHSV->Void;
+   public var onColourChange:RGBHSV->Int->Void;
 
-   public function new(inColour:RGBHSV, ?inOnChange:RGBHSV->Void)
+   public function new(inColour:RGBHSV, ?inOnChange:RGBHSV->Int->Void)
    {
       super();
 
@@ -663,13 +665,13 @@ class ColourControl extends Widget
          swbox.dropColour(mColour);
    }
 
-   function setComponent(inWhich:Int, inVal:Float,inEntered:Bool)
+   function setComponent(inWhich:Int, inVal:Float,inPhase:Int)
    {
       if (updateLockout==0)
       {
          mColour.set(inWhich,inVal);
-         setAll(inEntered);
-         send();
+         setAll(inPhase==Phase.END);
+         send(inPhase);
       }
    }
 
@@ -693,8 +695,7 @@ class ColourControl extends Widget
    {
       var delta = inMax<= 100 ? 0.01 : 1;
       var result = new NumericInput(inMax*0.5,inMax>100,0,inMax,delta,
-         function(f)  if (updateLockout==0) setComponent(inMode,f,false) );
-      result.onEnter = function(f) if (updateLockout==0) setComponent(inMode,f,true);
+         function(f,phase)  if (updateLockout==0) setComponent(inMode,f,phase) );
       result.setTextWidth(60);
       result.addEventListener( MouseEvent.MOUSE_DOWN, function(_) setInputMode(inMode) );
       return result;
@@ -743,22 +744,22 @@ class ColourControl extends Widget
 
    public function getAlpha() { return mColour.a; }
 
-   function send()
+   function send(inPhase:Int = Phase.ALL)
    {
       if (onColourChange!=null)
       {
          updateLockout++;
-         onColourChange(mColour.clone());
+         onColourChange(mColour.clone(),inPhase);
          updateLockout--;
       }
    }
 
 
-   public function onWheel(inCol:RGBHSV)
+   public function onWheel(inCol:RGBHSV,inPhase:Int)
    {
       mColour = inCol.clone();
       setAll();
-      send();
+      send(inPhase);
    }
 
    public function onAlpha(inValue:Float)

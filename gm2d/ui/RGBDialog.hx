@@ -6,7 +6,7 @@ class RGBDialog extends Dialog
 {
    var control:ColourControl;
 
-   public function new(inRGB:RGBHSV, inOnColour:RGBHSV->Void)
+   public function new(inRGB:RGBHSV, inOnColour:RGBHSV->Int->Void)
    {
       control = new ColourControl(inRGB, inOnColour);
 
