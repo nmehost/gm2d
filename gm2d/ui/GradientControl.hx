@@ -100,9 +100,6 @@ class GradientControl extends Widget
    var gradient:Gradient;
    var currentId:Int;
 
-   static var spreads = [ SpreadMethod.PAD, SpreadMethod.REFLECT, SpreadMethod.REPEAT];
-   static var types = [ GradientType.LINEAR, GradientType.RADIAL ];
-   static var interps = [ InterpolationMethod.LINEAR_RGB, InterpolationMethod.RGB, InterpolationMethod.STEP ];
 
    public static var createdBmps = false;
    public static var bitmaps = new haxe.ds.StringMap<BitmapData>();
@@ -170,18 +167,18 @@ class GradientControl extends Widget
       var properties = new GridLayout(4,0);
 
       properties.add( addLabel("Spread") );
-      spread = ChoiceButtons.create( onSpread, spreads, bitmaps );
+      spread = ChoiceButtons.create( onSpread, Gradient.spreads, bitmaps );
       addChild(spread);
       properties.add( spread.getLayout() );
 
       properties.add( addLabel("Interp") );
-      interp = ChoiceButtons.create( onInterp, interps, bitmaps );
+      interp = ChoiceButtons.create( onInterp, Gradient.interps, bitmaps );
       addChild(interp);
       properties.add( interp.getLayout() );
 
 
       properties.add( addLabel("Type") );
-      type = ChoiceButtons.create( onType, types, bitmaps );
+      type = ChoiceButtons.create( onType, Gradient.types, bitmaps );
       addChild(type);
       properties.add( type.getLayout() );
 
@@ -230,7 +227,7 @@ class GradientControl extends Widget
       var size = 24;
       matrix.createGradientBox(size*0.5,size,0,0,0);
  
-      for(spread in spreads)
+      for(spread in Gradient.spreads)
       {
          var key:String = spread + "";
          if (!bitmaps.exists(key))
@@ -247,8 +244,8 @@ class GradientControl extends Widget
       }
 
       matrix.createGradientBox(size,size,0,0,0);
-      gradient.spreadMethod = spreads[2];
-      for(type in types)
+      gradient.spreadMethod = Gradient.spreads[2];
+      for(type in Gradient.types)
       {
          var key:String = type + "";
          if (!bitmaps.exists(key))
@@ -263,8 +260,8 @@ class GradientControl extends Widget
             bitmaps.set(key,bmp);
          }
       }
-      gradient.type = types[0];
-      for(interp in interps)
+      gradient.type = Gradient.types[0];
+      for(interp in Gradient.interps)
       {
          var key:String = interp + "";
          if (!bitmaps.exists(key))
@@ -327,19 +324,19 @@ class GradientControl extends Widget
 
    function onSpread(inSpread:Int)
    {
-      gradient.spreadMethod = spreads[inSpread];
+      gradient.setSpreadIndex(inSpread);
       onGradientChange();
    }
 
    function onInterp(inInterp:Int)
    {
-      gradient.interpolationMethod = interps[inInterp];
+      gradient.setInterpIndex(inInterp);
       onGradientChange();
    }
 
    function onType(inType:Int)
    {
-      gradient.type = types[inType];
+      gradient.setTypeIndex(inType);
       onGradientChange();
    }
 
@@ -506,9 +503,9 @@ class GradientControl extends Widget
       updateLockout++;
       gradient = inGrad.clone();
       setCurrentStop(0);
-      spread.setIndex( Lambda.indexOf(spreads,gradient.spreadMethod) );
-      type.setIndex( Lambda.indexOf(types,gradient.type) );
-      interp.setIndex( Lambda.indexOf(interps,gradient.interpolationMethod) );
+      spread.setIndex( gradient.getSpreadIndex() );
+      type.setIndex( gradient.getTypeIndex() );
+      interp.setIndex( gradient.getInterpIndex() );
       updateLockout--;
       onGradientChange();
    }

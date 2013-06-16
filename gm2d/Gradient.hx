@@ -38,6 +38,11 @@ class Gradient
    public var spreadMethod:SpreadMethod;
    public var focal:Float;
 
+   public static var spreads = [ SpreadMethod.PAD, SpreadMethod.REFLECT, SpreadMethod.REPEAT];
+   public static var types = [ GradientType.LINEAR, GradientType.RADIAL ];
+   public static var interps = [ InterpolationMethod.LINEAR_RGB, InterpolationMethod.RGB, InterpolationMethod.STEP ];
+
+
    public function new()
    {
       stops = [];
@@ -57,6 +62,15 @@ class Gradient
          result.stops.push(stop.clone());
       return result;
    }
+   public function getInterpIndex() { return Lambda.indexOf(interps,interpolationMethod); }
+   public function getTypeIndex() { return Lambda.indexOf(types,type); }
+   public function getSpreadIndex() { return Lambda.indexOf(spreads,spreadMethod); }
+
+   public function setInterpIndex(index:Int) { interpolationMethod = interps[index]; }
+   public function setTypeIndex(index:Int) { type = types[index];}
+   public function setSpreadIndex(index:Int) { spreadMethod = spreads[index];}
+
+
    public function blend(other:Gradient,f:Float)
    {
       var result = new Gradient();
