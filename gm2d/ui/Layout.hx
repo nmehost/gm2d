@@ -107,6 +107,13 @@ class Layout
       throw "Can't add to this layout";
       return null;
    }
+
+   public function clear()
+   {
+      throw "Can't clear this layout";
+      return null;
+   }
+
    public function insert(inPos:Int, inLayout:Layout) : Layout
    {
       throw "Can't insert in this layout";
@@ -395,6 +402,12 @@ class StackLayout extends Layout
       return this;
    }
 
+   override public function clear()
+   {
+      mChildren = [];
+   }
+
+
 
    public override function getBestWidth(?inHeight:Null<Float>) : Float
    {
@@ -517,7 +530,7 @@ class GridLayout extends Layout
       clear();
    }
 
-   public function clear( )
+   override public function clear( )
    {
       mColInfo = [];
       mRowInfo = [];
@@ -563,6 +576,7 @@ class GridLayout extends Layout
       mPos++;
       return this;
    }
+
 
    public override function insert(inPos:Int, inLayout:Layout) : Layout
    {
@@ -961,6 +975,12 @@ class FlowLayout extends Layout
    {
       mChildren.push(inLayout);
       return this;
+   }
+
+
+   override public function clear()
+   {
+      mChildren = [];
    }
 
 

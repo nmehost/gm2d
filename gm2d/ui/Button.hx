@@ -215,7 +215,7 @@ class Button extends Control
       sprite.addChild(bmp);
       var text = new TextField();
       var textFormat = new gm2d.text.TextFormat();
-      textFormat.size = Std.int(inBitmapData.height*0.4);
+      //textFormat.size = Std.int(inBitmapData.height*0.4);
       textFormat.font = BMPButtonFont;
       text.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
       text.selectable = false;
