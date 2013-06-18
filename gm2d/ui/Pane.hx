@@ -249,6 +249,11 @@ class Pane implements IDockable
          onLayout();
    }
 
+   public function relayout()
+   {
+      setRect(posX,posY,sizeX,sizeY);
+   }
+
    public function verify()
    {
    }

@@ -28,6 +28,7 @@
 	 <asset name="tests/Text.swf"/>
 	 <asset name="tests/GradientFillMotion.swf"/>
 	 <asset name="tests/ShapeMorph.swf"/>
+	 <asset name="tests/output.swf"/>
 	</assets>
 
   

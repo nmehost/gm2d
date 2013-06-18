@@ -31,6 +31,7 @@ class ListControl extends ScrollWidget
    public var onSelect:Int->Void;
    public var onMultiSelect:Array<Bool>->Void;
    public var mXGap:Float;
+   public var mXStart:Float;
    public var mTextSelectable:Bool;
   
    public var selectColour:Int;
@@ -66,6 +67,7 @@ class ListControl extends ScrollWidget
       mChildrenClean = 0;
       mSelected = -1;
       mXGap = 2.0;
+      mXStart = 0.0;
       mTextSelectable = false;
       wantFocus = false;
       onSelect = null;
@@ -149,7 +151,7 @@ class ListControl extends ScrollWidget
    public function recalcPos()
    {
       mChildrenClean = 0;
-      var pos = 0.0;
+      var pos = mXStart;
       for(i in 0...mColWidths.length)
       {
          mColPos[i] = pos;

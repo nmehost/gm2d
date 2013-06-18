@@ -208,7 +208,8 @@ class Button extends Control
       return result;
    }
 
-   public static function BMPTextButton(inBitmapData:BitmapData,inText:String,?inOnClick:Void->Void)
+   public static function BMPTextButton(inBitmapData:BitmapData,inText:String,
+       ?inOnClick:Void->Void, ?inRenderer:ButtonRenderer)
    {
       var sprite = new Sprite();
       var bmp = new Bitmap(inBitmapData);
@@ -225,7 +226,7 @@ class Button extends Control
       sprite.addChild(text);
       text.x = bmp.width+ 10;
       text.y = (bmp.height - text.textHeight)/2;
-      var result = new Button(sprite,inOnClick);
+      var result = new Button(sprite,inOnClick,inRenderer);
       var layout = result.getItemLayout();
       layout.setBestSize(text.x + text.textWidth, bmp.height);
       return result;
