@@ -1,4 +1,5 @@
 -main RenderToImage
 -neko RenderToImage.n
 -lib nme
+--remap flash:nme
 -cp ../..

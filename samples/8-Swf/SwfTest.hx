@@ -12,20 +12,6 @@ class SwfTest extends Screen
    {
       super();
 
-      var data = Resources.loadBytes("tests/output.swf");
-      var swf = new SWF(data);
-      var obj = swf.createInstance();
-      addChild(obj);
-      obj.cacheAsBitmap = true;
-
-
-/*
-      var data = Resources.loadBytes("tests/Text.swf");
-      var swf = new SWF(data);
-      var obj = swf.createInstance();
-      obj.scaleX = obj.scaleY = 5.0;
-      addChild(obj);
-      obj.cacheAsBitmap = true;
       var obj = new Sprite();
       addChild(obj);
       //obj.cacheAsBitmap = true;
@@ -62,7 +48,6 @@ class SwfTest extends Screen
             obj.scaleY = 0.5;
             addChild(obj);
          }
-*/
       makeCurrent();
    }
 
