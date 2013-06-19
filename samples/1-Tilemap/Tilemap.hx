@@ -67,7 +67,7 @@ class Tilemap extends Screen
    {
       super();
       gm2d.ui.Mouse.hide();
-      var bmp = ApplicationMain.getAsset("Tiles.png");
+      var bmp = nme.Assets.getBitmapData("Tiles.png");
       mTilesheet = new Tilesheet(bmp);
       mTiles = mTilesheet.partition(32,32);
       mTiles[3].hotX = 16;
