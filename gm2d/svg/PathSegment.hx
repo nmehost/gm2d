@@ -166,10 +166,26 @@ class CubicSegment extends PathSegment
 
    }
 
-   public function toQuadratics(tx0:Float,ty0:Float) : Array<QuadraticSegment>
+   public function toQuadratics(tx0:Float,ty0:Float) : Array<PathSegment>
    {
-      var result = new Array<QuadraticSegment>();
+      var result = new Array<PathSegment>();
       // from http://www.timotheegroleau.com/Flash/articles/cubic_bezier/bezier_lib.as
+
+      // Are all points co-linear?
+      var dx1 = cx1-tx0;
+      var dy1 = cy1-ty0;
+      var dx2 = cx2-tx0;
+      var dy2 = cy2-ty0;
+      if (Math.abs(dx1*dy2-dx2*dy1)<0.001)
+      {
+         var dx3 = x-tx0;
+         var dy3 = y-ty0;
+         if (Math.abs(dx1*dy3-dx3*dy1)<0.001)
+         {
+            result.push( new DrawSegment(x,y) );
+            return result;
+         }
+      }
 
       var pa_x = Interp(tx0,cx1,0.75);
       var pa_y = Interp(ty0,cy1,0.75);
