@@ -44,6 +44,9 @@ class FileOpenScreen extends Screen
    var filterList: Array<String>;
    var files:Array<String>;
    var onResult:String->ByteArray->Void;
+   public var onSaveResult:String->Void;
+   public var onError:String->Void;
+   public var extension:String;
    var returnScreen:Screen;
    var flags:Int;
 

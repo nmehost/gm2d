@@ -299,8 +299,8 @@ class BmpButton extends Button
       for(y in 0...h)
          for(x in 0...w)
          {
-            var pix = inBmp.getPixel32(x,y);
-            var val = (pix&0xff) + ( (pix>>8)&0xff ) + ( (pix>>16)&0xff ); 
+            var pix:Int = inBmp.getPixel32(x,y);
+            var val:Int = (pix&0xff) + ( (pix>>8)&0xff ) + ( (pix>>16)&0xff ); 
             if (val<255) val=0;
             else if (val>512) val = 255;
             else val = 128;
