@@ -1,0 +1,5 @@
+-main BatchConvert
+-neko BatchConvert.n
+-lib nme
+--remap flash:nme
+-cp ../..
