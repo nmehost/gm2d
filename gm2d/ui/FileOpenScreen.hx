@@ -32,6 +32,8 @@ import nme.net.SharedObject;
 
 class FileOpenScreen extends Screen
 {
+   public static inline var SAVE   = 0x0002;
+
    var folderIcon:BitmapData;
    var docIcon:BitmapData;
    var dirButtonContainer:Sprite;
@@ -47,10 +49,12 @@ class FileOpenScreen extends Screen
    public var onSaveResult:String->Void;
    public var onError:String->Void;
    public var extension:String;
+   public var saveName:String;
    var returnScreen:Screen;
    var flags:Int;
+   var isSave:Bool;
 
-   public function new(inMessage:String,inDir:String,inOnResult:String->ByteArray->Void,inFilter:String,?inReturnScreen:Screen,inFlags:Int = 0)
+   public function new(inMessage:String,inDir:String,inOnResult:String->ByteArray->Void,inFilter:String,?inReturnScreen:Screen,inFlags:Int = 0, inSaveName="")
    {
       super();
 
@@ -60,6 +64,7 @@ class FileOpenScreen extends Screen
       flags = inFlags;
       message = inMessage;
       
+      saveName = inSaveName;
       filter = inFilter;
       onResult = inOnResult;
       returnScreen = inReturnScreen==null ? Game.screen : inReturnScreen;
@@ -111,6 +116,18 @@ class FileOpenScreen extends Screen
          }
       }
       top.add(dir_buttons);
+
+
+
+      isSave =  (flags&SAVE)!=0;
+      if (isSave)
+      {
+         var panel = new Panel("NameBox");
+         addChild(panel);
+         panel.addLabelObj("Save Name", new TextInput(saveName, function(s) saveName=s) );
+         top.add(panel.setStretchX(0).getLayout().setBorders(10,0,10,0) );
+      }
+
       var list = new ListControl();
       addChild(list);
 
@@ -167,16 +184,25 @@ class FileOpenScreen extends Screen
       var layout = list.getLayout();
       layout.mAlign = Layout.AlignStretch;
       top.add(layout);
-      top.setRowStretch(2,1);
+
+      top.setRowStretch(isSave ? 3:2,1);
 
       var buttons = new GridLayout(null,"buttons",1);
       buttons.setSpacing(10,0);
 
+      if (isSave)
+      {
+         var button = Button.TextButton("Ok", function() onSave );
+         addChild(button);
+         buttons.add(button.getLayout());
+      }
       var button = Button.TextButton("Cancel", function() setResult("") );
       addChild(button);
       buttons.add(button.getLayout());
 
       top.add(buttons);
+
+      top.setBorders(5,5,5,5);
 
       screenLayout = top;
 
@@ -199,6 +225,11 @@ class FileOpenScreen extends Screen
       }
       inRow -= dirs.length;
       setResult(files[inRow]);
+   }
+
+   public function onSave( )
+   {
+      var path = baseDir + "/" + saveName + "." + extension;
    }
 
    function setResult(inFile:String)
@@ -236,7 +267,7 @@ class FileOpenScreen extends Screen
 
    public function setDir(inLink:String)
    {
-      var screen = new FileOpenScreen(message,inLink,onResult,filter,returnScreen,flags);
+      var screen = new FileOpenScreen(message,inLink,onResult,filter,returnScreen,flags,saveName);
    }
 
    override public function scaleScreen(inScale:Float)

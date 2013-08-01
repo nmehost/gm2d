@@ -28,6 +28,7 @@ class FileSave
             onError:String->Void,
             ?inExtension:String,
             ?inDefaultPath:String,
+            ?saveName:String,
             inFlags:Int = 0)
    {
       #if waxe
@@ -35,7 +36,7 @@ class FileSave
       #else
 
       var openScreen = new gm2d.ui.FileOpenScreen(inMessage, inDefaultPath==null?"":inDefaultPath,
-         null, inExtension, inFlags | SAVE );
+         null, inExtension, inFlags | SAVE, saveName );
       openScreen.onSaveResult = onResult;
       openScreen.onError = onError;
       openScreen.extension = inExtension;
