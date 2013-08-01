@@ -131,6 +131,14 @@ class Panel extends Widget
       mButtonLayout.add( inButton.getLayout() );
    }
 
+   public function addTextButton(inText:String, inOnClick:Void->Void)
+   {
+      var button = Button.TextButton(inText,inOnClick);
+      addButton(button);
+      return this;
+   }
+
+
    public function addObj(inObj:gm2d.display.DisplayObject,?inAlign:Null<Int>)
    {
       mLayoutDirty = true;

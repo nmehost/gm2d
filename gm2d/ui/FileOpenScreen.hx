@@ -32,8 +32,6 @@ import nme.net.SharedObject;
 
 class FileOpenScreen extends Screen
 {
-   public static inline var SAVE   = 0x0002;
-
    var folderIcon:BitmapData;
    var docIcon:BitmapData;
    var dirButtonContainer:Sprite;
@@ -53,6 +51,7 @@ class FileOpenScreen extends Screen
    var returnScreen:Screen;
    var flags:Int;
    var isSave:Bool;
+   var saveTextInput:TextInput;
 
    public function new(inMessage:String,inDir:String,inOnResult:String->ByteArray->Void,inFilter:String,?inReturnScreen:Screen,inFlags:Int = 0, inSaveName="")
    {
@@ -119,12 +118,13 @@ class FileOpenScreen extends Screen
 
 
 
-      isSave =  (flags&SAVE)!=0;
+      isSave =  (flags&FileOpen.SAVE)!=0;
       if (isSave)
       {
          var panel = new Panel("NameBox");
          addChild(panel);
-         panel.addLabelObj("Save Name", new TextInput(saveName, function(s) saveName=s) );
+         saveTextInput = new TextInput(saveName, function(s) saveName=s );
+         panel.addLabelObj("Save Name", saveTextInput);
          top.add(panel.setStretchX(0).getLayout().setBorders(10,0,10,0) );
       }
 
@@ -192,11 +192,11 @@ class FileOpenScreen extends Screen
 
       if (isSave)
       {
-         var button = Button.TextButton("Ok", function() onSave );
+         var button = Button.TextButton("Ok", function() onSave() );
          addChild(button);
          buttons.add(button.getLayout());
       }
-      var button = Button.TextButton("Cancel", function() setResult("") );
+      var button = Button.TextButton("Cancel", function() onCancel() );
       addChild(button);
       buttons.add(button.getLayout());
 
@@ -224,12 +224,63 @@ class FileOpenScreen extends Screen
          return;
       }
       inRow -= dirs.length;
-      setResult(files[inRow]);
+
+      if (saveTextInput!=null)
+      {
+         saveTextInput.text = saveName = files[inRow];
+      }
+      else
+         setResult(files[inRow]);
    }
 
    public function onSave( )
    {
-      var path = baseDir + "/" + saveName + "." + extension;
+      var name = saveName;
+      if (extension!="" && name.indexOf(".")<0)
+         name = name + "." + extension;
+      var start = name.substr(0,1);
+      var isAbsolute = start=='/' || start=='\\' || name.substr(1,1)==':';
+      if (!isAbsolute)
+         name = baseDir + "/" + name;
+
+      if ( (flags & FileOpen.CHECK_OVERWRITE)!=0 && FileSystem.exists(name) )
+      {
+         var panel = new Panel("Confirm Overwrite");
+         panel.addLabel("File " + name + " already exists.  Do you want ot overwrite?");
+         panel.addTextButton( "Ok", function()
+            {
+               Game.closeDialog();
+               if (returnScreen!=null)
+               {
+                  Game.setCurrentScreen(returnScreen);
+                  returnScreen = null;
+               }
+               onSaveResult(name);
+            } );
+         panel.addTextButton( "Cancel", Game.closeDialog );
+         var dialog = new Dialog(panel.getPane());
+         Game.doShowDialog(dialog,true);
+      }
+      else
+      {
+         if (returnScreen!=null)
+         {
+            Game.setCurrentScreen(returnScreen);
+            returnScreen = null;
+         }
+         onSaveResult(name);
+      }
+   }
+
+   function onCancel()
+   {
+     if (returnScreen!=null)
+     {
+        Game.setCurrentScreen(returnScreen);
+        returnScreen = null;
+     }
+     if (onResult!=null)
+        onResult(null,null);
    }
 
    function setResult(inFile:String)
@@ -268,6 +319,9 @@ class FileOpenScreen extends Screen
    public function setDir(inLink:String)
    {
       var screen = new FileOpenScreen(message,inLink,onResult,filter,returnScreen,flags,saveName);
+      screen.onSaveResult = onSaveResult;
+      screen.onError = onError;
+      screen.extension = extension;
    }
 
    override public function scaleScreen(inScale:Float)

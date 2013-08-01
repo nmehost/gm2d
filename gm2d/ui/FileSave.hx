@@ -20,8 +20,6 @@ import wx.FileDialog;
 
 class FileSave
 {
-   public static inline var SAVE   = 0x0002;
-
    public static function saveAs(inMessage:String,
             inData:ByteArray,
             onResult:String->Void,
@@ -36,7 +34,7 @@ class FileSave
       #else
 
       var openScreen = new gm2d.ui.FileOpenScreen(inMessage, inDefaultPath==null?"":inDefaultPath,
-         null, inExtension, inFlags | SAVE, saveName );
+         null, inExtension, inFlags | FileOpen.SAVE, saveName );
       openScreen.onSaveResult = onResult;
       openScreen.onError = onError;
       openScreen.extension = inExtension;

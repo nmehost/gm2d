@@ -111,6 +111,8 @@ import wx.FileDialog;
 class FileOpen
 {
    public static inline var NO_DATA   = 0x0001;
+   public static inline var SAVE   = 0x0002;
+   public static inline var CHECK_OVERWRITE   = 0x0004;
 
    public static function load(inMessage:String,
             onResult:String->ByteArray->Void,
