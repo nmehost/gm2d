@@ -180,6 +180,11 @@ class Pane implements IDockable
    {
       bestWidth = inW;
       bestHeight = inH;
+      if (dock!=null)
+      {
+         var slot = dock.getSlot();
+         bestSize[slot] = new Size(bestWidth,bestHeight);
+      }
    }
 
    public function getMinSize():Size { return new Size(minSizeX,minSizeY); }
@@ -211,7 +216,7 @@ class Pane implements IDockable
    }
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
-      if (dock!=null)
+      if (dock!=null && w>0 && h>0)
       {
          var slot = dock.getSlot();
          bestSize[slot] = new Size(w,h);
@@ -308,7 +313,9 @@ class Pane implements IDockable
       {
          var s = sizes[idx];
          if (s!=null)
+         {
             bestSize[idx] = new Size( s.x, s.y );
+         }
       }
    }
 

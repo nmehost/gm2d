@@ -25,8 +25,6 @@ class TopLevelDock implements IDock
    var chromeDirty:Bool;
    var layoutDirty:Bool;
 
-   var resizeBox:Rectangle;
-   var resizeListen:Bool;
    var size:Rectangle;
    var dockZones:DockZones;
 
@@ -46,12 +44,10 @@ class TopLevelDock implements IDock
       container.addChild(overlayContainer);
       floatingWins = [];
 
-      resizeListen = false;
       chromeDirty = true;
       layoutDirty = true;
       hitBoxes = new HitBoxes(backgroundContainer,onHitBox);
-      hitBoxes.onOverDockSize = onOverDockSize;
-      hitBoxes.onDockSizeDown = onDockSizeDown;
+      new DockSizeHandler(container,overlayContainer,hitBoxes);
 
       if (inMDI!=null)
       {
@@ -110,21 +106,6 @@ class TopLevelDock implements IDock
          root.setRect(x,y,w,h);
    }
 
-   public function checkResizeDock(inMouse:MouseEvent)
-   {
-      if (resizeBox!=null)
-      {
-         if (!resizeBox.contains(inMouse.localX,inMouse.localY))
-         {
-            resizeBox = null;
-            container.removeEventListener(MouseEvent.MOUSE_MOVE,checkResizeDock);
-            resizeListen = false;
-            var gfx = overlayContainer.graphics;
-            gfx.clear();
-         }
-      }
-   }
-
    function forceLayout()
    {
       if (root!=null)
@@ -170,50 +151,7 @@ class TopLevelDock implements IDock
    }
 
 
-   function showResizeHint(inX:Float, inY:Float, inHorizontal:Bool)
-   {
-      overlayContainer.x = inX-16;
-      overlayContainer.y = inY-16;
-      overlayContainer.cacheAsBitmap = true;
-      overlayContainer.mouseEnabled = false;
-      var gfx = overlayContainer.graphics;
-      gfx.clear();
-      if (inHorizontal)
-         new gm2d.icons.EastWest().render(gfx);
-      else
-         new gm2d.icons.NorthSouth().render(gfx);
-   }
 
-
-   public function onOverDockSize(inDock:SideDock, inIndex:Int, inX:Float, inY:Float, inRect:Rectangle )
-   {
-      showResizeHint(inX,inY,inDock.isHorizontal());
-
-      resizeBox = inRect;
-      if (!resizeListen)
-      {
-         container.addEventListener(MouseEvent.MOUSE_MOVE,checkResizeDock);
-         resizeListen = true;
-      }
-   }
-
-   public function onDockSizeDown(inDock:SideDock, inIndex:Int, inX:Float, inY:Float, inRect:Rectangle )
-   {
-      //trace("Drag dock " + inX + "," + inY);
-      resizeBox = null;
-      container.removeEventListener(MouseEvent.MOUSE_MOVE,checkResizeDock);
-      resizeListen = false;
-
-      MouseWatcher.watchDrag(container,inX,inY,
-          function(_) onDockSize(inDock,inIndex,_) , clearOverlay );
-   }
-
-   function onDockSize(inDock:SideDock, inIndex:Int, inEvent:MouseEvent)
-   {
-      showResizeHint(inEvent.stageX,inEvent.stageY,inDock.isHorizontal());
-      inDock.tryResize(inIndex, inDock.isHorizontal() ? inEvent.stageX : inEvent.stageY );
-      //trace(inEvent);
-   }
 
 
    public function updateLayout(_)

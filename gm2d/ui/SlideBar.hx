@@ -27,6 +27,8 @@ class SlideBar extends Sprite, implements IDock
    var maxSize:Null<Int>;
    var tabPos:Null<Int>;
    var background:Sprite;
+   var paneContainer:Sprite;
+   var overlayContainer:Sprite;
    var slideOver:Bool;
    var hitBoxes:HitBoxes;
    var posOffset:Int;
@@ -76,10 +78,13 @@ class SlideBar extends Sprite, implements IDock
 
       background = new Sprite();
       addChild(background);
+      paneContainer = new Sprite();
+      addChild(paneContainer);
+      overlayContainer = new Sprite();
+      addChild(overlayContainer);
       hitBoxes = new HitBoxes(background,onHitBox);
-      //hitBoxes.onOverDockSize = onOverDockSize;
-      //hitBoxes.onDockSizeDown = onDockSizeDown;
 
+      new DockSizeHandler(background,overlayContainer,hitBoxes);
    }
 
    public function onHitBox(inAction:HitAction,inEvent:MouseEvent)
@@ -323,7 +328,7 @@ class SlideBar extends Sprite, implements IDock
              if (current==child)
              {
                 found = true;
-                child.setDock(this,this);
+                child.setDock(this,paneContainer);
              }
              else
                 child.setDock(this,null);

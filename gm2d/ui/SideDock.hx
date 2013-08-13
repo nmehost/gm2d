@@ -214,7 +214,8 @@ class SideDock implements IDock, implements IDockable
             var m_size = Std.int(horizontal ? s.x : s.y);
             min_sizes.push(m_size);
    
-            var s = horizontal ? d.getBestSize(Dock.DOCK_SLOT_HORIZ) : d.getBestSize(Dock.DOCK_SLOT_VERT);
+            var s = horizontal ? d.getBestSize(Dock.DOCK_SLOT_HORIZ) :
+                                 d.getBestSize(Dock.DOCK_SLOT_VERT);
 
             addPaneChromeSize(d,s);
    
