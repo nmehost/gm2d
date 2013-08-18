@@ -214,21 +214,16 @@ class Button extends Control
       var sprite = new Sprite();
       var bmp = new Bitmap(inBitmapData);
       sprite.addChild(bmp);
-      var text = new TextField();
-      var textFormat = new gm2d.text.TextFormat();
-      //textFormat.size = Std.int(inBitmapData.height*0.4);
-      textFormat.font = BMPButtonFont;
-      text.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
-      text.selectable = false;
-      text.mouseEnabled = false;
-      text.defaultTextFormat = textFormat;
-      text.text = inText;
-      sprite.addChild(text);
-      text.x = bmp.width+ 10;
-      text.y = (bmp.height - text.textHeight)/2;
+      var label = new TextField();
+      var renderer = inRenderer==null ? Skin.current.buttonRenderer : inRenderer;
+      renderer.styleLabel(label);
+      label.text = inText;
+      sprite.addChild(label);
+      label.x = bmp.width;
+      label.y = (bmp.height - label.height)/2;
       var result = new Button(sprite,inOnClick,inRenderer);
       var layout = result.getItemLayout();
-      layout.setBestSize(text.x + text.textWidth, bmp.height);
+      layout.setBestSize(label.x + label.width, bmp.height);
       return result;
    }
 
