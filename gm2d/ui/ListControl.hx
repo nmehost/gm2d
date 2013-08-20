@@ -276,6 +276,7 @@ class ListControl extends ScrollWidget
            rowHeight = mItemHeight;
       }
 
+      mRows.push( new ListControlRow(row,rowHeight,inUserData,inIndent) );
       if (!mHoldUpdates)
       {
          if (needRecalcPos)
@@ -288,7 +289,8 @@ class ListControl extends ScrollWidget
             mRowPos.push(pos+rowHeight);
          }
       }
-      mRows.push( new ListControlRow(row,rowHeight,inUserData,inIndent) );
+      else
+         needRecalcPos = true;
 
       if (!mHoldUpdates)
          layout(mWidth,mHeight);
