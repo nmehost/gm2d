@@ -235,6 +235,13 @@ class FileOpenScreen extends Screen
 
    public function onSave( )
    {
+      var def = SharedObject.getLocal("fileOpen");
+      if (def!=null)
+      {
+         Reflect.setField(def.data, message, baseDir);
+         def.flush();
+      }
+
       var name = saveName;
       if (extension!="" && name.indexOf(".")<0)
          name = name + "." + extension;
