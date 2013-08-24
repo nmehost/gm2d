@@ -1,5 +1,5 @@
--main RenderToImage
--neko RenderToImage.n
+-main BatchConvert
+-neko BatchConvert.n
 -lib nme
 --remap flash:nme
 -cp ../..

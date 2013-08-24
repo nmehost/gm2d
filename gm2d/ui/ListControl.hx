@@ -400,6 +400,11 @@ class ListControl extends ScrollWidget
       return mRows[inIdx].objs;
    }
 
+   public function getRowData(inIdx:Int) : Dynamic
+   {
+      return mRows[inIdx].userData;
+   }
+
    public function getItem(inRow:Int,inCol:Int) : DisplayObject
    {
       if (inRow<0) return null;
