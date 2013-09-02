@@ -196,6 +196,8 @@ class RGBHSV
    public function setS(inS:Float) { s=inS; recalcRGB(); return this; }
    public function setV(inV:Float) { v=inV; recalcRGB(); return this; }
    public function setA(inA:Float) { a=inA; return this; }
+   // For when r==g==b
+   public function setHueQuick(inH:Float) { h=inH; return this; }
 
    public function getRGB() : Int
    {
