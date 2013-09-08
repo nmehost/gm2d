@@ -232,8 +232,9 @@ class SideDock implements IDock, implements IDockable
          var too_big = best_total > (horizontal ? w : h);
          for(d in 0...mDockables.length)
          {
-            var pane = mDockables[d].asPane();
-            is_locked.push( (too_big && (best_sizes[d]<=min_sizes[d] )) || mDockables[d].isLocked() );
+            var dock = mDockables[d];
+            var pane = dock.asPane();
+            is_locked.push( (too_big && (best_sizes[d]<=min_sizes[d] )) || dock.isLocked() || !Dock.isResizeable(dock));
          }
    
          var locked_changed = true;

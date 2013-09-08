@@ -12,19 +12,19 @@ class ChoiceButtons extends Control
    var group:RadioGroup<String>;
    var buttonLayout:GridLayout;
 
-   public function new(inOnChoice:String->Void)
+   public function new(inOnChoice:String->Void,?inItemsPerRow:Null<Int>)
    {
       super();
       group = new RadioGroup<String>(inOnChoice);
-      buttonLayout = new GridLayout(null,"button");
+      buttonLayout = new GridLayout(inItemsPerRow,"button");
       buttonLayout.setSpacing(1,1);
    }
 
-   public static function create(inOnIndex:Int->Void,inKeys:Array<Dynamic>, inBitmaps:haxe.ds.StringMap<BitmapData> )
+   public static function create(inOnIndex:Int->Void,inKeys:Array<Dynamic>, inBitmaps:haxe.ds.StringMap<BitmapData>, ?inItemsPerRow:Int )
    {
       var keys:Array<String> = inKeys.map( function(x) return Std.string(x) );
 
-      var result = new ChoiceButtons( function(x) inOnIndex(Lambda.indexOf(keys,x)) );
+      var result = new ChoiceButtons( function(x) inOnIndex(Lambda.indexOf(keys,x)), inItemsPerRow );
       var renderer = gm2d.skin.ButtonRenderer.simple();
       for(key in keys)
       {
