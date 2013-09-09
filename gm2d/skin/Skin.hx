@@ -192,10 +192,16 @@ class Skin
       inSlider.mX1 = inRect.width-10;
 
       var gfx = inSlider.mTrack.graphics;
+      gfx.clear();
       gfx.beginFill(disableColor);
       gfx.lineStyle(1,controlBorder);
       gfx.drawRect(10,0,inRect.width-20,inRect.height);
 
+      var gfx = inSlider.mThumb.graphics;
+      gfx.clear();
+      gfx.beginFill(controlColor);
+      gfx.lineStyle(1,controlBorder);
+      gfx.drawRect(-inRect.height/2,0,inRect.height,inRect.height);
    }
 
 

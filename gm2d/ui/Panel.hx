@@ -166,6 +166,11 @@ class Panel extends Widget
  
    public function addLabel(inText:String,?inName:String,?inAlign:Null<Int>)
    {
+      if (inText==null)
+      {
+         mItemLayout.add(null);
+         return;
+      }
       mLayoutDirty = true;
       var label = new TextField();
       labelRenderer.styleLabel(label);

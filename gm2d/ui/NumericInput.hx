@@ -19,11 +19,14 @@ class NumericInput extends TextInput
    var sliderX:Float;
    var sliderWatcher:MouseWatcher;
    var value:Float;
+   var qvalue:Float;
+   var isInteger:Bool;
    static var SLIDER_W = 22;
 
-   public function new(inVal:Float,inInteger:Bool,inMin:Float, inMax:Float, inStep:Float,
+   public function new(inVal:Float,inIsInteger:Bool,inMin:Float, inMax:Float, inStep:Float,
       ?inOnUpdateFloat:Float->Int->Void)
    {
+      isInteger = inIsInteger;
       min = inMin;
       max = inMax;
       value = inVal;
@@ -31,7 +34,8 @@ class NumericInput extends TextInput
          value = min;
       if (value>max)
          value = max;
-      super(Std.string(value),onUpdateText);
+      qvalue = isInteger ? Std.int(value) : value;
+      super(Std.string(qvalue),onUpdateText);
       step = inStep;
       slider = new Sprite();
       slider.name = "Numeric slider";
@@ -42,17 +46,39 @@ class NumericInput extends TextInput
       renderSlider();
    }
 
+   public function getValue() : Float
+   {
+      return qvalue;
+   }
+
    public function setValue(inValue:Float) : Void
    {
       var v = inValue;
       if (v<min) v = min;
       if (v>max) v = max;
-      if (v!=value)
+      if (isInteger)
+         v = Std.int(v);
+      if (v!=qvalue)
       {
-         value = v;
-         mText.text = Std.string(value);
+         qvalue = value = v;
+         mText.text = Std.string(qvalue);
       }
    }
+
+   public function setMinimum(inValue:Float)
+   {
+      min = inValue;
+      if (value<min)
+         setValue(min);
+   }
+
+   public function setMaximum(inValue:Float)
+   {
+      max = inValue;
+      if (value>max)
+         setValue(max);
+   }
+
 
    function onSliderDown(e:MouseEvent)
    {
@@ -63,7 +89,7 @@ class NumericInput extends TextInput
       sliderWatcher = new MouseWatcher(slider, null, onSliderDrag, onSliderUp,
           pos.x, pos.y+e.localY, false );
       if (onUpdate!=null)
-         onUpdate(value,Phase.BEGIN);
+         onUpdate(qvalue,Phase.BEGIN);
    }
 
    function onSliderDrag(e:MouseEvent)
@@ -73,9 +99,14 @@ class NumericInput extends TextInput
       value -= dy*step;
       if (value<min) value = min;
       if (value>max) value = max;
-      mText.text = Std.string(value);
-      if (onUpdate!=null)
-         onUpdate(value,Phase.UPDATE);
+      var v = isInteger ? Std.int(value) : value;
+      if (v!=qvalue)
+      {
+         qvalue = v;
+         mText.text = Std.string(qvalue);
+         if (onUpdate!=null)
+            onUpdate(qvalue,Phase.UPDATE);
+      }
    }
    function onSliderUp(e:MouseEvent)
    {
@@ -84,24 +115,41 @@ class NumericInput extends TextInput
       slider.y = 0;
       sliderWatcher = null;
       if (onEnter!=null)
-         onEnter(value);
+         onEnter(qvalue);
       if (onUpdate!=null)
-         onUpdate(value,Phase.END);
+         onUpdate(qvalue,Phase.END);
    }
 
    function renderSlider()
    {
       var gfx = slider.graphics;
       gfx.clear();
+
+      gfx.beginFill(0x000000,0.0);
+      gfx.drawRect(0,0,22,22);
+      gfx.endFill();
+
       gfx.lineStyle(1,0x000040);
       gfx.beginFill(0xffffff);
-      gfx.drawRoundRect(1.5,1.5,20,20,7,7);
+      //gfx.drawRoundRect(1.5,1.5,20,20,7,7);
+
+      gfx.moveTo(3.5,9.5);
+      gfx.lineTo(16.5,9.5);
+      gfx.lineTo(10.5,1.5);
+      gfx.lineTo(3.5,9.5);
+
+      gfx.moveTo(3.5,12.5);
+      gfx.lineTo(16.5,12.5);
+      gfx.lineTo(10.5,20.5);
+      gfx.lineTo(3.5,12.5);
    }
 
    function onUpdateText(inText:String)
    {
       var v = Std.parseFloat(inText);
-      if (v!=value)
+      if (isInteger)
+         v = Std.int(v);
+      if (v!=qvalue)
       {
          value = v;
          if (value<min)
@@ -115,11 +163,12 @@ class NumericInput extends TextInput
             value = max;
             mText.text = Std.string(value);
          }
+         qvalue = value;
 
          if (onEnter!=null)
-            onEnter(value);
+            onEnter(qvalue);
          else if (onUpdate!=null)
-            onUpdate(value,Phase.ALL);
+            onUpdate(qvalue,Phase.ALL);
       }
    }
 

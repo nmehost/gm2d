@@ -93,12 +93,14 @@ class Slider extends Control
       }
    }
 
-   function setValueQuiet(inPos:Float)
+   public function setValueQuiet(inPos:Float)
    {
       mValue = inPos;
       mRenderer.onPosition(this);
    }
 
+
+   public function getValue() : Float { return mValue; }
 
    function setValue(inPos:Float)
    {

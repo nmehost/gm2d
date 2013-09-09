@@ -44,6 +44,7 @@ class SlideBar extends Sprite, implements IDock
    var current:IDockable;
    var children:Array<IDockable>;
    public var pinned(default,set_pinned):Bool;
+   public var onPinned:Bool->Void;
 
    public function new(inParent:DisplayObjectContainer,inPos:DockPosition,
              inMinSize:Null<Int>, inMaxSize:Null<Int>,
@@ -173,6 +174,8 @@ class SlideBar extends Sprite, implements IDock
    {
       pinned = inPinned;
       setDirty(true,true);
+      if (onPinned!=null)
+         onPinned(inPinned);
       return inPinned;
    }
 
