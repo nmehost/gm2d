@@ -90,10 +90,10 @@ class Game
       mFPSControl.textColor = mFPSColor;
 
       var parent = gm2d.Lib.current;
-      parent.addChild(mScreenParent);
-      parent.addChild(mDialogParent);
-      parent.addChild(mPopupParent);
-      parent.addChild(mFPSControl);
+      parent.addChildAt(mScreenParent,0);
+      parent.addChildAt(mDialogParent,1);
+      parent.addChildAt(mPopupParent,2);
+      parent.addChildAt(mFPSControl,3);
 
       //if (pixelAccurate)
       parent.stage.scaleMode = gm2d.display.StageScaleMode.NO_SCALE;

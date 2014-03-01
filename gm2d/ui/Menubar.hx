@@ -22,17 +22,13 @@ interface Menubar
 {
    public function layout(inWidth:Float) : Float;
    #if (waxe && !nme_menu)
-   public function addItems(inMenu:Menu,inItem:MenuItem) : Float;
+   public function addItems(inMenu:Menu,inItem:MenuItem) : Void;
    #end
    public function add(inItem:MenuItem) : Void;
    public function closeMenu(inItem:MenuItem):Void;
 } 
 
-#if haxe3
 class SpriteMenubar extends Sprite implements Menubar implements IDock
-#else
-class SpriteMenubar extends Sprite, implements Menubar, implements IDock
-#end
 {
    var mWidth:Float;
    var mHeight:Float;
@@ -152,6 +148,12 @@ class SpriteMenubar extends Sprite, implements Menubar, implements IDock
    public function setDirty(inLayout:Bool, inChrome:Bool):Void
    {
    }
+   #if (waxe && !nme_menu)
+   public function addItems(inMenu:Menu,inItem:MenuItem) : Void
+   {
+      throw "Not wx menubar";
+   }
+   #end
 
 }
 
@@ -183,7 +185,7 @@ class WxMenubar implements Menubar
       return 0;
    }
 
-   function addItems(inMenu:Menu,inItem:MenuItem)
+   public function addItems(inMenu:Menu,inItem:MenuItem) : Void
    {
       for(child in inItem.mChildren)
       {
@@ -196,6 +198,7 @@ class WxMenubar implements Menubar
          inMenu.append(child.gmID, child.gmText);
       }
    }
+   public function closeMenu(inItem:MenuItem):Void { }
 
    public function add(inItem:MenuItem)
    {
