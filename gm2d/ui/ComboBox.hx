@@ -1,9 +1,9 @@
 package gm2d.ui;
 
-import gm2d.text.TextField;
-import gm2d.display.BitmapData;
-import gm2d.events.MouseEvent;
-import gm2d.geom.Point;
+import nme.text.TextField;
+import nme.display.BitmapData;
+import nme.events.MouseEvent;
+import nme.geom.Point;
 import gm2d.ui.Button;
 import gm2d.skin.Skin;
 
@@ -114,12 +114,12 @@ class ComboBox extends Control
        mText.x = 0.5;
        mText.y = 0.5;
        mText.height = 21;
-       mText.type = gm2d.text.TextFieldType.INPUT;
+       mText.type = nme.text.TextFieldType.INPUT;
  
        if (mBMP==null)
        {
           mBMP = new BitmapData(22,22);
-          var shape = new gm2d.display.Shape();
+          var shape = new nme.display.Shape();
           var gfx = shape.graphics;
           gfx.beginFill(0xffffff);
           gfx.drawRect(-2,-2,28,28);
@@ -163,7 +163,7 @@ class ComboBox extends Control
             new ComboList(this, mWidth, mDisplay,selectOnMove) :
             new ComboList(this, mWidth, mOptions,selectOnMove);
 
-      var pos = this.localToGlobal( new gm2d.geom.Point(0,0) );
+      var pos = this.localToGlobal( new nme.geom.Point(0,0) );
       var h = pop.getControlHeight();
       var w = pop.getControlWidth();
       var max = Std.int(stage.stageHeight/2);
@@ -200,7 +200,7 @@ class ComboBox extends Control
        gfx.beginFill(0xf0f0ff);
        gfx.drawRect(0.5,0.5,inW-1,23);
        gfx.lineStyle();
-       var mtx = new gm2d.geom.Matrix();
+       var mtx = new nme.geom.Matrix();
        mtx.tx = inW-mBMP.width-1;
        mtx.ty = 1;
        gfx.beginBitmapFill(mBMP,mtx);

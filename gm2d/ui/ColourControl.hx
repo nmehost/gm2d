@@ -1,18 +1,18 @@
 package gm2d.ui;
 
-import gm2d.display.DisplayObject;
-import gm2d.display.BitmapData;
-import gm2d.display.Shape;
-import gm2d.display.Sprite;
-import gm2d.display.Bitmap;
-import gm2d.geom.Rectangle;
-import gm2d.text.TextField;
+import nme.display.DisplayObject;
+import nme.display.BitmapData;
+import nme.display.Shape;
+import nme.display.Sprite;
+import nme.display.Bitmap;
+import nme.geom.Rectangle;
+import nme.text.TextField;
 import gm2d.ui.MouseWatcher;
 import gm2d.ui.Layout;
-import gm2d.display.GradientType;
-import gm2d.geom.Matrix;
-import gm2d.geom.Point;
-import gm2d.events.MouseEvent;
+import nme.display.GradientType;
+import nme.geom.Matrix;
+import nme.geom.Point;
+import nme.events.MouseEvent;
 import gm2d.skin.Skin;
 import gm2d.RGBHSV;
 

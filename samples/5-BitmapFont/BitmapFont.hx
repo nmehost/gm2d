@@ -1,4 +1,4 @@
-import gm2d.display.Sprite;
+import nme.display.Sprite;
 import gm2d.blit.Tilesheet;
 import gm2d.blit.Tile;
 import gm2d.blit.Layer;
@@ -6,14 +6,14 @@ import gm2d.blit.Grid;
 import gm2d.Game;
 import gm2d.Screen;
 import gm2d.ui.Button;
-import gm2d.ui.Keyboard;
-import gm2d.events.MouseEvent;
+import nme.ui.Keyboard;
+import nme.events.MouseEvent;
 import gm2d.ui.BitmapFont;
 import gm2d.ui.BitmapText;
-import gm2d.display.Bitmap;
-import gm2d.display.BitmapData;
-import gm2d.geom.Rectangle;
-import gm2d.text.TextFieldType;
+import nme.display.Bitmap;
+import nme.display.BitmapData;
+import nme.geom.Rectangle;
+import nme.text.TextFieldType;
 
 
 class BitmapFont extends Screen

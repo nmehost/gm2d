@@ -1,15 +1,15 @@
 package gm2d.ui;
 
-import gm2d.geom.Rectangle;
-import gm2d.display.Sprite;
-import gm2d.display.Shape;
-import gm2d.display.Bitmap;
-import gm2d.display.BitmapData;
-import gm2d.display.DisplayObjectContainer;
-import gm2d.text.TextField;
+import nme.geom.Rectangle;
+import nme.display.Sprite;
+import nme.display.Shape;
+import nme.display.Bitmap;
+import nme.display.BitmapData;
+import nme.display.DisplayObjectContainer;
+import nme.text.TextField;
 //import gm2d.ui.HitBoxes;
-import gm2d.geom.Point;
-import gm2d.events.MouseEvent;
+import nme.geom.Point;
+import nme.events.MouseEvent;
 import gm2d.ui.HitBoxes;
 import gm2d.ui.Dock;
 import gm2d.ui.DockPosition;
@@ -445,7 +445,7 @@ class MDIChildFrame extends Sprite
    var mClientWidth:Int;
    var mClientHeight:Int;
    var mClientOffset:Point;
-   var mDragStage:gm2d.display.Stage;
+   var mDragStage:nme.display.Stage;
    var mChromeContainer:Sprite;
    var mPaneContainer:Sprite;
    var mResizeHandle:Sprite;

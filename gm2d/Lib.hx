@@ -1,6 +1,6 @@
 package gm2d;
 
-import gm2d.display.DisplayObjectContainer;
+import nme.display.DisplayObjectContainer;
 
 class Lib
 {

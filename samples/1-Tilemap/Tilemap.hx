@@ -1,13 +1,13 @@
-import gm2d.display.Sprite;
+import nme.display.Sprite;
 import gm2d.blit.Tilesheet;
 import gm2d.blit.Tile;
 import gm2d.blit.Layer;
 import gm2d.blit.Grid;
 import gm2d.Game;
-import gm2d.events.Event;
+import nme.events.Event;
 import gm2d.Screen;
 
-import gm2d.ui.Keyboard;
+import nme.ui.Keyboard;
 
 
 class Tilemap extends Screen
@@ -66,7 +66,7 @@ class Tilemap extends Screen
    function new()
    {
       super();
-      gm2d.ui.Mouse.hide();
+      nme.ui.Mouse.hide();
       var bmp = nme.Assets.getBitmapData("Tiles.png");
       mTilesheet = new Tilesheet(bmp);
       mTiles = mTilesheet.partition(32,32);

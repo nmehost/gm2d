@@ -2,8 +2,8 @@ package gm2d.ui;
 
 import gm2d.ui.Layout;
 import gm2d.skin.Skin;
-import gm2d.display.BitmapData;
-import gm2d.text.TextField;
+import nme.display.BitmapData;
+import nme.text.TextField;
 
 
 class GroupBox extends Control

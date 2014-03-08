@@ -1,9 +1,9 @@
 package gm2d.ui;
-import gm2d.display.Sprite;
-import gm2d.display.BitmapData;
-import gm2d.display.DisplayObject;
+import nme.display.Sprite;
+import nme.display.BitmapData;
+import nme.display.DisplayObject;
 import gm2d.ui.DockPosition;
-import gm2d.geom.Rectangle;
+import nme.geom.Rectangle;
 
 import gm2d.ui.Pane;
 

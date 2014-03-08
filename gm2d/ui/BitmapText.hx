@@ -1,15 +1,16 @@
 package gm2d.ui;
 
-import gm2d.text.TextField;
-import gm2d.text.TextFieldType;
-import gm2d.display.BitmapData;
-import gm2d.display.Shape;
-import gm2d.events.MouseEvent;
+import nme.text.TextField;
+import nme.text.TextFieldType;
+import nme.display.BitmapData;
+import nme.display.Shape;
+import nme.events.MouseEvent;
 import gm2d.ui.Button;
 import gm2d.blit.Viewport;
 import gm2d.blit.Layer;
 import gm2d.blit.Tile;
-import gm2d.Timer;
+import nme.ui.Keyboard;
+import haxe.Timer;
 
 
 class BitmapText extends Control
@@ -168,7 +169,7 @@ class BitmapText extends Control
    }
 
 
-   public override function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
+   public override function onKeyDown(event:nme.events.KeyboardEvent ) : Bool
    {
       if (!mInput) return false;
       var code = event.keyCode;
@@ -398,7 +399,7 @@ class BitmapText extends Control
             {
                mSelectionOverlay = new Shape();
                addChild(mSelectionOverlay);
-               mSelectionOverlay.blendMode = gm2d.display.BlendMode.INVERT;
+               mSelectionOverlay.blendMode = nme.display.BlendMode.INVERT;
             }
             var gfx = mSelectionOverlay.graphics;
             gfx.clear();

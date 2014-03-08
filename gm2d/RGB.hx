@@ -13,11 +13,7 @@ class RGB
 
    public static function RGBA(inRGB:Int, inA:Int = 0xff)
    {
-      #if ((neko_v1 || !haxe3) && neko)
-      return nme.display.BitmapData.createColor(inRGB,inA);
-      #else
       return inRGB | (inA<<24);
-      #end
    }
 
 }

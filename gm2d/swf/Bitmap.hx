@@ -1,8 +1,8 @@
 package gm2d.swf;
 
-import gm2d.display.BitmapData;
-import gm2d.geom.Rectangle;
-import gm2d.utils.ByteArray;
+import nme.display.BitmapData;
+import nme.geom.Rectangle;
+import nme.utils.ByteArray;
 
 
 class Bitmap
@@ -38,7 +38,7 @@ class Bitmap
          var h = inStream.ReadUI16();
          var table_size = fmt==3 ? (inStream.ReadByte()+1) : 0;
          
-         var buffer:gm2d.utils.ByteArray = inStream.readFlashBytes(inStream.BytesLeft());
+         var buffer:nme.utils.ByteArray = inStream.readFlashBytes(inStream.BytesLeft());
          buffer.uncompress();
 
          if (inVersion==2)
@@ -104,7 +104,7 @@ class Bitmap
       return mBitmap;
    }
 
-   function AddAlpha(inEvt:gm2d.events.Event)
+   function AddAlpha(inEvt:nme.events.Event)
    {
 #if flash
       var bitmap = GetBitmap();

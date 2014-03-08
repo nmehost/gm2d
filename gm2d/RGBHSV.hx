@@ -1,6 +1,7 @@
 package gm2d;
-import gm2d.display.BitmapData;
-import gm2d.geom.Rectangle;
+
+import nme.display.BitmapData;
+import nme.geom.Rectangle;
 
 class RGBHSV
 {

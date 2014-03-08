@@ -4,11 +4,11 @@ import gm2d.Screen;
 import gm2d.ScreenScaleMode;
 import gm2d.skin.Skin;
 import gm2d.ui.Layout;
-import gm2d.display.Sprite;
-import gm2d.geom.Point;
-import gm2d.geom.Rectangle;
+import nme.display.Sprite;
+import nme.geom.Point;
+import nme.geom.Rectangle;
 import gm2d.ui.HitBoxes;
-import gm2d.events.MouseEvent;
+import nme.events.MouseEvent;
 
 #if haxe3
 class FloatingWin extends Sprite implements IDock

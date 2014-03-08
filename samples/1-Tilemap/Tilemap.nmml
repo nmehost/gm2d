@@ -20,7 +20,7 @@
 		hardware="true"
 	/>
 
-   <preloader name="NMEPreloader" />
+   <preloader name="nme.preloader.Basic" />
 
    <icon name="../icon.svg" />
 

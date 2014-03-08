@@ -2,10 +2,10 @@ package gm2d.blit;
 
 #if !flash
 
-import gm2d.display.Sprite;
-import gm2d.display.Stage;
-import gm2d.events.Event;
-import gm2d.geom.Rectangle;
+import nme.display.Sprite;
+import nme.display.Stage;
+import nme.events.Event;
+import nme.geom.Rectangle;
 
 class NMEViewport extends Viewport
 {

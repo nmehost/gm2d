@@ -1,8 +1,8 @@
 package gm2d.svg;
-import gm2d.geom.Rectangle;
-import gm2d.geom.Matrix;
-import gm2d.geom.Point;
-import gm2d.display.Graphics;
+import nme.geom.Rectangle;
+import nme.geom.Matrix;
+import nme.geom.Point;
+import nme.display.Graphics;
 import gm2d.gfx.Gfx;
 
 class PathSegment

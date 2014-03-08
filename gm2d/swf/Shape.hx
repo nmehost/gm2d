@@ -1,11 +1,11 @@
 package gm2d.swf;
 
-import gm2d.geom.Rectangle;
-import gm2d.geom.Matrix;
-import gm2d.geom.Point;
-import gm2d.display.JointStyle;
+import nme.geom.Rectangle;
+import nme.geom.Matrix;
+import nme.geom.Point;
+import nme.display.JointStyle;
 
-import gm2d.display.Graphics;
+import nme.display.Graphics;
 import gm2d.swf.SWFStream;
 import gm2d.swf.SWF;
 
@@ -481,8 +481,8 @@ class Shape
                alphas.push( inVersion>=3 ? inStream.ReadByte()/255.0 : 1.0 );
             }
             var focus = fill==ftRadialF ?  inStream.ReadByte()/255.0 : 0.0;
-            var type = fill==ftLinear ? gm2d.display.GradientType.LINEAR :
-                                         gm2d.display.GradientType.RADIAL;
+            var type = fill==ftLinear ? nme.display.GradientType.LINEAR :
+                                         nme.display.GradientType.RADIAL;
 
             result.push( function(g:Graphics) {
                g.beginGradientFill(type,colors,alphas,ratios,matrix,
@@ -613,8 +613,8 @@ class Shape
                   }
 
                   var focus = fill==ftRadialF ?  inStream.ReadByte()/255.0 : 0.0;
-                  var type = fill==ftLinear ? gm2d.display.GradientType.LINEAR :
-                                               gm2d.display.GradientType.RADIAL;
+                  var type = fill==ftLinear ? nme.display.GradientType.LINEAR :
+                                               nme.display.GradientType.RADIAL;
       
                   result.push( function(g:Graphics) {
                      g.lineStyle(w,0,1,pixel_hint,scale,start_caps,joints,miter);

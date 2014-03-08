@@ -1,10 +1,10 @@
 package gm2d.ui;
 
-import gm2d.display.DisplayObject;
-import gm2d.display.Sprite;
-import gm2d.events.MouseEvent;
-import gm2d.text.TextField;
-import gm2d.geom.Rectangle;
+import nme.display.DisplayObject;
+import nme.display.Sprite;
+import nme.events.MouseEvent;
+import nme.text.TextField;
+import nme.geom.Rectangle;
 import gm2d.ui.Layout;
 import gm2d.svg.Svg;
 import gm2d.svg.SvgRenderer;

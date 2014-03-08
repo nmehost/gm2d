@@ -1,15 +1,11 @@
 package gm2d.ui;
 
-import gm2d.display.DisplayObjectContainer;
-import gm2d.geom.Point;
+import nme.display.DisplayObjectContainer;
+import nme.geom.Point;
 import gm2d.ui.Layout;
 
 
-#if haxe3
-class Widget extends gm2d.display.Sprite implements IWidget
-#else
-class Widget extends gm2d.display.Sprite, implements IWidget
-#end
+class Widget extends nme.display.Sprite implements IWidget
 {
    public var wantFocus:Bool;
    var mLayout:Layout;
@@ -54,7 +50,7 @@ class Widget extends gm2d.display.Sprite, implements IWidget
       return mLayout;
    }
 
-   public function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool { return false; }
+   public function onKeyDown(event:nme.events.KeyboardEvent ) : Bool { return false; }
 
    public function layout(inW:Float,inH:Float):Void { }
 

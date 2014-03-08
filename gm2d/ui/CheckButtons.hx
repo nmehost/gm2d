@@ -1,9 +1,9 @@
 package gm2d.ui;
 
-import gm2d.display.BitmapData;
-import gm2d.display.Bitmap;
-import gm2d.display.Shape;
-import gm2d.display.Sprite;
+import nme.display.BitmapData;
+import nme.display.Bitmap;
+import nme.display.Shape;
+import nme.display.Sprite;
 import gm2d.ui.Button;
 import gm2d.skin.Skin;
 import gm2d.skin.ButtonRenderer;
@@ -19,9 +19,9 @@ class CheckButtons extends ChoiceButtons
       super(onButton);
 
       var renderer = new ButtonRenderer();
-      renderer.downOffset = new gm2d.geom.Point(0,0);
+      renderer.downOffset = new nme.geom.Point(0,0);
       renderer.render = function renderButton(outChrome:Sprite,
-         inRect:gm2d.geom.Rectangle, inState:ButtonState) {
+         inRect:nme.geom.Rectangle, inState:ButtonState) {
             if (inState==BUTTON_DOWN)
             {
                var gfx = outChrome.graphics;

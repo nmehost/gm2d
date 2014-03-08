@@ -1,4 +1,4 @@
-import gm2d.display.Sprite;
+import nme.display.Sprite;
 import gm2d.Game;
 import gm2d.Screen;
 import gm2d.reso.Resources;
@@ -38,7 +38,7 @@ class SwfTest extends Screen
          {
             gfx.drawRect(x*320+1, y*240+1, 318, 238 );
             var data = Resources.loadBytes("tests/" + test[idx++] + ".swf");
-            trace(data.length);
+            //trace(data.length);
             var swf = new SWF(data);
             var obj = swf.createInstance();
             obj.cacheAsBitmap = true;

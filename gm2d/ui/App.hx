@@ -35,7 +35,7 @@ class App extends Screen
 
       makeCurrent();
 
-      addEventListener(gm2d.events.Event.RENDER, checkSliderLayouts);
+      addEventListener(nme.events.Event.RENDER, checkSliderLayouts);
 
       doLayout();
    }

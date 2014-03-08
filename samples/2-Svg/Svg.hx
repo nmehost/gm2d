@@ -1,10 +1,10 @@
-import gm2d.display.Sprite;
+import nme.display.Sprite;
 import gm2d.Game;
 import gm2d.Screen;
 import gm2d.reso.Resources;
 import gm2d.svg.SvgRenderer;
 
-import gm2d.ui.Keyboard;
+import nme.ui.Keyboard;
 
 
 class Svg extends Screen

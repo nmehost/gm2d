@@ -1,9 +1,9 @@
 package gm2d.ui;
 
 import gm2d.ui.Pane;
-import gm2d.display.DisplayObjectContainer;
-import gm2d.display.BitmapData;
-import gm2d.display.Sprite;
+import nme.display.DisplayObjectContainer;
+import nme.display.BitmapData;
+import nme.display.Sprite;
 
 
 interface IDockable
@@ -32,7 +32,7 @@ interface IDockable
    public function getMinSize():Size;
    public function getLayoutSize(w:Float,h:Float,limitX:Bool):Size;
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void;
-   public function getDockRect():gm2d.geom.Rectangle;
+   public function getDockRect():nme.geom.Rectangle;
    public function getLayoutInfo():Dynamic;
    public function loadLayout(inLayout:Dynamic):Void;
    public function isLocked():Bool;

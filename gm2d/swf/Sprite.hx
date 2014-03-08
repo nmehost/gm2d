@@ -1,22 +1,17 @@
 package gm2d.swf;
 
-import gm2d.geom.Matrix;
-import gm2d.geom.ColorTransform;
+import nme.geom.Matrix;
+import nme.geom.ColorTransform;
 
 import gm2d.swf.SWFStream;
 import gm2d.swf.Tags;
 import gm2d.swf.Character;
 import gm2d.swf.Frame;
 import gm2d.swf.SWF;
-import gm2d.display.BlendMode;
-import gm2d.filters.Filter;
+import nme.display.BlendMode;
+import nme.filters.BitmapFilter;
 
-#if haxe3
 typedef FrameLabels = haxe.ds.StringMap<Int>;
-#else
-typedef FrameLabels = Hash<Int>;
-#end
-
 
 class Sprite
 {
@@ -29,7 +24,7 @@ class Sprite
    var mClassName:String;
    var mBlendMode:BlendMode;
    var mCacheAsBitmap:Bool;
-   var mFilters:Array<Filter>;
+   var mFilters:Array<BitmapFilter>;
 
    public function new(inSWF:SWF,inID:Int,inFrameCount:Int)
    {
@@ -203,13 +198,13 @@ class Sprite
       }
    }
 
-   function CreateDropShadowFilter(inStream:SWFStream) : Filter
+   function CreateDropShadowFilter(inStream:SWFStream) : BitmapFilter
    {
       trace("CreateDropShadowFilter");
       return null;
    }
 
-   function CreateBlurFilter(inStream:SWFStream) : Filter
+   function CreateBlurFilter(inStream:SWFStream) : BitmapFilter
    {
       //trace("CreateBlurFilter");
       var blurx = inStream.ReadFixed();
@@ -219,25 +214,25 @@ class Sprite
       return null;
    }
 
-   function CreateGlowFilter(inStream:SWFStream) : Filter
+   function CreateGlowFilter(inStream:SWFStream) : BitmapFilter
    {
       trace("CreateGlowFilter");
       return null;
    }
 
-   function CreateBevelFilter(inStream:SWFStream) : Filter
+   function CreateBevelFilter(inStream:SWFStream) : BitmapFilter
    {
       trace("CreateBevelFilter");
       return null;
    }
 
-   function CreateGradientGlowFilter(inStream:SWFStream) : Filter
+   function CreateGradientGlowFilter(inStream:SWFStream) : BitmapFilter
    {
       trace("CreateGradientGlowFilter");
       return null;
    }
 
-   function CreateConvolutionFilter(inStream:SWFStream) : Filter
+   function CreateConvolutionFilter(inStream:SWFStream) : BitmapFilter
    {
       trace("CreateConvolutionFilter");
       var w = inStream.ReadByte();
@@ -251,7 +246,7 @@ class Sprite
       return null;
    }
 
-   function CreateColorMatrixFilter(inStream:SWFStream) : Filter
+   function CreateColorMatrixFilter(inStream:SWFStream) : BitmapFilter
    {
       trace("CreateColorMatrixFilter");
       var mtx = new Array<Float>();
@@ -261,7 +256,7 @@ class Sprite
       return null;
    }
 
-   function CreateGradientBevelFilter(inStream:SWFStream) : Filter
+   function CreateGradientBevelFilter(inStream:SWFStream) : BitmapFilter
    {
       trace("CreateGradientBevelFilter");
       return null;

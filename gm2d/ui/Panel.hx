@@ -1,18 +1,15 @@
 package gm2d.ui;
 
-import gm2d.display.DisplayObject;
-import gm2d.display.Shape;
-import gm2d.display.Sprite;
-import gm2d.text.TextField;
-import gm2d.text.TextFormat;
+import nme.display.DisplayObject;
+import nme.display.Shape;
+import nme.display.Sprite;
+import nme.text.TextField;
+import nme.text.TextFormat;
 import gm2d.ui.Layout;
 import gm2d.skin.LabelRenderer;
 import gm2d.skin.Skin;
 
-#if haxe3
 typedef Hash<T> = haxe.ds.StringMap<T>;
-#end
-
 
 class Panel extends Widget
 {
@@ -139,7 +136,7 @@ class Panel extends Widget
    }
 
 
-   public function addObj(inObj:gm2d.display.DisplayObject,?inAlign:Null<Int>)
+   public function addObj(inObj:nme.display.DisplayObject,?inAlign:Null<Int>)
    {
       mLayoutDirty = true;
       addChild(inObj);

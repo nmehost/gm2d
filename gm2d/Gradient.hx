@@ -1,10 +1,10 @@
 package gm2d;
 
-import gm2d.display.GradientType;
+import nme.display.GradientType;
 import gm2d.InterpolationMethod;
-import gm2d.display.SpreadMethod;
-import gm2d.geom.Matrix;
-import gm2d.display.Graphics;
+import nme.display.SpreadMethod;
+import nme.geom.Matrix;
+import nme.display.Graphics;
 
 
 class GradStop
@@ -185,10 +185,10 @@ class Gradient
       var t = inType==null ? type : inType;
       if (interpolationMethod==InterpolationMethod.LINEAR_RGB)
          inGfx.beginGradientFill(t, getColors(), getAlphas(), getRatios(), inMatrix,
-            spreadMethod, gm2d.display.InterpolationMethod.LINEAR_RGB, focal );
+            spreadMethod, nme.display.InterpolationMethod.LINEAR_RGB, focal );
       else
          inGfx.beginGradientFill(t, getColors(), getAlphas(), getRatios(), inMatrix,
-            spreadMethod, gm2d.display.InterpolationMethod.RGB, focal );
+            spreadMethod, nme.display.InterpolationMethod.RGB, focal );
    }
 
 

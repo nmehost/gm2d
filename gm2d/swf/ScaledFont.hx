@@ -1,7 +1,7 @@
 package gm2d.swf;
 
-import gm2d.geom.Matrix;
-import gm2d.display.Graphics;
+import nme.geom.Matrix;
+import nme.display.Graphics;
 
 class ScaledFont
 {

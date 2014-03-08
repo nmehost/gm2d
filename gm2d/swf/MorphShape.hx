@@ -2,12 +2,12 @@ package gm2d.swf;
 
 import gm2d.swf.SWFStream;
 import gm2d.swf.SWF;
-import gm2d.display.Graphics;
+import nme.display.Graphics;
 
-import gm2d.geom.Rectangle;
-import gm2d.geom.Matrix;
-import gm2d.display.JointStyle;
-import gm2d.display.GradientType;
+import nme.geom.Rectangle;
+import nme.geom.Matrix;
+import nme.display.JointStyle;
+import nme.display.GradientType;
 
 
 typedef MorphRenderFunc = Graphics -> Float -> Void;

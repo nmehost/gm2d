@@ -4,11 +4,11 @@ import gm2d.svg.BitmapDataManager;
 import gm2d.reso.Resources;
 import gm2d.svg.SvgRenderer;
 
-import gm2d.display.Sprite;
-import gm2d.events.MouseEvent;
-import gm2d.events.TouchEvent;
-import gm2d.display.Bitmap;
-import gm2d.display.BitmapData;
+import nme.display.Sprite;
+import nme.events.MouseEvent;
+import nme.events.TouchEvent;
+import nme.display.Bitmap;
+import nme.display.BitmapData;
 
 
 class MultiTouchButton  extends Sprite

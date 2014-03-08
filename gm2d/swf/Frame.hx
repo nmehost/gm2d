@@ -3,8 +3,8 @@ package gm2d.swf;
 import gm2d.swf.Character;
 import gm2d.swf.DepthSlot;
 import gm2d.swf.DisplayAttributes;
-import gm2d.geom.Matrix;
-import gm2d.geom.ColorTransform;
+import nme.geom.Matrix;
+import nme.geom.ColorTransform;
 
 
 #if haxe3

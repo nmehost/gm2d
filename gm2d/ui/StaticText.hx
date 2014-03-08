@@ -1,8 +1,8 @@
 package gm2d.ui;
 
 import gm2d.ui.Layout;
-import gm2d.text.TextField;
-import gm2d.display.DisplayObjectContainer;
+import nme.text.TextField;
+import nme.display.DisplayObjectContainer;
 import gm2d.skin.Skin;
 import gm2d.skin.LabelRenderer;
 

@@ -2,10 +2,10 @@ package gm2d.swf;
 
 import gm2d.swf.SWFStream;
 import gm2d.swf.SWF;
-import gm2d.display.Graphics;
+import nme.display.Graphics;
 
-import gm2d.geom.Rectangle;
-import gm2d.geom.Matrix;
+import nme.geom.Rectangle;
+import nme.geom.Matrix;
 
 typedef TextRecord =
 {

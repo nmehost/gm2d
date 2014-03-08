@@ -28,7 +28,7 @@ class TimeAverage
    }
    public function add(inValue:Float,inWeight:Float=1.0)
    {
-      var now = gm2d.Timer.stamp();
+      var now = haxe.Timer.stamp();
       samples.push(new TimedValue(now,inValue,inWeight));
       removeOld(now-window);
    }
@@ -53,7 +53,7 @@ class TimeAverage
    {
       if (samples.length<1)
          return 0.0;
-      var now = gm2d.Timer.stamp();
+      var now = haxe.Timer.stamp();
       var total = 0.0;
       var total_w = 0.0;
       for(s in samples)

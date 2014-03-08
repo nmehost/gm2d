@@ -1,8 +1,8 @@
 package gm2d.swf;
 
-import gm2d.geom.ColorTransform;
-import gm2d.geom.Matrix;
-import gm2d.display.DisplayObject;
+import nme.geom.ColorTransform;
+import nme.geom.Matrix;
+import nme.display.DisplayObject;
 
 
 class DisplayAttributes

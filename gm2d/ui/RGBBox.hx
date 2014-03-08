@@ -1,10 +1,10 @@
 package gm2d.ui;
 
-import gm2d.text.TextField;
+import nme.text.TextField;
+import nme.events.MouseEvent;
 import gm2d.ui.Layout;
-import gm2d.events.MouseEvent;
 import gm2d.RGBHSV;
-import gm2d.text.TextFieldAutoSize;
+import nme.text.TextFieldAutoSize;
 
 
 class RGBBox extends Widget

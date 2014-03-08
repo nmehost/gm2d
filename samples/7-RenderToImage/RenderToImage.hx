@@ -1,12 +1,8 @@
-import gm2d.display.Sprite;
-import gm2d.display.BitmapData;
+import nme.display.Sprite;
+import nme.display.BitmapData;
 import gm2d.svg.SVG2Gfx;
 
-#if haxe3
 import haxe.io.Path;
-#else
-import neko.io.Path;
-#end
 
 class RenderToImage
 {

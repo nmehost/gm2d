@@ -1,16 +1,16 @@
-import gm2d.display.Sprite;
+import nme.display.Sprite;
 import gm2d.blit.Tilesheet;
 import gm2d.blit.Tile;
 import gm2d.blit.Layer;
 import gm2d.blit.Grid;
-import gm2d.text.TextField;
+import nme.text.TextField;
 import gm2d.Game;
-import gm2d.events.Event;
+import nme.events.Event;
 import gm2d.Screen;
 
 import gm2d.ui.Accelerometer;
 
-import gm2d.ui.Keyboard;
+import nme.ui.Keyboard;
 
 class Particle
 {
@@ -76,7 +76,7 @@ class Particles extends Screen
       super();
       mParticles = [];
 
-      var bmp:gm2d.display.BitmapData = gm2d.reso.Resources.loadBitmap("Blobs.png");
+      var bmp:nme.display.BitmapData = gm2d.reso.Resources.loadBitmap("Blobs.png");
       mTilesheet = new Tilesheet(bmp);
       mTiles = mTilesheet.partition(16,16);
       for(tile in mTiles)

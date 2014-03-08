@@ -1,10 +1,10 @@
 package gm2d.ui;
 
-import gm2d.display.Sprite;
-import gm2d.events.MouseEvent;
-import gm2d.events.TouchEvent;
-import gm2d.display.Bitmap;
-import gm2d.display.BitmapData;
+import nme.display.Sprite;
+import nme.events.MouseEvent;
+import nme.events.TouchEvent;
+import nme.display.Bitmap;
+import nme.display.BitmapData;
 
 import gm2d.svg.BitmapDataManager;
 

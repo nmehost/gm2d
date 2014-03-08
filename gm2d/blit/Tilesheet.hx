@@ -1,8 +1,8 @@
 package gm2d.blit;
 
-import gm2d.display.BitmapData;
-import gm2d.geom.Rectangle;
-import gm2d.geom.Point;
+import nme.display.BitmapData;
+import nme.geom.Rectangle;
+import nme.geom.Point;
 
 class Tilesheet
 {

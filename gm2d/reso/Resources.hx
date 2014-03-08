@@ -1,6 +1,6 @@
 package gm2d.reso;
 
-import gm2d.utils.IDataInput;
+import nme.utils.IDataInput;
 import gm2d.svg.Svg;
 import gm2d.svg.SvgRenderer;
 
@@ -26,12 +26,12 @@ class Resources
    }
 
 
-   static public function loadBitmap(inAssetName:String, inCache=false) : gm2d.display.BitmapData
+   static public function loadBitmap(inAssetName:String, inCache=false) : nme.display.BitmapData
    {
       return loadAsset(inAssetName,inCache);
    }
 
-   static public function loadBytes(inAssetName:String, inCache=false) : gm2d.utils.ByteArray
+   static public function loadBytes(inAssetName:String, inCache=false) : nme.utils.ByteArray
    {
       return loadAsset(inAssetName,inCache);
    }
@@ -89,7 +89,7 @@ class Resources
 
 
 
-   static public function loadSound(inAssetName:String, inCache=false) : gm2d.media.Sound
+   static public function loadSound(inAssetName:String, inCache=false) : nme.media.Sound
    {
       return loadAsset(inAssetName,inCache);
    }

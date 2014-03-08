@@ -1,8 +1,9 @@
 package gm2d.ui;
 
-import gm2d.text.TextField;
-import gm2d.display.BitmapData;
-import gm2d.events.MouseEvent;
+import nme.text.TextField;
+import nme.display.BitmapData;
+import nme.events.MouseEvent;
+import nme.ui.Keyboard;
 import gm2d.ui.Button;
 import gm2d.skin.Skin;
 
@@ -22,12 +23,12 @@ class TextInput extends Control
        mText.x = 0.5;
        mText.y = 0.5;
        mText.height = boxHeight-1;
-       mText.type = gm2d.text.TextFieldType.INPUT;
+       mText.type = nme.text.TextFieldType.INPUT;
 
        if (onUpdate!=null)
        {
           var t= mText;
-          mText.addEventListener(gm2d.events.Event.CHANGE, function(_) onUpdate(t.text) );
+          mText.addEventListener(nme.events.Event.CHANGE, function(_) onUpdate(t.text) );
        }
  
        addChild(mText);
@@ -56,7 +57,7 @@ class TextInput extends Control
    }
 
 
-   public override function onKeyDown(event:gm2d.events.KeyboardEvent ) : Bool
+   public override function onKeyDown(event:nme.events.KeyboardEvent ) : Bool
    {
       #if flash
       var code:UInt = event.keyCode;

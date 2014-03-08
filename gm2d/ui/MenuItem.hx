@@ -2,9 +2,9 @@ package gm2d.ui;
 
 import gm2d.Screen;
 import gm2d.Game;
-import gm2d.display.BitmapData;
-import gm2d.display.Graphics;
-import gm2d.events.MouseEvent;
+import nme.display.BitmapData;
+import nme.display.Graphics;
+import nme.events.MouseEvent;
 
 class MenuItem
 {

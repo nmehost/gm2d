@@ -1,12 +1,12 @@
 package gm2d.svg;
 
-import gm2d.geom.Matrix;
-import gm2d.display.GradientType;
-import gm2d.display.SpreadMethod;
-import gm2d.display.InterpolationMethod;
-import gm2d.display.CapsStyle;
-import gm2d.display.JointStyle;
-import gm2d.display.LineScaleMode;
+import nme.geom.Matrix;
+import nme.display.GradientType;
+import nme.display.SpreadMethod;
+import nme.display.InterpolationMethod;
+import nme.display.CapsStyle;
+import nme.display.JointStyle;
+import nme.display.LineScaleMode;
 
 typedef PathSegments = Array<PathSegment>;
 

@@ -9,10 +9,10 @@ import gm2d.swf.Frame;
 import gm2d.swf.StaticText;
 import gm2d.swf.Font;
 
-import gm2d.display.BitmapData;
-import gm2d.utils.ByteArray;
+import nme.display.BitmapData;
+import nme.utils.ByteArray;
 
-import gm2d.geom.Rectangle;
+import nme.geom.Rectangle;
 
 
 #if haxe3
@@ -245,8 +245,8 @@ class SWF
 
    function CreatePlaceholderBitmap(inID:Int)
    {
-      var bmp = new gm2d.display.BitmapData(32,32);
-      var render = new gm2d.display.Shape();
+      var bmp = new nme.display.BitmapData(32,32);
+      var render = new nme.display.Shape();
       var gfx = render.graphics;
       gfx.lineStyle(1,0xff0000);
       gfx.moveTo(0,0);
@@ -257,7 +257,7 @@ class SWF
       return bmp;
    }
 
-   public function GetBitmap(inID:Int) : gm2d.display.BitmapData
+   public function GetBitmap(inID:Int) : nme.display.BitmapData
    {
       if (inID==0xffff)
          return null;

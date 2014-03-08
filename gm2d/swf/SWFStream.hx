@@ -1,15 +1,15 @@
 package gm2d.swf;
 
-import gm2d.utils.ByteArray;
-import gm2d.geom.Rectangle;
-import gm2d.geom.Matrix;
-import gm2d.display.SpreadMethod;
-import gm2d.display.InterpolationMethod;
-import gm2d.display.CapsStyle;
-import gm2d.display.JointStyle;
-import gm2d.display.LineScaleMode;
-import gm2d.utils.IDataInput;
-import gm2d.text.TextFormatAlign;
+import nme.utils.ByteArray;
+import nme.geom.Rectangle;
+import nme.geom.Matrix;
+import nme.display.SpreadMethod;
+import nme.display.InterpolationMethod;
+import nme.display.CapsStyle;
+import nme.display.JointStyle;
+import nme.display.LineScaleMode;
+import nme.utils.IDataInput;
+import nme.text.TextFormatAlign;
 
 class SWFStream
 {
@@ -46,13 +46,13 @@ class SWFStream
 
       if (sig=="CWS")
       {
-         var buffer = new gm2d.utils.ByteArray();
+         var buffer = new nme.utils.ByteArray();
          mStream.readBytes(buffer);
          buffer.uncompress();
          mStream = buffer;
       }
 
-      mStream.endian = gm2d.utils.Endian.LITTLE_ENDIAN;
+      mStream.endian = nme.utils.Endian.LITTLE_ENDIAN;
 
       mBitPos = 0;
       mByteBuf = 0;
@@ -335,7 +335,7 @@ class SWFStream
    public function ReadColorTransform(withAlpha:Bool)
    {
       AlignBits();
-      var result = new gm2d.geom.ColorTransform();
+      var result = new nme.geom.ColorTransform();
 
       var has_add = ReadBool();
       var has_mult = ReadBool();
@@ -400,16 +400,16 @@ class SWFStream
       }
    }
 
-   public function ReadBytes(inSize:Int) : gm2d.utils.ByteArray
+   public function ReadBytes(inSize:Int) : nme.utils.ByteArray
    {
-       var bytes = new gm2d.utils.ByteArray();
+       var bytes = new nme.utils.ByteArray();
        mStream.readBytes(bytes,0,inSize);
        mTagRead += inSize;
        return bytes;
    }
-   public function readFlashBytes(inSize:Int) : gm2d.utils.ByteArray
+   public function readFlashBytes(inSize:Int) : nme.utils.ByteArray
    {
-       var bytes = new gm2d.utils.ByteArray();
+       var bytes = new nme.utils.ByteArray();
        mStream.readBytes(bytes,0,inSize);
        mTagRead += inSize;
        return bytes;

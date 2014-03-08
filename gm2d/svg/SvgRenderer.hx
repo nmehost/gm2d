@@ -4,25 +4,25 @@ import Xml;
 import gm2d.svg.PathParser;
 import gm2d.svg.PathSegment;
 
-import gm2d.geom.Matrix;
-import gm2d.geom.Rectangle;
-import gm2d.display.Graphics;
+import nme.geom.Matrix;
+import nme.geom.Rectangle;
+import nme.display.Graphics;
 
-import gm2d.display.Shape;
-import gm2d.display.Sprite;
-import gm2d.display.DisplayObject;
-import gm2d.display.GradientType;
-import gm2d.display.SpreadMethod;
-import gm2d.display.InterpolationMethod;
-import gm2d.display.CapsStyle;
-import gm2d.display.JointStyle;
-import gm2d.display.LineScaleMode;
+import nme.display.Shape;
+import nme.display.Sprite;
+import nme.display.DisplayObject;
+import nme.display.GradientType;
+import nme.display.SpreadMethod;
+import nme.display.InterpolationMethod;
+import nme.display.CapsStyle;
+import nme.display.JointStyle;
+import nme.display.LineScaleMode;
 
 import gm2d.svg.Grad;
 import gm2d.svg.Group;
 import gm2d.svg.FillType;
 import gm2d.gfx.Gfx;
-import gm2d.geom.Rectangle;
+import nme.geom.Rectangle;
 
 
 typedef GroupPath = Array<String>;
@@ -312,9 +312,9 @@ class SvgRenderer
        var w = Std.int(Math.ceil( inRect==null ? width : inRect.width*inScale ));
        var h = Std.int(Math.ceil( inRect==null ? width : inRect.height*inScale ));
 
-       var bmp = new gm2d.display.BitmapData(w,h,true,gm2d.RGB.CLEAR );
+       var bmp = new nme.display.BitmapData(w,h,true,gm2d.RGB.CLEAR );
 
-       var shape = new gm2d.display.Shape();
+       var shape = new nme.display.Shape();
        mGfx = new gm2d.gfx.GfxGraphics(shape.graphics);
 
        mGroupPath = [];

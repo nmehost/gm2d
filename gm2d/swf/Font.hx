@@ -1,8 +1,8 @@
 package gm2d.swf;
 
 import gm2d.swf.SWFStream;
-import gm2d.display.Graphics;
-import gm2d.geom.Matrix;
+import nme.display.Graphics;
+import nme.geom.Matrix;
 
 typedef FontCommand = Graphics -> Matrix -> Void;
 typedef FontCommands = Array<FontCommand>;
@@ -41,7 +41,7 @@ class Font
       var bold = (inVersion>1) && inStream.ReadBool();
       var lang_code = (inVersion>1) ? inStream.ReadByte() : 0;
       mName = (inVersion>1) ?  inStream.ReadPascalString() : "font";
-      trace("Font name : " + mName);
+      //trace("Font name : " + mName);
       
       var n:Int;
       var s0:Int;

@@ -1,9 +1,9 @@
 package gm2d.ui;
 
-import gm2d.geom.Rectangle;
-import gm2d.display.Sprite;
-import gm2d.events.MouseEvent;
-import gm2d.geom.Point;
+import nme.geom.Rectangle;
+import nme.display.Sprite;
+import nme.events.MouseEvent;
+import nme.geom.Point;
 
 class DockSizeHandler
 {

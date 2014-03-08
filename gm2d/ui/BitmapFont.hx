@@ -1,14 +1,15 @@
 package gm2d.ui;
-import gm2d.display.BitmapData;
-import gm2d.display.Bitmap;
-import gm2d.text.TextField;
+
+import nme.display.BitmapData;
+import nme.display.Bitmap;
+import nme.text.TextField;
 import gm2d.blit.Tile;
 import gm2d.blit.Tilesheet;
-import gm2d.filters.BitmapFilter;
-import gm2d.filters.GlowFilter;
-import gm2d.geom.Rectangle;
-import gm2d.geom.Point;
-import gm2d.display.BitmapDataChannel;
+import nme.filters.BitmapFilter;
+import nme.filters.GlowFilter;
+import nme.geom.Rectangle;
+import nme.geom.Point;
+import nme.display.BitmapDataChannel;
 
 class TileInfo
 {
@@ -40,7 +41,7 @@ class BitmapFont extends gm2d.blit.Tilesheets
 
    public static function createFilters(inFont:String, inHeight:Float, inCol, inLeftToRight:Bool,inFilters:Array<BitmapFilter>, inMask:BitmapData )
    {
-      var fmt = new gm2d.text.TextFormat();
+      var fmt = new nme.text.TextFormat();
       fmt.size = inHeight;
       fmt.font = inFont;
       var tf = new TextField( );
@@ -55,7 +56,7 @@ class BitmapFont extends gm2d.blit.Tilesheets
 
       tf.textColor = inCol;
       tf.defaultTextFormat = fmt;
-      tf.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
+      tf.autoSize = nme.text.TextFieldAutoSize.LEFT;
 
       return new BitmapFont(Std.int(inHeight*1.5),  inLeftToRight, function(font,ch)
          {
@@ -89,7 +90,7 @@ class BitmapFont extends gm2d.blit.Tilesheets
 
                var bitmap = new Bitmap(bmp);
                bitmap.filters = inFilters;
-               tight.draw(bitmap,new gm2d.geom.Matrix(1,0,0,1,-frect.x,-frect.y) );
+               tight.draw(bitmap,new nme.geom.Matrix(1,0,0,1,-frect.x,-frect.y) );
                var tile = font.addBitmap(ch,tight,rect.width+1);
                tile.hotX = -(frect.x-rect.x);
                tile.hotY = -frect.y;
@@ -105,15 +106,15 @@ class BitmapFont extends gm2d.blit.Tilesheets
       var bmp:BitmapData = null;
       bmp  = new BitmapData(h,Std.int(h*1.5),true, gm2d.RGB.YELLOW );
 
-		var shape = new gm2d.display.Shape();
+		var shape = new nme.display.Shape();
 		var gfx = shape.graphics;
-		var mtx = new gm2d.geom.Matrix();
+		var mtx = new nme.geom.Matrix();
 		mtx.createGradientBox(inHeight,inHeight,Math.PI*0.5,0,inHeight*0.25);
 
 		var cols:Array<CInt> = [0xff0000, 0xffffff, 0xffff00 ];
       var alphas:Array<Float> = [1.0, 1.0, 1.0];
       var ratio:Array<Int> = [0, 128, 255];
-      gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
+      gfx.beginGradientFill(nme.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
       gfx.drawRect(0,0,inHeight,inHeight*1.5);
 		bmp.draw(shape);
 

@@ -1,10 +1,10 @@
 package gm2d.swf;
 
-import gm2d.geom.Rectangle;
-import gm2d.text.TextField;
-import gm2d.text.TextFieldType;
-import gm2d.text.TextFormat;
-import gm2d.text.TextFieldAutoSize;
+import nme.geom.Rectangle;
+import nme.text.TextField;
+import nme.text.TextFieldType;
+import nme.text.TextFormat;
+import nme.text.TextFieldAutoSize;
 
 import gm2d.swf.SWF;
 import gm2d.swf.SWFStream;

@@ -2,7 +2,7 @@ package gm2d.icons;
 
 import gm2d.gfx.GfxBytes;
 import gm2d.gfx.GfxGraphics;
-import gm2d.display.Graphics;
+import nme.display.Graphics;
 
 
 class Folder extends Icon

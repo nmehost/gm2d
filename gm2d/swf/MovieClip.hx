@@ -1,9 +1,9 @@
 package gm2d.swf;
 
-import gm2d.display.DisplayObject;
-import gm2d.display.Shape;
-import gm2d.events.Event;
-import gm2d.text.TextField;
+import nme.display.DisplayObject;
+import nme.display.Shape;
+import nme.events.Event;
+import nme.text.TextField;
 
 import gm2d.swf.SWF;
 import gm2d.swf.Sprite;
@@ -12,7 +12,7 @@ import gm2d.swf.Frame;
 #if flash
 typedef MovieClipBase = flash.display.Sprite;
 #else
-typedef MovieClipBase = gm2d.display.MovieClip;
+typedef MovieClipBase = nme.display.MovieClip;
 #end
 
 #if haxe3
@@ -25,7 +25,7 @@ typedef ObjectPool = IntHash<ObjectList>;
 
 typedef ActiveObject =
 {
-   var mObj: gm2d.display.DisplayObject;
+   var mObj: nme.display.DisplayObject;
    var mDepth : Int;
    var mID: Int;
    var mIndex : Int;
@@ -162,7 +162,7 @@ class MovieClip extends MovieClipBase
             for(depth in frame_objs.keys())
             {
                var slot = frame_objs.get(depth);
-               var disp_object:gm2d.display.DisplayObject = null;
+               var disp_object:nme.display.DisplayObject = null;
                var pool = mObjectPool.get(slot.mID);
                if (pool != null && pool.length > 0)
                {
@@ -187,7 +187,7 @@ class MovieClip extends MovieClipBase
                          disp_object = movie;
 
                       case charShape(shape):
-                         var s = new gm2d.display.Shape();
+                         var s = new nme.display.Shape();
                           //trace( s );
                          //shape.Render(new gm2d.display.DebugGfx());
                          waiting_loader = shape.Render(s.graphics);
@@ -199,7 +199,7 @@ class MovieClip extends MovieClipBase
                          disp_object = morph;
 
                       case charStaticText(text):
-                         var s = new gm2d.display.Shape();
+                         var s = new nme.display.Shape();
                          text.Render(s.graphics);
                          disp_object = s;
  

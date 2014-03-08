@@ -1,6 +1,6 @@
 package gm2d.svg;
 
-import gm2d.geom.Matrix;
+import nme.geom.Matrix;
 
 
 class Text

@@ -1,13 +1,13 @@
 package gm2d.ui;
 
-import gm2d.events.MouseEvent;
-import gm2d.events.Event;
-import gm2d.display.Stage;
-import gm2d.geom.Point;
-import gm2d.geom.Rectangle;
+import nme.events.MouseEvent;
+import nme.events.Event;
+import nme.display.Stage;
+import nme.geom.Point;
+import nme.geom.Rectangle;
 import gm2d.tween.Tween;
 import gm2d.math.TimeAverage;
-import gm2d.Timer;
+import haxe.Timer;
 
 class ScrollWidget extends Control
 {

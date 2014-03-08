@@ -12,21 +12,22 @@ import gm2d.ui.SideDock;
 import gm2d.ui.DockZones;
 import gm2d.ui.DockPosition;
 import gm2d.skin.ButtonState;
-import gm2d.filters.BitmapFilter;
-import gm2d.filters.BitmapFilterType;
-import gm2d.filters.DropShadowFilter;
-import gm2d.filters.GlowFilter;
-import gm2d.display.Sprite;
-import gm2d.display.BitmapData;
-import gm2d.display.Bitmap;
-import gm2d.display.Shape;
-import gm2d.display.Graphics;
-import gm2d.text.TextField;
-import gm2d.text.TextFieldAutoSize;
-import gm2d.events.MouseEvent;
-import gm2d.geom.Point;
-import gm2d.geom.Rectangle;
-import gm2d.geom.Matrix;
+import nme.filters.BitmapFilter;
+import nme.filters.BitmapFilterType;
+import nme.filters.DropShadowFilter;
+import nme.filters.GlowFilter;
+import nme.display.Sprite;
+import nme.display.BitmapData;
+import nme.display.Bitmap;
+import nme.display.Shape;
+import nme.display.Graphics;
+import nme.text.TextField;
+import nme.text.TextFieldAutoSize;
+import nme.text.TextFormat;
+import nme.events.MouseEvent;
+import nme.geom.Point;
+import nme.geom.Rectangle;
+import nme.geom.Matrix;
 import gm2d.ui.Layout;
 import gm2d.ui.Slider;
 
@@ -55,7 +56,7 @@ class Skin
    public var guiMedium:Int;
    public var guiDark:Int;
 
-   public var textFormat:gm2d.text.TextFormat;
+   public var textFormat:nme.text.TextFormat;
    public var menuHeight:Float;
    public var mBitmaps:Array< Array<BitmapData> >;
    public var centerTitle:Bool;
@@ -88,7 +89,7 @@ class Skin
 
    public function new()
    {
-      textFormat = new gm2d.text.TextFormat();
+      textFormat = new TextFormat();
       textFormat.size = 12;
       textFormat.font = "Arial";
       menuHeight = 22;
@@ -239,7 +240,7 @@ class Skin
 
    public function getTextFormat()
    {
-      var fmt = new gm2d.text.TextFormat();
+      var fmt = new TextFormat();
       fmt.size = 16;
       fmt.font = "Arial";
       return fmt;
@@ -263,16 +264,16 @@ class Skin
       inWidget.filters = null;
    }
 
-   public function renderMenubar(inObject:gm2d.display.Sprite,inW:Float, inH:Float)
+   public function renderMenubar(inObject:Sprite,inW:Float, inH:Float)
    {
       var gfx = inObject.graphics;
       gfx.clear();
-      var mtx = new gm2d.geom.Matrix();
+      var mtx = new nme.geom.Matrix();
       mtx.createGradientBox(inH,inH,Math.PI * 0.5);
       var cols:Array<CInt> = [guiLight, guiMedium, guiDark];
       var alphas:Array<Float> = [1.0, 1.0, 1.0];
       var ratio:Array<Int> = [0, 128, 255];
-      gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
+      gfx.beginGradientFill(nme.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
       gfx.drawRect(0,0,inW,inH);
    }
 
@@ -301,7 +302,7 @@ class Skin
    }
 */
 
-   public function styleText(inText:gm2d.text.TextField)
+   public function styleText(inText:nme.text.TextField)
    {
       inText.defaultTextFormat = textFormat;
    }
@@ -380,12 +381,12 @@ class Skin
          gfx.drawRect(inRect.x,inRect.y,inRect.width,inRect.height);
 
          /*
-         var mtx = new gm2d.geom.Matrix();
+         var mtx = new nme.geom.Matrix();
          mtx.createGradientBox(21,21, Math.PI*-0.5, inRect.x+1.5, inRect.y+1.5);
          var cols:Array<Int> = [guiLight, guiMedium, guiDark];
          var alphas:Array<Float> = [1.0, 1.0, 1.0];
          var ratio:Array<Int> = [0, 128, 255];
-         gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
+         gfx.beginGradientFill(nme.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
          */
          gfx.beginFill(guiDark);
          //gfx.drawRoundRect(inRect.x+1, inRect.y+2, inRect.width-2, 20, 8,8);
@@ -693,7 +694,7 @@ class Skin
          titleField.textColor = 0x000000;
          titleField.selectable = false;
          titleField.text = title;
-         titleField.autoSize = gm2d.text.TextFieldAutoSize.LEFT;
+         titleField.autoSize = nme.text.TextFieldAutoSize.LEFT;
          titleField.y = 2;
 
          //var f:Array<BitmapFilter> = [];
@@ -725,7 +726,7 @@ class Skin
    function createButtonBitmap(inButton:Int, inState:Int) : BitmapData
    {
       var bmp = new BitmapData(16,16,true, gm2d.RGB.CLEAR );
-      var shape = new gm2d.display.Shape();
+      var shape = new nme.display.Shape();
       var gfx = shape.graphics;
 
       if (false)
@@ -882,12 +883,12 @@ class Skin
 
       if (inIsCurrent)
       {
-         var mtx = new gm2d.geom.Matrix();
+         var mtx = new nme.geom.Matrix();
          mtx.createGradientBox(title_h+borders,title_h+borders,Math.PI * 0.5);
          var cols:Array<CInt> = [guiLight, guiMedium, guiDark];
          var alphas:Array<Float> = [1.0, 1.0, 1.0];
          var ratio:Array<Int> = [0, 128, 255];
-         gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
+         gfx.beginGradientFill(nme.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
       }
       else
       {

@@ -1,7 +1,7 @@
-import gm2d.display.Sprite;
-import gm2d.display.BitmapData;
-import gm2d.geom.Point;
-import gm2d.geom.Rectangle;
+import nme.display.Sprite;
+import nme.display.BitmapData;
+import nme.geom.Point;
+import nme.geom.Rectangle;
 import haxe.io.Path;
 import sys.FileSystem;
 

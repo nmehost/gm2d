@@ -1,9 +1,9 @@
 package gm2d.ui;
 
-import gm2d.display.DisplayObjectContainer;
-import gm2d.display.Sprite;
+import nme.display.DisplayObjectContainer;
+import nme.display.Sprite;
 import gm2d.ui.DockPosition;
-import gm2d.geom.Rectangle;
+import nme.geom.Rectangle;
 import gm2d.skin.Skin;
 
 #if haxe3
@@ -121,7 +121,7 @@ class MultiDock implements IDock, implements IDockable
       setDirty(false,true);
    }
 
-   public function getDockRect():gm2d.geom.Rectangle
+   public function getDockRect():nme.geom.Rectangle
    {
       return mRect.clone();
    }

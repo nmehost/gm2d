@@ -2,16 +2,16 @@ import gm2d.ui.App;
 import gm2d.ui.Menubar;
 import gm2d.ui.MenuItem;
 import gm2d.ui.Pane;
-import gm2d.display.Sprite;
-import gm2d.display.Bitmap;
-import gm2d.utils.ByteArray;
+import nme.display.Sprite;
+import nme.display.Bitmap;
+import nme.utils.ByteArray;
 import gm2d.Game;
 import gm2d.svg.SvgRenderer;
 import gm2d.svg.Svg;
 import gm2d.swf.SWF;
 import gm2d.ui.FileOpen;
-import gm2d.display.Loader;
-import gm2d.events.Event;
+import nme.display.Loader;
+import nme.events.Event;
 import gm2d.ui.Dock;
 import gm2d.ui.IDockable;
 
@@ -171,6 +171,7 @@ class SampleApp extends App
    }
 
 
+/*
    static public function main()
    {
       //Game.fpsColor = 0x000000;
@@ -186,4 +187,5 @@ class SampleApp extends App
          app.openFile(args[0]);
       #end
    }
+   */
 }

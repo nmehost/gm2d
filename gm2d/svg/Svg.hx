@@ -3,12 +3,12 @@ package gm2d.svg;
 import Xml;
 import gm2d.svg.PathParser;
 import gm2d.svg.PathSegment;
-import gm2d.geom.Matrix;
-import gm2d.geom.Rectangle;
-import gm2d.display.GradientType;
-import gm2d.display.SpreadMethod;
-import gm2d.display.CapsStyle;
-import gm2d.display.JointStyle;
+import nme.geom.Matrix;
+import nme.geom.Rectangle;
+import nme.display.GradientType;
+import nme.display.SpreadMethod;
+import nme.display.CapsStyle;
+import nme.display.JointStyle;
 
 import gm2d.svg.Grad;
 import gm2d.svg.Group;
@@ -16,11 +16,7 @@ import gm2d.svg.FillType;
 
 
 
-#if haxe3
 typedef Styles = haxe.ds.StringMap<String>;
-#else
-typedef Styles = Hash<String>;
-#end
 
 
 class Svg extends Group

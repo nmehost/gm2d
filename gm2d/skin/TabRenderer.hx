@@ -1,22 +1,22 @@
 package gm2d.skin;
 
-import gm2d.text.TextField;
-import gm2d.text.TextFormat;
+import nme.text.TextField;
+import nme.text.TextFormat;
 import gm2d.ui.Layout;
 
 import gm2d.ui.HitBoxes;
 import gm2d.ui.Button;
 import gm2d.ui.IDockable;
-import gm2d.display.Sprite;
-import gm2d.display.BitmapData;
-import gm2d.display.Bitmap;
-import gm2d.display.Shape;
-import gm2d.display.Graphics;
-import gm2d.text.TextField;
-import gm2d.text.TextFieldAutoSize;
-import gm2d.geom.Point;
-import gm2d.geom.Rectangle;
-import gm2d.geom.Matrix;
+import nme.display.Sprite;
+import nme.display.BitmapData;
+import nme.display.Bitmap;
+import nme.display.Shape;
+import nme.display.Graphics;
+import nme.text.TextField;
+import nme.text.TextFieldAutoSize;
+import nme.geom.Point;
+import nme.geom.Rectangle;
+import nme.geom.Matrix;
 import gm2d.CInt;
 
 
@@ -46,14 +46,14 @@ class TabRenderer
       var tabHeight = bitmap.height;
       gfx.clear();
 
-      var mtx = new gm2d.geom.Matrix();
+      var mtx = new Matrix();
 
       mtx.createGradientBox(tabHeight,tabHeight,Math.PI * 0.5);
 
       var cols:Array<CInt> = [ skin.guiDark, skin.tabGradientColor];
       var alphas:Array<Float> = [1.0, 1.0];
       var ratio:Array<Int> = [0, 255];
-      gfx.beginGradientFill(gm2d.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
+      gfx.beginGradientFill(nme.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
       gfx.drawRect(0,0,w,tabHeight);
       bitmap.draw(shape);
    }
@@ -153,7 +153,7 @@ class TabRenderer
          }
       }
 
-      var trans = new gm2d.geom.Matrix();
+      var trans = new nme.geom.Matrix();
       var y0 = (inFlags & IS_OVERLAPPED)>0 ? 4 : 2;
       trans.tx = 1;
       trans.ty = y0;

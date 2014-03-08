@@ -1,5 +1,5 @@
 import gm2d.reso.Resources;
-import gm2d.display.Sprite;
+import nme.display.Sprite;
 import gm2d.blit.Tilesheet;
 import gm2d.blit.Tile;
 import gm2d.blit.Layer;
@@ -7,8 +7,8 @@ import gm2d.blit.Grid;
 import gm2d.Game;
 import gm2d.Screen;
 import gm2d.ui.Button;
-import gm2d.ui.Keyboard;
-import gm2d.events.MouseEvent;
+import nme.ui.Keyboard;
+import nme.events.MouseEvent;
 import gm2d.ui.BitmapFont;
 import gm2d.ui.BitmapText;
 import gm2d.ui.Slider;
@@ -45,7 +45,7 @@ class Dialog extends Screen
       var s = stage;
       s.addEventListener( MouseEvent.CLICK, function (e:MouseEvent)
       {
-         var t : gm2d.display.DisplayObject = e.target;
+         var t : nme.display.DisplayObject = e.target;
          if (t==s)
             Game.showDialog("Settings");
       } );

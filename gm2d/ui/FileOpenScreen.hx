@@ -2,31 +2,27 @@ package gm2d.ui;
 
 import gm2d.Screen;
 import gm2d.ui.Layout;
-import gm2d.text.TextField;
+import nme.text.TextField;
 import gm2d.ScreenScaleMode;
-import gm2d.display.Sprite;
+import nme.display.Sprite;
 import gm2d.skin.Skin;
 
-import gm2d.display.Graphics;
-import gm2d.display.Bitmap;
-import gm2d.geom.Matrix;
+import nme.display.Graphics;
+import nme.display.Bitmap;
+import nme.geom.Matrix;
 
-import gm2d.display.BitmapData;
-import gm2d.display.Bitmap;
+import nme.display.BitmapData;
+import nme.display.Bitmap;
 
 import haxe.io.Path;
 
 #if flash
 // Nothing
-#elseif haxe3
+#else
 import sys.FileSystem;
-#elseif cpp
-import cpp.FileSystem;
-#elseif neko
-import neko.FileSystem;
+import nme.filesystem.File;
 #end
 
-import nme.filesystem.File;
 import nme.utils.ByteArray;
 import nme.net.SharedObject;
 
@@ -235,6 +231,7 @@ class FileOpenScreen extends Screen
 
    public function onSave( )
    {
+      #if !flash
       var def = SharedObject.getLocal("fileOpen");
       if (def!=null)
       {
@@ -277,6 +274,7 @@ class FileOpenScreen extends Screen
          }
          onSaveResult(name);
       }
+      #end
    }
 
    function onCancel()

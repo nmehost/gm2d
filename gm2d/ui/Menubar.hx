@@ -1,15 +1,15 @@
 package gm2d.ui;
 
-import gm2d.display.DisplayObjectContainer;
+import nme.display.DisplayObjectContainer;
 
 import gm2d.Screen;
 import gm2d.Game;
-import gm2d.display.BitmapData;
-import gm2d.display.Graphics;
-import gm2d.display.Sprite;
-import gm2d.text.TextField;
-import gm2d.events.MouseEvent;
-import gm2d.text.TextFieldAutoSize;
+import nme.display.BitmapData;
+import nme.display.Graphics;
+import nme.display.Sprite;
+import nme.text.TextField;
+import nme.events.MouseEvent;
+import nme.text.TextFieldAutoSize;
 import gm2d.skin.Skin;
 import gm2d.ui.IDock;
 import gm2d.ui.DockPosition;

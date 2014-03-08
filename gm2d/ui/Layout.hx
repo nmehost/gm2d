@@ -1,9 +1,9 @@
 package gm2d.ui;
 
-import gm2d.display.DisplayObject;
-import gm2d.display.Graphics;
-import gm2d.text.TextField;
-import gm2d.geom.Point;
+import nme.display.DisplayObject;
+import nme.display.Graphics;
+import nme.text.TextField;
+import nme.geom.Point;
 
 // --- Layout -------------------------------------------
 
@@ -42,8 +42,8 @@ class Layout
    public var onLayout:Float->Float->Float->Float->Void;
    public var includeBorderOnLayout = false;
 
-   static var mDebug:gm2d.display.Graphics;
-   static var mDebugObject:gm2d.display.Shape;
+   static var mDebug:nme.display.Graphics;
+   static var mDebugObject:nme.display.Shape;
 
 
    public function new()
@@ -80,7 +80,7 @@ class Layout
       { throw "setRect - not implemented"; }
    public function setSpacing(inX:Float,inY:Float) : Layout { return this; }
 
-   static public function setDebug(inObj:gm2d.display.Shape)
+   static public function setDebug(inObj:nme.display.Shape)
    {
       mDebugObject = inObj;
       mDebug = mDebugObject==null ? null : mDebugObject.graphics;

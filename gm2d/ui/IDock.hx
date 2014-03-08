@@ -2,7 +2,7 @@ package gm2d.ui;
 
 import gm2d.ui.IDockable;
 import gm2d.ui.Pane;
-import gm2d.display.DisplayObjectContainer;
+import nme.display.DisplayObjectContainer;
 
 
 interface IDock

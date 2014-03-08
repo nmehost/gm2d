@@ -1,6 +1,6 @@
 package gm2d.ui;
-import gm2d.geom.Rectangle;
-import gm2d.display.Sprite;
+import nme.geom.Rectangle;
+import nme.display.Sprite;
 
 class DockZone
 {

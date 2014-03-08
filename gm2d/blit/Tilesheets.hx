@@ -1,6 +1,6 @@
 package gm2d.blit;
 
-import gm2d.display.BitmapData;
+import nme.display.BitmapData;
 import gm2d.blit.Tile;
 import gm2d.blit.Tilesheet;
 

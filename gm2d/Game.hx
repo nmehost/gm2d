@@ -1,23 +1,21 @@
 package gm2d;
 
-import gm2d.display.Sprite;
+import nme.display.Sprite;
 import gm2d.Screen;
-import gm2d.display.StageScaleMode;
-import gm2d.display.StageDisplayState;
-import gm2d.events.Event;
-import gm2d.events.KeyboardEvent;
-import gm2d.events.MouseEvent;
-import gm2d.text.TextField;
+import nme.display.StageScaleMode;
+import nme.display.StageDisplayState;
+import nme.events.Event;
+import nme.events.KeyboardEvent;
+import nme.events.MouseEvent;
+import nme.text.TextField;
 import gm2d.ui.Dialog;
-import gm2d.geom.Point;
+import nme.geom.Point;
 import gm2d.ui.Window;
-import gm2d.filters.BitmapFilter;
-import gm2d.filters.DropShadowFilter;
-import gm2d.display.DisplayObject;
+import nme.filters.BitmapFilter;
+import nme.filters.DropShadowFilter;
+import nme.display.DisplayObject;
 
-#if haxe3
 typedef Hash<T> = haxe.ds.StringMap<T>;
-#end
 
 
 class Game
@@ -89,14 +87,14 @@ class Game
       mFPSControl.visible = mShowFPS;
       mFPSControl.textColor = mFPSColor;
 
-      var parent = gm2d.Lib.current;
+      var parent = nme.Lib.current;
       parent.addChildAt(mScreenParent,0);
       parent.addChildAt(mDialogParent,1);
       parent.addChildAt(mPopupParent,2);
       parent.addChildAt(mFPSControl,3);
 
       //if (pixelAccurate)
-      parent.stage.scaleMode = gm2d.display.StageScaleMode.NO_SCALE;
+      parent.stage.scaleMode = nme.display.StageScaleMode.NO_SCALE;
 
       parent.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown );
       parent.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp );
@@ -115,7 +113,7 @@ class Game
 
    static function setStageTransform()
    {
-      var parent = gm2d.Lib.current;
+      var parent = nme.Lib.current;
       var sw = parent.stage.stageWidth;
       var sh = parent.stage.stageHeight;
 
@@ -273,9 +271,9 @@ class Game
          if (mCurrentDialog==null)
          {
             if (mCurrentScreen.wantsCursor())
-               gm2d.ui.Mouse.show();
+               nme.ui.Mouse.show();
             else
-               gm2d.ui.Mouse.hide();
+               nme.ui.Mouse.hide();
          }
 
          mCurrentScreen.setRunning(mCurrentDialog==null);
@@ -612,7 +610,7 @@ class Game
 
    public static function isDown(inCode:Int) : Bool { return mKeyDown[inCode]; }
 
-   static function onUpdate(e:gm2d.events.Event)
+   static function onUpdate(e:nme.events.Event)
    {
       var now = haxe.Timer.stamp();
       if (mCurrentScreen!=null)

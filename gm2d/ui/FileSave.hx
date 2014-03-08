@@ -1,5 +1,5 @@
 package gm2d.ui;
-import gm2d.utils.ByteArray;
+import nme.utils.ByteArray;
 import gm2d.ui.ProgressDialog;
 
 #if flash

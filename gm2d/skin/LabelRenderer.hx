@@ -1,7 +1,7 @@
 package gm2d.skin;
 
-import gm2d.text.TextField;
-import gm2d.text.TextFormat;
+import nme.text.TextField;
+import nme.text.TextFormat;
 import gm2d.svg.Svg;
 import gm2d.svg.SvgRenderer;
 import gm2d.ui.Layout;
