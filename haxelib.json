@@ -4,9 +4,9 @@
   "tags": ["cross","flash","nme","game","svg"],
   "description": "GM2D helper classes for rapid game making in 2D.",
   "contributors": ["gamehaxe"],
-  "releasenote": "Haxelib fixes for haxe3.",
-  "version": "3.0",
-  "url": "http://code.google.com/p/gm2d/",
+  "releasenote": "See Changes.md",
+  "version": "3.1.0",
+  "url": "https://github.com/nmehost/gm2d",
   "dependencies": {
 
   }
