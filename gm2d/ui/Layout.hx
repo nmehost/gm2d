@@ -74,6 +74,19 @@ class Layout
       return this;
    }
 
+   public function setMinWidth(inWidth:Float) : Layout
+   {
+      minWidth = inWidth;
+      return this;
+   }
+
+   public function setMinHeight(inHeight:Float) : Layout
+   {
+      minHeight = inHeight;
+      return this;
+   }
+
+
    public function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void
       { throw "calcSize - not implemented"; }
    public function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
@@ -367,11 +380,17 @@ class TextLayout extends DisplayLayout
 
 class StackLayout extends Layout
 {
+   var offsetLeft:Float;
+   var offsetRight:Float;
+   var offsetTop:Float;
+   var offsetBottom:Float;
+
    var mChildren:LayoutList;
 
    public function new()
    {
       mChildren = [];
+      offsetLeft = offsetRight = offsetTop = offsetBottom = 0;
       super();
    }
 
@@ -413,10 +432,15 @@ class StackLayout extends Layout
    {
       var h:Null<Float> = inHeight==null ? null  : inHeight - mBTop - mBBottom;
       width = 0;
+      var idx = 0;
       for(child in mChildren)
       {
          var w = child.getBestWidth(h);
-         if (w>width) width=w;
+         if (idx>0)
+            w+=offsetLeft+offsetRight;
+         if (w>width)
+            width=w;
+         idx++;
       }
       width += mBLeft + mBRight;
       if (minWidth>width) width = minWidth;
@@ -427,10 +451,15 @@ class StackLayout extends Layout
    {
       var w:Null<Float> = inWidth==null ? null  : inWidth - mBLeft - mBRight;
       height = 0;
+      var idx = 0;
       for(child in mChildren)
       {
          var h = child.getBestHeight(w);
-         if (h>height) height=h;
+         if (idx>0)
+            h+=offsetTop+offsetBottom;
+         if (h>height)
+            height=h;
+         idx++;
       }
       height += mBTop + mBBottom;
       if (minHeight>height) height = minHeight;
@@ -446,10 +475,12 @@ class StackLayout extends Layout
 //  children
 class ChildStackLayout extends StackLayout
 {
+
    public function new()
    {
       super();
    }
+
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
       var new_w = inW-mBLeft-mBRight;
@@ -460,10 +491,12 @@ class ChildStackLayout extends StackLayout
          if (i==0)
          {
             alignChild(child, inX+mBLeft, inY+mBTop, new_w, new_h );
+            new_w -= offsetLeft + offsetRight;
+            new_h -= offsetTop + offsetBottom;
          }
          else
          {
-            alignChild(child,0,0,new_w,new_h);
+            alignChild(child,offsetLeft,offsetRight,new_w,new_h);
          }
 
      }
@@ -475,6 +508,14 @@ class ChildStackLayout extends StackLayout
       }
 
       fireLayout(inX,inY,inW,inH);
+   }
+
+   public function setChildPadding(left:Float, top:Float, right:Float, bottom:Float)
+   {
+      offsetLeft = left;
+      offsetRight = right;
+      offsetTop = top;
+      offsetBottom = bottom;
    }
 }
 
