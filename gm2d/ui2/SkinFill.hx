@@ -1,4 +1,4 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import gm2d.Gradient;
 import nme.display.BitmapData;

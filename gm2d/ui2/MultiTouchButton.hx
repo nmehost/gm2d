@@ -1,4 +1,4 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import gm2d.svg.BitmapDataManager;
 import gm2d.reso.Resources;

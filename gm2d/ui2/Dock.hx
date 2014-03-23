@@ -1,6 +1,6 @@
-package gm2d.ui;
+package gm2d.ui2;
 
-import gm2d.ui.DockPosition;
+import gm2d.ui2.DockPosition;
 
 class Dock
 {

@@ -1,16 +1,16 @@
-package gm2d;
+package gm2d.app;
 
 import nme.display.Sprite;
-import gm2d.Screen;
+import gm2d.app.Screen;
 import nme.display.StageScaleMode;
 import nme.display.StageDisplayState;
 import nme.events.Event;
 import nme.events.KeyboardEvent;
 import nme.events.MouseEvent;
 import nme.text.TextField;
-import gm2d.ui.Dialog;
+import gm2d.ui2.Dialog;
 import nme.geom.Point;
-import gm2d.ui.Window;
+import gm2d.ui2.Window;
 import nme.filters.BitmapFilter;
 import nme.filters.DropShadowFilter;
 import nme.display.DisplayObject;

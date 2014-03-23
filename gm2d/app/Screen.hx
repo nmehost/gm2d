@@ -1,13 +1,13 @@
-package gm2d;
+package gm2d.app;
 
-import gm2d.Game;
-import gm2d.ui.Dialog;
+import gm2d.app.Game;
+import gm2d.ui2.Dialog;
 import nme.events.MouseEvent;
 import nme.events.KeyboardEvent;
 import nme.ui.Keyboard;
 import gm2d.tween.Timeline;
 
-class Screen extends gm2d.ui.Window
+class Screen extends gm2d.ui2.Window
 {
    var mPaused:Bool;
    public var timeline(default,null):Timeline;

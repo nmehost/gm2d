@@ -1,4 +1,4 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.display.Sprite;
 import nme.display.DisplayObject;
@@ -10,8 +10,8 @@ import nme.text.TextFieldAutoSize;
 import nme.display.Sprite;
 import nme.display.DisplayObjectContainer;
 import nme.geom.Point;
-import gm2d.ui.Layout;
-import gm2d.ui.SkinTitle;
+import gm2d.ui2.Layout;
+import gm2d.ui2.SkinTitle;
 
 class TitleBar extends Sprite
 {

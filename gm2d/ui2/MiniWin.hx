@@ -1,10 +1,10 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import gm2d.Screen;
 import gm2d.ScreenScaleMode;
 import gm2d.skin.Skin;
-import gm2d.ui.Layout;
-import gm2d.ui.HitBoxes;
+import gm2d.ui2.Layout;
+import gm2d.ui2.HitBoxes;
 import nme.display.Sprite;
 import nme.geom.Point;
 import nme.geom.Rectangle;

@@ -1,4 +1,4 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.display.BitmapData;
 import nme.display.Bitmap;
@@ -8,8 +8,8 @@ import nme.display.Sprite;
 import nme.events.MouseEvent;
 import nme.text.TextField;
 import nme.geom.Rectangle;
-import gm2d.ui.Layout;
-import gm2d.ui.SkinItem;
+import gm2d.ui2.Layout;
+import gm2d.ui2.SkinItem;
 
 
 

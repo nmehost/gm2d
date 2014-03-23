@@ -1,4 +1,4 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.display.DisplayObject;
 import nme.display.DisplayObjectContainer;
@@ -6,7 +6,7 @@ import nme.geom.Rectangle;
 import nme.geom.Point;
 import nme.display.Sprite;
 import nme.display.BitmapData;
-import gm2d.ui.IDockable;
+import gm2d.ui2.IDockable;
 
 class Pane implements IDockable
 {

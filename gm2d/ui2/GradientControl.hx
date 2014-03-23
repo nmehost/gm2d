@@ -1,4 +1,4 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.display.DisplayObject;
 import nme.display.BitmapData;
@@ -9,9 +9,9 @@ import nme.display.SpreadMethod;
 import nme.geom.Rectangle;
 import gm2d.Gradient;
 import nme.text.TextField;
-import gm2d.ui.MouseWatcher;
-import gm2d.ui.Layout;
-import gm2d.ui.HitBoxes;
+import gm2d.ui2.MouseWatcher;
+import gm2d.ui2.Layout;
+import gm2d.ui2.HitBoxes;
 import nme.display.GradientType;
 import gm2d.InterpolationMethod;
 import nme.geom.Matrix;

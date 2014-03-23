@@ -1,15 +1,15 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.text.TextField;
 import nme.text.TextFieldType;
 import nme.display.BitmapData;
 import nme.display.Shape;
 import nme.events.MouseEvent;
-import gm2d.ui.Button;
+import gm2d.ui2.Button;
 import gm2d.blit.Viewport;
 import gm2d.blit.Layer;
 import gm2d.blit.Tile;
-import gm2d.ui.SkinItem;
+import gm2d.ui2.SkinItem;
 import nme.ui.Keyboard;
 import haxe.Timer;
 

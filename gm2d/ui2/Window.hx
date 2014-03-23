@@ -1,4 +1,4 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.events.MouseEvent;
 import nme.display.Sprite;
@@ -64,7 +64,7 @@ class Window extends Sprite
    }
 
 
-   public function setCurrentItem(inItem:gm2d.ui.IWidget)
+   public function setCurrentItem(inItem:gm2d.ui2.IWidget)
    {
       if (inItem!=mCurrent)
       {

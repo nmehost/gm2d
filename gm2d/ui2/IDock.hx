@@ -1,7 +1,7 @@
-package gm2d.ui;
+package gm2d.ui2;
 
-import gm2d.ui.IDockable;
-import gm2d.ui.Pane;
+import gm2d.ui2.IDockable;
+import gm2d.ui2.Pane;
 import nme.display.DisplayObjectContainer;
 
 

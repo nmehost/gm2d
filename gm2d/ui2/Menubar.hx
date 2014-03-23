@@ -1,19 +1,19 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.display.DisplayObjectContainer;
 
-import gm2d.Screen;
-import gm2d.Game;
+import gm2d.app.Screen;
+import gm2d.app.Game;
 import nme.display.BitmapData;
 import nme.display.Graphics;
 import nme.display.Sprite;
 import nme.text.TextField;
 import nme.events.MouseEvent;
 import nme.text.TextFieldAutoSize;
-import gm2d.ui.IDock;
-import gm2d.ui.DockPosition;
-import gm2d.ui.Layout;
-import gm2d.ui.SkinItem;
+import gm2d.ui2.IDock;
+import gm2d.ui2.DockPosition;
+import gm2d.ui2.Layout;
+import gm2d.ui2.SkinItem;
 
 #if (waxe && !nme_menu)
 import wx.Menu;

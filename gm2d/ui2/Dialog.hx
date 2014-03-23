@@ -1,16 +1,16 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.events.MouseEvent;
 import nme.display.DisplayObject;
 import nme.display.Sprite;
 import nme.text.TextField;
 import nme.text.TextFormat;
-import gm2d.ui.Layout;
+import gm2d.ui2.Layout;
 import nme.filters.BitmapFilter;
 import nme.filters.DropShadowFilter;
-import gm2d.ui.HitBoxes;
+import gm2d.ui2.HitBoxes;
 import nme.geom.Rectangle;
-import gm2d.ui.SkinItem;
+import gm2d.ui2.SkinItem;
 
 
 class Dialog extends Window

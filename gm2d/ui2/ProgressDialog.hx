@@ -1,6 +1,6 @@
-package gm2d.ui;
+package gm2d.ui2;
 
-import gm2d.ui.Button;
+import gm2d.ui2.Button;
 
 class ProgressDialog extends Dialog
 {

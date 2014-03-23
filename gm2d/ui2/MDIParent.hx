@@ -1,4 +1,4 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.geom.Rectangle;
 import nme.display.Sprite;
@@ -7,14 +7,14 @@ import nme.display.Bitmap;
 import nme.display.BitmapData;
 import nme.display.DisplayObjectContainer;
 import nme.text.TextField;
-//import gm2d.ui.HitBoxes;
+//import gm2d.ui2.HitBoxes;
 import nme.geom.Point;
 import nme.events.MouseEvent;
-import gm2d.ui.HitBoxes;
-import gm2d.ui.Dock;
-import gm2d.ui.DockPosition;
-import gm2d.ui.SkinItem;
-import gm2d.ui.Layout;
+import gm2d.ui2.HitBoxes;
+import gm2d.ui2.Dock;
+import gm2d.ui2.DockPosition;
+import gm2d.ui2.SkinItem;
+import gm2d.ui2.Layout;
 import gm2d.Game;
 
 
@@ -413,7 +413,7 @@ class MDIParent extends Widget implements IDock implements IDockable
 		   menu.add( new MenuItem(pane.getShortTitle(), function(_)  Dock.raise(pane) ) );
 
       var pos = localToGlobal( new Point(inX,inY) );
-		gm2d.Game.popup( new PopupMenu(menu),pos.x,pos.y);
+		gm2d.app.Game.popup( new PopupMenu(menu),pos.x,pos.y);
 	}
 
    function onHitBox(inAction:HitAction,inEvent:MouseEvent)

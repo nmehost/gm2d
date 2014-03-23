@@ -1,11 +1,15 @@
-package gm2d.ui;
+package gm2d.app;
 
-import gm2d.Screen;
-import gm2d.ScreenScaleMode;
-import gm2d.ui.Layout;
-import gm2d.ui.Dock;
-import gm2d.ui.IDockable;
-import gm2d.ui.Menubar;
+import gm2d.app.Screen;
+import gm2d.app.ScreenScaleMode;
+import gm2d.ui2.Layout;
+import gm2d.ui2.Dock;
+import gm2d.ui2.IDockable;
+import gm2d.ui2.Menubar;
+import gm2d.ui2.SlideBar;
+import gm2d.ui2.TopLevelDock;
+import gm2d.ui2.DockPosition;
+import gm2d.ui2.MDIParent;
 
 import nme.net.SharedObject;
 
@@ -13,7 +17,7 @@ import nme.net.SharedObject;
 class App extends Screen
 {
    var _menubar:Menubar;
-   public var menubar(get_menubar,null):Menubar;
+   public var menubar(get,null):Menubar;
    var topMenuBar:SpriteMenubar;
    var leftSlider:SlideBar;
    var rightSlider:SlideBar;

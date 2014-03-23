@@ -1,6 +1,6 @@
-package gm2d.ui;
+package gm2d.ui2;
 
-import gm2d.ui.Layout;
+import gm2d.ui2.Layout;
 import nme.text.TextField;
 import nme.display.DisplayObjectContainer;
 import gm2d.skin.Skin;

@@ -1,10 +1,10 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.text.TextField;
 import nme.display.BitmapData;
 import nme.events.MouseEvent;
 import nme.geom.Point;
-import gm2d.ui.Button;
+import gm2d.ui2.Button;
 import gm2d.skin.Skin;
 
 class ComboList extends Window

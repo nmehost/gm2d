@@ -1,11 +1,11 @@
-package gm2d.ui;
+package gm2d.ui2;
 import nme.display.Sprite;
 import nme.display.BitmapData;
 import nme.display.DisplayObject;
-import gm2d.ui.DockPosition;
+import gm2d.ui2.DockPosition;
 import nme.geom.Rectangle;
 
-import gm2d.ui.Pane;
+import gm2d.ui2.Pane;
 
 class ToolbarItem
 {

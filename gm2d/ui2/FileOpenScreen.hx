@@ -1,7 +1,7 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import gm2d.Screen;
-import gm2d.ui.Layout;
+import gm2d.ui2.Layout;
 import nme.text.TextField;
 import gm2d.ScreenScaleMode;
 import nme.display.Sprite;

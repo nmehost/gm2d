@@ -1,8 +1,8 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.text.TextField;
 import nme.events.MouseEvent;
-import gm2d.ui.Layout;
+import gm2d.ui2.Layout;
 import gm2d.RGBHSV;
 import nme.text.TextFieldAutoSize;
 

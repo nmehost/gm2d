@@ -1,6 +1,6 @@
-package gm2d.ui;
+package gm2d.ui2;
 import nme.utils.ByteArray;
-import gm2d.ui.ProgressDialog;
+import gm2d.ui2.ProgressDialog;
 
 #if flash
 
@@ -33,7 +33,7 @@ class FileSave
       #elseif flash
       #else
 
-      var openScreen = new gm2d.ui.FileOpenScreen(inMessage, inDefaultPath==null?"":inDefaultPath,
+      var openScreen = new gm2d.ui2.FileOpenScreen(inMessage, inDefaultPath==null?"":inDefaultPath,
          null, inExtension, inFlags | FileOpen.SAVE, saveName );
       openScreen.onSaveResult = onResult;
       openScreen.onError = onError;

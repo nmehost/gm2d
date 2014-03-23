@@ -1,6 +1,6 @@
-package gm2d.ui;
+package gm2d.ui2;
 
-import gm2d.ui.Pane;
+import gm2d.ui2.Pane;
 import nme.display.DisplayObjectContainer;
 import nme.display.BitmapData;
 import nme.display.Sprite;

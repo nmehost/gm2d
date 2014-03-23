@@ -1,4 +1,4 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.display.Sprite;
 import nme.display.DisplayObject;
@@ -12,14 +12,14 @@ import nme.text.TextFormat;
 import nme.text.TextFieldAutoSize;
 
 import gm2d.Gradient;
-import gm2d.ui.SkinFill;
-import gm2d.ui.SkinLine;
-import gm2d.ui.SkinShape;
-import gm2d.ui.SkinItem;
-import gm2d.ui.SkinFont;
-import gm2d.ui.SkinStyle;
-import gm2d.ui.SkinTitle;
-import gm2d.ui.Layout;
+import gm2d.ui2.SkinFill;
+import gm2d.ui2.SkinLine;
+import gm2d.ui2.SkinShape;
+import gm2d.ui2.SkinItem;
+import gm2d.ui2.SkinFont;
+import gm2d.ui2.SkinStyle;
+import gm2d.ui2.SkinTitle;
+import gm2d.ui2.Layout;
 
 
 

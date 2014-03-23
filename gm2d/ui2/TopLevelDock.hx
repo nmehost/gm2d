@@ -1,14 +1,14 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.display.DisplayObjectContainer;
 import nme.display.Sprite;
 import nme.display.Stage;
-import gm2d.ui.DockPosition;
-import gm2d.ui.HitBoxes;
-import gm2d.ui.MouseWatcher;
+import gm2d.ui2.DockPosition;
+import gm2d.ui2.HitBoxes;
+import gm2d.ui2.MouseWatcher;
 import nme.events.MouseEvent;
 import nme.geom.Rectangle;
-import gm2d.ui.DockZones;
+import gm2d.ui2.DockZones;
 
 class TopLevelDock implements IDock
 {

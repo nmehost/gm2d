@@ -1,12 +1,12 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.display.DisplayObject;
 import nme.display.Shape;
 import nme.display.Sprite;
 import nme.text.TextField;
 import nme.text.TextFormat;
-import gm2d.ui.Layout;
-import gm2d.ui.SkinItem;
+import gm2d.ui2.Layout;
+import gm2d.ui2.SkinItem;
 
 class Panel extends Widget
 {
@@ -105,13 +105,13 @@ class Panel extends Widget
       mGridLayout.setBorders(inL,inT,inR,inB);
    }
 
-   public function addUI(inItem:gm2d.ui.Widget)
+   public function addUI(inItem:gm2d.ui2.Widget)
    {
       mLayoutDirty = true;
       addChild(inItem);
       mItemLayout.add( inItem.widgetLayout );
    }
-   public function addButton(inButton:gm2d.ui.Button)
+   public function addButton(inButton:gm2d.ui2.Button)
    {
       if (mButtons.length==0)
          mGridLayout.add(mButtonLayout);

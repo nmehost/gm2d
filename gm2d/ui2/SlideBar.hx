@@ -1,11 +1,11 @@
-package gm2d.ui;
+package gm2d.ui2;
 
-import gm2d.ui.Menubar;
+import gm2d.ui2.Menubar;
 import nme.display.DisplayObjectContainer;
-import gm2d.ui.DockPosition;
-import gm2d.ui.MouseWatcher;
+import gm2d.ui2.DockPosition;
+import gm2d.ui2.MouseWatcher;
 import nme.display.Sprite;
-import gm2d.ui.HitBoxes;
+import gm2d.ui2.HitBoxes;
 import nme.events.MouseEvent;
 import nme.geom.Rectangle;
 

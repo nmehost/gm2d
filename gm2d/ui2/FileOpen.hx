@@ -1,6 +1,6 @@
-package gm2d.ui;
+package gm2d.ui2;
 import nme.utils.ByteArray;
-import gm2d.ui.ProgressDialog;
+import gm2d.ui2.ProgressDialog;
 
 #if flash
 
@@ -157,7 +157,7 @@ class FileOpen
 
       #else
 
-      new gm2d.ui.FileOpenScreen(inMessage, inDefaultPath==null?"":inDefaultPath, onResult, inFilter, inFlags);
+      new gm2d.ui2.FileOpenScreen(inMessage, inDefaultPath==null?"":inDefaultPath, onResult, inFilter, inFlags);
 
       #end
    }

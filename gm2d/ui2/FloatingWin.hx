@@ -1,12 +1,12 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import gm2d.Screen;
 import gm2d.ScreenScaleMode;
-import gm2d.ui.Layout;
+import gm2d.ui2.Layout;
 import nme.display.Sprite;
 import nme.geom.Point;
 import nme.geom.Rectangle;
-import gm2d.ui.SkinItem;
+import gm2d.ui2.SkinItem;
 import nme.events.MouseEvent;
 
 class FloatingWin extends Widget implements IDock

@@ -1,4 +1,4 @@
-package gm2d;
+package gm2d.app;
 
 enum ScreenScaleMode
 {

@@ -1,8 +1,8 @@
-package gm2d.ui;
+package gm2d.ui2;
 
 import nme.display.DisplayObjectContainer;
 import nme.display.Sprite;
-import gm2d.ui.DockPosition;
+import gm2d.ui2.DockPosition;
 import nme.geom.Rectangle;
 
 class MultiDock extends Widget implements IDock implements IDockable
