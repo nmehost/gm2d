@@ -25,12 +25,12 @@ class ChoiceButtons extends Control
       var keys:Array<String> = inKeys.map( function(x) return Std.string(x) );
 
       var result = new ChoiceButtons( function(x) inOnIndex(Lambda.indexOf(keys,x)), inItemsPerRow );
-      var renderer = gm2d.skin.ButtonRenderer.simple();
+
       for(key in keys)
       {
          if (!inBitmaps.exists(key))
             throw "Missing bitmap " + key;
-         var button = Button.BitmapButton(inBitmaps.get(key),null, renderer);
+         var button = Button.BitmapButton(inBitmaps.get(key),null,{ className:"ChoiceButton"});
          result.add( button, key );
       }
       return result;

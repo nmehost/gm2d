@@ -20,6 +20,7 @@ class CheckButtons extends ChoiceButtons
 
       var renderer = new ButtonRenderer();
       renderer.downOffset = new nme.geom.Point(0,0);
+      /*
       renderer.render = function renderButton(outChrome:Sprite,
          inRect:nme.geom.Rectangle, inState:ButtonState) {
             if (inState==BUTTON_DOWN)
@@ -29,6 +30,7 @@ class CheckButtons extends ChoiceButtons
                gfx.drawRect(inRect.x, inRect.y, inRect.width, inRect.height);
             }
       };
+      */
 
 
       var shape = new Shape();
@@ -39,7 +41,7 @@ class CheckButtons extends ChoiceButtons
       gfx.lineTo(20,8);
       var bmp = new BitmapData(24,24,true,gm2d.RGB.CLEAR );
       bmp.draw(shape);
-      add(new Button(new Bitmap(bmp),null,renderer),"on");
+      add(new Button(new Bitmap(bmp),null),"on");
 
       gfx.clear();
       gfx.lineStyle(4,0xff0000);
@@ -49,7 +51,7 @@ class CheckButtons extends ChoiceButtons
       gfx.lineTo(16,8);
       var bmp = new BitmapData(24,24,true,gm2d.RGB.CLEAR );
       bmp.draw(shape);
-      add(new Button(new Bitmap(bmp),null,renderer),"off");
+      add(new Button(new Bitmap(bmp),null),"off");
 
       setChecked(inValue);
    }

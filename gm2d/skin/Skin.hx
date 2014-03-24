@@ -30,6 +30,7 @@ import nme.geom.Rectangle;
 import nme.geom.Matrix;
 import gm2d.ui.Layout;
 import gm2d.ui.Slider;
+import gm2d.ui.Widget;
 
 import nme.display.SimpleButton;
 import gm2d.svg.Svg;
@@ -121,6 +122,14 @@ class Skin
       createRenderers();
    }
 
+   public static function renderer(inClassName:String, ?inAttribs:Dynamic)
+   {
+       if (inAttribs!=null && (inAttribs.className=="ChoiceButton") )
+          return ButtonRenderer.simple();
+       return current.buttonRenderer;
+   }
+
+
    public function createRenderers()
    {
       dialogRenderer = createDialogRenderer();
@@ -142,9 +151,9 @@ class Skin
    {
       var result = new ButtonRenderer();
       result.render = renderButton;
-      result.updateLayout = function(ioButton:Button)
+      result.updateLayout = function(ioButton:Widget)
       {
-         ioButton.getItemLayout().setBorders(buttonBorderX,buttonBorderY,buttonBorderX,buttonBorderY);
+         ioButton.getInnerLayout().setBorders(buttonBorderX,buttonBorderY,buttonBorderX,buttonBorderY);
       };
       result.styleLabel = styleLabel;
       return result;

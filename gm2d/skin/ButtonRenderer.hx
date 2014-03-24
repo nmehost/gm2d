@@ -15,22 +15,21 @@ import gm2d.svg.Svg;
 import gm2d.svg.SvgRenderer;
 import gm2d.ui.Layout;
 import gm2d.ui.Button;
+import gm2d.ui.Widget;
 
 
-class ButtonRenderer
+class ButtonRenderer extends Renderer
 {
-   public function new() { downOffset=new Point(1,1); }
+   public function new() { super(); downOffset = new Point(1,1);  }
 
    public var downOffset:Point;
 
-   public dynamic function render(outChrome:Sprite, inRect:Rectangle, inState:ButtonState):Void { }
-   public dynamic function updateLayout(ioButton:Button):Void { }
-   public dynamic function styleLabel(ioLabel:TextField):Void { Skin.current.styleLabel(ioLabel); }
+   public override function styleLabel(ioLabel:TextField):Void { Skin.current.styleLabel(ioLabel); }
 
    public static function simple( )
    {
       var renderer = new ButtonRenderer();
-      renderer.updateLayout=function(ioButton) ioButton.getItemLayout().setBorders(2,2,2,2);
+      renderer.updateLayout=function(ioButton) ioButton.getInnerLayout().setBorders(2,2,2,2);
       renderer.downOffset = new Point(0,0);
       renderer.render = function(outChrome:Sprite, inRect:Rectangle, inState:ButtonState)
       {
@@ -65,11 +64,11 @@ class ButtonRenderer
          outChrome.graphics.clear();
          renderer.renderRect0(outChrome.graphics,null,scaleRect,bounds,inRect);
       };
-      result.updateLayout = function(ioButton:Button)
+      result.updateLayout = function(ioButton:Widget)
       {
          //trace("Min Size:" + bounds.width + "x" + bounds.height);
          ioButton.getLayout().setMinSize(bounds.width, bounds.height);
-         ioButton.getItemLayout().setBorders(interior.x-bounds.x, interior.y-bounds.y,
+         ioButton.getInnerLayout().setBorders(interior.x-bounds.x, interior.y-bounds.y,
                              bounds.right-interior.right, bounds.bottom-interior.bottom);
       };
       result.styleLabel = LabelRenderer.fromSvg(inSvg, [inLayer, "dialog", null] ).styleLabel;

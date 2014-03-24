@@ -36,7 +36,7 @@ class Button extends Control
 
    static public var BMPButtonFont = "Arial";
 
-   public function new(inObject:DisplayObject,?inOnClick:Void->Void,?inRenderer:ButtonRenderer)
+   public function new(inObject:DisplayObject,?inOnClick:Void->Void, ?inAttribs:Dynamic)
    {
       super();
       name = "button";
@@ -50,7 +50,8 @@ class Button extends Control
       noFocus = false;
       mouseChildren = false;
       isToggle = false;
-      mRenderer = inRenderer==null ? Skin.current.buttonRenderer : inRenderer;
+      //mRenderer = inRenderer==null ? Skin.current.buttonRenderer : inRenderer;
+      mRenderer = Skin.renderer("Button", inAttribs);
       addEventListener(MouseEvent.CLICK, onClick );
       addEventListener(MouseEvent.MOUSE_DOWN, onDown );
       addEventListener(MouseEvent.MOUSE_UP, onUp );
@@ -60,6 +61,9 @@ class Button extends Control
       mDownDY = offset.y;
       getLayout();
    }
+
+   override public function getInnerLayout() : Layout { return mItemLayout; }
+
 
    function onClick(e:MouseEvent)
    {
@@ -188,40 +192,38 @@ class Button extends Control
       return result;
    }
 
-   public static function BitmapButton(inBitmapData:BitmapData,?inOnClick:Void->Void,?inRenderer:ButtonRenderer)
+   public static function BitmapButton(inBitmapData:BitmapData,?inOnClick:Void->Void,?inAttribs:Dynamic)
    {
-      var renderer = inRenderer==null ? Skin.current.buttonRenderer : inRenderer;
       var bmp = new Bitmap(inBitmapData);
-      var result = new Button(bmp,inOnClick,renderer);
+      var result = new Button(bmp,inOnClick, inAttribs);
       return result;
    }
 
 
-   public static function TextButton(inText:String,inOnClick:Void->Void,?inRenderer:ButtonRenderer)
+   public static function TextButton(inText:String,inOnClick:Void->Void)
    {
-      var renderer = inRenderer==null ? Skin.current.buttonRenderer : inRenderer;
+      var renderer = Skin.current.buttonRenderer;
       var label = new TextField();
       renderer.styleLabel(label);
       label.text = inText;
       label.selectable = false;
-      var result =  new Button(label,inOnClick,renderer);
+      var result =  new Button(label,inOnClick);
       return result;
    }
 
-   public static function BMPTextButton(inBitmapData:BitmapData,inText:String,
-       ?inOnClick:Void->Void, ?inRenderer:ButtonRenderer)
+   public static function BMPTextButton(inBitmapData:BitmapData,inText:String, ?inOnClick:Void->Void)
    {
       var sprite = new Sprite();
       var bmp = new Bitmap(inBitmapData);
       sprite.addChild(bmp);
       var label = new TextField();
-      var renderer = inRenderer==null ? Skin.current.buttonRenderer : inRenderer;
+      var renderer = Skin.current.buttonRenderer;
       renderer.styleLabel(label);
       label.text = inText;
       sprite.addChild(label);
       label.x = bmp.width;
       label.y = (bmp.height - label.height)/2;
-      var result = new Button(sprite,inOnClick,inRenderer);
+      var result = new Button(sprite,inOnClick);
       var layout = result.getItemLayout();
       layout.setBestSize(label.x + label.width, bmp.height);
       return result;

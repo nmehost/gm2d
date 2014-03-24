@@ -10,11 +10,7 @@ import nme.geom.Rectangle;
 import gm2d.ui.HitBoxes;
 import nme.events.MouseEvent;
 
-#if haxe3
 class FloatingWin extends Sprite implements IDock
-#else
-class FloatingWin extends Sprite, implements IDock
-#end
 {
    public var pane: Pane;
 

@@ -38,6 +38,9 @@ class Widget extends nme.display.Sprite implements IWidget
 
    public function wantsFocus() { return wantFocus; }
 
+   public function getInnerLayout() : Layout { return null; }
+  
+
    public function createLayout() : Layout
    {
       return new DisplayLayout(this);

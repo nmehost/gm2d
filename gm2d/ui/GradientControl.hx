@@ -209,7 +209,7 @@ class GradientControl extends Widget
 
    public function createButton(inData:BitmapData)
    {
-      var button = Button.BitmapButton(inData,null, ButtonRenderer.simple() );
+      var button = Button.BitmapButton(inData,null /*, ButtonRenderer.simple() */ );
       return button;
    }
 
