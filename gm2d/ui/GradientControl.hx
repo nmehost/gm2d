@@ -18,7 +18,7 @@ import nme.geom.Matrix;
 import nme.geom.Point;
 import nme.events.MouseEvent;
 import gm2d.skin.Skin;
-import gm2d.skin.ButtonRenderer;
+import gm2d.skin.Renderer;
 import gm2d.RGBHSV;
 
 
@@ -96,6 +96,7 @@ class GradientControl extends Widget
    var type:ChoiceButtons;
    var focal:NumericInput;
    var positionMarker:Bitmap;
+   var renderer:Renderer;
 
    var gradient:Gradient;
    var currentId:Int;
@@ -112,6 +113,8 @@ class GradientControl extends Widget
       updateLockout = 1;
       stopX0 = 0;
       stopW = 1;
+
+      renderer = Skin.renderer("Panel");
 
       gradBox = new Sprite();
       mWidth = mHeight = 32;
@@ -207,11 +210,13 @@ class GradientControl extends Widget
 
    public function getGradient() { return gradient.clone(); }
 
+   /*
    public function createButton(inData:BitmapData)
    {
-      var button = Button.BitmapButton(inData,null /*, ButtonRenderer.simple() */ );
+      var button = Button.BitmapButton(inData,null, "ChoiceButton" );
       return button;
    }
+   */
 
    public static function createBmps()
    {
@@ -344,7 +349,7 @@ class GradientControl extends Widget
    public function addLabel(inText:String)
    {
       var label = new TextField();
-      Skin.current.labelRenderer.styleLabel(label);
+      renderer.renderLabel(label);
       label.text = inText;
       addChild(label);
       return new TextLayout(label);

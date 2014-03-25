@@ -20,6 +20,7 @@ class Renderer
 
    public function getDownOffset() : Point { return new Point(0,0); }
    public function renderWidget(inWidget:Widget) { }
+   public function renderLabel(ioTextField:TextField) { }
    public function layoutWidget(ioWidget:Widget) { }
 
  

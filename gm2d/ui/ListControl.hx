@@ -9,6 +9,7 @@ import nme.text.TextField;
 import nme.events.MouseEvent;
 import nme.text.TextFieldAutoSize;
 import gm2d.skin.Skin;
+import gm2d.skin.Renderer;
 
 class ListControlRow
 {
@@ -42,6 +43,8 @@ class ListControl extends ScrollWidget
    var mMultiSelect:Array<Bool>;
    var mControlHeight:Float;
    var mHoldUpdates = false;
+   var renderer:Renderer;
+
    public var onSelect:Int->Void;
    public var onMultiSelect:Array<Bool>->Void;
    public var mXGap:Float;
@@ -56,12 +59,14 @@ class ListControl extends ScrollWidget
    public var oddAlpha:Float;
    public var variableHeightRows = false;
 
+
    public function new(inWidth:Float = 100, inItemHeight:Float=0)
    {
       super();
       selectAlpha = 1.0;
       evenAlpha = 1.0;
       oddAlpha = 1.0;
+      renderer = Skin.renderer("List");
       selectColour = 0xd0d0f0;
       evenColour = 0xffffff;
       oddColour = 0xf0f0ff;
@@ -185,7 +190,7 @@ class ListControl extends ScrollWidget
    public function stringToItem(inString:String) : DisplayObject
    {
       var t = new TextField();
-      Skin.current.labelRenderer.styleLabel(t);
+      renderer.renderLabel(t);
       t.text = inString;
       t.autoSize = TextFieldAutoSize.LEFT;
       t.selectable = mTextSelectable;

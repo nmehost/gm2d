@@ -4,15 +4,15 @@ import gm2d.ui.Layout;
 import nme.text.TextField;
 import nme.display.DisplayObjectContainer;
 import gm2d.skin.Skin;
-import gm2d.skin.LabelRenderer;
+import gm2d.skin.Renderer;
 
 class StaticText
 {
-   public static function create(inText:String,?inParent:DisplayObjectContainer,?inLabelRenderer:LabelRenderer)
+   public static function create(inText:String,?inParent:DisplayObjectContainer)
    {
       var label = new TextField();
-      var renderer = inLabelRenderer==null ? Skin.current.labelRenderer : inLabelRenderer;
-      renderer.styleLabel(label);
+      var renderer = Skin.renderer("StaticText");
+      renderer.renderLabel(label);
       if (inParent!=null)
          inParent.addChild(label);
       return label;

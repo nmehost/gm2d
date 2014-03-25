@@ -40,14 +40,15 @@ class ButtonRenderer extends Renderer
    {
       var tf = inWidget.getLabel();
       if (tf!=null)
-          styleLabel(tf);
-
+         renderLabel(tf);
       render(inWidget.mChrome, inWidget.mRect, inWidget.mState);
    }
    override public function layoutWidget(ioWidget:Widget)
    {
       updateLayout(ioWidget);
    }
+
+   override public function renderLabel(ioTextField:TextField) { styleLabel(ioTextField); }
 
    public dynamic function render(outChrome:Sprite, inRect:Rectangle, inState:WidgetState):Void { }
 

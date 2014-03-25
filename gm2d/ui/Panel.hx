@@ -6,7 +6,7 @@ import nme.display.Sprite;
 import nme.text.TextField;
 import nme.text.TextFormat;
 import gm2d.ui.Layout;
-import gm2d.skin.LabelRenderer;
+import gm2d.skin.Renderer;
 import gm2d.skin.Skin;
 
 typedef Hash<T> = haxe.ds.StringMap<T>;
@@ -23,9 +23,9 @@ class Panel extends Widget
    var mTitle:String;
    var mPane:Pane;
 
-   public var labelRenderer:LabelRenderer;
+   public var renderer:Renderer;
 
-   public function new(inTitle:String = "", ?inLabelRenderer:LabelRenderer )
+   public function new(inTitle:String = "" )
    {
       super();
 
@@ -44,7 +44,7 @@ class Panel extends Widget
       mGridLayout.setRowStretch(1,0);
       if (mDebug!=null)
          addChild(mDebug);
-      labelRenderer = inLabelRenderer==null ? Skin.current.labelRenderer : inLabelRenderer;
+      renderer = Skin.renderer("Panel",{title:inTitle});
    }
 
    public function setItemSize(inSize:Int)
@@ -170,7 +170,7 @@ class Panel extends Widget
       }
       mLayoutDirty = true;
       var label = new TextField();
-      labelRenderer.styleLabel(label);
+      renderer.renderLabel(label);
       label.text = inText;
       addChild(label);
       var layout = new TextLayout(label);

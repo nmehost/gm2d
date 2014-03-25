@@ -67,7 +67,7 @@ class Skin
    public var dialogRenderer:FrameRenderer;
    public var buttonRenderer:ButtonRenderer;
    public var sliderRenderer:SliderRenderer;
-   public var labelRenderer:LabelRenderer;
+   //public var labelRenderer:LabelRenderer;
    public var tabRenderer:TabRenderer;
 
    public var tabHeight:Int;
@@ -153,7 +153,7 @@ class Skin
       dialogRenderer = createDialogRenderer();
       buttonRenderer = createButtonRenderer();
       sliderRenderer = createSliderRenderer();
-      labelRenderer = createLabelRenderer();
+      //labelRenderer = createLabelRenderer();
       tabRenderer = createTabRenderer();
    }
 
@@ -183,12 +183,14 @@ class Skin
       result.onRender = onRenderSlider;
       return result;
    }
+   /*
    public function createLabelRenderer()
    {
       var result = new LabelRenderer();
       result.styleLabel = styleLabel;
       return result;
    }
+   */
    public function createTabRenderer()
    {
       var result = new TabRenderer();
