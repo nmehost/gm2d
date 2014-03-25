@@ -46,11 +46,8 @@ class Dialog extends Window
       }
       mLayout.includeBorderOnLayout = true;
 
-      renderer.layoutWidget(this);
+      build(renderer);
 
-      mSize = mLayout.getBestSize();
-
-      mLayout.setRect(0,0,mSize.x,mSize.y);
 
       // TODO - use hit boxes/MouseWatcher
       mChrome.addEventListener(nme.events.MouseEvent.MOUSE_DOWN, doDrag);
@@ -92,8 +89,8 @@ class Dialog extends Window
    public function center(inWidth:Float,inHeight:Float)
    {
       var p = (parent==null) ? this : parent;
-      x = ( (inWidth - mSize.x)/2 )/p.scaleX;
-      y = ( (inHeight - mSize.y)/2 )/p.scaleY;
+      x = ( (inWidth - mRect.width)/2 )/p.scaleX;
+      y = ( (inHeight - mRect.height)/2 )/p.scaleY;
    }
 
    public dynamic function onClose() { }

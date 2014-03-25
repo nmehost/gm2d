@@ -132,17 +132,43 @@ class Skin
        var result = current.buttonRenderer;
        if (inClassName=="ChoiceButton")
           result = ButtonRenderer.simple();
-       if (inAttribs!=null)
+
+       var map = createAttribMap(inAttribs,false);
+
+       if (inClassName=="ToggleButton")
+       {
+          map = mergeAttribMap(map,  {
+             downX:0,
+             downY:0,
+             render: function(inWidget:Widget) {
+                if (inWidget.mIsDown)
+                {
+                   var gfx = inWidget.mChrome.graphics;
+                   gfx.beginFill(Skin.current.guiDark);
+                   var r = inWidget.mRect;
+                   gfx.drawRect(r.x, r.y, r.width, r.height);
+                }
+             }
+          });
+       }
+
+       if (map!=null)
        {
           result = result.clone();
 
-          var map = createAttribMap(inAttribs);
           if (map.exists("downX"))
              result.downOffset.x = map.get("downX");
           if (map.exists("downY"))
              result.downOffset.x = map.get("downY");
           if (map.exists("render"))
              result.render = map.get("render");
+          if (map.exists("upBmp") || map.exists("downBmp"))
+          {
+             result.render = function(widget)
+                renderBmpBackground(widget, map.get("upBmp"), map.get("downBmp") );
+             result.updateLayout = function(widget)
+                layoutBmpBackground(widget, map.get("upBmp"), map.get("downBmp") );
+          }
        }
        return result;
    }
@@ -196,6 +222,30 @@ class Skin
       var result = new TabRenderer();
       return result;
    }
+
+   static public function renderBmpBackground(widget:Widget, up:BitmapData, down:BitmapData)
+   {
+      var bmp = widget.mIsDown ? down : up;
+      if (bmp!=null)
+      {
+          var gfx = widget.mChrome.graphics;
+          gfx.beginBitmapFill(bmp,null,true,true);
+          gfx.drawRect(0,0,bmp.width,bmp.height);
+      }
+   }
+
+   static public function layoutBmpBackground(widget:Widget, up:BitmapData, down:BitmapData)
+   {
+      var w = up!=null ? up.width : down==null? down.width : 32;
+      var h = up!=null ? up.height : down==null? down.height : 32;
+      var layout = widget.getLayout();
+      layout.setBestSize(w,h);
+      var layout = widget.getInnerLayout();
+      if (layout!=null)
+         layout.setRect(0,0,w,h);
+   }
+
+
 
 
 
@@ -317,8 +367,11 @@ class Skin
    {
       label.defaultTextFormat = textFormat;
       label.textColor = labelColor;
-      label.autoSize = TextFieldAutoSize.LEFT;
-      label.selectable = false;
+      if (label.type != nme.text.TextFieldType.INPUT)
+      {
+         label.autoSize = TextFieldAutoSize.LEFT;
+         label.selectable = false;
+      }
       //label.mouseEnabled = false;
   }
 
@@ -641,13 +694,16 @@ class Skin
 
 
 
-   public function renderButton(outChrome:Sprite, inRect:Rectangle, inState:WidgetState)
+   public function renderButton(inWidget:Widget)
    {
-      clearSprite(outChrome);
-      var gfx = outChrome.graphics;
-      gfx.beginFill(inState==WidgetDisabled ? disableColor : inState==WidgetNormal ? controlColor : guiMedium );
+      var gfx = inWidget.mChrome.graphics;
+      var state = inWidget.mState;
+      gfx.beginFill(state==WidgetDisabled ? disableColor :
+                    state==WidgetNormal ?   controlColor :
+                                            guiMedium );
       gfx.lineStyle(1,controlBorder);
-      gfx.drawRoundRect(inRect.x+0.5,inRect.y+0.5,inRect.width-1,inRect.height-1,buttonCorner,buttonCorner);
+      var r = inWidget.mRect;
+      gfx.drawRoundRect(r.x+0.5,r.y+0.5,r.width-1,r.height-1,buttonCorner,buttonCorner);
    }
 
     public function renderProgressBar(inGfx:Graphics, inWidth:Float, inHeight:Float, inFraction:Float)
@@ -1180,6 +1236,18 @@ class Skin
              result.set(key, Reflect.field(inAttribs,key));
       return result;
    }
+
+   static function mergeAttribMap(map: Map<String, Dynamic>, inAttribs:Dynamic) : Map<String, Dynamic>
+   {
+      if (map==null)
+          map = new  Map<String, Dynamic>();
+      for(key in Reflect.fields(inAttribs))
+         if (!map.exists(key))
+            map.set(key, Reflect.field(inAttribs,key));
+      return map;
+   }
+
+
 
 
 

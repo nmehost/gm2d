@@ -6,6 +6,7 @@ import nme.events.MouseEvent;
 import nme.geom.Point;
 import gm2d.ui.Button;
 import gm2d.skin.Skin;
+import gm2d.skin.Renderer;
 
 class ComboList extends Window
 {
@@ -101,6 +102,7 @@ class ComboBox extends Control
    var onText:String->Void;
    var onItem:Int->Void;
    public var selectOnMove = true;
+   var renderer:Renderer;
 
    public function new(inVal="", ?inOptions:Array<String>, ?inDisplay:Array<Dynamic>,
        ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void)
@@ -109,11 +111,13 @@ class ComboBox extends Control
        onItem = inOnSelectIndex;
        onText = inOnSelectString;
        mText = new TextField();
-       mText.defaultTextFormat = Skin.current.textFormat;
+       renderer = Skin.renderer("ComboBox");
+       renderer.renderLabel(mText);
        mText.text = inVal;
        mText.x = 0.5;
        mText.y = 0.5;
        mText.height = 21;
+       mText.autoSize = nme.text.TextFieldAutoSize.NONE;
        mText.type = nme.text.TextFieldType.INPUT;
  
        if (mBMP==null)

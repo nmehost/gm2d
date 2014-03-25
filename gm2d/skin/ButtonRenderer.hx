@@ -41,7 +41,7 @@ class ButtonRenderer extends Renderer
       var tf = inWidget.getLabel();
       if (tf!=null)
          renderLabel(tf);
-      render(inWidget.mChrome, inWidget.mRect, inWidget.mState);
+      render(inWidget);
    }
    override public function layoutWidget(ioWidget:Widget)
    {
@@ -50,7 +50,7 @@ class ButtonRenderer extends Renderer
 
    override public function renderLabel(ioTextField:TextField) { styleLabel(ioTextField); }
 
-   public dynamic function render(outChrome:Sprite, inRect:Rectangle, inState:WidgetState):Void { }
+   public dynamic function render(inWidget:Widget):Void { }
 
    public dynamic function updateLayout(ioWidget:Widget):Void { }
 
@@ -64,15 +64,16 @@ class ButtonRenderer extends Renderer
       var renderer = new ButtonRenderer();
       renderer.updateLayout=function(ioButton) ioButton.getInnerLayout().setBorders(2,2,2,2);
       renderer.downOffset = new Point(0,0);
-      renderer.render = function(outChrome:Sprite, inRect:Rectangle, inState:WidgetState)
+      renderer.render = function(inWidget:Widget)
       {
-         var gfx = outChrome.graphics;
+         var gfx = inWidget.mChrome.graphics;
          gfx.clear();
-         if (inState!=WidgetNormal)
+         if (inWidget.mState!=WidgetNormal)
          {
-             gfx.beginFill(inState==WidgetDisabled ? Skin.current.disableColor : Skin.current.guiMedium );
+             gfx.beginFill(inWidget.mState==WidgetDisabled ? Skin.current.disableColor : Skin.current.guiMedium );
              gfx.lineStyle(1,Skin.current.controlBorder);
-             gfx.drawRect(inRect.x+0.5,inRect.y+0.5,inRect.width-1,inRect.height-1);
+             var r = inWidget.mRect;
+             gfx.drawRect(r.x+0.5,r.y+0.5,r.width-1,r.height-1);
          }
       }
       return renderer;
@@ -93,10 +94,10 @@ class ButtonRenderer extends Renderer
 
       var result = new ButtonRenderer();
 
-      result.render = function(outChrome:Sprite, inRect:Rectangle, inState:WidgetState)
+      result.render = function(inWidget:Widget)
       {
-         outChrome.graphics.clear();
-         renderer.renderRect0(outChrome.graphics,null,scaleRect,bounds,inRect);
+         inWidget.mChrome.graphics.clear();
+         renderer.renderRect0(inWidget.mChrome.graphics,null,scaleRect,bounds,inWidget.mRect);
       };
       result.updateLayout = function(ioButton:Widget)
       {

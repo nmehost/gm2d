@@ -21,10 +21,10 @@ class Button extends Control
    public var isToggle:Bool;
 	public var noFocus:Bool;
    public var mCallback : Void->Void;
-   var mDownBmp:BitmapData;
    var mDownDX:Float;
    var mDownDY:Float;
-   var mUpBmp:BitmapData;
+   //var mDownBmp:BitmapData;
+   //var mUpBmp:BitmapData;
    var mCurrentDX:Float;
    var mCurrentDY:Float;
    var mMainLayout:Layout;
@@ -32,12 +32,10 @@ class Button extends Control
    var mRenderer:Renderer;
    public var onCurrentChangedFunc:Bool->Void;
 
-   static public var BMPButtonFont = "Arial";
-
    public function new(inObject:DisplayObject,?inOnClick:Void->Void, inClass:String = "Button", ?inAttribs:Dynamic)
    {
       super();
-      name = "button";
+      name = inClass;
       mCallback = inOnClick;
       mIsDown = false;
       mDisplayObj = inObject;
@@ -47,7 +45,6 @@ class Button extends Control
       noFocus = false;
       mouseChildren = false;
       isToggle = false;
-      //mRenderer = inRenderer==null ? Skin.current.buttonRenderer : inRenderer;
       mRenderer = Skin.renderer(inClass, inAttribs);
       addEventListener(MouseEvent.CLICK, onClick );
       addEventListener(MouseEvent.MOUSE_DOWN, onDown );
@@ -56,10 +53,10 @@ class Button extends Control
       var offset = mRenderer.getDownOffset();
       mDownDX = offset.x;
       mDownDY = offset.y;
-      getLayout();
+      build(mRenderer);
    }
 
-   override public function getInnerLayout() : Layout { return mItemLayout; }
+   override public function getInnerLayout() : Layout { return getItemLayout(); }
 
 
    function onClick(e:MouseEvent)
@@ -98,31 +95,6 @@ class Button extends Control
    }
 
 /*
-   public function setBackground(inSVG:gm2d.svg.SvgRenderer, inW:Float, inH:Float)
-   {
-      inSVG.renderSprite(mBG);
-      mBG.width = inW;
-      mBG.height = inH;
-   }
-
-   public function setBGRenderer(inRenderer:gm2d.display.Graphics->Float->Float->Void)
-   {
-      var layout = getLayout();
-      setBG(inRenderer,
-          layout.getBestWidth()+Skin.current.buttonBorderX,
-          layout.getBestHeight()+Skin.current.buttonBorderY);
-   }
-
-   public function setBG(inRenderer:gm2d.display.Graphics->Float->Float->Void,inW:Float, inH:Float)
-   {
-      var gfx = mBG.graphics;
-      gfx.clear();
-      inRenderer(gfx,inW,inH);
-      var layout = getLayout();
-      mMainLayout.setBestSize(mBG.width,mBG.height);
-   }
-   */
-
    public function setBGStates(inUpBmp:BitmapData, inDownBmp:BitmapData,
              inDownDX:Int = 0, inDownDY:Int = 0)
    {
@@ -138,12 +110,14 @@ class Button extends Control
       mItemLayout.setRect(0,0,w,h);
       down = !mIsDown;
    }
+   */
    public function get_down() : Bool { return mIsDown; }
    public function set_down(inDown:Bool) : Bool
    {
       if (inDown!=mIsDown)
       {
          mIsDown = inDown;
+         /*
          if (mDownBmp!=null || mUpBmp!=null)
          {
             var gfx = mChrome.graphics;
@@ -155,6 +129,7 @@ class Button extends Control
                gfx.drawRect(0,0,bmp.width,bmp.height);
             }
          }
+         */
 			var dx = mIsDown ? mDownDX : 0;
 			var dy = mIsDown ? mDownDY : 0;
          if (dx!=mCurrentDX)
@@ -180,12 +155,10 @@ class Button extends Control
    }
 
 
-   public static function BMPButton(inBitmapData:BitmapData,inX:Float=0, inY:Float=0,?inOnClick:Void->Void)
+   public static function BMPButton(inBitmapData:BitmapData,?inOnClick:Void->Void, ?inAttribs:Dynamic)
    {
       var bmp = new Bitmap(inBitmapData);
-      var result = new Button(bmp,inOnClick,"BitmapButton");
-      result.x = inX;
-      result.y = inY;
+      var result = new Button(bmp,inOnClick,"BitmapButton", inAttribs);
       return result;
    }
 
@@ -200,9 +173,9 @@ class Button extends Control
 
    public static function TextButton(inText:String,inOnClick:Void->Void)
    {
-      var renderer = Skin.current.buttonRenderer;
+      var renderer = Skin.renderer("button");
       var label = new TextField();
-      renderer.styleLabel(label);
+      renderer.renderLabel(label);
       label.text = inText;
       label.selectable = false;
       var result =  new Button(label,inOnClick,"TextButton");
@@ -215,8 +188,8 @@ class Button extends Control
       var bmp = new Bitmap(inBitmapData);
       sprite.addChild(bmp);
       var label = new TextField();
-      var renderer = Skin.current.buttonRenderer;
-      renderer.styleLabel(label);
+      var renderer = Skin.renderer("Button");
+      renderer.renderLabel(label);
       label.text = inText;
       sprite.addChild(label);
       label.x = bmp.width;

@@ -7,6 +7,7 @@ import nme.geom.Point;
 import nme.geom.Rectangle;
 import gm2d.ui.Layout;
 import gm2d.ui.HitBoxes;
+import gm2d.skin.Renderer;
 
 
 class Widget extends Sprite
@@ -69,6 +70,14 @@ class Widget extends Sprite
       if (mLayout==null)
          mLayout = createLayout();
       return mLayout;
+   }
+
+   public function build(renderer:Renderer)
+   {
+      var layout = getLayout();
+      renderer.layoutWidget(this);
+      var size = layout.getBestSize();
+      layout.setRect(0,0,size.x,size.y);
    }
 
    public function onKeyDown(event:nme.events.KeyboardEvent ) : Bool { return false; }

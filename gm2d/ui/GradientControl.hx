@@ -138,11 +138,11 @@ class GradientControl extends Widget
       var skin = Skin.current;
       var addRemoveLayout = new GridLayout(2,0);
       addRemoveLayout.setSpacing(0,0);
-      var addStop = Button.BMPButton(skin.getButtonBitmapData(MiniButton.ADD,0),0,0,onAddStop);
+      var addStop = Button.BMPButton(skin.getButtonBitmapData(MiniButton.ADD,0),onAddStop);
       addChild(addStop);
       addStop.getItemLayout().setBorders(5,5,5,5);
       addRemoveLayout.add(addStop.getLayout().setBorders(5,5,5,5));
-      var removeStop = Button.BMPButton(skin.getButtonBitmapData(MiniButton.REMOVE,0),0,0,onRemoveStop);
+      var removeStop = Button.BMPButton(skin.getButtonBitmapData(MiniButton.REMOVE,0),onRemoveStop);
       addChild(removeStop);
       removeStop.getItemLayout().setBorders(5,5,5,5);
       addRemoveLayout.add(removeStop.getLayout().setBorders(5,5,5,5));
