@@ -21,25 +21,32 @@ import nme.geom.Matrix;
 import nme.display.SimpleButton;
 import gm2d.ui.IDockable;
 import gm2d.ui.Layout;
+import gm2d.ui.Widget;
 import gm2d.svg.SvgRenderer;
 import gm2d.svg.Svg;
 
 
-class FrameRenderer
+class FrameRenderer extends Renderer
 {
-   public function new() { titleHeight = 20; borders=5; }
+   public function new() { super(); titleHeight = 20; borders=5; }
 
    public dynamic function render(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void { }
 
    public var titleHeight:Float;
    public var borders:Float;
 
-   public dynamic function createLayout(inInteriorLayout:Layout):Layout
+   public dynamic function updateLayout(widget:Widget)
    {
-      var layout = new StackLayout();
-      layout.add(inInteriorLayout);
-      layout.setBorders(borders,borders+titleHeight,borders,borders);
-      return layout;
+      widget.getLayout().setBorders(borders,borders+titleHeight,borders,borders);
+   }
+
+   override public function renderWidget(inWidget:Widget)
+   {
+      render(inWidget.mChrome, inWidget.getPane(), inWidget.mRect, inWidget.getHitBoxes() );
+   }
+   override public function layoutWidget(ioWidget:Widget)
+   {
+      updateLayout(ioWidget);
    }
 
 
@@ -79,15 +86,13 @@ class FrameRenderer
          if (gm2d.Lib.isOpenGL)
             outChrome.cacheAsBitmap = true;
       };
-      result.createLayout = function(inInteriorLayout:Layout)
+      result.updateLayout = function(widget:Widget)
       {
-         var layout = new StackLayout();
+         var layout = widget.getLayout();
          layout.setBorders(interior.x-bounds.x, interior.y-bounds.y,
                              bounds.right-interior.right, bounds.bottom-interior.bottom );
          layout.minWidth = bounds.width;
          layout.minHeight = bounds.height;
-         layout.add(inInteriorLayout);
-         return layout;
       };
 
       return result;

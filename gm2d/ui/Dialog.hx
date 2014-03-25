@@ -11,43 +11,46 @@ import nme.filters.DropShadowFilter;
 import gm2d.ui.HitBoxes;
 import nme.geom.Rectangle;
 import gm2d.skin.Skin;
-import gm2d.skin.FrameRenderer;
+import gm2d.skin.Renderer;
 
 
 class Dialog extends Window
 {
    var mPane:Pane;
-   var mChrome:Sprite;
    var mContent:Sprite;
    var mHitBoxes:HitBoxes;
    var mSize:Size;
    var mouseWatcher:MouseWatcher;
-   var renderer:FrameRenderer;
+   var renderer:Renderer;
    public var shouldConsumeEvent : MouseEvent -> Bool;
 
 
-   public function new(inPane:Pane, ?inRenderer:FrameRenderer)
+   public function new(inPane:Pane, ?inAttribs:Dynamic)
    {
       super();
       mPane = inPane;
-      mChrome = new Sprite();
       mContent = new Sprite();
-      addChild(mChrome);
       inPane.setDock(null,this);
       //addChild(inPane.displayObject);
       mHitBoxes = new HitBoxes(this,onHitBox);
 
-      renderer = inRenderer==null ? Skin.current.dialogRenderer : inRenderer;
+      renderer = Skin.renderer("Dialog", inAttribs);
 
-      var layout = renderer.createLayout(inPane.itemLayout);
-      layout.onLayout = function(inX:Float, inY:Float, inW:Float, inH:Float)
+      mLayout = new StackLayout();
+      mLayout.add(inPane.itemLayout);
+      renderer.layoutWidget(this);
+      mLayout.onLayout = function(inX:Float, inY:Float, inW:Float, inH:Float)
       {
-         renderer.render(mChrome,mPane,new Rectangle(inX,inY,inW,inH),mHitBoxes);
+         mRect = new Rectangle(inX,inY,inW,inH);
+         renderer.renderWidget(this);
       }
-      layout.includeBorderOnLayout = true;
+      mLayout.includeBorderOnLayout = true;
 
-      mSize = layout.getBestSize();
-      layout.setRect(0,0,mSize.x,mSize.y);
+      renderer.layoutWidget(this);
+
+      mSize = mLayout.getBestSize();
+
+      mLayout.setRect(0,0,mSize.x,mSize.y);
 
       // TODO - use hit boxes/MouseWatcher
       mChrome.addEventListener(nme.events.MouseEvent.MOUSE_DOWN, doDrag);
@@ -55,6 +58,11 @@ class Dialog extends Window
       if (gm2d.Lib.isOpenGL)
          cacheAsBitmap = true;
    }
+
+   override public function getHitBoxes() : HitBoxes { return mHitBoxes; }
+
+   override public function getPane() : Pane { return mPane; }
+
 
    function doneDrag(_)
    {

@@ -11,7 +11,7 @@ import gm2d.ui.MultiDock;
 import gm2d.ui.SideDock;
 import gm2d.ui.DockZones;
 import gm2d.ui.DockPosition;
-import gm2d.skin.ButtonState;
+import gm2d.ui.WidgetState;
 import nme.filters.BitmapFilter;
 import nme.filters.BitmapFilterType;
 import nme.filters.DropShadowFilter;
@@ -122,11 +122,29 @@ class Skin
       createRenderers();
    }
 
-   public static function renderer(inClassName:String, ?inAttribs:Dynamic)
+   public static function renderer(inClassName:String, ?inAttribs:Dynamic) : Renderer
    {
-       if (inAttribs!=null && (inAttribs.className=="ChoiceButton") )
-          return ButtonRenderer.simple();
-       return current.buttonRenderer;
+       if (inClassName=="Dialog")
+       {
+          return current.dialogRenderer;
+       }
+
+       var result = current.buttonRenderer;
+       if (inClassName=="ChoiceButton")
+          result = ButtonRenderer.simple();
+       if (inAttribs!=null)
+       {
+          result = result.clone();
+
+          var map = createAttribMap(inAttribs);
+          if (map.exists("downX"))
+             result.downOffset.x = map.get("downX");
+          if (map.exists("downY"))
+             result.downOffset.x = map.get("downY");
+          if (map.exists("render"))
+             result.render = map.get("render");
+       }
+       return result;
    }
 
 
@@ -621,11 +639,11 @@ class Skin
 
 
 
-   public function renderButton(outChrome:Sprite, inRect:Rectangle, inState:ButtonState)
+   public function renderButton(outChrome:Sprite, inRect:Rectangle, inState:WidgetState)
    {
       clearSprite(outChrome);
       var gfx = outChrome.graphics;
-      gfx.beginFill(inState==BUTTON_DISABLE ? disableColor : inState==BUTTON_UP ? controlColor : guiMedium );
+      gfx.beginFill(inState==WidgetDisabled ? disableColor : inState==WidgetNormal ? controlColor : guiMedium );
       gfx.lineStyle(1,controlBorder);
       gfx.drawRoundRect(inRect.x+0.5,inRect.y+0.5,inRect.width-1,inRect.height-1,buttonCorner,buttonCorner);
    }
@@ -1147,6 +1165,25 @@ class Skin
 
       outZones.addRect(result, onDock);
    }
+
+
+
+   static function createAttribMap(inAttribs:Dynamic, inCreateEmpty:Bool=false) : Map<String, Dynamic>
+   {
+      if (!inCreateEmpty && inAttribs==null)
+         return null;
+      var result = new Map<String,Dynamic>();
+      if (inAttribs!=null)
+         for(key in Reflect.fields(inAttribs))
+             result.set(key, Reflect.field(inAttribs,key));
+      return result;
+   }
+
+
+
+
+
+
 }
 
 

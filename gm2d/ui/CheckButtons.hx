@@ -7,7 +7,7 @@ import nme.display.Sprite;
 import gm2d.ui.Button;
 import gm2d.skin.Skin;
 import gm2d.skin.ButtonRenderer;
-import gm2d.skin.ButtonState;
+import gm2d.ui.WidgetState;
 
 
 class CheckButtons extends ChoiceButtons
@@ -41,7 +41,7 @@ class CheckButtons extends ChoiceButtons
       gfx.lineTo(20,8);
       var bmp = new BitmapData(24,24,true,gm2d.RGB.CLEAR );
       bmp.draw(shape);
-      add(new Button(new Bitmap(bmp),null),"on");
+      add(new Button(new Bitmap(bmp),null,"CheckButton"),"on");
 
       gfx.clear();
       gfx.lineStyle(4,0xff0000);
@@ -51,7 +51,7 @@ class CheckButtons extends ChoiceButtons
       gfx.lineTo(16,8);
       var bmp = new BitmapData(24,24,true,gm2d.RGB.CLEAR );
       bmp.draw(shape);
-      add(new Button(new Bitmap(bmp),null),"off");
+      add(new Button(new Bitmap(bmp),null,"CheckButton"),"off");
 
       setChecked(inValue);
    }

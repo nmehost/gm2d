@@ -62,7 +62,7 @@ class Panel extends Widget
       return this;
    }
 
-   public function getPane()
+   override public function getPane()
    {
       if (mPane==null)
       {

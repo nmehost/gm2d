@@ -5,8 +5,8 @@ import nme.ui.Keyboard;
 
 class Window extends Widget
 {
-   var mCurrent:IWidget;
-   var mDeactive:IWidget;
+   var mCurrent:Widget;
+   var mDeactive:Widget;
 
    public function new()
    {
@@ -21,10 +21,10 @@ class Window extends Widget
       removeEventListener(MouseEvent.MOUSE_MOVE, windowMouseMove);
    }
 
-   public function getIWidgetList() : Array<IWidget>
+   public function getWidgetList() : Array<Widget>
    {
-      var result = new Array<IWidget>();
-      Widget.getIWidgetsRecurse(this,result);
+      var result = new Array<Widget>();
+      Widget.getWidgetsRecurse(this,result);
       return result;
    }
 
@@ -50,9 +50,9 @@ class Window extends Widget
          var target:nme.display.DisplayObject = inEvent.target;
          while(target!=null && target!=this)
          {
-            if (Std.is(target,IWidget))
+            if (Std.is(target,Widget))
             {
-                var widget:IWidget = cast target;
+                var widget:Widget = cast target;
                 if (widget.wantsFocus())
                    setCurrentItem(widget);
                 return;
@@ -63,7 +63,7 @@ class Window extends Widget
    }
 
 
-   public function setCurrentItem(inItem:gm2d.ui.IWidget)
+   public function setCurrentItem(inItem:gm2d.ui.Widget)
    {
       if (inItem!=mCurrent)
       {
@@ -95,7 +95,7 @@ class Window extends Widget
 
       if (dir!=0)
       {
-         var items = getIWidgetList();
+         var items = getWidgetList();
          var l = items.length;
          if (l>0)
          {

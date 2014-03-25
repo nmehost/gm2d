@@ -10,19 +10,17 @@ import nme.text.TextField;
 import nme.geom.Rectangle;
 import gm2d.ui.Layout;
 import gm2d.skin.Skin;
-import gm2d.skin.ButtonRenderer;
-import gm2d.skin.ButtonState;
+import gm2d.skin.Renderer;
 
 class Button extends Control
 {
    var mDisplayObj : DisplayObject;
-   public var mChrome : Sprite;
-   public var mRect : Rectangle;
+
+
    public var down(get_down,set_down):Bool;
    public var isToggle:Bool;
 	public var noFocus:Bool;
    public var mCallback : Void->Void;
-   var mIsDown:Bool;
    var mDownBmp:BitmapData;
    var mDownDX:Float;
    var mDownDY:Float;
@@ -31,32 +29,31 @@ class Button extends Control
    var mCurrentDY:Float;
    var mMainLayout:Layout;
    var mItemLayout:Layout;
-   var mRenderer:ButtonRenderer;
+   var mRenderer:Renderer;
    public var onCurrentChangedFunc:Bool->Void;
 
    static public var BMPButtonFont = "Arial";
 
-   public function new(inObject:DisplayObject,?inOnClick:Void->Void, ?inAttribs:Dynamic)
+   public function new(inObject:DisplayObject,?inOnClick:Void->Void, inClass:String = "Button", ?inAttribs:Dynamic)
    {
       super();
       name = "button";
       mCallback = inOnClick;
       mIsDown = false;
-      mChrome = new Sprite();
       mDisplayObj = inObject;
-      addChild(mChrome);
+
       addChild(mDisplayObj);
       mCurrentDX = mCurrentDY = 0;
       noFocus = false;
       mouseChildren = false;
       isToggle = false;
       //mRenderer = inRenderer==null ? Skin.current.buttonRenderer : inRenderer;
-      mRenderer = Skin.renderer("Button", inAttribs);
+      mRenderer = Skin.renderer(inClass, inAttribs);
       addEventListener(MouseEvent.CLICK, onClick );
       addEventListener(MouseEvent.MOUSE_DOWN, onDown );
       addEventListener(MouseEvent.MOUSE_UP, onUp );
 
-      var offset = mRenderer.downOffset;
+      var offset = mRenderer.getDownOffset();
       mDownDX = offset.x;
       mDownDY = offset.y;
       getLayout();
@@ -93,7 +90,7 @@ class Button extends Control
       return mItemLayout;
    }
 
-   public function getLabel() : TextField
+   override public function getLabel() : TextField
    { 
       if (Std.is(mDisplayObj,TextField))
          return cast mDisplayObj;
@@ -176,7 +173,7 @@ class Button extends Control
             mChrome.graphics.clear();
             while(mChrome.numChildren>0)
                mChrome.removeChildAt(0);
-            mRenderer.render(mChrome,mRect, mIsDown ? BUTTON_DOWN:BUTTON_UP);
+            mRenderer.renderWidget(this);
          }
       }
       return mIsDown;
@@ -186,16 +183,17 @@ class Button extends Control
    public static function BMPButton(inBitmapData:BitmapData,inX:Float=0, inY:Float=0,?inOnClick:Void->Void)
    {
       var bmp = new Bitmap(inBitmapData);
-      var result = new Button(bmp,inOnClick);
+      var result = new Button(bmp,inOnClick,"BitmapButton");
       result.x = inX;
       result.y = inY;
       return result;
    }
 
-   public static function BitmapButton(inBitmapData:BitmapData,?inOnClick:Void->Void,?inAttribs:Dynamic)
+   public static function BitmapButton(inBitmapData:BitmapData,?inOnClick:Void->Void,
+       inClass="BitmapButton", ?inAttribs:Dynamic)
    {
       var bmp = new Bitmap(inBitmapData);
-      var result = new Button(bmp,inOnClick, inAttribs);
+      var result = new Button(bmp,inOnClick,inClass, inAttribs);
       return result;
    }
 
@@ -207,7 +205,7 @@ class Button extends Control
       renderer.styleLabel(label);
       label.text = inText;
       label.selectable = false;
-      var result =  new Button(label,inOnClick);
+      var result =  new Button(label,inOnClick,"TextButton");
       return result;
    }
 
@@ -223,7 +221,7 @@ class Button extends Control
       sprite.addChild(label);
       label.x = bmp.width;
       label.y = (bmp.height - label.height)/2;
-      var result = new Button(sprite,inOnClick);
+      var result = new Button(sprite,inOnClick,"BitmapTextButton");
       var layout = result.getItemLayout();
       layout.setBestSize(label.x + label.width, bmp.height);
       return result;
@@ -232,7 +230,7 @@ class Button extends Control
    function renderBackground(inX:Float, inY:Float, inW:Float, inH:Float)
    {
       mRect = new Rectangle(inX-x,inY-y,inW,inH);
-      mRenderer.render(mChrome,mRect, mIsDown ? BUTTON_DOWN:BUTTON_UP);
+      mRenderer.renderWidget(this);
    }
 
    override public function createLayout() : Layout
@@ -249,7 +247,7 @@ class Button extends Control
       layout.mDebugCol = 0x00ff00;
       layout.onLayout = renderBackground;
       mLayout = layout;
-      mRenderer.updateLayout(this);
+      mRenderer.layoutWidget(this);
       return layout;
    }
 

@@ -10,20 +10,17 @@ import nme.geom.Point;
 import nme.geom.Rectangle;
 import nme.geom.Matrix;
 
-import nme.display.SimpleButton;
-import gm2d.svg.Svg;
-import gm2d.svg.SvgRenderer;
-import gm2d.ui.Layout;
-import gm2d.ui.Button;
 import gm2d.ui.Widget;
+import gm2d.ui.WidgetState;
 
 
 class Renderer
 {
    public function new() {  }
 
+   public function getDownOffset() : Point { return new Point(0,0); }
+   public function renderWidget(inWidget:Widget) { }
+   public function layoutWidget(ioWidget:Widget) { }
 
-   public dynamic function render(outChrome:Sprite, inRect:Rectangle, inState:ButtonState):Void { }
-   public dynamic function updateLayout(ioWidget:Widget):Void { }
-   public dynamic function styleLabel(ioLabel:TextField):Void { }
+ 
 }
