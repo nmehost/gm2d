@@ -7,6 +7,7 @@ import nme.geom.Point;
 import nme.geom.Rectangle;
 import gm2d.ui.Layout;
 import gm2d.ui.HitBoxes;
+import gm2d.skin.Skin;
 import gm2d.skin.Renderer;
 
 
@@ -18,12 +19,14 @@ class Widget extends Sprite
    public var mChrome : Sprite;
    public var mState : WidgetState;
    public var mIsDown : Bool;
+   public var mRenderer : Renderer;
 
    //var highlightColour:Int;
 
-   public function new()
+   public function new(inClass:String="Widget", ?inAttribs:Dynamic)
    {
       super();
+      mRenderer = Skin.renderer(inClass, inAttribs);
       mChrome = new Sprite();
       addChild(mChrome);
 		wantFocus = false;
@@ -31,6 +34,26 @@ class Widget extends Sprite
       mIsDown = false;
       //highlightColour = 0x0000ff;
    }
+
+   public function build()
+   {
+      var layout = getLayout();
+      layout.onLayout = renderBackground;
+      if (mRenderer!=null)
+         mRenderer.layoutWidget(this);
+      var size = layout.getBestSize();
+      layout.setRect(0,0,size.x,size.y);
+   }
+
+
+   function renderBackground(inX:Float, inY:Float, inW:Float, inH:Float)
+   {
+      clearChrome();
+      mRect = new Rectangle(inX-x,inY-y,inW,inH);
+      if (mRenderer!=null)
+         mRenderer.renderWidget(this);
+   }
+
 
    static public function getWidgetsRecurse(inParent:DisplayObjectContainer,outList : Array<Widget>)
    {
@@ -60,6 +83,14 @@ class Widget extends Sprite
 
    public function getPane() : Pane { return null; }
 
+   public function clearChrome()
+   {
+      mChrome.graphics.clear();
+      while(mChrome.numChildren>0)
+         mChrome.removeChildAt(0);
+   }
+
+
    public function createLayout() : Layout
    {
       return new DisplayLayout(this);
@@ -70,14 +101,6 @@ class Widget extends Sprite
       if (mLayout==null)
          mLayout = createLayout();
       return mLayout;
-   }
-
-   public function build(renderer:Renderer)
-   {
-      var layout = getLayout();
-      renderer.layoutWidget(this);
-      var size = layout.getBestSize();
-      layout.setRect(0,0,size.x,size.y);
    }
 
    public function onKeyDown(event:nme.events.KeyboardEvent ) : Bool { return false; }

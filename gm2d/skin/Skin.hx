@@ -239,14 +239,8 @@ class Skin
       var w = up!=null ? up.width : down==null? down.width : 32;
       var h = up!=null ? up.height : down==null? down.height : 32;
       var layout = widget.getLayout();
-      layout.setBestSize(w,h);
-      var layout = widget.getInnerLayout();
-      if (layout!=null)
-         layout.setRect(0,0,w,h);
+      layout.setMinSize(w,h);
    }
-
-
-
 
 
    public function onCreateSlider(inSlider:Slider):Void
@@ -261,8 +255,8 @@ class Skin
       gfx.drawRect(-10,0,20,20);
       inSlider.getLayout().onLayout = function(inX:Float,inY:Float,inW:Float,inH:Float)
       {
-          inSlider.mRenderer.onRender( inSlider, new Rectangle(inX,inY,inW,inH) );
-          inSlider.mRenderer.onPosition(inSlider);
+          inSlider.mSliderRenderer.onRender( inSlider, new Rectangle(inX,inY,inW,inH) );
+          inSlider.mSliderRenderer.onPosition(inSlider);
       };
    }
 

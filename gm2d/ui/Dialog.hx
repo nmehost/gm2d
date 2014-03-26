@@ -21,33 +21,23 @@ class Dialog extends Window
    var mHitBoxes:HitBoxes;
    var mSize:Size;
    var mouseWatcher:MouseWatcher;
-   var renderer:Renderer;
    public var shouldConsumeEvent : MouseEvent -> Bool;
 
 
    public function new(inPane:Pane, ?inAttribs:Dynamic)
    {
-      super();
+      super("Dialog", inAttribs);
       mPane = inPane;
       mContent = new Sprite();
       inPane.setDock(null,this);
       //addChild(inPane.displayObject);
       mHitBoxes = new HitBoxes(this,onHitBox);
 
-      renderer = Skin.renderer("Dialog", inAttribs);
-
       mLayout = new StackLayout();
       mLayout.add(inPane.itemLayout);
-      renderer.layoutWidget(this);
-      mLayout.onLayout = function(inX:Float, inY:Float, inW:Float, inH:Float)
-      {
-         mRect = new Rectangle(inX,inY,inW,inH);
-         renderer.renderWidget(this);
-      }
       mLayout.includeBorderOnLayout = true;
 
-      build(renderer);
-
+      build();
 
       // TODO - use hit boxes/MouseWatcher
       mChrome.addEventListener(nme.events.MouseEvent.MOUSE_DOWN, doDrag);

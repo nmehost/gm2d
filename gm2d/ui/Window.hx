@@ -8,11 +8,10 @@ class Window extends Widget
    var mCurrent:Widget;
    var mDeactive:Widget;
 
-   public function new()
+   public function new(inClassName:String="Window", ?inAttribs:Dynamic)
    {
-      super();
+      super(inClassName, inAttribs);
       mCurrent = null;
-      name = "Window";
       addEventListener(MouseEvent.MOUSE_MOVE, windowMouseMove);
    }
 

@@ -23,24 +23,23 @@ class Slider extends Control
    public var mX0:Float;
    public var mX1:Float;
    public var mValue:Float;
-   public var mRenderer:gm2d.skin.SliderRenderer;
+   public var mSliderRenderer:gm2d.skin.SliderRenderer;
 
-   public function new(inMin:Float,inMax:Float,inPos:Float,inOnChange:Float->Void,
-      ?inRenderer:SliderRenderer)
+   public function new(inMin:Float,inMax:Float,inPos:Float,inOnChange:Float->Void )
    {
-      super();
+      super("Slider");
       name = "Slider";
       mCallback = inOnChange;
       mMax = inMax;
       mMin = inMin;
       mX0 = 0;
       mX1 = 1;
-      mRenderer = inRenderer==null ? Skin.current.sliderRenderer : inRenderer;
+      mSliderRenderer = Skin.current.sliderRenderer;
 
       mTrack = new Sprite();
       addChild(mTrack);
 
-      mRenderer.onCreate(this);
+      mSliderRenderer.onCreate(this);
 
       mSliding = false;
 
@@ -96,7 +95,7 @@ class Slider extends Control
    public function setValueQuiet(inPos:Float)
    {
       mValue = inPos;
-      mRenderer.onPosition(this);
+      mSliderRenderer.onPosition(this);
    }
 
 

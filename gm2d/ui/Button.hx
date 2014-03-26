@@ -29,12 +29,15 @@ class Button extends Control
    var mCurrentDY:Float;
    var mMainLayout:Layout;
    var mItemLayout:Layout;
-   var mRenderer:Renderer;
    public var onCurrentChangedFunc:Bool->Void;
 
    public function new(inObject:DisplayObject,?inOnClick:Void->Void, inClass:String = "Button", ?inAttribs:Dynamic)
    {
-      super();
+      super(inClass, inAttribs);
+      var offset = mRenderer.getDownOffset();
+      mDownDX = offset.x;
+      mDownDY = offset.y;
+
       name = inClass;
       mCallback = inOnClick;
       mIsDown = false;
@@ -45,15 +48,11 @@ class Button extends Control
       noFocus = false;
       mouseChildren = false;
       isToggle = false;
-      mRenderer = Skin.renderer(inClass, inAttribs);
       addEventListener(MouseEvent.CLICK, onClick );
       addEventListener(MouseEvent.MOUSE_DOWN, onDown );
       addEventListener(MouseEvent.MOUSE_UP, onUp );
 
-      var offset = mRenderer.getDownOffset();
-      mDownDX = offset.x;
-      mDownDY = offset.y;
-      build(mRenderer);
+      build();
    }
 
    override public function getInnerLayout() : Layout { return getItemLayout(); }
@@ -200,12 +199,6 @@ class Button extends Control
       return result;
    }
 
-   function renderBackground(inX:Float, inY:Float, inW:Float, inH:Float)
-   {
-      mRect = new Rectangle(inX-x,inY-y,inW,inH);
-      mRenderer.renderWidget(this);
-   }
-
    override public function createLayout() : Layout
    {
       var layout = new ChildStackLayout( );
@@ -217,10 +210,9 @@ class Button extends Control
            new TextLayout(cast mDisplayObj)  : 
            new DisplayLayout(mDisplayObj) ;
       layout.add(mItemLayout);
+      mItemLayout.mAlign = Layout.AlignCenterX | Layout.AlignCenterY | Layout.AlignPixel;
       layout.mDebugCol = 0x00ff00;
-      layout.onLayout = renderBackground;
       mLayout = layout;
-      mRenderer.layoutWidget(this);
       return layout;
    }
 
