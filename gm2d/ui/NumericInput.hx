@@ -5,6 +5,7 @@ import nme.display.Sprite;
 import nme.display.BitmapData;
 import nme.events.MouseEvent;
 import gm2d.ui.Button;
+import gm2d.ui.Layout;
 import nme.geom.Point;
 import gm2d.skin.Skin;
 
@@ -35,15 +36,20 @@ class NumericInput extends TextInput
       if (value>max)
          value = max;
       qvalue = isInteger ? Std.int(value) : value;
-      super(Std.string(qvalue),onUpdateText);
       step = inStep;
+      onUpdate = inOnUpdateFloat;
+      super(Std.string(qvalue),onUpdateText);
+   }
+
+   override public function createExtraWidgetLayout() : Layout
+   {
       slider = new Sprite();
       slider.name = "Numeric slider";
       slider.cacheAsBitmap = true;
-      onUpdate = inOnUpdateFloat;
       addChild(slider);
       slider.addEventListener(MouseEvent.MOUSE_DOWN, onSliderDown );
       renderSlider();
+      return new DisplayLayout(slider);
    }
 
    public function getValue() : Float
@@ -172,9 +178,11 @@ class NumericInput extends TextInput
       }
    }
 
-   public override function layout(inW:Float, inH:Float)
+   public override function redraw()
    {
-      super.layout(inW-SLIDER_W, inH);
-      sliderX = slider.x = Std.int(inW-SLIDER_W);
+      super.redraw();
+      sliderX = slider.x = Std.int(mRect.width-SLIDER_W);
+      //super.layout(inW-SLIDER_W, inH);
+      //sliderX = slider.x = Std.int(inW-SLIDER_W);
    }
 }

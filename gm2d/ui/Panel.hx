@@ -23,11 +23,9 @@ class Panel extends Widget
    var mTitle:String;
    var mPane:Pane;
 
-   public var renderer:Renderer;
-
    public function new(inTitle:String = "" )
    {
-      super();
+      super("Panel",{title:inTitle});
 
       mButtons = [];
       mLayoutDirty = true;
@@ -44,7 +42,9 @@ class Panel extends Widget
       mGridLayout.setRowStretch(1,0);
       if (mDebug!=null)
          addChild(mDebug);
-      renderer = Skin.renderer("Panel",{title:inTitle});
+      mLayout = new ChildStackLayout();
+      mLayout.add( new DisplayLayout(this) );
+      mLayout.add( mGridLayout );
    }
 
    public function setItemSize(inSize:Int)
@@ -94,16 +94,17 @@ class Panel extends Widget
    }
    */
 
+   /*
    override public function layout(inX:Float,inY:Float)
    {
       mGridLayout.setRect(0,0,inX,inY);
       onLaidOut();
       Layout.setDebug(null);
    }
+   */
 
-   override public function createLayout() : Layout { return mGridLayout; }
 
-   public dynamic function onLaidOut() { }
+   //public dynamic function onLaidOut() { }
 
    public function setBorders(inL:Float,inT:Float,inR:Float,inB:Float)
    {
@@ -170,7 +171,7 @@ class Panel extends Widget
       }
       mLayoutDirty = true;
       var label = new TextField();
-      renderer.renderLabel(label);
+      mRenderer.renderLabel(label);
       label.text = inText;
       addChild(label);
       var layout = new TextLayout(label);

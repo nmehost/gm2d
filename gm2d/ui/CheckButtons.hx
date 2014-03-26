@@ -44,7 +44,7 @@ class CheckButtons extends ChoiceButtons
 
    public function setChecked(inCheck:Bool)
    {
-      setState(inCheck?"on":"off");
+      setValue(inCheck?"on":"off");
    }
 }
 

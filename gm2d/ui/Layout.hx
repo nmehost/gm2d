@@ -196,11 +196,13 @@ class Layout
       }
       child.setRect(x,y,w,h);
 
+      /*
       if (Std.is(child,Widget))
       {
          var widget:Widget = cast child;
          widget.layout(w,h);
       }
+      */
    }
 
    function fireLayout(inX:Float, inY:Float, inW:Float, inH:Float)
@@ -273,12 +275,17 @@ class DisplayLayout extends Layout
          mObj.x = x;
          mObj.y = y;
       }
+
+      /*
       if (Std.is(mObj,Widget))
       {
          var widget:Widget = cast mObj;
          widget.layout(w,h);
       }
-      else if (mObj.scale9Grid != null)
+      else
+      */
+      
+      if (mObj.scale9Grid != null)
       {
          mObj.width = w;
          mObj.height = h;

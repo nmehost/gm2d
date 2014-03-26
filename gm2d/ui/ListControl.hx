@@ -10,6 +10,7 @@ import nme.events.MouseEvent;
 import nme.text.TextFieldAutoSize;
 import gm2d.skin.Skin;
 import gm2d.skin.Renderer;
+import gm2d.ui.Layout;
 
 class ListControlRow
 {
@@ -92,7 +93,9 @@ class ListControl extends ScrollWidget
       mColAlign = [];
       mMultiSelect = null;
       setScrollRange(inWidth,inWidth,inItemHeight,inItemHeight);
+      build();
    }
+
 
    public function clear()
    {
@@ -161,7 +164,7 @@ class ListControl extends ScrollWidget
       {
          mColWidths[inCol] = inWidth;
          recalcPos();
-         layout(mWidth,mHeight);
+         redraw();
       }
    }
 
@@ -298,7 +301,7 @@ class ListControl extends ScrollWidget
          needRecalcPos = true;
 
       if (!mHoldUpdates)
-         layout(mWidth,mHeight);
+         redraw();
    }
 
    public function holdUpdates(inHold:Bool)
@@ -307,7 +310,7 @@ class ListControl extends ScrollWidget
       if (!mHoldUpdates)
       {
          recalcPos();
-         layout(mWidth,mHeight);
+         redraw();
       }
    }
 
@@ -517,7 +520,16 @@ class ListControl extends ScrollWidget
       }
    }
 
-   public override function layout(inWidth:Float,inHeight:Float)
+   override public function setRect(inX:Float, inY:Float, inW:Float, inH:Float)
+   {
+      // trace('ListControl setRect  $inX, $inY, $inW, $inH' );
+      mRect = new Rectangle(inX-x,inY-y,inW,inH);
+      redraw();
+   }
+
+
+
+   override public function redraw()
    {
       for(row_idx in mChildrenClean...mRows.length)
       {
@@ -569,11 +581,12 @@ class ListControl extends ScrollWidget
       mChildrenClean = mRows.length;
 
       mControlHeight = mRowPos[mRows.length];
-      mWidth = inWidth;
-      mHeight = inHeight;
+      mWidth = mRect.width;
+      mHeight = mRect.height;
       drawBG();
       setScrollRange(mWidth,mWidth,mControlHeight,mHeight);
    }
+
    public function getControlHeight() { return mControlHeight; }
    public function getControlWidth()
    {

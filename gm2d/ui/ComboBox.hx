@@ -65,14 +65,14 @@ class ComboList extends Window
    }
 */
 
-   override public function layout(inW:Float, inH:Float)
+   override public function redraw()
    {
       var gfx = graphics;
       gfx.lineStyle(1,0x000000);
       gfx.beginFill(0xffffff);
-      gfx.drawRect(-0.5,-0.5,inW+2, inH+2);
+      gfx.drawRect(-0.5,-0.5,mRect.width+2, mRect.height+2);
 
-      mList.layout(inW, inH);
+      mList.redraw();
    }
 
    public function onSelect(idx:Int)
@@ -95,7 +95,6 @@ class ComboBox extends Control
 {
    var mText:TextField;
    var mButtonX:Float;
-   var mWidth:Float;
    var mOptions:Array<String>;
    var mDisplay:Array<Dynamic>;
    static var mBMP:BitmapData;
@@ -164,8 +163,8 @@ class ComboBox extends Control
    function doPopup()
    {
       var pop = mDisplay != null ?
-            new ComboList(this, mWidth, mDisplay,selectOnMove) :
-            new ComboList(this, mWidth, mOptions,selectOnMove);
+            new ComboList(this, mRect.width, mDisplay,selectOnMove) :
+            new ComboList(this, mRect.width, mOptions,selectOnMove);
 
       var pos = this.localToGlobal( new nme.geom.Point(0,0) );
       var h = pop.getControlHeight();
@@ -175,17 +174,17 @@ class ComboBox extends Control
       var above = Math.min(max,pos.y);
       if (h+pos.y+22 < stage.stageHeight)
       {
-         pop.layout(w,h);
+         pop.setRect(pop.x,pop.y,w,h);
          gm2d.Game.popup(pop,pos.x,pos.y+22);
       }
       else if (below>=above)
       {
-         pop.layout(w,below);
+         pop.setRect(pop.x,pop.y,w,below);
          gm2d.Game.popup(pop,pos.x,pos.y+22);
       }
       else
       {
-         pop.layout(w,above);
+         pop.setRect(pop.x,pop.y,w,above);
          gm2d.Game.popup(pop,pos.x,pos.y-above);
       }
    }
@@ -196,22 +195,21 @@ class ComboBox extends Control
        mText.text = inText;
    }
 
-   public override function layout(inW:Float, inH:Float)
+   public override function redraw()
    {
        var gfx = graphics;
        gfx.clear();
        gfx.lineStyle(1,0x808080);
        gfx.beginFill(0xf0f0ff);
-       gfx.drawRect(0.5,0.5,inW-1,23);
+       gfx.drawRect(0.5,0.5,mRect.width-1,23);
        gfx.lineStyle();
        var mtx = new nme.geom.Matrix();
-       mtx.tx = inW-mBMP.width-1;
+       mtx.tx = mRect.width-mBMP.width-1;
        mtx.ty = 1;
        gfx.beginBitmapFill(mBMP,mtx);
-       mButtonX = inW-mBMP.width-1+0.5;
-       mWidth = inW;
+       mButtonX = mRect.width-mBMP.width-1+0.5;
        gfx.drawRect(mButtonX,1.5,mBMP.width,mBMP.height);
-       mText.width = inW - mBMP.width - 2;
+       mText.width = mRect.width - mBMP.width - 2;
        mText.y =  (mBMP.height - 2 - mText.textHeight)/2;
        mText.height =  mBMP.height-mText.y;
    }

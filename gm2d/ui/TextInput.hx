@@ -6,24 +6,42 @@ import nme.events.MouseEvent;
 import nme.ui.Keyboard;
 import gm2d.ui.Button;
 import gm2d.skin.Skin;
+import gm2d.ui.Layout;
 
 class TextInput extends Control
 {
    public var text(get_text,set_text):String;
    var mText:TextField;
-   var mWidth:Float;
    static var boxHeight = 22;
 
    public function new(inVal="", ?onUpdate:String->Void)
    {
-       super();
+       super("TextInput");
        mText = new TextField();
-       mText.defaultTextFormat = Skin.current.textFormat;
+       mText.type = nme.text.TextFieldType.INPUT;
        mText.text = inVal;
        mText.x = 0.5;
        mText.y = 0.5;
        mText.height = boxHeight-1;
-       mText.type = nme.text.TextFieldType.INPUT;
+       mText.border = true;
+       mText.borderColor = 0x00ff00;
+       addChild(mText);
+       mRenderer.renderLabel(mText);
+
+       mLayout = new ChildStackLayout();
+       mLayout.add( new DisplayLayout(this) );
+
+       var extra = createExtraWidgetLayout();
+       if (extra==null)
+          mLayout.add( new TextLayout(mText) );
+       else
+       {
+          var grid = new GridLayout(2,"grid",0);
+          grid.setColStretch(0,1);
+          grid.add( new TextLayout(mText) );
+          grid.add( extra );
+          mLayout.add(grid);
+       }
 
        if (onUpdate!=null)
        {
@@ -31,8 +49,10 @@ class TextInput extends Control
           mText.addEventListener(nme.events.Event.CHANGE, function(_) onUpdate(t.text) );
        }
  
-       addChild(mText);
+       build();
    }
+
+   public function createExtraWidgetLayout() : Layout { return null; }
 
    public function setTextWidth(inW:Float)
    {
@@ -74,15 +94,15 @@ class TextInput extends Control
 
    public function get_text() { return mText.text; }
 
-   public override function layout(inW:Float, inH:Float)
+   public override function redraw()
    {
        var gfx = graphics;
        gfx.clear();
        gfx.lineStyle(1,0x808080);
        gfx.beginFill(0xf0f0ff);
-       gfx.drawRect(0.5,0.5,inW-1,23);
+       gfx.drawRect(0.5,0.5,mRect.width-1,23);
        gfx.lineStyle();
-       mText.width = inW - 2;
+       mText.width = mRect.width - 2;
        mText.y =  (boxHeight - 2 - mText.textHeight)/2;
        mText.height =  boxHeight-mText.y;
    }

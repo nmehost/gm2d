@@ -17,7 +17,7 @@ class Widget extends Sprite
    var mLayout:Layout;
    public var mRect : Rectangle;
    public var mChrome : Sprite;
-   public var mState : WidgetState;
+   public var mState(default,null) : WidgetState;
    public var mIsDown : Bool;
    public var mRenderer : Renderer;
 
@@ -32,24 +32,38 @@ class Widget extends Sprite
 		wantFocus = false;
       mState = WidgetNormal;
       mIsDown = false;
+      mRect = new Rectangle(0,0,0,0);
       //highlightColour = 0x0000ff;
    }
 
    public function build()
    {
       var layout = getLayout();
-      layout.onLayout = renderBackground;
+      layout.onLayout = setRect;
       if (mRenderer!=null)
          mRenderer.layoutWidget(this);
       var size = layout.getBestSize();
       layout.setRect(0,0,size.x,size.y);
    }
 
+   public function setState(inState:WidgetState)
+   {
+      if (inState!=mState)
+      {
+         mState = inState;
+         redraw();
+      }
+   }
 
-   function renderBackground(inX:Float, inY:Float, inW:Float, inH:Float)
+   public function setRect(inX:Float, inY:Float, inW:Float, inH:Float)
+   {
+      mRect = new Rectangle(inX-x,inY-y,inW,inH);
+      redraw();
+   }
+
+   public function redraw()
    {
       clearChrome();
-      mRect = new Rectangle(inX-x,inY-y,inW,inH);
       if (mRenderer!=null)
          mRenderer.renderWidget(this);
    }
@@ -105,7 +119,7 @@ class Widget extends Sprite
 
    public function onKeyDown(event:nme.events.KeyboardEvent ) : Bool { return false; }
 
-   public function layout(inW:Float,inH:Float):Void { }
+   // public function layout(inW:Float,inH:Float):Void { }
 
    public function activate(inDirection:Int) { }
 

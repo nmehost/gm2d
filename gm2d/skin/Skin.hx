@@ -197,7 +197,9 @@ class Skin
       result.render = renderButton;
       result.updateLayout = function(ioButton:Widget)
       {
-         ioButton.getInnerLayout().setBorders(buttonBorderX,buttonBorderY,buttonBorderX,buttonBorderY);
+         var inner = ioButton.getInnerLayout();
+         if (inner!=null)
+           inner.setBorders(buttonBorderX,buttonBorderY,buttonBorderX,buttonBorderY);
       };
       result.styleLabel = styleLabel;
       return result;

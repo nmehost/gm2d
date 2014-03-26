@@ -5,18 +5,14 @@ import gm2d.skin.Skin;
 class ProgressBar extends Widget
 {
    var mMax:Float;
-   var mWidth:Float;
-   var mHeight:Float;
    var mFraction:Float;
 
    public function new(inMax:Float)
    {
       super();
       mMax = inMax;
-      mWidth = 100;
-      mHeight = 20;
       mFraction = 0.0;
-      getLayout().setBestSize(mWidth,mHeight);
+      getLayout().setBestSize(100,20);
    }
 
    public function update(inValue:Float)
@@ -24,19 +20,12 @@ class ProgressBar extends Widget
       mFraction = inValue / mMax;
       if (mFraction>1) mFraction = 1;
       if (mFraction<0) mFraction = 0;
-      render();
+      redraw();
    }
 
-   function render()
+   override public function redraw()
    {
-      Skin.current.renderProgressBar(graphics,mWidth,mHeight,mFraction);
-   }
-
-   override public function layout(inW:Float,inH:Float):Void
-   {
-      mWidth = inW;
-      mHeight = inH;
-      render();
+      Skin.current.renderProgressBar(graphics,mRect.width,mRect.height,mFraction);
    }
 
 }

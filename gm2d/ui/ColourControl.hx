@@ -24,8 +24,6 @@ class ColourSlider extends Widget
 
    var mMode:Int;
    var mVertical:Bool;
-   var mWidth:Float;
-   var mHeight:Float;
    var mColour:RGBHSV;
    var mPos:Float;
 
@@ -58,13 +56,13 @@ class ColourSlider extends Widget
          marker.rotation = 90;
       mColour = new RGBHSV(0xff0000);
       mPos = 1;
-      mWidth = mHeight = 1;
       var layout = getLayout();
       layout.minWidth = 20;
       layout.minHeight = 20;
       layout.setBestSize(20,20);
       layout.setBorders(2,2,2,2);
       layout.mAlign = inVertical ? Layout.AlignCenterX : Layout.AlignCenterY;
+      mRect = new Rectangle(0,0,1,1);
       updateMarker();
    }
 
@@ -80,11 +78,11 @@ class ColourSlider extends Widget
       if (mVertical)
       {
          marker.x = -5;
-         marker.y = mHeight * (1.0-mPos) - 5;
+         marker.y = mRect.height * (1.0-mPos) - 5;
       }
       else
       {
-         marker.x = mWidth * mPos + 5;
+         marker.x = mRect.width * mPos + 5;
          marker.y = -4;
       }
    }
@@ -96,7 +94,7 @@ class ColourSlider extends Widget
    function onMouse(inEvent:MouseEvent)
    {
       var local = globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
-      var val = mVertical ? 1-local.y/mHeight  : local.x/mWidth;
+      var val = mVertical ? 1-local.y/mRect.height  : local.x/mRect.width;
       if (val<0) val = 0;
       if (val>=1) val = mMode==RGBHSV.ALPHA ? 1.0 : 0.999999;
       mPos = val;
@@ -111,16 +109,6 @@ class ColourSlider extends Widget
          onEnter(getValue());
    }
 
-   public override function layout(inWidth:Float,inHeight:Float)
-   {
-      if (mWidth!=inWidth || mHeight!=inHeight)
-      {
-         mWidth = inWidth;
-         mHeight = inHeight;
-         redraw();
-      }
-   }
-
    public function setColour(inCol:RGBHSV)
    {
       mColour = inCol.clone();
@@ -131,11 +119,11 @@ class ColourSlider extends Widget
    public function gradientBox()
    {
       var mtx = new Matrix();
-      mtx.createGradientBox(mWidth, mHeight, mVertical ? Math.PI*0.5 : 0.0);
+      mtx.createGradientBox(mRect.width, mRect.height, mVertical ? Math.PI*0.5 : 0.0);
       return mtx;
    }
 
-   function redraw()
+   override public function redraw()
    {
       var gfx = graphics;
       gfx.clear();
@@ -143,14 +131,14 @@ class ColourSlider extends Widget
       if (mMode==RGBHSV.ALPHA)
       {
          gfx.beginFill(0xffffff);
-         gfx.drawRect(0,0,mWidth,mHeight);
+         gfx.drawRect(0,0,mRect.width,mRect.height);
          gfx.beginFill(0x808080);
          var x = 0;
          var y = 0;
-         while(x<mWidth)
+         while(x<mRect.width)
          {
             var w = x+10.0;
-            if (w>mWidth-1) w = mWidth-1;
+            if (w>mRect.width-1) w = mRect.width-1;
             gfx.drawRect(x,y,w-x,10);
             x+=10;
             y=10-y;
@@ -164,8 +152,8 @@ class ColourSlider extends Widget
       {
 	      var bmp = RGBHSV.getSpectrum();
          var mtx = new Matrix();
-         mtx.d = -mHeight/bmp.height;
-         mtx.ty = mHeight;
+         mtx.d = -mRect.height/bmp.height;
+         mtx.ty = mRect.height;
          gfx.beginBitmapFill(bmp,mtx);
       }
       else
@@ -179,10 +167,13 @@ class ColourSlider extends Widget
       }
 
       gfx.lineStyle(1,0x000000);
-      gfx.drawRect(0,0,mWidth,mHeight);
+      gfx.drawRect(0,0,mRect.width,mRect.height);
       updateMarker();
    }
 }
+
+
+
 
 class SwatchBox extends Widget
 {
@@ -534,7 +525,7 @@ class ColourWheel extends Widget
 
 
 
-   public override function layout(inWidth:Float,inHeight:Float)
+   public override function setRect(x:Float, y:Float, inWidth:Float, inHeight:Float)
    {
       if (mWidth!=inWidth || mHeight!=inHeight)
       {
@@ -660,7 +651,7 @@ class ColourControl extends Widget
          stage.removeChild(dragShape);
          dragShape = null;
       }
-      var swbox:SwatchBox = e.target;
+      var swbox:SwatchBox = Std.is(e.target,SwatchBox) ? e.target : null;
       if (swbox!=null)
          swbox.dropColour(mColour);
    }

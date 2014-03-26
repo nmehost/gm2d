@@ -15,13 +15,10 @@ import gm2d.ui.Dock;
 import gm2d.ui.DockPosition;
 import gm2d.Game;
 import gm2d.skin.Skin;
+import gm2d.ui.WidgetState;
 
 
-#if haxe3
 class MDIParent extends Widget implements IDock implements IDockable
-#else
-class MDIParent extends Widget, implements IDock, implements IDockable
-#end
 {
    var parentDock:IDock;
    var mChildren:Array<MDIChildFrame>;
@@ -161,7 +158,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
             clientArea.setChildIndex(mChildren[idx], mChildren.length-1);
             redrawTabs();
             for(child in mChildren)
-              child.setCurrent(child.pane==current);
+              child.setState(child.pane==current ? WidgetCurrent : WidgetNormal );
          }
       }
       return true;
@@ -216,11 +213,11 @@ class MDIParent extends Widget, implements IDock, implements IDockable
 
 
 
-   public function setRect(inX:Float,inY:Float,w:Float,h:Float):Void
+   override public function setRect(inX:Float,inY:Float,w:Float,h:Float):Void
    {
       x = inX;
       y = inY;
-      layout(w,h);
+      super.setRect(inX,inY,w,h);
    }
    public function getDockRect():Rectangle
    {
@@ -305,7 +302,7 @@ class MDIParent extends Widget, implements IDock, implements IDockable
       }
 
       for(child in mChildren)
-         child.setCurrent(child.pane==current);
+         child.setState(child.pane==current ? WidgetCurrent : WidgetNormal);
 
       inPane.setDock(this,clientArea);
       inPane.setRect(0,0,clientWidth,clientHeight);
@@ -327,31 +324,25 @@ class MDIParent extends Widget, implements IDock, implements IDockable
                clientArea.addChild(frame);
             }
          }
-         doLayout();
+         redraw();
          raiseDockable(current);
       }
    }
 
-   override public function layout(inW:Float,inH:Float):Void
+   public function verify() { }
+
+
+   override public function redraw()
    {
       // TODO: other tab layouts...
       var chrome = Skin.current.getMDIClientChrome();
-      sizeX = inW;
-      sizeY = inH;
-      clientWidth = inW-chrome.width;
-      clientHeight = inH-chrome.height;
+      sizeX = mRect.width;
+      sizeY = mRect.height;
+      clientWidth = sizeX-chrome.width;
+      clientHeight = sizeY-chrome.height;
       clientArea.x = chrome.x;
       clientArea.y = chrome.y;
-      doLayout();
-   }
 
-   public function verify()
-   {
-   }
-
-
-   function doLayout()
-   {
       if (clientHeight<1)
          clientArea.visible = false;
       else
@@ -426,192 +417,6 @@ class MDIParent extends Widget, implements IDock, implements IDockable
             redrawTabs();
          default:
       }
-   }
-}
-
-
-
-// --- MDIChildFrame ----------------------------------------------------------------------
-
-
-
-class MDIChildFrame extends Sprite
-{
-   public var pane(default,null) : IDockable;
-
-   static var mNextChildPos = 0;
-   var mMDI : MDIParent;
-   var mHitBoxes:HitBoxes;
-   var mClientWidth:Int;
-   var mClientHeight:Int;
-   var mClientOffset:Point;
-   var mDragStage:nme.display.Stage;
-   var mChromeContainer:Sprite;
-   var mPaneContainer:Sprite;
-   var mResizeHandle:Sprite;
-	var mIsCurrent:Bool;
-   var mSizeX0:Int;
-   var mSizeY0:Int;
-
-   public function new(inPane:IDockable, inMDI:MDIParent, inIsCurrent:Bool )
-   {
-      super();
-		mIsCurrent = inIsCurrent;
-      mMDI = inMDI;
-      mChromeContainer = new Sprite();
-      addChild(mChromeContainer);
-      mPaneContainer = new Sprite();
-      addChild(mPaneContainer);
- 
-      pane = inPane;
-      pane.setDock(mMDI,mPaneContainer);
-      mHitBoxes = new HitBoxes(this, onHitBox);
-
-      var size = inPane.getBestSize( Dock.DOCK_SLOT_FLOAT );
-      if (size.x<Skin.current.getMinFrameWidth())
-         size = inPane.getLayoutSize(Skin.current.getMinFrameWidth(),size.y,true);
-
-      var props:Dynamic = inPane.getProperties();
-      var pos_x:Dynamic = props.mdiX;
-      var pos_y:Dynamic = props.mdiY;
-      if (pos_x==null || pos_y==null)
-      {
-         mNextChildPos += 20;
-         x = props.mdiX = mNextChildPos;
-         y = props.mdiY = mNextChildPos;
-      }
-      else
-      {
-         x = pos_x;
-         y = pos_y;
-      }
-
-      if (x>mMDI.clientWidth-20 || y>mMDI.clientHeight-20)
-      {
-         mNextChildPos = 0;
-         x = y = mNextChildPos;
-         props.mdiX = props.mdiY = mNextChildPos;
-      }
-
-      mClientWidth = Std.int(Math.max(size.x,Skin.current.getMinFrameWidth())+0.99);
-      mClientHeight = Std.int(size.y+0.99);
-      setClientSize(mClientWidth,mClientHeight);
-
-      mSizeX0 = mClientWidth;
-      mSizeY0 = mClientHeight;
-
-      pane.setRect(mClientOffset.x, mClientOffset.y, mClientWidth, mClientHeight);
-   }
-
-   public function loadLayout(inProperties:Dynamic)
-   {
-   }
-
-   public function setClientSize(inW:Int, inH:Int)
-   {
-      var minW = Skin.current.getMinFrameWidth();
-      mClientWidth = Std.int(Math.max(inW,minW));
-      mClientHeight = Std.int(Math.max(inH,1));
-      var size = pane.getLayoutSize(mClientWidth,mClientHeight,true);
-      if (size.x<minW)
-         size = pane.getLayoutSize(minW,mClientHeight,true);
-      mClientWidth = Std.int(size.x);
-      mClientHeight = Std.int(size.y);
-      mClientOffset = Skin.current.getFrameClientOffset();
-      pane.setRect(mClientOffset.x, mClientOffset.y, mClientWidth, mClientHeight);
-      redraw();
-   }
-
-	public function setCurrent(inIsCurrent:Bool)
-	{
-	   if (mIsCurrent!=inIsCurrent)
-		{
-		   mIsCurrent = inIsCurrent;
-         redraw();
-		}
-	}
-
-   public function destroy()
-   {
-      pane.setDock(mMDI,null);
-      parent.removeChild(this);
-   }
-
-   function onHitBox(inAction:HitAction,inEvent:MouseEvent)
-   {
-      switch(inAction)
-      {
-         case DRAG(_pane):
-            stage.addEventListener(MouseEvent.MOUSE_UP,onEndDrag);
-            mDragStage = stage;
-            startDrag();
-         case TITLE(pane):
-            Dock.raise(pane);
-         case BUTTON(pane,id):
-            if (id==MiniButton.CLOSE)
-               pane.closeRequest(false);
-            else if (id==MiniButton.MAXIMIZE)
-               mMDI.maximize(pane);
-            redraw();
-         case REDRAW:
-            redraw();
-         case RESIZE(_pane,_flags):
-            stage.addEventListener(MouseEvent.MOUSE_UP,onEndDrag);
-            stage.addEventListener(MouseEvent.MOUSE_MOVE,onUpdateSize);
-            mDragStage = stage;
-            mResizeHandle = new Sprite();
-            mResizeHandle.name = "Resize handle";
-            mSizeX0 = mClientWidth;
-            mSizeY0 = mClientHeight;
-            addChild(mResizeHandle);
-            mResizeHandle.startDrag();
-         default:
-      }
-   }
-
-   function saveRect()
-   {
-      //pane.gm2dMDIRect = new Rectangle(x,y,mClientWidth,mClientHeight);
-   }
-
-   public function redraw()
-   {
-      while(mChromeContainer.numChildren>0)
-         mChromeContainer.removeChildAt(0);
-      Skin.current.renderFrame(mChromeContainer,pane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
-   }
-
-   function onEndDrag(_)
-   {
-      mDragStage.removeEventListener(MouseEvent.MOUSE_UP,onEndDrag);
-      if (mResizeHandle!=null)
-      {
-         mDragStage.removeEventListener(MouseEvent.MOUSE_MOVE,onUpdateSize);
-         removeChild(mResizeHandle);
-         mResizeHandle.stopDrag();
-         mResizeHandle = null;
-      }
-      else
-         stopDrag();
-      var props:Dynamic = pane.getProperties();
-      props.mdiX = x;
-      props.mdiY = y;
-   }
-
-   function onUpdateSize(_)
-   {
-      if (mResizeHandle!=null)
-      {
-         var cw = Std.int(mResizeHandle.x + mSizeX0 );
-         var ch = Std.int(mResizeHandle.y + mSizeY0  );
-         setClientSize(cw,ch);
-      }
-   }
-
-   public function setPosition(inX:Float, inY:Float)
-   {
-      x = inX;
-      y = inY;
    }
 }
 

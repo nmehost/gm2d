@@ -10,8 +10,6 @@ import nme.text.TextFieldAutoSize;
 class RGBBox extends Widget
 {
    var textField:TextField;
-   var mWidth:Float;
-   var mHeight:Float;
    var mColour:RGBHSV;
    var updateLockout:Int;
    public var onColourChange:RGBHSV->Int->Void;
@@ -26,9 +24,8 @@ class RGBBox extends Widget
       onColourChange = inOnColour;
       mColour = inColour.clone();
       updateLockout = 0;
-      mWidth = 72;
-      mHeight = 28;
-      getLayout().setMinSize(mWidth,mHeight);
+      mLayout = new DisplayLayout(this);
+      getLayout().setMinSize(72,28);
 
       var fmt = new nme.text.TextFormat();
       fmt.align = nme.text.TextFormatAlign.CENTER;
@@ -44,7 +41,7 @@ class RGBBox extends Widget
          textField.addEventListener(MouseEvent.CLICK, function(_) showDialog() );
 
       textField.text = "0x00000000";
-      redraw();
+      build();
    }
 
    public function showDialog( )
@@ -82,10 +79,10 @@ class RGBBox extends Widget
       updateLockout--;
    }
 
-   function redraw()
+   override function redraw()
    {
-      textField.width = mWidth;
-      textField.height = mHeight;
+      textField.width = mRect.width;
+      textField.height = mRect.height;
       textField.backgroundColor = mColour.getRGB();
       textField.textColor = mColour.v > 128 ? 0x000000 : 0xffffff;
       updateLockout++;
@@ -96,12 +93,6 @@ class RGBBox extends Widget
       updateLockout--;
    }
 
-   public override function layout(inWidth:Float,inHeight:Float)
-   {
-      mWidth = inWidth;
-      mHeight = inHeight;
-      redraw();
-   }
 }
 
 

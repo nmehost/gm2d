@@ -70,7 +70,7 @@ class GroupBox extends Control
       return layout;
    }
 
-   override public function layout(inW:Float,inH:Float):Void
+   override public function redraw()
    {
       var gfx = graphics;
       gfx.clear();
@@ -78,9 +78,9 @@ class GroupBox extends Control
       gfx.beginFill(0xffffff);
       gfx.moveTo(4,-11);
       gfx.lineTo(-2,-11);
-      gfx.lineTo(-2,inH + 2);
-      gfx.lineTo(inW + 2,inH + 2);
-      gfx.lineTo(inW + 2, - 11);
+      gfx.lineTo(-2,mRect.height + 2);
+      gfx.lineTo(mRect.width + 2,mRect.height + 2);
+      gfx.lineTo(mRect.width + 2, - 11);
       gfx.endFill();
 
       gfx.beginFill(0xffffff);
