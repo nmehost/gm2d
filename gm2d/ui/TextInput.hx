@@ -16,32 +16,48 @@ class TextInput extends Control
 
    public function new(inVal="", ?onUpdate:String->Void)
    {
+
        super("TextInput");
+
        mText = new TextField();
+       mText.autoSize = nme.text.TextFieldAutoSize.LEFT;
+       mText.background = true;
+       mText.backgroundColor = 0xffffff;
+       addChild(mText);
+       // Get default size from empty text field...
+       mLayout = new ChildStackLayout();
+       mLayout.add( new DisplayLayout(this).setAlignment(Layout.AlignStretch) );
+       mLayout.setAlignment(Layout.AlignStretch);
+
+
        mText.type = nme.text.TextFieldType.INPUT;
+       mText.autoSize = nme.text.TextFieldAutoSize.NONE;
        mText.text = inVal;
        mText.x = 0.5;
        mText.y = 0.5;
-       mText.height = boxHeight-1;
        mText.border = true;
-       mText.borderColor = 0x00ff00;
-       addChild(mText);
+       mText.borderColor = 0x000000;
        mRenderer.renderLabel(mText);
 
-       mLayout = new ChildStackLayout();
-       mLayout.add( new DisplayLayout(this) );
+       var textLayout = new TextLayout(mText).setAlignment(Layout.AlignStretch | Layout.AlignCenterY);
 
        var extra = createExtraWidgetLayout();
        if (extra==null)
-          mLayout.add( new TextLayout(mText) );
+          mLayout.add( textLayout );
        else
        {
           var grid = new GridLayout(2,"grid",0);
           grid.setColStretch(0,1);
-          grid.add( new TextLayout(mText) );
+          grid.add( textLayout );
           grid.add( extra );
+          grid.setAlignment(Layout.AlignStretch  | Layout.AlignCenterY );
+          grid.mDbgObj = this;
           mLayout.add(grid);
        }
+
+
+       textLayout.mDebugCol = 0xff00ff;
+       mLayout.mDebugCol = 0xff00ff;
 
        if (onUpdate!=null)
        {
@@ -98,13 +114,13 @@ class TextInput extends Control
    {
        var gfx = graphics;
        gfx.clear();
-       gfx.lineStyle(1,0x808080);
-       gfx.beginFill(0xf0f0ff);
-       gfx.drawRect(0.5,0.5,mRect.width-1,23);
-       gfx.lineStyle();
-       mText.width = mRect.width - 2;
-       mText.y =  (boxHeight - 2 - mText.textHeight)/2;
-       mText.height =  boxHeight-mText.y;
+       //gfx.lineStyle(1,0x808080);
+       //gfx.beginFill(0xf0f0ff);
+       //gfx.drawRect(0.5,0.5,mRect.width-1,23);
+       //gfx.lineStyle();
+       //mText.width = mRect.width - 2;
+       //mText.y =  (boxHeight - 2 - mText.textHeight)/2;
+       //mText.height =  boxHeight-mText.y;
    }
 
 }

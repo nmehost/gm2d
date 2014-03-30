@@ -29,6 +29,7 @@ class Dialog extends Screen
       Skin.current.fromSvg(skin);
 
       var panel = new gm2d.ui.Panel("Settings");
+     
 
       panel.addLabel("Music Volume");
       panel.addUI(new Slider(0,100,50,OnMusic) );

@@ -240,6 +240,8 @@ class DisplayLayout extends Layout
       mOX = inObj.x;
       mOY = inObj.y;
       mBLeft = mBRight = mBTop = mBBottom = 0;
+
+      mDebugCol = 0xff00ff;
    }
    public override function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void
    {
@@ -325,6 +327,7 @@ class DisplayLayout extends Layout
       }
 
        
+      // trace(mObj.name + ' setRect $name: $inX, $inY, $inW, $inH -> $x,$y,$w,$y');
       setObjRect(x,y,w,h);
 
       if (Layout.mDebug!=null && mObj!=null && mObj.parent!=null)
@@ -338,7 +341,7 @@ class DisplayLayout extends Layout
 
    public function renderDebug(pos:Point, w:Float, h:Float)
    {
-     Layout.mDebug.lineStyle(2,mDebugCol);
+     Layout.mDebug.lineStyle(1,mDebugCol);
      Layout.mDebug.drawRect(pos.x,pos.y,w,h);
    }
 
@@ -362,8 +365,9 @@ class TextLayout extends DisplayLayout
            ?inPrefWidth:Null<Float>,?inPrefHeight:Null<Float>)
    {
       super(inObj,inAlign);
-      mOWidth = inPrefWidth==null ? inObj.textWidth : inPrefWidth;
-      mOHeight =  inPrefHeight==null ? inObj.textHeight : inPrefHeight;
+
+      mOWidth = inPrefWidth==null ? inObj.width : inPrefWidth;
+      mOHeight =  inPrefHeight==null ? inObj.height : inPrefHeight;
       mDebugCol = 0x00ff00;
    }
 
@@ -378,8 +382,12 @@ class TextLayout extends DisplayLayout
    override function setObjRect(x:Float,y:Float,w:Float,h:Float)
    {
       var text:TextField = cast mObj;
-      text.x = x - 2;
-      text.y = y - 2;
+      //trace('TextLayout setObjRect $x,$y, $w,$h  ' + text.text);
+
+      text.x = x;// - 2;
+      text.y = y;// - 2;
+      text.width = w;
+      text.height = h;
    }
 }
 
@@ -490,6 +498,13 @@ class ChildStackLayout extends StackLayout
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
+      if (Layout.mDebug!=null)
+      {
+         Layout.mDebug.lineStyle(1,0xffff00);
+         Layout.mDebug.drawRect(inX,inY,inW,inH);
+      }
+
+
       var new_w = inW-mBLeft-mBRight;
       var new_h = inH-mBTop-mBBottom;
       for(i in 0...mChildren.length)
@@ -497,22 +512,18 @@ class ChildStackLayout extends StackLayout
          var child = mChildren[i];
          if (i==0)
          {
+            //trace("Set stack parent " +   (inX+mBLeft) + "," + (inY+mBTop) + ' $new_w x $new_h' );
             alignChild(child, inX+mBLeft, inY+mBTop, new_w, new_h );
             new_w -= offsetLeft + offsetRight;
             new_h -= offsetTop + offsetBottom;
          }
          else
          {
+            //trace('Set stack child $offsetLeft,$offsetRight,$new_w,$new_h');
             alignChild(child,offsetLeft,offsetRight,new_w,new_h);
          }
 
      }
-
-      if (Layout.mDebug!=null)
-      {
-         Layout.mDebug.lineStyle(1,0xffff00);
-         Layout.mDebug.drawRect(inX,inY,inW,inH);
-      }
 
       fireLayout(inX,inY,inW,inH);
    }
@@ -565,6 +576,7 @@ class GridLayout extends Layout
    var mSpaceY:Float;
    var mDefaultStretch:Float;
    var mPos:Int;
+   public var mDbgObj:DisplayObject;
    static var mID = 0;
 
    public function new(?inCols:Null<Int>,?inName:String,inDefaultStretch:Float=1.0)
@@ -677,7 +689,7 @@ class GridLayout extends Layout
    }
 
 
-   static var indent = "";
+   public static var indent = "";
 
    function BestColWidths()
    {
@@ -894,8 +906,11 @@ class GridLayout extends Layout
 
       if (Layout.mDebug!=null)
       {
+         var p = new Point(inX,inY);
+         if (mDbgObj!=null)
+            p = Layout.mDebugObject.globalToLocal( mDbgObj.localToGlobal(p) );
          Layout.mDebug.lineStyle(1,0x0000ff);
-         Layout.mDebug.drawRect(inX,inY,inW,inH);
+         Layout.mDebug.drawRect(p.x,p.y,inW,inH);
       }
 
       fireLayout(inX,inY,inW,inH);

@@ -30,7 +30,11 @@ class Dialog extends Window
       mPane = inPane;
       mContent = new Sprite();
       inPane.setDock(null,this);
-      //addChild(inPane.displayObject);
+
+      //var dbgObject = new nme.display.Shape();
+      //addChild(dbgObject);
+      //Layout.setDebug(dbgObject);
+
       mHitBoxes = new HitBoxes(this,onHitBox);
 
       mLayout = new StackLayout();

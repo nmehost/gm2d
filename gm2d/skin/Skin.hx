@@ -746,7 +746,7 @@ class Skin
 
       var pane = inPane.asPane();
 
-      if (true)
+      if (false)
       {
          var but = MiniButton.CLOSE;
          var state =  getButtonBitmap(but,HitBoxes.BUT_STATE_UP);

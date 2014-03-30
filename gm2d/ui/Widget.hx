@@ -44,6 +44,7 @@ class Widget extends Sprite
          mRenderer.layoutWidget(this);
       var size = layout.getBestSize();
       layout.setRect(0,0,size.x,size.y);
+      layout.mDebugCol = 0x000000;
    }
 
    public function setState(inState:WidgetState)

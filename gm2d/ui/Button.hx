@@ -204,7 +204,8 @@ class Button extends Control
       var layout = new ChildStackLayout( );
       layout.setBorders(0,0,0,0);
       mMainLayout = new DisplayLayout(this).setOrigin(0,0);
-      mMainLayout.mAlign = Layout.AlignLeft | Layout.AlignTop | Layout.AlignPixel;
+      mMainLayout.mDebugCol = 0x000000;
+      mMainLayout.mAlign = Layout.AlignStretch | Layout.AlignPixel;
       layout.add( mMainLayout );
       mItemLayout = ( Std.is(mDisplayObj,TextField)) ?
            new TextLayout(cast mDisplayObj)  : 

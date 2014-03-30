@@ -422,7 +422,7 @@ class BitmapText extends Control
       return inType;
    }
 
-   public override function layout(inW:Float, inH:Float)
+   public function layout(inW:Float, inH:Float)
    {
        mViewport.resize(Std.int(inW),Std.int(inH));
        RebuildText();
