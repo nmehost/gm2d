@@ -2,6 +2,7 @@ package gm2d.ui;
 
 import nme.display.DisplayObject;
 import nme.display.Graphics;
+import nme.display.Shape;
 import nme.text.TextField;
 import nme.geom.Point;
 
@@ -43,7 +44,7 @@ class Layout
    public var includeBorderOnLayout = false;
 
    static var mDebug:nme.display.Graphics;
-   static var mDebugObject:nme.display.Shape;
+   static var mDebugObject:Shape;
 
 
    public function new()
@@ -53,6 +54,12 @@ class Layout
       mDebugCol = 0xff0000;
       mBLeft = mBRight = mBTop = mBBottom = 0;
       mAlign = AlignCenterX|AlignCenterY;
+   }
+
+   public static function setDebugObject(inShape:Shape)
+   {
+     mDebugObject = inShape;
+     mDebug = inShape.graphics;
    }
 
    public function setAlignment(inAlign:Int)
@@ -93,7 +100,7 @@ class Layout
       { throw "setRect - not implemented"; }
    public function setSpacing(inX:Float,inY:Float) : Layout { return this; }
 
-   static public function setDebug(inObj:nme.display.Shape)
+   static public function setDebug(inObj:Shape)
    {
       mDebugObject = inObj;
       mDebug = mDebugObject==null ? null : mDebugObject.graphics;
@@ -142,6 +149,8 @@ class Layout
    }
 
    public function setBestSize(inW:Float, inH:Float) { }
+   public function setBestWidth(inW:Float) { }
+   public function setBestHeight(inH:Float) { }
    public function getColWidths() : Array<Float> { return [ getBestWidth() ]; }
 
    public function getBestWidth(?inHeight:Null<Float>) : Float { return 0.0; }
@@ -259,6 +268,16 @@ class DisplayLayout extends Layout
      mOWidth = inW;
      mOHeight = inH;
    }
+
+   public override function setBestWidth(inW:Float)
+   {
+     mOWidth = inW;
+   }
+   public override function setBestHeight(inH:Float)
+   {
+     mOHeight = inH;
+   }
+
 
    function setObjRect(x:Float,y:Float,w:Float,h:Float)
    {
@@ -604,6 +623,12 @@ class GridLayout extends Layout
          mRowInfo[0] = new RowInfo(mDefaultStretch);
       }
       mPos = 0;
+   }
+
+   public function setDebugOwner(inObj:DisplayObject) : GridLayout
+   {
+      mDbgObj = inObj;
+      return this;
    }
 
 

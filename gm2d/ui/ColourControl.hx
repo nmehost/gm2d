@@ -568,6 +568,7 @@ class ColourControl extends Widget
       mMode = RGBHSV.HUE;
 
       var all =  new GridLayout(3,"All",0);
+      all.setDebugOwner(this);
       all.add( createNumberBoxes() );
 
       mainSlider = new ColourSlider(mMode, true);
@@ -687,7 +688,7 @@ class ColourControl extends Widget
       var delta = inMax<= 100 ? 0.01 : 1;
       var result = new NumericInput(inMax*0.5,inMax>100,0,inMax,delta,
          function(f,phase)  if (updateLockout==0) setComponent(inMode,f,phase) );
-      result.setTextWidth(60);
+      result.setTextWidth(20);
       result.addEventListener( MouseEvent.MOUSE_DOWN, function(_) setInputMode(inMode) );
       return result;
    }

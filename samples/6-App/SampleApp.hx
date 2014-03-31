@@ -14,13 +14,25 @@ import nme.display.Loader;
 import nme.events.Event;
 import gm2d.ui.Dock;
 import gm2d.ui.IDockable;
+import gm2d.RGBHSV;
+import gm2d.ui.ColourControl;
+import gm2d.ui.DockPosition;
+import gm2d.ui.Panel;
 
 class SampleApp extends App
 {
    public function new()
    {
       super();
+
+      //Game.debugLayout = true;
       createMenus();
+
+      var panel = new Panel("Colour");
+      panel.addUI(new ColourControl( new RGBHSV(0xff00ff) ) );
+      //addPane( panel.getPane(), DockPosition.DOCK_LEFT);
+      //var dlg = new gm2d.ui.Dialog(panel.getPane());
+      //Game.doShowDialog(dlg,true);
    }
 
    function createMenus()
@@ -43,6 +55,7 @@ class SampleApp extends App
       view.add( new MenuItem("Debug Trace Panes", onViewDebugTracePanes) );
       #end
       bar.add( view );
+
    }
 
    function onExit(_)

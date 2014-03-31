@@ -1,6 +1,7 @@
 package gm2d;
 
 import nme.display.Sprite;
+import nme.display.Shape;
 import gm2d.Screen;
 import nme.display.StageScaleMode;
 import nme.display.StageDisplayState;
@@ -31,6 +32,7 @@ class Game
    static public var backgroundColor = 0xffffff;
    static public var title(default,set_title):String;
    static public var icon(default,set_icon):String;
+   static public var debugLayout(get,set):Bool;
    static public var pixelAccurate:Bool = false;
    static public var toggleFullscreenOnAltEnter:Bool = true;
    static public var mapEscapeToBack:Bool = true;
@@ -42,6 +44,7 @@ class Game
    static var mScreenParent:Sprite;
    static var mDialogParent:Sprite;
    static var mPopupParent:Sprite;
+   static var mDebugOverlay:Shape;
    static var mFPSControl:TextField;
    static var mFPSColor:Int = 0xff0000;
    static var mLastEnter = 0.0;
@@ -76,6 +79,8 @@ class Game
       mScreenParent = new Sprite();
       mDialogParent = new Sprite();
       mPopupParent = new Sprite();
+      mDebugOverlay = new Shape();
+      mDebugOverlay.visible = false;
       mDialogParent.visible = true;
 
       mFPSControl = new TextField();
@@ -92,6 +97,7 @@ class Game
       parent.addChildAt(mDialogParent,1);
       parent.addChildAt(mPopupParent,2);
       parent.addChildAt(mFPSControl,3);
+      parent.addChildAt(mDebugOverlay,4);
 
       //if (pixelAccurate)
       parent.stage.scaleMode = nme.display.StageScaleMode.NO_SCALE;
@@ -490,6 +496,26 @@ class Game
    {
       title = inTitle;
       return inTitle;
+   }
+
+   static function set_debugLayout(inValue:Bool) : Bool
+   {
+      if (mDebugOverlay!=null)
+      {
+         mDebugOverlay.graphics.clear();
+         if (inValue)
+            gm2d.ui.Layout.setDebugObject(mDebugOverlay);
+         else
+            gm2d.ui.Layout.setDebugObject(null);
+         mDebugOverlay.visible = inValue;
+         return inValue;
+      }
+      return false;
+   }
+
+   static function get_debugLayout() : Bool
+   {
+      return mDebugOverlay!=null && mDebugOverlay.visible;
    }
 
    static function set_icon(inIcon:String) : String

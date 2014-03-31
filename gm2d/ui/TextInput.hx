@@ -12,6 +12,7 @@ class TextInput extends Control
 {
    public var text(get_text,set_text):String;
    var mText:TextField;
+   var mTextLayout:Layout;
    static var boxHeight = 22;
 
    public function new(inVal="", ?onUpdate:String->Void)
@@ -39,16 +40,16 @@ class TextInput extends Control
        mText.borderColor = 0x000000;
        mRenderer.renderLabel(mText);
 
-       var textLayout = new TextLayout(mText).setAlignment(Layout.AlignStretch | Layout.AlignCenterY);
+       mTextLayout = new TextLayout(mText).setAlignment(Layout.AlignStretch | Layout.AlignCenterY);
 
        var extra = createExtraWidgetLayout();
        if (extra==null)
-          mLayout.add( textLayout );
+          mLayout.add( mTextLayout );
        else
        {
           var grid = new GridLayout(2,"grid",0);
           grid.setColStretch(0,1);
-          grid.add( textLayout );
+          grid.add( mTextLayout );
           grid.add( extra );
           grid.setAlignment(Layout.AlignStretch  | Layout.AlignCenterY );
           grid.mDbgObj = this;
@@ -56,7 +57,7 @@ class TextInput extends Control
        }
 
 
-       textLayout.mDebugCol = 0xff00ff;
+       mTextLayout.mDebugCol = 0xff00ff;
        mLayout.mDebugCol = 0xff00ff;
 
        if (onUpdate!=null)
@@ -72,7 +73,7 @@ class TextInput extends Control
 
    public function setTextWidth(inW:Float)
    {
-      mText.width = inW;
+      mTextLayout.setBestWidth(inW);
    }
 
    public function set_text(inText:String)
