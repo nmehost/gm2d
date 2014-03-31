@@ -74,6 +74,7 @@ class TextInput extends Control
    public function setTextWidth(inW:Float)
    {
       mTextLayout.setBestWidth(inW);
+      build();
    }
 
    public function set_text(inText:String)

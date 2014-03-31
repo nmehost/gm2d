@@ -16,7 +16,6 @@ class Panel extends Widget
    var mGridLayout:GridLayout;
    var mItemLayout:GridLayout;
    var mButtonLayout:Layout;
-   var mDebug:Shape;
    var mLayoutDirty:Bool;
    var mLabelLookup:Hash<TextField>;
    var mButtons:Array<Button>;
@@ -31,20 +30,19 @@ class Panel extends Widget
       mLayoutDirty = true;
       mTitle = inTitle;
 
-      mDebug = gm2d.Lib.debug ? new Shape() : null;
       mGridLayout = new GridLayout(1,"vertical");
       mGridLayout.setSpacing(0,20);
+      mGridLayout.setAlignment(Layout.AlignStretch);
       mItemLayout = new GridLayout(2,"items");
       mButtonLayout = new GridLayout(null,"buttons");
       mButtonLayout.setSpacing(10,0);
       mButtonLayout.setBorders(0,10,0,10);
       mGridLayout.add(mItemLayout);
       mGridLayout.setRowStretch(1,0);
-      if (mDebug!=null)
-         addChild(mDebug);
       mLayout = new ChildStackLayout();
-      mLayout.add( new DisplayLayout(this) );
+      mLayout.add( new DisplayLayout(this).setAlignment( Layout.AlignStretch ) );
       mLayout.add( mGridLayout );
+      build();
    }
 
    public function setItemSize(inSize:Int)
@@ -80,12 +78,6 @@ class Panel extends Widget
    public function doLayout()
    {
       mLayoutDirty = false;
-      if (mDebug!=null)
-      {
-         removeChild(mDebug);
-         addChild(mDebug);
-         Layout.setDebug(mDebug);
-      }
       //trace("DoLayout:" + mForceWidth + "," + mForceHeight);
       mGridLayout.calcSize(mForceWidth,mForceHeight);
       mGridLayout.setRect(0,0,mGridLayout.width,mGridLayout.height);

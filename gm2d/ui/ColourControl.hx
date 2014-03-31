@@ -62,8 +62,8 @@ class ColourSlider extends Widget
       layout.setBestSize(20,20);
       layout.setBorders(2,2,2,2);
       layout.mAlign = inVertical ? Layout.AlignCenterX : Layout.AlignCenterY;
-      mRect = new Rectangle(0,0,1,1);
       updateMarker();
+      build();
    }
 
    public function setInputMode(inMode:Int)
@@ -175,7 +175,7 @@ class ColourSlider extends Widget
 
 
 
-class SwatchBox extends Widget
+class SwatchBox extends Sprite
 {
    var swatch:Swatch;
    public function new(inSwatch:Swatch, inControl:ColourControl,inSize:Int)
@@ -188,6 +188,7 @@ class SwatchBox extends Widget
       gfx.drawRect(0.5,0.5,inSize,inSize);
       addEventListener(MouseEvent.MOUSE_DOWN, function(_) inControl.applyColour(inSwatch.colour) );
    }
+   public function getLayout() { return new DisplayLayout(this); }
    public function dropColour(inCol:RGBHSV)
    {
      swatch.setColour(inCol);
@@ -271,6 +272,7 @@ class ColourWheel extends Widget
       layout.minHeight = 32;
       layout.mAlign = Layout.AlignKeepAspect | Layout.AlignStretch;
       mMode = RGBHSV.VALUE;
+      build();
    }
 
    function onMouse(inEvent:MouseEvent)
@@ -597,7 +599,7 @@ class ColourControl extends Widget
 
       all.setColStretch(2,1);
 
-      var swatches = new GridLayout(10);
+      var swatches = new GridLayout(10,"Swatches",0);
       swatches.setSpacing(4,4);
       for(i in 0...20)
       {
@@ -609,13 +611,17 @@ class ColourControl extends Widget
       var vstack = new GridLayout(1);
       vstack.add(swatches);
       vstack.add(all);
-      vstack.setAlignment(Layout.AlignStretch).setSpacing(0,4);
+      vstack.setAlignment(Layout.AlignStretch | Layout.AlignTop).setSpacing(0,4);
 
       setInputMode(mMode);
       setAll();
       updateLockout = 0;
 
-      mLayout = vstack;
+      var csl = new ChildStackLayout();
+      csl.add( new DisplayLayout(this).setAlignment(Layout.AlignStretch) );
+      csl.add( vstack );
+      mLayout = csl;
+      build();
    }
 
    function onRGBDrag(e:MouseEvent)
@@ -688,7 +694,7 @@ class ColourControl extends Widget
       var delta = inMax<= 100 ? 0.01 : 1;
       var result = new NumericInput(inMax*0.5,inMax>100,0,inMax,delta,
          function(f,phase)  if (updateLockout==0) setComponent(inMode,f,phase) );
-      result.setTextWidth(20);
+      result.setTextWidth(50);
       result.addEventListener( MouseEvent.MOUSE_DOWN, function(_) setInputMode(inMode) );
       return result;
    }

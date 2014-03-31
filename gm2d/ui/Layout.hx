@@ -148,9 +148,9 @@ class Layout
       mBBottom = -inDY;
    }
 
-   public function setBestSize(inW:Float, inH:Float) { }
-   public function setBestWidth(inW:Float) { }
-   public function setBestHeight(inH:Float) { }
+   public function setBestSize(inW:Float, inH:Float) : Layout { return this; }
+   public function setBestWidth(inW:Float) : Layout { return this; }
+   public function setBestHeight(inH:Float) : Layout { return this; }
    public function getColWidths() : Array<Float> { return [ getBestWidth() ]; }
 
    public function getBestWidth(?inHeight:Null<Float>) : Float { return 0.0; }
@@ -267,15 +267,18 @@ class DisplayLayout extends Layout
    {
      mOWidth = inW;
      mOHeight = inH;
+     return this;
    }
 
    public override function setBestWidth(inW:Float)
    {
      mOWidth = inW;
+     return this;
    }
    public override function setBestHeight(inH:Float)
    {
      mOHeight = inH;
+     return this;
    }
 
 
@@ -605,6 +608,8 @@ class GridLayout extends Layout
       mSpaceY = 10;
       mCols = inCols;
       mDefaultStretch = inDefaultStretch;
+      if (mDefaultStretch>0)
+         mAlign = Layout.AlignStretch;
       name =  (inName==null) ? ("Layout:" + mID++) : inName;
       clear();
    }

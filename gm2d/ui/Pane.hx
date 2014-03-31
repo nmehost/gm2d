@@ -37,7 +37,8 @@ class Pane implements IDockable
    var posX:Float;
    var posY:Float;
 
-   public function new(inObj:DisplayObject, inTitle:String, inFlags:Int, ?inShortTitle:String)
+   public function new(inObj:DisplayObject, inTitle:String, inFlags:Int, ?inShortTitle:String,
+       ?inItemLayout:Layout)
    {
       sPanes.push(this);
       scrollX = scrollY = 0.0;
@@ -66,6 +67,7 @@ class Pane implements IDockable
       sizeX=sizeY=0.0;
       posX=posY=0.0;
       gm2dMinimized = false;
+      itemLayout = inItemLayout;
    }
    static public function allPanes() { return sPanes.copy(); }
 
@@ -241,14 +243,16 @@ class Pane implements IDockable
       sizeY = h;
       if (displayObject!=null)
       {
+         if (itemLayout!=null)
+            itemLayout.setRect(0,0,w,h);
          displayObject.x = x;
          displayObject.y = y;
          displayObject.scrollRect = new Rectangle(scrollX,scrollY,w,h);
-         if (itemLayout!=null)
-            itemLayout.setRect(0,0,w,h);
       }
       else if (itemLayout!=null)
+      {
          itemLayout.setRect(x,y,w,h);
+      }
 
       if (onLayout!=null)
          onLayout();
