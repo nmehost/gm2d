@@ -11,7 +11,7 @@ class StaticText
    public static function create(inText:String,?inParent:DisplayObjectContainer)
    {
       var label = new TextField();
-      var renderer = Skin.renderer("StaticText");
+      var renderer = Skin.renderer(["StaticText","Text"]);
       renderer.renderLabel(label);
       if (inParent!=null)
          inParent.addChild(label);

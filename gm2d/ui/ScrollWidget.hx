@@ -39,9 +39,9 @@ class ScrollWidget extends Control
    var speedY:TimeAverage;
    var mLastT:Float;
 
-   public function new()
+   public function new(?inLineage:Array<String>)
    {
-      super();
+      super(Widget.addLine(inLineage,"Scroll"));
       mEventStage = null;
       maxScrollX = 0;
       maxScrollY = 0;
@@ -54,7 +54,6 @@ class ScrollWidget extends Control
       speedY = new TimeAverage(0.2);
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
       addEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
-      name = "ScrollWidget";
    }
    public function setScrollRange(inControlWidth:Float, inWindowWidth:Float,
                            inControlHeight:Float, inWindowHeight:Float)

@@ -122,20 +122,40 @@ class Skin
       createRenderers();
    }
 
-   public static function renderer(inClassName:String, ?inAttribs:Dynamic) : Renderer
+   public static function hasLineage(inLineage:Array<String>, inClassName)
    {
-       if (inClassName=="Dialog")
-       {
-          return current.dialogRenderer;
-       }
+      for(line in inLineage)
+         if (inClassName==line)
+            return true;
+      return false;
+   }
 
-       var result = current.buttonRenderer;
-       if (inClassName=="ChoiceButton")
+   public static function renderer(inLineage:Array<String>, ?inAttribs:Dynamic) : Renderer
+   {
+       var result:ButtonRenderer = null;
+
+       if (hasLineage(inLineage,"Dialog"))
+       {
+          result = current.dialogRenderer;
+       }
+       else if (hasLineage(inLineage,"ChoiceButton"))
+       {
           result = ButtonRenderer.simple();
+       }
+       else if (hasLineage(inLineage,"SimpleButton"))
+       {
+          result = ButtonRenderer.simple();
+       }
+       else if (hasLineage(inLineage,"Button"))
+       {
+          result = current.buttonRenderer;
+       }
+       else
+          result = new ButtonRenderer();
 
        var map = createAttribMap(inAttribs,false);
 
-       if (inClassName=="ToggleButton")
+       if (hasLineage(inLineage,"ToggleButton"))
        {
           map = mergeAttribMap(map,  {
              downX:0,
@@ -188,7 +208,7 @@ class Skin
       var result = new FrameRenderer();
       result.borders = borders;
       result.titleHeight = 26;
-      result.render = renderDialog;
+      result.renderFrame = renderDialog;
       return result;
    }
    public function createButtonRenderer()

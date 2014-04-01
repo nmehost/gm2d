@@ -24,9 +24,9 @@ class Dialog extends Window
    public var shouldConsumeEvent : MouseEvent -> Bool;
 
 
-   public function new(inPane:Pane, ?inAttribs:Dynamic)
+   public function new(inPane:Pane, ?inAttribs:Dynamic, ?inLineage:Array<String>)
    {
-      super("Dialog", inAttribs);
+      super(Widget.addLine(inLineage,"Dialog"), inAttribs);
       mPane = inPane;
       mContent = new Sprite();
       inPane.setDock(null,this);

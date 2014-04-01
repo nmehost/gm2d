@@ -58,7 +58,7 @@ class SpriteMenubar extends Sprite implements Menubar implements IDock
       
       var me = this;
       var nx = mNextX;
-      var but = Button.TextButton(inItem.gmText,function(){me.popup(pos);});
+      var but = Button.TextButton(inItem.gmText,function(){me.popup(pos);},["SimpleButton"]);
       mButtons.push(but);
 		Skin.current.styleMenu(but);
       but.addEventListener(MouseEvent.MOUSE_OVER, function(_) me.onMouseItem(pos) );

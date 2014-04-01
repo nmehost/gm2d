@@ -22,9 +22,9 @@ class Panel extends Widget
    var mTitle:String;
    var mPane:Pane;
 
-   public function new(inTitle:String = "" )
+   public function new(inTitle:String = "", ?inLineage:Array<String>)
    {
-      super("Panel",{title:inTitle});
+      super(Widget.addLine(inLineage,"Panel"),{title:inTitle});
 
       mButtons = [];
       mLayoutDirty = true;

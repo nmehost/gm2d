@@ -20,20 +20,28 @@ class Widget extends Sprite
    public var mState(default,null) : WidgetState;
    public var mIsDown : Bool;
    public var mRenderer : Renderer;
+   public var mLineage : Array<String>;
 
    //var highlightColour:Int;
 
-   public function new(inClass:String="Widget", ?inAttribs:Dynamic)
+   public function new(?inLineage:Array<String>, ?inAttribs:Dynamic)
    {
       super();
-      mRenderer = Skin.renderer(inClass, inAttribs);
+      mLineage = addLine(inLineage,"Widget");
+      name = mLineage[0];
+      mRenderer = Skin.renderer(mLineage, inAttribs);
       mChrome = new Sprite();
       addChild(mChrome);
-		wantFocus = false;
+      wantFocus = false;
       mState = WidgetNormal;
       mIsDown = false;
       mRect = new Rectangle(0,0,0,0);
       //highlightColour = 0x0000ff;
+   }
+
+   public static function addLine(inLineage:Array<String>,inClass:String)
+   {
+      return inLineage==null ? [inClass] : inLineage.concat([inClass]);
    }
 
    public function build()

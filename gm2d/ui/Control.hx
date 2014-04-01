@@ -8,9 +8,9 @@ import gm2d.skin.Skin;
 
 class Control extends Widget
 {
-   public function new(inClassName="Control", ?inAttribs:Dynamic)
+   public function new(?inLineage:Array<String>, ?inAttribs:Dynamic)
    {
-      super(inClassName,inAttribs);
+      super(Widget.addLine(inLineage,"Control"),inAttribs);
 		wantFocus = true;
    }
 

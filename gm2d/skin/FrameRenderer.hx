@@ -26,23 +26,37 @@ import gm2d.svg.SvgRenderer;
 import gm2d.svg.Svg;
 
 
-class FrameRenderer extends Renderer
+class FrameRenderer extends ButtonRenderer
 {
    public function new() { super(); titleHeight = 20; borders=5; }
 
-   public dynamic function render(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void { }
 
+   public dynamic function renderFrame(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void { }
    public var titleHeight:Float;
    public var borders:Float;
 
-   public dynamic function updateLayout(widget:Widget)
+   override public function clone()
+   {
+      var result = new FrameRenderer();
+      result.downOffset = downOffset.clone();
+      result.render = null;
+      result.renderFrame = renderFrame;
+      result.updateLayout = updateLayout;
+      result.styleLabel = styleLabel;
+      result.titleHeight = titleHeight;
+      result.borders = borders;
+      return result;
+   }
+
+
+   override public dynamic function updateLayout(widget:Widget)
    {
       widget.getLayout().setBorders(borders,borders+titleHeight,borders,borders);
    }
 
    override public function renderWidget(inWidget:Widget)
    {
-      render(inWidget.mChrome, inWidget.getPane(), inWidget.mRect, inWidget.getHitBoxes() );
+      renderFrame(inWidget.mChrome, inWidget.getPane(), inWidget.mRect, inWidget.getHitBoxes() );
    }
    override public function layoutWidget(ioWidget:Widget)
    {
@@ -63,7 +77,7 @@ class FrameRenderer extends Renderer
       var scaleRect = Skin.getScaleRect(renderer,bounds);
 
       var result = new FrameRenderer();
-      result.render = function(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void
+      result.renderFrame = function(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void
       {
          //trace("Rect: " + inRect);
          //trace("bounds: " + bounds);

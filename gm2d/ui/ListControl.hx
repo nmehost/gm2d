@@ -44,7 +44,6 @@ class ListControl extends ScrollWidget
    var mMultiSelect:Array<Bool>;
    var mControlHeight:Float;
    var mHoldUpdates = false;
-   var renderer:Renderer;
 
    public var onSelect:Int->Void;
    public var onMultiSelect:Array<Bool>->Void;
@@ -61,13 +60,12 @@ class ListControl extends ScrollWidget
    public var variableHeightRows = false;
 
 
-   public function new(inWidth:Float = 100, inItemHeight:Float=0)
+   public function new(inWidth:Float = 100, inItemHeight:Float=0, ?inLineage:Array<String>)
    {
-      super();
+      super(Widget.addLine(inLineage,"List"));
       selectAlpha = 1.0;
       evenAlpha = 1.0;
       oddAlpha = 1.0;
-      renderer = Skin.renderer("List");
       selectColour = 0xd0d0f0;
       evenColour = 0xffffff;
       oddColour = 0xf0f0ff;
@@ -193,7 +191,7 @@ class ListControl extends ScrollWidget
    public function stringToItem(inString:String) : DisplayObject
    {
       var t = new TextField();
-      renderer.renderLabel(t);
+      mRenderer.renderLabel(t);
       t.text = inString;
       t.autoSize = TextFieldAutoSize.LEFT;
       t.selectable = mTextSelectable;
