@@ -96,7 +96,6 @@ class GradientControl extends Widget
    var type:ChoiceButtons;
    var focal:NumericInput;
    var positionMarker:Bitmap;
-   var renderer:Renderer;
 
    var gradient:Gradient;
    var currentId:Int;
@@ -105,16 +104,14 @@ class GradientControl extends Widget
    public static var createdBmps = false;
    public static var bitmaps = new haxe.ds.StringMap<BitmapData>();
 
-   public function new(inOnChange:Gradient->Int->Void)
+   public function new(inOnChange:Gradient->Int->Void,?inLineage:Array<String>)
    {
-      super();
+      super(Widget.addLine(inLineage,"GradientControl"));
 
       onChange = inOnChange;
       updateLockout = 1;
       stopX0 = 0;
       stopW = 1;
-
-      renderer = Skin.renderer("Panel");
 
       gradBox = new Sprite();
       mWidth = mHeight = 32;
@@ -349,7 +346,7 @@ class GradientControl extends Widget
    public function addLabel(inText:String)
    {
       var label = new TextField();
-      renderer.renderLabel(label);
+      mRenderer.renderLabel(label);
       label.text = inText;
       addChild(label);
       return new TextLayout(label);

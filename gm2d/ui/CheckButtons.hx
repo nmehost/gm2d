@@ -26,7 +26,7 @@ class CheckButtons extends ChoiceButtons
       gfx.lineTo(20,8);
       var bmp = new BitmapData(24,24,true,gm2d.RGB.CLEAR );
       bmp.draw(shape);
-      add(new Button(new Bitmap(bmp),null,"ToggleButton"),"on");
+      add(new Button(new Bitmap(bmp),null,["ToggleButton"]),"on");
 
       gfx.clear();
       gfx.lineStyle(4,0xff0000);
@@ -36,7 +36,7 @@ class CheckButtons extends ChoiceButtons
       gfx.lineTo(16,8);
       var bmp = new BitmapData(24,24,true,gm2d.RGB.CLEAR );
       bmp.draw(shape);
-      add(new Button(new Bitmap(bmp),null,"ToggleButton"),"off");
+      add(new Button(new Bitmap(bmp),null,["ToggleButton"]),"off");
 
       setChecked(inValue);
    }

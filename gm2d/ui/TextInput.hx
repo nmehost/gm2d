@@ -15,10 +15,10 @@ class TextInput extends Control
    var mTextLayout:Layout;
    static var boxHeight = 22;
 
-   public function new(inVal="", ?onUpdate:String->Void)
+   public function new(inVal="", ?onUpdate:String->Void,?inLineage:Array<String>)
    {
 
-       super("TextInput");
+       super(Widget.addLine(inLineage,"TextInput"));
 
        mText = new TextField();
        mText.autoSize = nme.text.TextFieldAutoSize.LEFT;
@@ -52,6 +52,7 @@ class TextInput extends Control
           grid.add( mTextLayout );
           grid.add( extra );
           grid.setAlignment(Layout.AlignStretch  | Layout.AlignCenterY );
+          grid.setSpacing(0,0);
           grid.mDbgObj = this;
           mLayout.add(grid);
        }

@@ -2,9 +2,11 @@ package gm2d.ui;
 
 import nme.text.TextField;
 import nme.display.BitmapData;
+import nme.display.Bitmap;
 import nme.events.MouseEvent;
 import nme.geom.Point;
 import gm2d.ui.Button;
+import gm2d.ui.Layout;
 import gm2d.skin.Skin;
 import gm2d.skin.Renderer;
 
@@ -91,9 +93,8 @@ class ComboList extends Window
 
 
 
-class ComboBox extends Control
+class ComboBox extends TextInput
 {
-   var mText:TextField;
    var mButtonX:Float;
    var mOptions:Array<String>;
    var mDisplay:Array<Dynamic>;
@@ -101,23 +102,20 @@ class ComboBox extends Control
    var onText:String->Void;
    var onItem:Int->Void;
    public var selectOnMove = true;
-   var renderer:Renderer;
 
    public function new(inVal="", ?inOptions:Array<String>, ?inDisplay:Array<Dynamic>,
-       ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void)
+       ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void, ?inLineage:Array<String>)
    {
-       super();
        onItem = inOnSelectIndex;
        onText = inOnSelectString;
-       mText = new TextField();
-       renderer = Skin.renderer("ComboBox");
-       renderer.renderLabel(mText);
-       mText.text = inVal;
-       mText.x = 0.5;
-       mText.y = 0.5;
-       mText.height = 21;
-       mText.autoSize = nme.text.TextFieldAutoSize.NONE;
-       mText.type = nme.text.TextFieldType.INPUT;
+
+       //mRenderer.renderLabel(mText);
+       //mText.text = inVal;
+       //mText.x = 0.5;
+       //mText.y = 0.5;
+       //mText.height = 21;
+       ////mText.autoSize = nme.text.TextFieldAutoSize.NONE;
+       //mText.type = nme.text.TextFieldType.INPUT;
  
        if (mBMP==null)
        {
@@ -140,12 +138,28 @@ class ComboBox extends Control
           gfx.lineTo(8,8);
           mBMP.draw(shape);
        }
+
+       super(inVal, inOnSelectString, Widget.addLine(inLineage,"ComboBox"));
+
        mOptions = inOptions==null ? null : inOptions.copy();
        mDisplay = inDisplay==null ? null : inDisplay.copy();
-       addChild(mText);
-       var me = this;
-       addEventListener(MouseEvent.CLICK, function(ev)  if (ev.localX > me.mButtonX) me.doPopup()  );
+       //addChild(mText);
+       addEventListener(MouseEvent.CLICK, onClick );
    }
+
+   function onClick(event:MouseEvent)
+   {
+      if (event.target==this)
+          doPopup();
+   }
+
+   override public function createExtraWidgetLayout() : Layout
+   {
+      var bitmap = new Bitmap(mBMP);
+      addChild(bitmap);
+      return new DisplayLayout(bitmap);
+   }
+
 
 
    public function onListSelect(inIndex:Int)
@@ -195,6 +209,7 @@ class ComboBox extends Control
        mText.text = inText;
    }
 
+   /*
    public override function redraw()
    {
        var gfx = graphics;
@@ -213,6 +228,7 @@ class ComboBox extends Control
        mText.y =  (mBMP.height - 2 - mText.textHeight)/2;
        mText.height =  mBMP.height-mText.y;
    }
+   */
 
 }
 
