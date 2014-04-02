@@ -58,6 +58,11 @@ class TabRenderer
       bitmap.draw(shape);
    }
 
+   public function getHeight()
+   {
+      return  Skin.current.tabHeight;
+   }
+
    public dynamic function renderTabs(inTabContainer:Sprite,
                               inRect:Rectangle,
                               inPanes:Array<IDockable>,

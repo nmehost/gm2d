@@ -12,11 +12,7 @@ import gm2d.skin.Skin;
 import nme.geom.Rectangle;
 
 
-#if haxe3
 class SlideBar extends Sprite implements IDock
-#else
-class SlideBar extends Sprite, implements IDock
-#end
 {
    var pos:DockPosition;
    var container:DisplayObjectContainer;
@@ -63,7 +59,7 @@ class SlideBar extends Sprite, implements IDock
       lastPopDown = 0;
       layoutDirty = true;
       posOffset = inOffset == null ? 0 : inOffset;
-      tabRenderer = inShowTab ? Skin.current.tabRenderer : null;
+      tabRenderer = inShowTab ? Skin.tabRenderer(["SlideBar","Dock"]) : null;
       tabSide = switch(pos) {
          case DOCK_LEFT: TabRenderer.RIGHT;
          case DOCK_RIGHT: TabRenderer.LEFT;
@@ -211,7 +207,7 @@ class SlideBar extends Sprite, implements IDock
          if (horizontal)
             w = maxSize;
          else
-            h = maxSize - Skin.current.tabHeight;
+            h = maxSize - (tabRenderer!=null ? tabRenderer.getHeight() : 0 );
       }
       else if (maxSize!=null)
       {
@@ -230,8 +226,13 @@ class SlideBar extends Sprite, implements IDock
 
       if (pinned)
       {
-         oy = Skin.current.tabHeight;
-         h- Skin.current.tabHeight;
+         if (tabRenderer==null)
+            oy = 0;
+         else
+         {
+            oy = tabRenderer.getHeight();
+            h- tabRenderer.getHeight();
+         }
       }
 
       var size = current.getLayoutSize(w,h,!horizontal);

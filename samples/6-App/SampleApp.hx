@@ -29,10 +29,16 @@ class SampleApp extends App
       createMenus();
 
       var colour = new ColourControl( new RGBHSV(0xff00ff) );
-      var pane = new Pane(colour,"Colour",Dock.RESIZABLE,null, colour.getLayout().setMinWidth(400) );
-      //addPane( pane, DockPosition.DOCK_LEFT);
-      var dlg = new gm2d.ui.Dialog(pane);
-      Game.doShowDialog(dlg,true);
+      var pane = new Pane(colour,"Colour 1",Dock.RESIZABLE,null, colour.getLayout().setMinWidth(400) );
+      addPane( pane, DockPosition.DOCK_LEFT);
+
+      var colour = new ColourControl( new RGBHSV(0xff00ff) );
+      var pane = new Pane(colour,"Colour 2",Dock.RESIZABLE,null, colour.getLayout().setMinWidth(400) );
+      addPane( pane, DockPosition.DOCK_LEFT);
+
+
+      //var dlg = new gm2d.ui.Dialog(pane);
+      //Game.doShowDialog(dlg,true);
    }
 
    function createMenus()

@@ -68,7 +68,7 @@ class Skin
    public var buttonRenderer:ButtonRenderer;
    public var sliderRenderer:SliderRenderer;
    //public var labelRenderer:LabelRenderer;
-   public var tabRenderer:TabRenderer;
+   public var defaultTabRenderer:TabRenderer;
 
    public var tabHeight:Int;
    public var title_h:Int;
@@ -132,7 +132,12 @@ class Skin
 
    public static function dockRenderer(inLineage:Array<String>, ?inAttribs:Dynamic) : DockRenderer
    {
-      return new DockRenderer(hasLineage(inLineage,"TallDock"));
+      return new DockRenderer(hasLineage(inLineage,"VariableWidth"));
+   }
+
+   public static function tabRenderer(inLineage:Array<String>, ?inAttribs:Dynamic) : TabRenderer
+   {
+      return current.defaultTabRenderer;
    }
 
 
@@ -206,7 +211,7 @@ class Skin
       buttonRenderer = createButtonRenderer();
       sliderRenderer = createSliderRenderer();
       //labelRenderer = createLabelRenderer();
-      tabRenderer = createTabRenderer();
+      defaultTabRenderer = createTabRenderer();
    }
 
    public function createDialogRenderer()
@@ -543,7 +548,7 @@ class Skin
       {
          var flags = (inShowRestore ? TabRenderer.SHOW_RESTORE : 0) |
                TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_POPUP;
-         tabRenderer.renderTabs(inTabContainer, inRect, inPanes, inCurrent, outHitBoxes, TabRenderer.TOP, flags ); }
+         defaultTabRenderer.renderTabs(inTabContainer, inRect, inPanes, inCurrent, outHitBoxes, TabRenderer.TOP, flags ); }
 
 
    public function renderMultiDock(dock:MultiDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable,tabStyle:Bool)

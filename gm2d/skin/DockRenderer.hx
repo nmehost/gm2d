@@ -13,12 +13,12 @@ import nme.display.Graphics;
 class DockRenderer
 {
    public var gripperTop:Bool;
-   public var tallDock:Bool;
+   public var variableWidths:Bool;
 
-   public function new(inTall:Bool)
+   public function new(inVariableWidths:Bool)
    {
-      tallDock = inTall;
-      gripperTop = inTall;
+      variableWidths = inVariableWidths;
+      gripperTop = inVariableWidths;
    }
 
    public function getResizeBarWidth() : Float { return Skin.current.getResizeBarWidth(); }
@@ -32,7 +32,8 @@ class DockRenderer
       var gap = getResizeBarWidth();
       var extra = 2;
       gfx.beginFill(Skin.current.panelColor);
-      if (tallDock)
+      //gfx.beginFill(0x000000);
+      if (!variableWidths)
          gfx.drawRect(inRect.x, inRect.y+inPos,inRect.width,gap);
       else
          gfx.drawRect(inRect.x+inPos, inRect.y,gap,inRect.height);
