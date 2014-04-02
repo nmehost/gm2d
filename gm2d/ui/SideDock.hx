@@ -6,10 +6,11 @@ import nme.display.BitmapData;
 import gm2d.ui.DockPosition;
 import nme.geom.Rectangle;
 import gm2d.skin.Skin;
+import gm2d.skin.DockRenderer;
 
 class SideDock implements IDock implements IDockable
 {
-   var horizontal:Bool;
+   var tallDock:Bool;
    var parentDock:IDock;
    var mDockables:Array<IDockable>;
    var mRect:Rectangle;
@@ -19,8 +20,8 @@ class SideDock implements IDock implements IDockable
    var container:DisplayObjectContainer;
    var position:DockPosition;
    var properties:Dynamic;
-   var toolbarGripperTop:Bool;
    var flags:Int;
+   var mRenderer:DockRenderer;
    public var shortTitle:String;
    public var icon:BitmapData;
    public var title:String;
@@ -28,21 +29,21 @@ class SideDock implements IDock implements IDockable
    public function new(inPos:DockPosition)
    {
       flags = 0;
-      horizontal = inPos==DOCK_LEFT || inPos==DOCK_RIGHT;
-      position = horizontal ? DOCK_LEFT : DOCK_TOP;
+      tallDock = inPos==DOCK_LEFT || inPos==DOCK_RIGHT;
+      position = tallDock ? DOCK_LEFT : DOCK_TOP;
+      mRenderer = Skin.dockRenderer([tallDock?"TallDock":"WideDock","SideDock","Dock"]);
       mDockables = [];
       mPositions = [];
       mWidths = [];
       mSizes = [];
       properties = [];
-      toolbarGripperTop = horizontal;
       mRect = new Rectangle();
       title = shortTitle = "";
    }
    
    // Hierarchy
    public function getDock():IDock { return parentDock; }
-   public function getSlot():Int { return horizontal ? Dock.DOCK_SLOT_HORIZ : Dock.DOCK_SLOT_VERT; }
+   public function getSlot():Int { return tallDock ? Dock.DOCK_SLOT_HORIZ : Dock.DOCK_SLOT_VERT; }
    public function setDock(inDock:IDock,inParent:DisplayObjectContainer):Void
    {
       parentDock = inDock;
@@ -58,19 +59,19 @@ class SideDock implements IDock implements IDockable
    public function buttonStates():Array<Int> { return null; }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
-   public function isHorizontal() { return horizontal; }
+   public function isHorizontal() { return tallDock; }
    // Layout
    function addPadding(size:Size) : Size
    {
-      if (horizontal)
-         size.x += (mDockables.length-1) * Skin.current.getResizeBarWidth();
+      if (tallDock)
+         size.x += (mDockables.length-1) * mRenderer.getResizeBarWidth();
       else
-         size.y += (mDockables.length-1) * Skin.current.getResizeBarWidth();
+         size.y += (mDockables.length-1) * mRenderer.getResizeBarWidth();
       return size;
    }
    public function addPaneChromeSize(inDock:IDockable,ioPos:Size):Size
    {
-      var rect = Skin.current.getChromeRect(inDock,toolbarGripperTop);
+      var rect = mRenderer.getChromeRect(inDock);
       ioPos.x += rect.width;
       ioPos.y += rect.height;
       return ioPos;
@@ -80,9 +81,9 @@ class SideDock implements IDock implements IDockable
       var best = new Size(0,0);
       for(dock in mDockables)
       {
-         var s = dock.getBestSize(horizontal?Dock.DOCK_SLOT_HORIZ : Dock.DOCK_SLOT_VERT );
+         var s = dock.getBestSize(tallDock?Dock.DOCK_SLOT_HORIZ : Dock.DOCK_SLOT_VERT );
          addPaneChromeSize(dock,s);
-         if (horizontal)
+         if (tallDock)
          {
             best.x += s.x;
             if (best.y==0 || s.y>best.y) best.y = s.y;
@@ -93,7 +94,7 @@ class SideDock implements IDock implements IDockable
             best.y += s.y;
          }
       }
-      //trace("best " + horizontal + " = " + best );
+      //trace("best " + tallDock + " = " + best );
  
      return addPadding(best);
    }
@@ -107,7 +108,7 @@ class SideDock implements IDock implements IDockable
       {
          var s = dock.getMinSize();
          addPaneChromeSize(dock,s);
-         if (horizontal)
+         if (tallDock)
          {
             min.x += s.x;
             if (min.y==0 || s.y>min.y) min.y = s.y;
@@ -130,12 +131,12 @@ class SideDock implements IDock implements IDockable
          h-=min.y;
          for(dock in mDockables)
          {
-            var chrome = Skin.current.getChromeRect(dock,toolbarGripperTop);
-            var s = dock.getLayoutSize(w-chrome.width, h-chrome.height,!horizontal);
+            var chrome = mRenderer.getChromeRect(dock);
+            var s = dock.getLayoutSize(w-chrome.width, h-chrome.height,!tallDock);
             s.x+=chrome.width;
             s.y+=chrome.height;
 
-            if (horizontal)
+            if (tallDock)
             {
                min.x += s.x;
                if (s.y>min.y) min.y = s.y;
@@ -164,13 +165,12 @@ class SideDock implements IDock implements IDockable
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
       mRect = new Rectangle(x,y,w,h);
-      //trace(indent + "Set rect " + horizontal + " " + mRect);
+      //trace(indent + "Set rect " + tallDock + " " + mRect);
 
       var right = x+w;
       var bottom = y+h;
-      var skin = Skin.current;
-      var barSize = skin.getResizeBarWidth();
-      if (horizontal)
+      var barSize = mRenderer.getResizeBarWidth();
+      if (tallDock)
          w-= barSize * (mDockables.length-1);
       else
          h-= barSize * (mDockables.length-1);
@@ -186,12 +186,12 @@ class SideDock implements IDock implements IDockable
       {
          for(d in mDockables)
          {
-            var chrome = Skin.current.getChromeRect(d,toolbarGripperTop);
-            var s = d.getLayoutSize(w-chrome.width,h-chrome.height,!horizontal);
+            var chrome = mRenderer.getChromeRect(d);
+            var s = d.getLayoutSize(w-chrome.width,h-chrome.height,!tallDock);
             s.x+=chrome.width;
             s.y+=chrome.height;
             mSizes.push(s);
-            var layout_size = Std.int(!horizontal ? s.y:s.x);
+            var layout_size = Std.int(!tallDock ? s.y:s.x);
             mWidths.push(layout_size);
          }
       }
@@ -207,16 +207,16 @@ class SideDock implements IDock implements IDockable
          {
             var s = d.getMinSize();
             addPaneChromeSize(d,s);
-            var m_size = Std.int(horizontal ? s.x : s.y);
+            var m_size = Std.int(tallDock ? s.x : s.y);
             min_sizes.push(m_size);
    
-            var s = horizontal ? d.getBestSize(Dock.DOCK_SLOT_HORIZ) :
+            var s = tallDock ? d.getBestSize(Dock.DOCK_SLOT_HORIZ) :
                                  d.getBestSize(Dock.DOCK_SLOT_VERT);
 
             addPaneChromeSize(d,s);
    
             mSizes.push(s.clone());
-            var b_size = Std.int(horizontal ? s.x : s.y);
+            var b_size = Std.int(tallDock ? s.x : s.y);
             stretch_weight.push(b_size > 1 ? b_size : 1 );
             if (b_size<m_size)
                b_size = m_size;
@@ -225,7 +225,7 @@ class SideDock implements IDock implements IDockable
          }
    
          var is_locked = new Array<Bool>();
-         var too_big = best_total > (horizontal ? w : h);
+         var too_big = best_total > (tallDock ? w : h);
          for(d in 0...mDockables.length)
          {
             var dock = mDockables[d];
@@ -239,7 +239,7 @@ class SideDock implements IDock implements IDockable
          while(locked_changed)
          {
             locked_changed = false;
-            var extra = Std.int((horizontal ? w : h)-best_total);
+            var extra = Std.int((tallDock ? w : h)-best_total);
             var stretchers = 0.0;
             var is_stretch = new Array<Bool>();
             if (extra!=0)
@@ -280,10 +280,10 @@ class SideDock implements IDock implements IDockable
                   stretchers-=stretch_weight[d];
                }
    
-               var chrome = Skin.current.getChromeRect(mDockables[d],toolbarGripperTop);
-               var layout_w = (horizontal?size:w) - chrome.width;
-               var layout_h = (horizontal?h:size) - chrome.height;
-               var s = mDockables[d].getLayoutSize(layout_w, layout_h, horizontal);
+               var chrome = mRenderer.getChromeRect(mDockables[d]);
+               var layout_w = (tallDock?size:w) - chrome.width;
+               var layout_h = (tallDock?h:size) - chrome.height;
+               var s = mDockables[d].getLayoutSize(layout_w, layout_h, tallDock);
                //trace(indent + "Layout " + dockName(d) + " = " + layout_w + "x" + layout_h + "  -> " + s + " lock:" + is_locked[d] + "  size=" + size);
                s.x += chrome.width;
                s.y += chrome.height;
@@ -291,7 +291,7 @@ class SideDock implements IDock implements IDockable
    
                if (is_stretch[d])
                {
-                  var layout_size = Std.int(!horizontal ? s.y : s.x);
+                  var layout_size = Std.int(!tallDock ? s.y : s.x);
                   // Layout wants to snap to certain size - lock in this size...
                   if (layout_size!=size)
                   {
@@ -305,7 +305,7 @@ class SideDock implements IDock implements IDockable
                }
                else
                {
-                  size = Std.int(horizontal ? s.x : s.y );
+                  size = Std.int(tallDock ? s.x : s.y );
                }
    
                mWidths[d] = size;
@@ -317,16 +317,16 @@ class SideDock implements IDock implements IDockable
       {
          var dockable = mDockables[d];
          var size = mWidths[d];
-         var chrome = Skin.current.getChromeRect(dockable,toolbarGripperTop);
+         var chrome = mRenderer.getChromeRect(dockable);
          var pane = dockable.asPane();
-         var dw = (horizontal?size:mSizes[d].x)-chrome.width;
-         var dh = (horizontal?mSizes[d].y:size) -chrome.height;
+         var dw = (tallDock?size:mSizes[d].x)-chrome.width;
+         var dh = (tallDock?mSizes[d].y:size) -chrome.height;
          var oid = indent;
          indent+="   ";
          dockable.setRect(x+chrome.x,y+chrome.y, dw, dh );
          indent = oid;
 
-         if (horizontal)
+         if (tallDock)
          {
             mPositions.push( x );
             x+=size + barSize;
@@ -359,29 +359,41 @@ class SideDock implements IDock implements IDockable
 
    public function renderChrome(inContainer:Sprite,outHitBoxes:HitBoxes):Void
    {
-      Skin.current.renderResizeBars(this,inContainer,outHitBoxes,mRect,horizontal,mWidths);
+      var gap = mRenderer.getResizeBarWidth();
+      for(i in 0...mWidths.length-1)
+      {
+         var pos = mPositions[i] + mWidths[i];
+         mRenderer.renderResizeBar(inContainer, mRect, pos);
+
+         var extra = 2;
+         var rect = tallDock ?
+            new Rectangle(mRect.x, pos-extra, mRect.width, gap+extra*2) :
+            new Rectangle(pos-extra, mRect.y, gap+extra*2, mRect.height);
+
+         outHitBoxes.add( rect, DOCKSIZE(this,i) );
+      }
+
       for(d in 0...mDockables.length)
       {
          var pane = mDockables[d].asPane();
-         var rect = horizontal ?
-                      new Rectangle( mPositions[d], mRect.y, mWidths[d], mRect.height ) :
-                      new Rectangle( mRect.x, mPositions[d], mRect.width, mWidths[d] );
+         var rect = tallDock ?
+              new Rectangle( mPositions[d], mRect.y, mWidths[d], mRect.height ) :
+              new Rectangle( mRect.x, mPositions[d], mRect.width, mWidths[d] );
          if (pane!=null)
          {
-            Skin.current.renderPaneChrome(pane,inContainer,outHitBoxes,rect,
-               toolbarGripperTop?Skin.TOOLBAR_GRIP_TOP:0);
+            mRenderer.renderPaneChrome(inContainer,pane,rect,outHitBoxes);
          }
          else
          {
             mDockables[d].renderChrome(inContainer,outHitBoxes);
             var r = mDockables[d].getDockRect();
-            var gap = horizontal ? mRect.height - r.height : mRect.width-r.width;
+            var gap = tallDock ? mRect.height - r.height : mRect.width-r.width;
             if (gap>0.5)
             {
-               if (horizontal)
-                  Skin.current.renderToolbarGap(inContainer,rect.x, rect.bottom-gap, rect.width, gap);
+               if (tallDock)
+                  mRenderer.renderToolbarGap(inContainer,rect.x, rect.bottom-gap, rect.width, gap);
                else
-                  Skin.current.renderToolbarGap(inContainer,rect.right - gap, rect.y, gap, rect.height);
+                  mRenderer.renderToolbarGap(inContainer,rect.right - gap, rect.y, gap, rect.height);
             }
          }
       }
@@ -392,7 +404,7 @@ class SideDock implements IDock implements IDockable
    function onDock(inDockable:IDockable, inPos:Int )
    {
       Dock.remove(inDockable);
-      addDockable(inDockable,horizontal?DOCK_LEFT:DOCK_TOP,inPos);
+      addDockable(inDockable,tallDock?DOCK_LEFT:DOCK_TOP,inPos);
    }
 
    public function addDockZones(outZones:DockZones):Void
@@ -401,7 +413,7 @@ class SideDock implements IDock implements IDockable
       {
           for(d in mDockables)
              d.addDockZones(outZones);
-          Skin.current.addResizeDockZones(outZones,mRect,horizontal,mWidths,onDock);
+          Skin.current.addResizeDockZones(outZones,mRect,tallDock,mWidths,onDock);
       }
    }
 
@@ -411,7 +423,7 @@ class SideDock implements IDock implements IDockable
       for(i in 0...mDockables.length)
          dockables[i] = mDockables[i].getLayoutInfo();
 
-      return { type:"SideDock", horizontal:horizontal, dockables:dockables, properties:properties, flags:flags };
+      return { type:"SideDock", tallDock:tallDock, dockables:dockables, properties:properties, flags:flags };
    }
 
    public function loadLayout(inLayout:Dynamic):Void
@@ -425,11 +437,11 @@ class SideDock implements IDock implements IDockable
    function doResize(inIndex:Int, inS0:Size, inS1:Size)
    {
       var rect = mDockables[inIndex].getDockRect();
-      var delta = horizontal ? inS0.x-rect.width : inS0.y-rect.height;
+      var delta = tallDock ? inS0.x-rect.width : inS0.y-rect.height;
       mDockables[inIndex].setRect(rect.x, rect.y, inS0.x, inS0.y);
 
       var rect = mDockables[inIndex+1].getDockRect();
-      if (horizontal)
+      if (tallDock)
          rect.left += delta;
       else
          rect.top += delta;
@@ -455,22 +467,22 @@ class SideDock implements IDock implements IDockable
       {
          var orig = mDockables[prev].getDockRect();
          // Try delta ...
-         var test_w = horizontal ? orig.width+delta : orig.width;
-         var test_h = horizontal ? orig.height : orig.height+delta;
-         var s0 = mDockables[prev].getLayoutSize(test_w, test_h, horizontal);
+         var test_w = tallDock ? orig.width+delta : orig.width;
+         var test_h = tallDock ? orig.height : orig.height+delta;
+         var s0 = mDockables[prev].getLayoutSize(test_w, test_h, tallDock);
 
-         var new_delta = horizontal ? s0.x - orig.width : s0.y-orig.height;
-         //trace("try " + test_w + "x" + test_h + "   " + s0 + " -> " + new_delta + " fixX=" + (horizontal) );
+         var new_delta = tallDock ? s0.x - orig.width : s0.y-orig.height;
+         //trace("try " + test_w + "x" + test_h + "   " + s0 + " -> " + new_delta + " fixX=" + (tallDock) );
          if (new_delta!=0)
          {
             // now see if next pane is happy with this too...
             var orig = mDockables[next].getDockRect();
             // Try new_delta ...
-            var test_w = horizontal ? orig.width-new_delta : orig.width;
-            var test_h = horizontal ? orig.height : orig.height-new_delta;
-            var s1 = mDockables[next].getLayoutSize(test_w, test_h, horizontal);
+            var test_w = tallDock ? orig.width-new_delta : orig.width;
+            var test_h = tallDock ? orig.height : orig.height-new_delta;
+            var s1 = mDockables[next].getLayoutSize(test_w, test_h, tallDock);
 
-            var new_delta2 = horizontal ? s1.x - orig.width : s1.y-orig.height;
+            var new_delta2 = tallDock ? s1.x - orig.width : s1.y-orig.height;
             if (new_delta2+new_delta == 0)
             {
                doResize(inIndex,pass==0 ? s0:s1, pass==0?s1:s0);
@@ -488,7 +500,7 @@ class SideDock implements IDock implements IDockable
    // --- IDock -----------------------------------------
    public function canAddDockable(inPos:DockPosition):Bool
    {
-      if (horizontal)
+      if (tallDock)
          return inPos==DOCK_LEFT || inPos==DOCK_RIGHT;
       else
          return inPos==DOCK_TOP || inPos==DOCK_BOTTOM;
@@ -540,7 +552,7 @@ class SideDock implements IDock implements IDockable
           if (asPane!=null)
           {
              if (Dock.isToolbar(asPane))
-                split.toolbarGripperTop = toolbarGripperTop;
+                split.mRenderer.gripperTop = mRenderer.gripperTop;
              asPane.onLayoutSwitch(getSlot());
           }
           mDockables[ref] = split;
@@ -560,9 +572,9 @@ class SideDock implements IDock implements IDockable
       for(i in 0...inRef)
          origin += mWidths[i];
       if (inRef>1)
-        origin + (inRef-1) * Skin.current.getResizeBarWidth();
+        origin + (inRef-1) * mRenderer.getResizeBarWidth();
 
-      if (horizontal)
+      if (tallDock)
          return new Rectangle(mRect.x+origin, mRect.y, mWidths[inRef], mRect.height);
       else
          return new Rectangle(mRect.x, mRect.y+origin, mRect.width, mWidths[inRef]);

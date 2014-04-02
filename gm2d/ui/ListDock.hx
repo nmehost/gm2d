@@ -97,7 +97,7 @@ class ListDock extends SideDock
    override public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
       mRect = new Rectangle(x,y,w,h);
-      //trace(indent + "Set rect " + horizontal + " " + mRect);
+      //trace(indent + "Set rect " + tallDock + " " + mRect);
 
       var right = w;
       var bottom = h;
@@ -111,7 +111,7 @@ class ListDock extends SideDock
 
       for(d in mDockables)
       {
-         var chrome = Skin.current.getChromeRect(d,toolbarGripperTop);
+         var chrome = mRenderer.getChromeRect(d);
          if (Dock.isCollapsed(d))
          {
             mSizes.push( new Size(chrome.width,chrome.height) );
@@ -133,7 +133,7 @@ class ListDock extends SideDock
       {
          var dockable = mDockables[d];
          var size = mWidths[d];
-         var chrome = Skin.current.getChromeRect(dockable,toolbarGripperTop);
+         var chrome = mRenderer.getChromeRect(dockable);
          if (Dock.isCollapsed(dockable))
          {
             dockable.setDock(this,null);
@@ -142,8 +142,8 @@ class ListDock extends SideDock
          {
             dockable.setDock(this,mScroll);
             var pane = dockable.asPane();
-            var dw = (horizontal?size:mSizes[d].x)-chrome.width;
-            var dh = (horizontal?mSizes[d].y:size) -chrome.height;
+            var dw = (tallDock?size:mSizes[d].x)-chrome.width;
+            var dh = (tallDock?mSizes[d].y:size) -chrome.height;
             var oid = SideDock.indent;
             SideDock.indent+="   ";
             dockable.setRect(chrome.x,y+chrome.y, dw, dh );
@@ -167,7 +167,7 @@ class ListDock extends SideDock
          mBackground.removeChildAt(0);
       hitBoxes.clear();
 
-      //Skin.current.renderResizeBars(this,inContainer,outHitBoxes,mRect,horizontal,mWidths);
+      //Skin.current.renderResizeBars(this,inContainer,outHitBoxes,mRect,tallDock,mWidths);
       for(d in 0...mDockables.length)
       {
          var pane = mDockables[d].asPane();
@@ -176,7 +176,7 @@ class ListDock extends SideDock
          if (pane!=null)
          {
             Skin.current.renderPaneChrome(pane,mBackground,hitBoxes,rect,
-               (toolbarGripperTop? Skin.TOOLBAR_GRIP_TOP : 0) |
+               (mRenderer.gripperTop? Skin.TOOLBAR_GRIP_TOP : 0) |
                  (Dock.isCollapsed(pane) ? Skin.SHOW_EXPAND : Skin.SHOW_COLLAPSE )
                );
          }
@@ -184,10 +184,10 @@ class ListDock extends SideDock
          {
             mDockables[d].renderChrome(mBackground,hitBoxes);
             var r = mDockables[d].getDockRect();
-            var gap = horizontal ? mRect.height - r.height : mRect.width-r.width;
+            var gap = tallDock ? mRect.height - r.height : mRect.width-r.width;
             if (gap>0.5)
             {
-               if (horizontal)
+               if (tallDock)
                   Skin.current.renderToolbarGap(mBackground,rect.x, rect.bottom-gap, rect.width, gap);
                else
                   Skin.current.renderToolbarGap(mBackground,rect.right - gap, rect.y, gap, rect.height);

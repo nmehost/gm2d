@@ -130,6 +130,12 @@ class Skin
       return false;
    }
 
+   public static function dockRenderer(inLineage:Array<String>, ?inAttribs:Dynamic) : DockRenderer
+   {
+      return new DockRenderer(hasLineage(inLineage,"TallDock"));
+   }
+
+
    public static function renderer(inLineage:Array<String>, ?inAttribs:Dynamic) : Renderer
    {
        var result:ButtonRenderer = null;

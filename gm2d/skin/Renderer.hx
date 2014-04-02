@@ -23,5 +23,4 @@ class Renderer
    public function renderLabel(ioTextField:TextField) { }
    public function layoutWidget(ioWidget:Widget) { }
 
- 
 }
