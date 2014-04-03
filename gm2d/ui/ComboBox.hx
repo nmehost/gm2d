@@ -188,17 +188,17 @@ class ComboBox extends TextInput
       var above = Math.min(max,pos.y);
       if (h+pos.y+22 < stage.stageHeight)
       {
-         pop.setRect(pop.x,pop.y,w,h);
+         pop.getLayout().setRect(pop.x,pop.y,w,h);
          gm2d.Game.popup(pop,pos.x,pos.y+22);
       }
       else if (below>=above)
       {
-         pop.setRect(pop.x,pop.y,w,below);
+         pop.getLayout().setRect(pop.x,pop.y,w,below);
          gm2d.Game.popup(pop,pos.x,pos.y+22);
       }
       else
       {
-         pop.setRect(pop.x,pop.y,w,above);
+         pop.getLayout().setRect(pop.x,pop.y,w,above);
          gm2d.Game.popup(pop,pos.x,pos.y-above);
       }
    }
