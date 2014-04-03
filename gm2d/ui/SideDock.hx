@@ -28,7 +28,7 @@ class SideDock implements IDock implements IDockable
 
    public function new(inPos:DockPosition)
    {
-      flags = 0;
+      flags =  Dock.RESIZABLE;
       variableWidths = inPos==DOCK_LEFT || inPos==DOCK_RIGHT;
       position = variableWidths ? DOCK_LEFT : DOCK_TOP;
       mRenderer = Skin.dockRenderer([variableWidths?"VariableWidth":"VariableHeight","SideDock","Dock"]);
@@ -179,8 +179,6 @@ class SideDock implements IDock implements IDockable
       mWidths = [];
       mSizes = [];
 
-
-
       // Only toolbars - changes logic a bit
       if (isLocked())
       {
@@ -230,7 +228,8 @@ class SideDock implements IDock implements IDockable
          {
             var dock = mDockables[d];
             var pane = dock.asPane();
-            is_locked.push( (too_big && (best_sizes[d]<=min_sizes[d] )) || dock.isLocked() || !Dock.isResizeable(dock));
+            is_locked.push( (too_big && (best_sizes[d]<=min_sizes[d] )) ||
+                             dock.isLocked() || !Dock.isResizeable(dock));
          }
    
          var locked_changed = true;
@@ -515,7 +514,9 @@ class SideDock implements IDock implements IDockable
       Dock.remove(child);
       child.setDock(this,container);
       if (inSlot>=mDockables.length)
+      {
          mDockables.push(child);
+      }
       else
          mDockables.insert(inSlot<0?0:inSlot, child);
       setDirty(true,true);

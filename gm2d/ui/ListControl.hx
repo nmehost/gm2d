@@ -518,7 +518,7 @@ class ListControl extends ScrollWidget
       }
    }
 
-   override public function setRect(inX:Float, inY:Float, inW:Float, inH:Float)
+   override public function onLayout(inX:Float, inY:Float, inW:Float, inH:Float)
    {
       // trace('ListControl setRect  $inX, $inY, $inW, $inH' );
       mRect = new Rectangle(inX-x,inY-y,inW,inH);

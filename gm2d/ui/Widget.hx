@@ -47,7 +47,7 @@ class Widget extends Sprite
    public function build()
    {
       var layout = getLayout();
-      layout.onLayout = setRect;
+      layout.onLayout = onLayout;
       if (mRenderer!=null)
          mRenderer.layoutWidget(this);
       var size = layout.getBestSize();
@@ -64,7 +64,7 @@ class Widget extends Sprite
       }
    }
 
-   public function setRect(inX:Float, inY:Float, inW:Float, inH:Float)
+   public function onLayout(inX:Float, inY:Float, inW:Float, inH:Float)
    {
       mRect = new Rectangle(inX-x,inY-y,inW,inH);
       redraw();

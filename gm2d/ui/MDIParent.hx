@@ -16,6 +16,7 @@ import gm2d.ui.DockPosition;
 import gm2d.Game;
 import gm2d.skin.Skin;
 import gm2d.ui.WidgetState;
+import gm2d.ui.Layout;
 
 
 class MDIParent extends Widget implements IDock implements IDockable
@@ -24,6 +25,7 @@ class MDIParent extends Widget implements IDock implements IDockable
    var mChildren:Array<MDIChildFrame>;
    var mDockables:Array<IDockable>;
    public var clientArea(default,null):Sprite;
+   public var clientLayout : Layout;
    public var clientWidth(default,null):Float;
    public var clientHeight(default,null):Float;
    var mTabContainer:Sprite;
@@ -38,7 +40,8 @@ class MDIParent extends Widget implements IDock implements IDockable
 
    public function new()
    {
-      super();
+      super(["MDIParent", "Dock", "Widget"] );
+
       mTabContainer = new Sprite();
       mTabContainer.name = "Tabs";
       addChild(mTabContainer);
@@ -55,7 +58,14 @@ class MDIParent extends Widget implements IDock implements IDockable
       clientWidth = clientHeight = 100.0;
       sizeX = sizeY = 0;
       current = null;
-      flags = 0;
+      flags = Dock.RESIZABLE;
+      mLayout = new ChildStackLayout().setAlignment(Layout.AlignStretch);
+      mLayout.add( new DisplayLayout(this, clientWidth, clientHeight).setAlignment(Layout.AlignStretch) );
+      clientLayout = new DisplayLayout(clientArea, clientWidth, clientHeight);
+      clientLayout.setAlignment(Layout.AlignStretch);
+      clientLayout.onLayout = setClientSize;
+      mLayout.add( clientLayout );
+      build();
    }
 
    public function setTopLevel(inTopLevel:TopLevelDock)
@@ -213,11 +223,9 @@ class MDIParent extends Widget implements IDock implements IDockable
 
 
 
-   override public function setRect(inX:Float,inY:Float,w:Float,h:Float):Void
+   public function setRect(inX:Float,inY:Float,w:Float,h:Float):Void
    {
-      x = inX;
-      y = inY;
-      super.setRect(inX,inY,w,h);
+      mLayout.setRect(inX,inY,w,h);
    }
    public function getDockRect():Rectangle
    {
@@ -331,17 +339,10 @@ class MDIParent extends Widget implements IDock implements IDockable
 
    public function verify() { }
 
-
-   override public function redraw()
+   function setClientSize(inX:Float, inY:Float, inW:Float, inH:Float)
    {
-      // TODO: other tab layouts...
-      var chrome = Skin.current.getMDIClientChrome();
-      sizeX = mRect.width;
-      sizeY = mRect.height;
-      clientWidth = sizeX-chrome.width;
-      clientHeight = sizeY-chrome.height;
-      clientArea.x = chrome.x;
-      clientArea.y = chrome.y;
+      clientWidth = inW;
+      clientHeight = inH;
 
       if (clientHeight<1)
          clientArea.visible = false;
@@ -350,13 +351,22 @@ class MDIParent extends Widget implements IDock implements IDockable
          clientArea.visible = true;
          clientArea.scrollRect = new Rectangle(0,0,clientWidth,clientHeight);
          if (mMaximizedPane!=null)
-         {
-            clientArea.graphics.clear();
             mMaximizedPane.setRect(0,0,clientWidth,clientHeight);
-         }
-         else
-            Skin.current.renderMDI(clientArea);
       }
+   }
+
+   override public function redraw()
+   {
+      sizeX = mRect.width;
+      sizeY = mRect.height;
+
+      if (mMaximizedPane!=null)
+      {
+         clientArea.graphics.clear();
+         mMaximizedPane.setRect(0,0,clientWidth,clientHeight);
+      }
+      else
+         Skin.current.renderMDI(clientArea);
 
       redrawTabs();
    }
@@ -382,7 +392,6 @@ class MDIParent extends Widget implements IDock implements IDockable
       while(mTabContainer.numChildren>0)
          mTabContainer.removeChildAt(0);
        mHitBoxes.clear();
-
       Skin.current.renderTabs(mTabContainer,new Rectangle(0,0,sizeX,sizeY) ,mDockables, getCurrent(),mHitBoxes, mMaximizedPane!=null);
    }
 

@@ -527,7 +527,7 @@ class ColourWheel extends Widget
 
 
 
-   public override function setRect(x:Float, y:Float, inWidth:Float, inHeight:Float)
+   public override function onLayout(x:Float, y:Float, inWidth:Float, inHeight:Float)
    {
       if (mWidth!=inWidth || mHeight!=inHeight)
       {

@@ -161,6 +161,12 @@ class Skin
        {
           result = current.buttonRenderer;
        }
+       else if (hasLineage(inLineage,"MDIParent"))
+       {
+          result = current.dialogRenderer;
+          //result = new FrameRenderer();
+          //result.mdi;
+       }
        else
           result = new ButtonRenderer();
 
