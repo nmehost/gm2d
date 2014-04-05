@@ -15,6 +15,7 @@ import gm2d.ui.Dock;
 import gm2d.ui.DockPosition;
 import gm2d.Game;
 import gm2d.skin.Skin;
+import gm2d.skin.TabRenderer;
 import gm2d.ui.WidgetState;
 import gm2d.ui.Layout;
 
@@ -28,11 +29,13 @@ class TabBar extends Widget
    var tabsHeight:Float;
    var mHitBoxes:HitBoxes;
    var mDockables:Array<IDockable>;
+   var tabRenderer:TabRenderer;
 
    public function new(inDockables:Array<IDockable>, inOnHitBox: HitAction->MouseEvent->Void)
    {
       super(["TabBar"] );
       mDockables = inDockables;
+      tabRenderer = Skin.tabRenderer( ["Tabs","TabRenderer"] );
       mLayout = new DisplayLayout(this, 20,20);
       mLayout.setAlignment(Layout.AlignStretch | Layout.AlignTop);
       mLayout.setMinSize(20,18);
@@ -47,11 +50,14 @@ class TabBar extends Widget
 
       mHitBoxes.clear();
 
-      Skin.current.renderTabs(mChrome,new Rectangle(0,0,tabsWidth,tabsHeight),
-                mDockables, current,mHitBoxes, isMaximised);
+      var flags =   TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_POPUP;
+      if (isMaximised)
+         flags |=  TabRenderer.SHOW_RESTORE;
+      tabRenderer.renderTabs(mChrome, new Rectangle(0,0,tabsWidth,tabsHeight),
+          mDockables, current, mHitBoxes, TabRenderer.TOP, flags);
    }
 
-   public function setCurrent(inCurrent:IDockable, inIsMaximised:Bool)
+   public function setTop(inCurrent:IDockable, inIsMaximised:Bool)
    {
       current = inCurrent;
       isMaximised = inIsMaximised;

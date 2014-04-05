@@ -38,11 +38,8 @@ class FrameRenderer extends ButtonRenderer
    override public function clone()
    {
       var result = new FrameRenderer();
-      result.downOffset = downOffset.clone();
-      result.render = null;
+      result.copyButton(this);
       result.renderFrame = renderFrame;
-      result.updateLayout = updateLayout;
-      result.styleLabel = styleLabel;
       result.titleHeight = titleHeight;
       result.borders = borders;
       return result;

@@ -140,7 +140,6 @@ class Skin
       return current.defaultTabRenderer;
    }
 
-
    public static function renderer(inLineage:Array<String>, ?inAttribs:Dynamic) : Renderer
    {
        var result:ButtonRenderer = null;
@@ -191,18 +190,18 @@ class Skin
 
        if (map!=null)
        {
-          result = result.clone();
+          result = cast result.clone();
 
           if (map.exists("downX"))
              result.downOffset.x = map.get("downX");
           if (map.exists("downY"))
-             result.downOffset.x = map.get("downY");
+             result.downOffset.y = map.get("downY");
           if (map.exists("render"))
-             result.render = map.get("render");
+             result.style = Style.StyleCustom(map.get("render"));
           if (map.exists("upBmp") || map.exists("downBmp"))
           {
-             result.render = function(widget)
-                renderBmpBackground(widget, map.get("upBmp"), map.get("downBmp") );
+             result.style = Style.StyleCustom(function(widget)
+                renderBmpBackground(widget, map.get("upBmp"), map.get("downBmp") ) );
              result.updateLayout = function(widget)
                 layoutBmpBackground(widget, map.get("upBmp"), map.get("downBmp") );
           }
@@ -216,7 +215,6 @@ class Skin
       dialogRenderer = createDialogRenderer();
       buttonRenderer = createButtonRenderer();
       sliderRenderer = createSliderRenderer();
-      //labelRenderer = createLabelRenderer();
       defaultTabRenderer = createTabRenderer();
    }
 
@@ -231,7 +229,7 @@ class Skin
    public function createButtonRenderer()
    {
       var result = new ButtonRenderer();
-      result.render = renderButton;
+      result.style = Style.StyleCustom(renderButton);
       result.updateLayout = function(ioButton:Widget)
       {
          var inner = ioButton.getInnerLayout();
@@ -248,14 +246,6 @@ class Skin
       result.onRender = onRenderSlider;
       return result;
    }
-   /*
-   public function createLabelRenderer()
-   {
-      var result = new LabelRenderer();
-      result.styleLabel = styleLabel;
-      return result;
-   }
-   */
    public function createTabRenderer()
    {
       var result = new TabRenderer();
@@ -544,96 +534,6 @@ class Skin
       }
 
    }
-
-    public function renderTabs(inTabContainer:Sprite,
-                              inRect:Rectangle,
-                              inPanes:Array<IDockable>,
-                              inCurrent:IDockable,
-                              outHitBoxes:HitBoxes,
-                              inShowRestore:Bool  )
-      {
-         var flags = (inShowRestore ? TabRenderer.SHOW_RESTORE : 0) |
-               TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_POPUP;
-         defaultTabRenderer.renderTabs(inTabContainer, inRect, inPanes, inCurrent, outHitBoxes, TabRenderer.TOP, flags ); }
-
-
-   public function renderMultiDock(dock:MultiDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable,tabStyle:Bool)
-   {
-      var gfx = inContainer.graphics;
-      if (tabStyle)
-      {
-         gfx.beginFill(panelColor);
-         gfx.drawRect(inRect.x,inRect.y+tabHeight,inRect.width,inRect.height-tabHeight);
-         gfx.endFill();
-         renderTabs(inContainer,inRect,inDockables, current, outHitBoxes, false );
-         return;
-      }
-
-      var gap = inRect.height - inDockables.length*24;
-      if (gap<0)
-        gap = 0;
-      var y = inRect.y;
-      gfx.lineStyle();
-      gfx.beginFill(panelColor);
-      gfx.drawRect(inRect.x,inRect.y,inRect.width,inRect.height);
-      gfx.endFill();
-
-      for(d in inDockables)
-      {
-         gfx.beginFill(guiDark);
-         gfx.drawRoundRect(inRect.x+1+0.5, y+0.5, inRect.width-2, 22,5,5);
-         gfx.endFill();
-
-         var pane = d.asPane();
-         if (pane!=null)
-         {
-            var but = (current==d) ? MiniButton.MINIMIZE : MiniButton.EXPAND;
-            var state =  getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
-            var button =  new SimpleButton( state,
-                                        getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
-                                        getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
-            inContainer.addChild(button);
-            button.x = inRect.right-16;
-            button.y = Std.int( y + 3);
-
-            outHitBoxes.add(new Rectangle(inRect.x+2, y+2, inRect.width-18, 18), TITLE(pane) );
-
-            if (outHitBoxes.mCallback!=null)
-               button.addEventListener( MouseEvent.CLICK, function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
-         }
-
-         if (pane!=null)
-         {
-            var text = new TextField();
-            styleText(text);
-            text.selectable = false;
-            text.mouseEnabled = false;
-            text.text = pane.shortTitle;
-            text.x = inRect.x+2;
-            text.y = y+2;
-            text.width = inRect.width-4;
-            text.height = inRect.height-4;
-            inContainer.addChild(text);
-         }
-         
-         y+=24;
-         if (d==current)
-            y+=gap;
-      }
-   }
-
-   public function getMultiDockRect(inRect:Rectangle,inDockables:Array<IDockable>,current:IDockable,tabStyle:Bool) : Rectangle
-   {
-      if (tabStyle)
-         return new Rectangle(inRect.x, inRect.y + tabHeight, inRect.width, inRect.height-tabHeight);
-
-      var pos = 0;
-      for(i in 0...inDockables.length)
-         if (current==inDockables[i])
-            pos = i;
-      return new Rectangle(inRect.x, inRect.y+24*(pos+1), inRect.width, Math.max(0,inRect.height-inDockables.length*24));
-   }
-
 
    public function renderResizeBars(inDock:SideDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inHorizontal:Bool,inSizes:Array<Float>):Void
    {
@@ -1276,7 +1176,9 @@ class Skin
           map = new  Map<String, Dynamic>();
       for(key in Reflect.fields(inAttribs))
          if (!map.exists(key))
+         {
             map.set(key, Reflect.field(inAttribs,key));
+         }
       return map;
    }
 

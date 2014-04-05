@@ -21,21 +21,32 @@ import gm2d.ui.WidgetState;
 
 class ButtonRenderer extends Renderer
 {
+   public dynamic function updateLayout(ioWidget:Widget):Void { }
+   public dynamic function styleLabel(ioLabel:TextField):Void { Skin.current.styleLabel(ioLabel); }
+   public var downOffset:Point;
+
+
    public function new() { super(); downOffset = new Point(1,1);  }
 
-   public function clone()
+   override public function clone() : Renderer
    {
       var result = new ButtonRenderer();
-      result.downOffset = downOffset.clone();
-      result.render = render;
-      result.updateLayout = updateLayout;
-      result.styleLabel = styleLabel;
+      result.copyButton(this);
       return result;
    }
 
-   public var downOffset:Point;
+   public function copyButton(inRenderer:ButtonRenderer)
+   {
+      copy(inRenderer);
+      downOffset = inRenderer.downOffset.clone();
+      updateLayout = inRenderer.updateLayout;
+      styleLabel = inRenderer.styleLabel;
+   }
+
 
    override public function getDownOffset() : Point { return downOffset; }
+
+/*
    override public function renderWidget(inWidget:Widget)
    {
       var tf = inWidget.getLabel();
@@ -43,6 +54,7 @@ class ButtonRenderer extends Renderer
          renderLabel(tf);
       render(inWidget);
    }
+*/
    override public function layoutWidget(ioWidget:Widget)
    {
       updateLayout(ioWidget);
@@ -50,21 +62,13 @@ class ButtonRenderer extends Renderer
 
    override public function renderLabel(ioTextField:TextField) { styleLabel(ioTextField); }
 
-   public dynamic function render(inWidget:Widget):Void { }
-
-   public dynamic function updateLayout(ioWidget:Widget):Void { }
-
-
-
-
-   public dynamic function styleLabel(ioLabel:TextField):Void { Skin.current.styleLabel(ioLabel); }
 
    public static function simple( )
    {
       var renderer = new ButtonRenderer();
       renderer.updateLayout=function(ioButton) ioButton.getInnerLayout().setBorders(2,2,2,2);
       renderer.downOffset = new Point(0,0);
-      renderer.render = function(inWidget:Widget)
+      renderer.style = Style.StyleCustom(function(inWidget:Widget)
       {
          var gfx = inWidget.mChrome.graphics;
          gfx.clear();
@@ -75,7 +79,7 @@ class ButtonRenderer extends Renderer
              var r = inWidget.mRect;
              gfx.drawRect(r.x+0.5,r.y+0.5,r.width-1,r.height-1);
          }
-      }
+      });
       return renderer;
    }
 
@@ -94,11 +98,11 @@ class ButtonRenderer extends Renderer
 
       var result = new ButtonRenderer();
 
-      result.render = function(inWidget:Widget)
+      result.style = Style.StyleCustom(function(inWidget:Widget)
       {
          inWidget.mChrome.graphics.clear();
          renderer.renderRect0(inWidget.mChrome.graphics,null,scaleRect,bounds,inWidget.mRect);
-      };
+      });
       result.updateLayout = function(ioButton:Widget)
       {
          //trace("Min Size:" + bounds.width + "x" + bounds.height);

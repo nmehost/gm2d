@@ -3,8 +3,13 @@ package gm2d.ui;
 import nme.display.DisplayObjectContainer;
 import nme.display.Sprite;
 import gm2d.ui.DockPosition;
+import gm2d.ui.HitBoxes;
 import nme.geom.Rectangle;
 import gm2d.skin.Skin;
+import gm2d.skin.TabRenderer;
+import nme.display.SimpleButton;
+import nme.events.MouseEvent;
+import nme.text.TextField;
 
 class MultiDock implements IDock implements IDockable
 {
@@ -17,6 +22,7 @@ class MultiDock implements IDock implements IDockable
    var properties:Dynamic;
    var flags:Int;
    var tabStyle:Bool;
+   var tabRenderer:TabRenderer;
 
    public function new()
    {
@@ -24,6 +30,7 @@ class MultiDock implements IDock implements IDockable
       mDockables = [];
       bestSize = [];
       tabStyle = false;
+      tabRenderer = Skin.tabRenderer( ["MultiDock","Tabs","TabRenderer"] );
       properties = {};
       mRect = null;
    }
@@ -98,6 +105,23 @@ class MultiDock implements IDock implements IDockable
 
    public function isLocked():Bool { return false; }
 
+   function getCurrentRect()
+   {
+      var rect:Rectangle = null;
+      if (tabStyle)
+      {
+         var tabHeight = tabRenderer.getHeight();
+         return new Rectangle(mRect.x, mRect.y + tabHeight, mRect.width, mRect.height-tabHeight);
+      }
+
+      var pos = 0;
+      for(i in 0...mDockables.length)
+         if (currentDockable==mDockables[i])
+           pos = i;
+      return new Rectangle(mRect.x, mRect.y+24*(pos+1),
+                  mRect.width, Math.max(0,mRect.height-mDockables.length*24));
+   }
+
 
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
@@ -107,13 +131,17 @@ class MultiDock implements IDock implements IDockable
 
       if (currentDockable!=null)
       {
-         var rect = Skin.current.getMultiDockRect(mRect,mDockables,currentDockable,tabStyle);
+         var rect = getCurrentRect();
 
          currentDockable.setRect(rect.x,rect.y,rect.width,rect.height);
       }
-      else trace("No current?");
-      bestSize[getSlot()] = new Size(w,h);
+      else
+      {
+         // All collapsed
+         trace("No current?");
+      }
 
+      bestSize[getSlot()] = new Size(w,h);
       setDirty(false,true);
    }
 
@@ -124,7 +152,72 @@ class MultiDock implements IDock implements IDockable
 
    public function renderChrome(inContainer:Sprite,outHitBoxes:HitBoxes):Void
    {
-      Skin.current.renderMultiDock(this,inContainer,outHitBoxes,mRect,mDockables,currentDockable,tabStyle);
+      var gfx = inContainer.graphics;
+      if (tabStyle)
+      {
+         var tabHeight = tabRenderer.getHeight();
+         gfx.beginFill(Skin.current.panelColor);
+         gfx.drawRect(mRect.x,mRect.y+tabHeight,mRect.width,mRect.height-tabHeight);
+         gfx.endFill();
+         var flags = TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_POPUP;
+         tabRenderer.renderTabs(inContainer,mRect,mDockables, currentDockable, outHitBoxes, TabRenderer.TOP,flags );
+         return;
+      }
+
+      var gap = mRect.height - mDockables.length*24;
+      if (gap<0)
+        gap = 0;
+      var y = mRect.y;
+      gfx.lineStyle();
+      gfx.beginFill(Skin.current.panelColor);
+      gfx.drawRect(mRect.x,mRect.y,mRect.width,mRect.height);
+      gfx.endFill();
+
+      for(d in mDockables)
+      {
+         gfx.beginFill(Skin.current.guiDark);
+         gfx.drawRoundRect(mRect.x+1+0.5, y+0.5, mRect.width-2, 22,5,5);
+         gfx.endFill();
+
+         var pane = d.asPane();
+         if (pane!=null)
+         {
+            var but = (currentDockable==d) ? MiniButton.MINIMIZE : MiniButton.EXPAND;
+            var state =  Skin.current.getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
+            var button =  new SimpleButton( state,
+                                        Skin.current.getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
+                                        Skin.current.getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
+            inContainer.addChild(button);
+            button.x = mRect.right-16;
+            button.y = Std.int( y + 3);
+
+            outHitBoxes.add(new Rectangle(mRect.x+2, y+2, mRect.width-18, 18), TITLE(pane) );
+
+            if (outHitBoxes.mCallback!=null)
+               button.addEventListener( MouseEvent.CLICK, function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
+         }
+
+         if (pane!=null)
+         {
+            var text = new TextField();
+            Skin.current.styleText(text);
+            text.selectable = false;
+            text.mouseEnabled = false;
+            text.text = pane.shortTitle;
+            text.x = mRect.x+2;
+            text.y = y+2;
+            text.width = mRect.width-4;
+            text.height = mRect.height-4;
+            inContainer.addChild(text);
+         }
+         
+         y+=24;
+         if (d==currentDockable)
+            y+=gap;
+      }
+
+
+      //Skin.current.renderMultiDock(this,inContainer,outHitBoxes,mRect,mDockables,currentDockable,tabStyle);
    }
 
    public function asPane() : Pane { return null; }
@@ -296,7 +389,7 @@ class MultiDock implements IDock implements IDockable
          setCurrent(mDockables[0]);
       else if (currentDockable!=null && mRect!=null)
       {
-         var rect = Skin.current.getMultiDockRect(mRect,mDockables,currentDockable,tabStyle);
+         var rect = getCurrentRect();
 
          currentDockable.setRect(rect.x,rect.y,rect.width,rect.height);
       }

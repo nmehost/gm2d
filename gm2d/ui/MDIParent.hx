@@ -397,7 +397,7 @@ class MDIParent extends Sprite implements IDock implements IDockable
 
    function redrawTabs()
    {
-      mTabContainer.setCurrent(current, mMaximizedPane!=null);
+      mTabContainer.setTop(current, mMaximizedPane!=null);
    }
 
 	function showPaneMenu(inX:Float, inY:Float)

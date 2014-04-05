@@ -31,14 +31,15 @@ class SlideBar extends Sprite implements IDock
    var tabSide:Int;
    var showing:Float;
    var lastPopDown:Float;
-   var tabRenderer:TabRenderer;
    var fullRect:Rectangle;
    var popOnUp:Bool;
    var mouseWatcher:MouseWatcher;
    var beginShowPos:Float;
+   var showTabs:Bool;
 
    var current:IDockable;
    var children:Array<IDockable>;
+   var tabRenderer:TabRenderer;
    public var pinned(default,set_pinned):Bool;
    public var onPinned:Bool->Void;
 
@@ -58,8 +59,8 @@ class SlideBar extends Sprite implements IDock
       showing = 0;
       lastPopDown = 0;
       layoutDirty = true;
+      showTabs = inShowTab;
       posOffset = inOffset == null ? 0 : inOffset;
-      tabRenderer = inShowTab ? Skin.tabRenderer(["SlideBar","Dock"]) : null;
       tabSide = switch(pos) {
          case DOCK_LEFT: TabRenderer.RIGHT;
          case DOCK_RIGHT: TabRenderer.LEFT;
@@ -169,6 +170,7 @@ class SlideBar extends Sprite implements IDock
    public function set_pinned(inPinned:Bool):Bool
    {
       pinned = inPinned;
+      tabRenderer = showTabs ? Skin.tabRenderer( [pinned ? "Pinned" : "Unpinned", "Tabs","TabRenderer"] ) : null;
       setDirty(true,true);
       if (onPinned!=null)
          onPinned(inPinned);
