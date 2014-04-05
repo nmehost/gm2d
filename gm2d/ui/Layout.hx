@@ -765,7 +765,6 @@ class GridLayout extends Layout
             }
          }
       }
-
    }
 
    override public function getColWidths() : Array<Float>

@@ -19,7 +19,7 @@ import gm2d.ui.WidgetState;
 import gm2d.ui.Layout;
 
 
-class MDIParent extends Widget implements IDock implements IDockable
+class MDIParent extends Sprite implements IDock implements IDockable
 {
    var parentDock:IDock;
    var mChildren:Array<MDIChildFrame>;
@@ -28,44 +28,50 @@ class MDIParent extends Widget implements IDock implements IDockable
    public var clientLayout : Layout;
    public var clientWidth(default,null):Float;
    public var clientHeight(default,null):Float;
-   var mTabContainer:Sprite;
+   var mTabContainer:TabBar;
    var mTopLevel:TopLevelDock;
-   var mHitBoxes:HitBoxes;
    var mMaximizedPane:IDockable;
+   var mLayout:GridLayout;
    var current:IDockable;
    var properties:Dynamic;
    var flags:Int;
    var sizeX:Float;
    var sizeY:Float;
+   var dockX:Float;
+   var dockY:Float;
 
    public function new()
    {
-      super(["MDIParent", "Dock", "Widget"] );
+      //super(["MDIParent", "Dock", "Widget"] );
+      super();
 
-      mTabContainer = new Sprite();
-      mTabContainer.name = "Tabs";
-      addChild(mTabContainer);
       clientArea = new Sprite();
       clientArea.name = "Client area";
       clientWidth = 100;
       clientHeight = 100;
       properties = {};
-      mHitBoxes = new HitBoxes(this,onHitBox);
       addChild(clientArea);
-      mChildren = [];
+
       mDockables = [];
+      mTabContainer = new TabBar(mDockables,onHitBox);
+      addChild(mTabContainer);
+
+      mChildren = [];
       mMaximizedPane = null;
       clientWidth = clientHeight = 100.0;
+      dockX = dockY = 0;
       sizeX = sizeY = 0;
       current = null;
       flags = Dock.RESIZABLE;
-      mLayout = new ChildStackLayout().setAlignment(Layout.AlignStretch);
-      mLayout.add( new DisplayLayout(this, clientWidth, clientHeight).setAlignment(Layout.AlignStretch) );
+
+      mLayout = new GridLayout(1,"MDI");
+      mLayout.setAlignment(Layout.AlignStretch);
       clientLayout = new DisplayLayout(clientArea, clientWidth, clientHeight);
       clientLayout.setAlignment(Layout.AlignStretch);
       clientLayout.onLayout = setClientSize;
+      mLayout.add(mTabContainer.getLayout());
       mLayout.add( clientLayout );
-      build();
+      mLayout.setRowStretch(0,0);
    }
 
    public function setTopLevel(inTopLevel:TopLevelDock)
@@ -225,11 +231,15 @@ class MDIParent extends Widget implements IDock implements IDockable
 
    public function setRect(inX:Float,inY:Float,w:Float,h:Float):Void
    {
+      dockX = inX;
+      dockY = inY;
+      sizeX = w;
+      sizeY = h;
       mLayout.setRect(inX,inY,w,h);
    }
    public function getDockRect():Rectangle
    {
-      return new Rectangle(x, y, sizeX, sizeY );
+      return new Rectangle(dockX, dockY, sizeX, sizeY );
    }
 
    public function setDirty(inLayout:Bool, inChrome:Bool):Void
@@ -246,7 +256,7 @@ class MDIParent extends Widget implements IDock implements IDockable
 
    public function addDockZones(outZones:DockZones):Void
    {
-      var rect = new Rectangle(x,y,clientWidth, clientHeight);
+      var rect = new Rectangle(dockX,dockY,sizeX,sizeY);
 
       if (rect.contains(outZones.x,outZones.y))
       {
@@ -353,13 +363,11 @@ class MDIParent extends Widget implements IDock implements IDockable
          if (mMaximizedPane!=null)
             mMaximizedPane.setRect(0,0,clientWidth,clientHeight);
       }
+      redraw();
    }
 
-   override public function redraw()
+   public function redraw()
    {
-      sizeX = mRect.width;
-      sizeY = mRect.height;
-
       if (mMaximizedPane!=null)
       {
          clientArea.graphics.clear();
@@ -389,10 +397,7 @@ class MDIParent extends Widget implements IDock implements IDockable
 
    function redrawTabs()
    {
-      while(mTabContainer.numChildren>0)
-         mTabContainer.removeChildAt(0);
-       mHitBoxes.clear();
-      Skin.current.renderTabs(mTabContainer,new Rectangle(0,0,sizeX,sizeY) ,mDockables, getCurrent(),mHitBoxes, mMaximizedPane!=null);
+      mTabContainer.setCurrent(current, mMaximizedPane!=null);
    }
 
 	function showPaneMenu(inX:Float, inY:Float)
@@ -400,7 +405,8 @@ class MDIParent extends Widget implements IDock implements IDockable
 	   var menu = new MenuItem("Tabs");
 		for(pane in mDockables)
 		   menu.add( new MenuItem(pane.getShortTitle(), function(_)  Dock.raise(pane) ) );
-		popup( new PopupMenu(menu), inX, inY);
+      var pos = localToGlobal( new Point(inX,inY) );
+		Game.popup( new PopupMenu(menu), pos.x, pos.y);
 	}
 
    function onHitBox(inAction:HitAction,inEvent:MouseEvent)

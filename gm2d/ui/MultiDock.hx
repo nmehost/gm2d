@@ -6,11 +6,7 @@ import gm2d.ui.DockPosition;
 import nme.geom.Rectangle;
 import gm2d.skin.Skin;
 
-#if haxe3
 class MultiDock implements IDock implements IDockable
-#else
-class MultiDock implements IDock, implements IDockable
-#end
 {
    var parentDock:IDock;
    var mDockables:Array<IDockable>;

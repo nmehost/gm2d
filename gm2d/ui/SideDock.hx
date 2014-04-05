@@ -165,7 +165,6 @@ class SideDock implements IDock implements IDockable
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
       mRect = new Rectangle(x,y,w,h);
-      //trace(indent + "Set rect " + variableWidths + " " + mRect);
 
       var right = x+w;
       var bottom = y+h;
