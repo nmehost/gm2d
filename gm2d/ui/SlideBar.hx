@@ -297,7 +297,7 @@ class SlideBar extends Sprite implements IDock
          while(background.numChildren>0)
             background.removeChildAt(0);
 
-         gfx.beginFill(Skin.current.panelColor);
+         gfx.beginFill(Skin.panelColor);
          gfx.drawRect(fullRect.x, fullRect.y, fullRect.width, fullRect.height);
          gfx.endFill();
 

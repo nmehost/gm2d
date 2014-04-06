@@ -39,8 +39,7 @@ class TabRenderer
 
    public dynamic function renderBackground(bitmap:BitmapData)
    {
-      var skin = Skin.current;
-      var shape = skin.mDrawing;
+      var shape = Skin.mDrawing;
       var gfx = shape.graphics;
       var w = bitmap.width;
       var tabHeight = bitmap.height;
@@ -50,7 +49,7 @@ class TabRenderer
 
       mtx.createGradientBox(tabHeight,tabHeight,Math.PI * 0.5);
 
-      var cols:Array<CInt> = [ skin.guiDark, skin.tabGradientColor];
+      var cols:Array<CInt> = [ Skin.guiDark, Skin.tabGradientColor];
       var alphas:Array<Float> = [1.0, 1.0];
       var ratio:Array<Int> = [0, 255];
       gfx.beginGradientFill(nme.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
@@ -60,7 +59,7 @@ class TabRenderer
 
    public function getHeight()
    {
-      return  Skin.current.tabHeight;
+      return  Skin.tabHeight;
    }
 
    public dynamic function renderTabs(inTabContainer:Sprite,
@@ -72,10 +71,9 @@ class TabRenderer
                               inFlags:Int,
                               ?inTabPos:Null<Int> )
    {
-      var skin = Skin.current;
-      var tabHeight = skin.tabHeight;
-      var tmpText = skin.mText;
-      var shape = skin.mDrawing;
+      var tabHeight = Skin.tabHeight;
+      var tmpText = Skin.mText;
+      var shape = Skin.mDrawing;
 
       var borderLeft = 2;
       var borderRight = 8;
@@ -117,7 +115,7 @@ class TabRenderer
             tx+= 6;
          for(but in buts)
          {
-            var bmp = skin.getButtonBitmapData(but,HitBoxes.BUT_STATE_UP);
+            var bmp = Skin.getButtonBitmapData(but,HitBoxes.BUT_STATE_UP);
             if (bmp!=null) 
                tx+=bmp.width;
          }
@@ -140,7 +138,7 @@ class TabRenderer
       for(b in 0...buts.length)
       {
          var but = buts[b];
-         var bmp = skin.getButtonBitmapData(but,HitBoxes.BUT_STATE_UP);
+         var bmp = Skin.getButtonBitmapData(but,HitBoxes.BUT_STATE_UP);
          if (bmp!=null) 
          {
             x-= bmp.width;
@@ -190,7 +188,7 @@ class TabRenderer
          {
             gfx.clear();
             gfx.lineStyle(1,0x404040);
-            gfx.beginFill(skin.guiDark);
+            gfx.beginFill(Skin.guiDark);
             gfx.drawRoundRect(0.5,0.5,tw,tabHeight+2,6,6);
             trans.ty = y0;
             bitmap.draw(shape,trans);
@@ -238,7 +236,7 @@ class TabRenderer
 
          gfx.clear();
          gfx.lineStyle(1,0x404040);
-         gfx.beginFill(skin.guiMedium);
+         gfx.beginFill(Skin.guiMedium);
          gfx.moveTo(-1,tabHeight-4);
          gfx.lineTo(cx,tabHeight-4);
          gfx.lineTo(cx,6);
@@ -268,7 +266,7 @@ class TabRenderer
       if ((inFlags & IS_OVERLAPPED) == 0)
       {
          gfx.clear();
-         gfx.beginFill(skin.guiMedium);
+         gfx.beginFill(Skin.guiMedium);
          gfx.drawRect(0,tabHeight-2,w,8);
          bitmap.draw(shape);
       }

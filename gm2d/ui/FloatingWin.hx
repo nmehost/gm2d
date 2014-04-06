@@ -38,7 +38,7 @@ class FloatingWin extends Sprite implements IDock
 
       var size = inPane.getBestSize( Dock.DOCK_SLOT_FLOAT );
 
-      mClientWidth = Std.int(Math.max(size.x,Skin.current.getMinFrameWidth())+0.99);
+      mClientWidth = Std.int(Math.max(size.x,Skin.getMinFrameWidth())+0.99);
       mClientHeight = Std.int(size.y+0.99);
       setClientSize(mClientWidth,mClientHeight);
 
@@ -58,7 +58,7 @@ class FloatingWin extends Sprite implements IDock
 
    public function setClientSize(inW:Float, inH:Float)
    {
-      var minW = Skin.current.getMinFrameWidth();
+      var minW = Skin.getMinFrameWidth();
       mClientWidth = Std.int(Math.max(inW,minW));
       mClientHeight = Std.int(Math.max(inH,1));
       var size = pane.getLayoutSize(mClientWidth,mClientHeight,true);
@@ -111,7 +111,7 @@ class FloatingWin extends Sprite implements IDock
       var solid = (mFull || (mouseWatcher!=null));
       alpha = solid ? 1.0 : 0.5;
       var rect = pane.getDockRect();
-      Skin.current.renderMiniWin(chrome,pane,rect,mHitBoxes,solid);
+      Skin.renderMiniWin(chrome,pane,rect,mHitBoxes,solid);
    }
 
    function onDrag(inEvent:MouseEvent)

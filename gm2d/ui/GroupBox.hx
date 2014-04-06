@@ -39,7 +39,7 @@ class GroupBox extends Control
          title.x = 2;
          title.y = -20;
          tw = title.textWidth + 4;
-         Skin.current.styleLabel(title);
+         Skin.styleLabel(title);
          addChild(title);
       }
 

@@ -44,8 +44,8 @@ class MDIChildFrame extends Widget
       mHitBoxes = new HitBoxes(this, onHitBox);
 
       var size = inPane.getBestSize( Dock.DOCK_SLOT_FLOAT );
-      if (size.x<Skin.current.getMinFrameWidth())
-         size = inPane.getLayoutSize(Skin.current.getMinFrameWidth(),size.y,true);
+      if (size.x<Skin.getMinFrameWidth())
+         size = inPane.getLayoutSize(Skin.getMinFrameWidth(),size.y,true);
 
       var props:Dynamic = inPane.getProperties();
       var pos_x:Dynamic = props.mdiX;
@@ -69,7 +69,7 @@ class MDIChildFrame extends Widget
          props.mdiX = props.mdiY = mNextChildPos;
       }
 
-      mClientWidth = Std.int(Math.max(size.x,Skin.current.getMinFrameWidth())+0.99);
+      mClientWidth = Std.int(Math.max(size.x,Skin.getMinFrameWidth())+0.99);
       mClientHeight = Std.int(size.y+0.99);
       setClientSize(mClientWidth,mClientHeight);
 
@@ -85,7 +85,7 @@ class MDIChildFrame extends Widget
 
    public function setClientSize(inW:Int, inH:Int)
    {
-      var minW = Skin.current.getMinFrameWidth();
+      var minW = Skin.getMinFrameWidth();
       mClientWidth = Std.int(Math.max(inW,minW));
       mClientHeight = Std.int(Math.max(inH,1));
       var size = pane.getLayoutSize(mClientWidth,mClientHeight,true);
@@ -93,7 +93,7 @@ class MDIChildFrame extends Widget
          size = pane.getLayoutSize(minW,mClientHeight,true);
       mClientWidth = Std.int(size.x);
       mClientHeight = Std.int(size.y);
-      mClientOffset = Skin.current.getFrameClientOffset();
+      mClientOffset = Skin.getFrameClientOffset();
       pane.setRect(mClientOffset.x, mClientOffset.y, mClientWidth, mClientHeight);
       redraw();
    }
@@ -156,7 +156,7 @@ class MDIChildFrame extends Widget
    override public function redraw()
    {
       clearChrome();
-      Skin.current.renderFrame(mChrome,pane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
+      Skin.renderFrame(mChrome,pane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
    }
 
    function onEndDrag(_)

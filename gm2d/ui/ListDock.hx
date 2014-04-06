@@ -101,8 +101,7 @@ class ListDock extends SideDock
 
       var right = w;
       var bottom = h;
-      var skin = Skin.current;
-      var barSize = skin.getResizeBarWidth();
+      var barSize = Skin.getResizeBarWidth();
       h-= barSize * (mDockables.length-1);
 
       mPositions = [];
@@ -175,7 +174,7 @@ class ListDock extends SideDock
 
          if (pane!=null)
          {
-            Skin.current.renderPaneChrome(pane,mBackground,hitBoxes,rect,
+            Skin.renderPaneChrome(pane,mBackground,hitBoxes,rect,
                (mRenderer.gripperTop? Skin.TOOLBAR_GRIP_TOP : 0) |
                  (Dock.isCollapsed(pane) ? Skin.SHOW_EXPAND : Skin.SHOW_COLLAPSE )
                );
@@ -188,9 +187,9 @@ class ListDock extends SideDock
             if (gap>0.5)
             {
                if (variableWidths)
-                  Skin.current.renderToolbarGap(mBackground,rect.x, rect.bottom-gap, rect.width, gap);
+                  Skin.renderToolbarGap(mBackground,rect.x, rect.bottom-gap, rect.width, gap);
                else
-                  Skin.current.renderToolbarGap(mBackground,rect.right - gap, rect.y, gap, rect.height);
+                  Skin.renderToolbarGap(mBackground,rect.right - gap, rect.y, gap, rect.height);
             }
          }
       }

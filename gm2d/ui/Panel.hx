@@ -114,7 +114,7 @@ class Panel extends Widget
 
       mLayoutDirty = true;
       addChild(inButton);
-      // inButton.setBG( Skin.current.renderButton, w+inExtraX,h+inExtraY);
+      // inButton.setBG( Skin.renderButton, w+inExtraX,h+inExtraY);
       mButtons.push(inButton);
       mButtonLayout.add( inButton.getLayout() );
    }

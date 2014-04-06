@@ -54,7 +54,7 @@ class MultiDock implements IDock implements IDockable
    // Layout
    public function addPadding(ioSize:Size):Size
    {
-      var pad = Skin.current.getMultiDockChromePadding(mDockables.length,tabStyle);
+      var pad = Skin.getMultiDockChromePadding(mDockables.length,tabStyle);
       ioSize.x += pad.x;
       ioSize.y += pad.y;
       return ioSize;
@@ -156,7 +156,7 @@ class MultiDock implements IDock implements IDockable
       if (tabStyle)
       {
          var tabHeight = tabRenderer.getHeight();
-         gfx.beginFill(Skin.current.panelColor);
+         gfx.beginFill(Skin.panelColor);
          gfx.drawRect(mRect.x,mRect.y+tabHeight,mRect.width,mRect.height-tabHeight);
          gfx.endFill();
          var flags = TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_POPUP;
@@ -169,13 +169,13 @@ class MultiDock implements IDock implements IDockable
         gap = 0;
       var y = mRect.y;
       gfx.lineStyle();
-      gfx.beginFill(Skin.current.panelColor);
+      gfx.beginFill(Skin.panelColor);
       gfx.drawRect(mRect.x,mRect.y,mRect.width,mRect.height);
       gfx.endFill();
 
       for(d in mDockables)
       {
-         gfx.beginFill(Skin.current.guiDark);
+         gfx.beginFill(Skin.guiDark);
          gfx.drawRoundRect(mRect.x+1+0.5, y+0.5, mRect.width-2, 22,5,5);
          gfx.endFill();
 
@@ -183,10 +183,10 @@ class MultiDock implements IDock implements IDockable
          if (pane!=null)
          {
             var but = (currentDockable==d) ? MiniButton.MINIMIZE : MiniButton.EXPAND;
-            var state =  Skin.current.getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
+            var state =  Skin.getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
             var button =  new SimpleButton( state,
-                                        Skin.current.getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
-                                        Skin.current.getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
+                                        Skin.getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
+                                        Skin.getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
             inContainer.addChild(button);
             button.x = mRect.right-16;
             button.y = Std.int( y + 3);
@@ -200,7 +200,7 @@ class MultiDock implements IDock implements IDockable
          if (pane!=null)
          {
             var text = new TextField();
-            Skin.current.styleText(text);
+            Skin.styleText(text);
             text.selectable = false;
             text.mouseEnabled = false;
             text.text = pane.shortTitle;
@@ -217,7 +217,7 @@ class MultiDock implements IDock implements IDockable
       }
 
 
-      //Skin.current.renderMultiDock(this,inContainer,outHitBoxes,mRect,mDockables,currentDockable,tabStyle);
+      //Skin.renderMultiDock(this,inContainer,outHitBoxes,mRect,mDockables,currentDockable,tabStyle);
    }
 
    public function asPane() : Pane { return null; }
@@ -237,13 +237,12 @@ class MultiDock implements IDock implements IDockable
 
       if (rect.contains(outZones.x,outZones.y))
       {
-         var skin = Skin.current;
          var dock = getDock();
-         skin.renderDropZone(rect,outZones,DOCK_LEFT,true,   function(d) dock.addSibling(this,d,DOCK_LEFT) );
-         skin.renderDropZone(rect,outZones,DOCK_RIGHT,true,  function(d) dock.addSibling(this,d,DOCK_RIGHT));
-         skin.renderDropZone(rect,outZones,DOCK_TOP,true,    function(d) dock.addSibling(this,d,DOCK_TOP) );
-         skin.renderDropZone(rect,outZones,DOCK_BOTTOM,true, function(d) dock.addSibling(this,d,DOCK_BOTTOM) );
-         skin.renderDropZone(rect,outZones,DOCK_OVER,true,   function(d) addDockable(d,DOCK_OVER,9999) );
+         Skin.renderDropZone(rect,outZones,DOCK_LEFT,true,   function(d) dock.addSibling(this,d,DOCK_LEFT) );
+         Skin.renderDropZone(rect,outZones,DOCK_RIGHT,true,  function(d) dock.addSibling(this,d,DOCK_RIGHT));
+         Skin.renderDropZone(rect,outZones,DOCK_TOP,true,    function(d) dock.addSibling(this,d,DOCK_TOP) );
+         Skin.renderDropZone(rect,outZones,DOCK_BOTTOM,true, function(d) dock.addSibling(this,d,DOCK_BOTTOM) );
+         Skin.renderDropZone(rect,outZones,DOCK_OVER,true,   function(d) addDockable(d,DOCK_OVER,9999) );
       }
    }
 

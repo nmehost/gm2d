@@ -414,7 +414,7 @@ class SideDock implements IDock implements IDockable
       {
           for(d in mDockables)
              d.addDockZones(outZones);
-          Skin.current.addResizeDockZones(outZones,mRect,variableWidths,mWidths,onDock);
+          Skin.addResizeDockZones(outZones,mRect,variableWidths,mWidths,onDock);
       }
    }
 

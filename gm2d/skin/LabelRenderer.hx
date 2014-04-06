@@ -32,7 +32,7 @@ class LabelRenderer
             }
          }
       }
-      return Skin.current.textFormat;
+      return Skin.textFormat;
    }
 }
 

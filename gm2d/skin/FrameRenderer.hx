@@ -27,37 +27,14 @@ import gm2d.svg.SvgRenderer;
 import gm2d.svg.Svg;
 
 
-class FrameRenderer extends ButtonRenderer
+class FrameRenderer
 {
-   public var titleHeight:Float;
-   public var borders:Float;
-
-   public function new()
+   public static function create(borders:Float, titleHeight:Float) : Renderer
    {
-       super();
-       titleHeight = 20;
-       borders=5;
-       padding = new Rectangle(borders, borders+titleHeight, borders*2, borders*2+titleHeight);
-   }
-
-
-   public dynamic function renderFrame(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void { }
-
-   override public function clone()
-   {
-      var result = new FrameRenderer();
-      result.copy(this);
-      result.renderFrame = renderFrame;
-      result.titleHeight = titleHeight;
-      result.borders = borders;
+      var result = new Renderer();
+      result.padding = new Rectangle(borders, borders+titleHeight, borders*2, borders*2+titleHeight);
       return result;
    }
-
-   override public function renderWidget(inWidget:Widget)
-   {
-      renderFrame(inWidget.mChrome, inWidget.getPane(), inWidget.mRect, inWidget.getHitBoxes() );
-   }
-
 
    public static function fromSvg(inSvg:Svg,?inLayer:String)
    {
@@ -71,21 +48,18 @@ class FrameRenderer extends ButtonRenderer
          interior = bounds;
       var scaleRect = Skin.getScaleRect(renderer,bounds);
 
-      var result = new FrameRenderer();
-      result.renderFrame = function(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void
-      {
-         //trace("Rect: " + inRect);
-         //trace("bounds: " + bounds);
-         //trace("interior: " + interior);
-         //trace("scale: " + scaleRect);
-         var gfx = outChrome.graphics;
+      var result = new Renderer();
+      result.style = Style.StyleCustom( function(widget:Widget)
+         {
+         var gfx = widget.mChrome.graphics;
          var matrix = new Matrix();
-         matrix.tx = inRect.x-(bounds.x);
-         matrix.ty = inRect.y-(bounds.y);
+         matrix.tx = widget.mRect.x-(bounds.x);
+         matrix.ty = widget.mRect.y-(bounds.y);
          if (scaleRect!=null)
          {
-            var extraX = inRect.width-(bounds.width-scaleRect.width);
-            var extraY = inRect.height-(bounds.height-scaleRect.height);
+            var rect = widget.mRect;
+            var extraX = rect.width-(bounds.width-scaleRect.width);
+            var extraY = rect.height-(bounds.height-scaleRect.height);
             //trace("Add " + extraX + "x" + extraY );
             renderer.render(gfx,matrix,null,scaleRect, extraX, extraY );
          }
@@ -93,8 +67,8 @@ class FrameRenderer extends ButtonRenderer
             renderer.render(gfx,matrix);
 
          if (gm2d.Lib.isOpenGL)
-            outChrome.cacheAsBitmap = true;
-      };
+            widget.mChrome.cacheAsBitmap = true;
+      });
 
       result.minItemSize = new Size(bounds.width, bounds.height);
       result.padding = new Rectangle(interior.x-bounds.x, interior.y-bounds.y,

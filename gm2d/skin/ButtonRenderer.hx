@@ -20,22 +20,11 @@ import gm2d.ui.Size;
 import gm2d.ui.WidgetState;
 
 
-class ButtonRenderer extends Renderer
+class ButtonRenderer
 {
-   //public dynamic function updateLayout(ioWidget:Widget):Void { }
-   //public dynamic function styleLabel(ioLabel:TextField):Void { Skin.current.styleLabel(ioLabel); }
-   //public var downOffset:Point;
-
-
-   public function new()
-   {
-      super();
-      offset = new Point(1,1);
-   }
-
    public static function simple( )
    {
-      var renderer = new ButtonRenderer();
+      var renderer = new Renderer();
       renderer.padding = new Rectangle(2,2,4,4);
       renderer.offset = new Point(0,0);
       renderer.style = Style.StyleCustom(function(inWidget:Widget)
@@ -44,8 +33,8 @@ class ButtonRenderer extends Renderer
          gfx.clear();
          if (inWidget.mState!=WidgetNormal)
          {
-             gfx.beginFill(inWidget.mState==WidgetDisabled ? Skin.current.disableColor : Skin.current.guiMedium );
-             gfx.lineStyle(1,Skin.current.controlBorder);
+             gfx.beginFill(inWidget.mState==WidgetDisabled ? Skin.disableColor : Skin.guiMedium );
+             gfx.lineStyle(1,Skin.controlBorder);
              var r = inWidget.mRect;
              gfx.drawRect(r.x+0.5,r.y+0.5,r.width-1,r.height-1);
          }
@@ -66,7 +55,8 @@ class ButtonRenderer extends Renderer
          interior = bounds;
       var scaleRect = Skin.getScaleRect(renderer,bounds);
 
-      var result = new ButtonRenderer();
+      var result = new Renderer();
+      result.offset = new Point(1,1);
 
       result.style = Style.StyleCustom(function(inWidget:Widget)
       {

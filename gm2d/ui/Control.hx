@@ -17,9 +17,9 @@ class Control extends Widget
    override public function onCurrentChanged(inCurrent:Bool)
    {
 	   if (inCurrent)
-		   Skin.current.renderCurrent(this);
+		   Skin.renderCurrent(this);
 		else
-		   Skin.current.clearCurrent(this);
+		   Skin.clearCurrent(this);
    }
 
 }

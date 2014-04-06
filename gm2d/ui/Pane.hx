@@ -279,13 +279,12 @@ class Pane implements IDockable
 
       if (rect.contains(outZones.x,outZones.y))
       {
-         var skin = Skin.current;
          var dock = getDock();
-         skin.renderDropZone(rect,outZones,DOCK_LEFT,true,   function(d) dock.addSibling(this,d,DOCK_LEFT) );
-         skin.renderDropZone(rect,outZones,DOCK_RIGHT,true,  function(d) dock.addSibling(this,d,DOCK_RIGHT));
-         skin.renderDropZone(rect,outZones,DOCK_TOP,true,    function(d) dock.addSibling(this,d,DOCK_TOP) );
-         skin.renderDropZone(rect,outZones,DOCK_BOTTOM,true, function(d) dock.addSibling(this,d,DOCK_BOTTOM) );
-         skin.renderDropZone(rect,outZones,DOCK_OVER,true,   function(d) dock.addSibling(this,d,DOCK_OVER) );
+         Skin.renderDropZone(rect,outZones,DOCK_LEFT,true,   function(d) dock.addSibling(this,d,DOCK_LEFT) );
+         Skin.renderDropZone(rect,outZones,DOCK_RIGHT,true,  function(d) dock.addSibling(this,d,DOCK_RIGHT));
+         Skin.renderDropZone(rect,outZones,DOCK_TOP,true,    function(d) dock.addSibling(this,d,DOCK_TOP) );
+         Skin.renderDropZone(rect,outZones,DOCK_BOTTOM,true, function(d) dock.addSibling(this,d,DOCK_BOTTOM) );
+         Skin.renderDropZone(rect,outZones,DOCK_OVER,true,   function(d) dock.addSibling(this,d,DOCK_OVER) );
       }
    }
 

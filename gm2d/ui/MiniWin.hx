@@ -29,7 +29,7 @@ class MiniWin extends Sprite
       mScreen = inScreen;
       addChild(inPane.displayObject);
 
-      mClientOffset = Skin.current.getMiniWinClientOffset();
+      mClientOffset = Skin.getMiniWinClientOffset();
       pane.displayObject.x = mClientOffset.x;
       pane.displayObject.y = mClientOffset.y;
       x = 20;
@@ -38,7 +38,7 @@ class MiniWin extends Sprite
       mClientWidth = 200;
       mClientHeight = 200;
       //pane.displayObject.scrollRect = new Rectangle(20,20,mClientWidth, mClientHeight);
-      Skin.current.renderMiniWin(this,pane,new Rectangle(0,0,mClientWidth,mClientHeight),mHitBoxes,true);
+      Skin.renderMiniWin(this,pane,new Rectangle(0,0,mClientWidth,mClientHeight),mHitBoxes,true);
       addChild(pane.displayObject);
       mScreen.addChild(this);
    }
@@ -74,7 +74,7 @@ class MiniWin extends Sprite
 
    function redraw()
    {
-      Skin.current.renderMiniWin(this,pane,new Rectangle(0,0,mClientWidth,mClientHeight),mHitBoxes,true);
+      Skin.renderMiniWin(this,pane,new Rectangle(0,0,mClientWidth,mClientHeight),mHitBoxes,true);
    }
 
    function onEndDrag(_)

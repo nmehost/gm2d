@@ -41,38 +41,35 @@ import gm2d.CInt;
 
 class Skin
 {
-   static var sCurrent:Skin;
-   public static var current(get_current,set_current):Skin;
+   public static var centerTitle = true;
+   public static var buttonBorderX = 10;
+   public static var buttonBorderY = 5;
+   public static var guiLight = 0xf0f0e0;
+   public static var guiMedium = 0xe0e0d0;
+   public static var guiDark = 0xa0a090;
+   public static var mdiBGColor = 0x404040;
+   public static var labelColor = 0x000000;
+   public static var panelColor = guiMedium;
+   public static var controlColor = guiLight;
+   public static var disableColor = 0x808080;
+   public static var controlBorder = 0x000000;
+   public static var tabGradientColor = 0x909080;
+   public static var buttonCorner = 6.0;
+   public static var menuHeight:Float = 22;
 
-   public var labelColor:Int;
-   public var panelColor:Int;
-   public var controlColor:Int;
-   public var disableColor:Int;
-   public var controlBorder:Int;
-   public var mdiBGColor:Int;
-   public var buttonCorner:Float;
-   public var tabGradientColor:Int;
 
-   public var guiLight:Int;
-   public var guiMedium:Int;
-   public var guiDark:Int;
+   public static var textFormat:nme.text.TextFormat;
+   public static var mBitmaps:Array< Array<BitmapData> >;
 
-   public var textFormat:nme.text.TextFormat;
-   public var menuHeight:Float;
-   public var mBitmaps:Array< Array<BitmapData> >;
-   public var centerTitle:Bool;
-   public var buttonBorderX:Float;
-   public var buttonBorderY:Float;
 
-   public var dialogRenderer:FrameRenderer;
-   public var buttonRenderer:ButtonRenderer;
-   public var sliderRenderer:SliderRenderer;
-   //public var labelRenderer:LabelRenderer;
-   public var defaultTabRenderer:TabRenderer;
+   public static var dialogRenderer:Renderer;
+   public static var buttonRenderer:Renderer;
+   public static var sliderRenderer:SliderRenderer;
+   public static var defaultTabRenderer:TabRenderer;
 
-   public var tabHeight:Int;
-   public var title_h:Int;
-   public var borders:Int;
+   public static var tabHeight:Int = 24;
+   public static var title_h:Int = 22;
+   public static var borders:Int = 3;
 
    public static var svgInterior = ~/\.interior/;
    public static var svgScaleX = ~/\.scaleX/;
@@ -81,37 +78,18 @@ class Skin
    public static var svgActive = ~/\.active/;
    public static var svgThumb = ".thumb";
 
-   public var mDrawing:Shape;
-   public var mText:TextField;
+   public static var mDrawing:Shape;
+   public static var mText:TextField;
 
    public static inline var TOOLBAR_GRIP_TOP = 0x0001;
    public static inline var SHOW_COLLAPSE    = 0x0002;
    public static inline var SHOW_EXPAND      = 0x0004;
 
-   public function new()
+   public static var doInit:Dynamic = init();
+   public static function init()
    {
-      sCurrent = this;
-
       menuHeight = 22;
       mBitmaps = [];
-      centerTitle = true;
-      buttonBorderX = 10;
-      buttonBorderY = 5;
-      guiLight = 0xf0f0e0;
-      guiMedium = 0xe0e0d0;
-      guiDark = 0xa0a090;
-      mdiBGColor = 0x404040;
-      labelColor = 0x000000;
-      panelColor = guiMedium;
-      controlColor = guiLight;
-      disableColor = 0x808080;
-      controlBorder = 0x000000;
-      tabGradientColor = 0x909080;
-      buttonCorner = 6.0;
-      tabHeight = 24;
-      title_h = 22;
-      borders = 3;
-
       textFormat = new TextFormat();
       textFormat.size = 12;
       textFormat.font = "Arial";
@@ -122,7 +100,14 @@ class Skin
       for(state in  HitBoxes.BUT_STATE_UP...HitBoxes.BUT_STATE_DOWN+1)
          mBitmaps[state] = [];
 
-      createRenderers();
+      dialogRenderer = createDialogRenderer();
+      buttonRenderer = createButtonRenderer();
+      sliderRenderer = createSliderRenderer();
+      defaultTabRenderer = createTabRenderer();
+
+
+
+      return null;
    }
 
    public static function hasLineage(inLineage:Array<String>, inClassName)
@@ -140,16 +125,16 @@ class Skin
 
    public static function tabRenderer(inLineage:Array<String>, ?inAttribs:Dynamic) : TabRenderer
    {
-      return current.defaultTabRenderer;
+      return defaultTabRenderer;
    }
 
    public static function renderer(inLineage:Array<String>, ?inAttribs:Dynamic) : Renderer
    {
-       var result:ButtonRenderer = null;
+       var result:Renderer = null;
 
        if (hasLineage(inLineage,"Dialog"))
        {
-          result = current.dialogRenderer;
+          result = dialogRenderer;
        }
        else if (hasLineage(inLineage,"ChoiceButton"))
        {
@@ -161,16 +146,14 @@ class Skin
        }
        else if (hasLineage(inLineage,"Button"))
        {
-          result = current.buttonRenderer;
+          result = buttonRenderer;
        }
        else if (hasLineage(inLineage,"MDIParent"))
        {
-          result = current.dialogRenderer;
-          //result = new FrameRenderer();
-          //result.mdi;
+          result = dialogRenderer;
        }
        else
-          result = new ButtonRenderer();
+          result = new Renderer();
 
        var map = createAttribMap(inAttribs,false);
 
@@ -183,7 +166,7 @@ class Skin
                 if (inWidget.mIsDown)
                 {
                    var gfx = inWidget.mChrome.graphics;
-                   gfx.beginFill(Skin.current.guiDark);
+                   gfx.beginFill(Skin.guiDark);
                    var r = inWidget.mRect;
                    gfx.drawRect(r.x, r.y, r.width, r.height);
                 }
@@ -217,42 +200,34 @@ class Skin
    }
 
 
-   public function createRenderers()
+   public static function createDialogRenderer()
    {
-      dialogRenderer = createDialogRenderer();
-      buttonRenderer = createButtonRenderer();
-      sliderRenderer = createSliderRenderer();
-      defaultTabRenderer = createTabRenderer();
-   }
-
-   public function createDialogRenderer()
-   {
-      var result = new FrameRenderer();
-      result.borders = borders;
-      result.titleHeight = 26;
-      result.renderFrame = renderDialog;
+      var result = FrameRenderer.create(borders,26);
+      result.style = Style.StyleCustom(renderDialog);
       return result;
    }
-   public function createButtonRenderer()
+   public static function createButtonRenderer()
    {
-      var result = new ButtonRenderer();
+      var result = new Renderer();
       result.style = Style.StyleCustom(renderButton);
       result.padding = new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2);
-      //result.styleLabel = styleLabel;
+      result.offset = new Point(1,1);
       return result;
    }
-   public function createSliderRenderer()
+   public static function createSliderRenderer()
    {
       var result = new SliderRenderer();
       result.onCreate = onCreateSlider;
       result.onRender = onRenderSlider;
       return result;
    }
-   public function createTabRenderer()
+   public static function createTabRenderer()
    {
       var result = new TabRenderer();
       return result;
    }
+
+
 
    static public function renderBmpBackground(widget:Widget, up:BitmapData, down:BitmapData)
    {
@@ -275,7 +250,7 @@ class Skin
    }
 
 
-   public function onCreateSlider(inSlider:Slider):Void
+   public static function onCreateSlider(inSlider:Slider):Void
    {
       var layout = inSlider.getItemLayout();
       layout.setMinSize(120,20);
@@ -292,7 +267,7 @@ class Skin
       };
    }
 
-   public function onRenderSlider(inSlider:Slider, inRect:Rectangle):Void
+   public static function onRenderSlider(inSlider:Slider, inRect:Rectangle):Void
    {
       inSlider.mX0 = 10;
       inSlider.mX1 = inRect.width-10;
@@ -311,7 +286,7 @@ class Skin
    }
 
 
-   public function fromSvg(inSvg:Svg)
+   public static function fromSvg(inSvg:Svg)
    {
       if (inSvg.hasGroup("dialog"))
          dialogRenderer = FrameRenderer.fromSvg(inSvg,"dialog");
@@ -335,15 +310,7 @@ class Skin
 
 
 
-   public static function get_current():Skin
-   {
-      if (sCurrent==null)
-         new Skin();
-
-      return sCurrent;
-   }
-
-   public function getTextFormat()
+   public static function getTextFormat()
    {
       var fmt = new TextFormat();
       fmt.size = 16;
@@ -353,24 +320,17 @@ class Skin
    }
 
 
-   public static function set_current(skin:Skin):Skin
-   {
-      sCurrent = skin;
-      return sCurrent;
-   }
-
-
-   public function renderCurrent(inWidget:Widget)
+   public static function renderCurrent(inWidget:Widget)
    {
       var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, 3, 3, 3, 3, false, false);
       inWidget.filters = [ glow ];
    }
-   public function clearCurrent(inWidget:Widget)
+   public static function clearCurrent(inWidget:Widget)
    {
       inWidget.filters = null;
    }
 
-   public function renderMenubar(inObject:Sprite,inW:Float, inH:Float)
+   public static function renderMenubar(inObject:Sprite,inW:Float, inH:Float)
    {
       var gfx = inObject.graphics;
       gfx.clear();
@@ -383,14 +343,14 @@ class Skin
       gfx.drawRect(0,0,inW,inH);
    }
 
-   public function styleMenu(inItem:Button)
+   public static function styleMenu(inItem:Button)
    {
       inItem.getLabel().backgroundColor = 0x4040a0;
       inItem.getLabel().textColor = 0x000000;
       inItem.onCurrentChangedFunc = function(_) { };
    }
 
-   public function styleLabel(label:TextField)
+   public static function styleLabel(label:TextField)
    {
       label.defaultTextFormat = textFormat;
       label.textColor = labelColor;
@@ -411,12 +371,12 @@ class Skin
    }
 */
 
-   public function styleText(inText:nme.text.TextField)
+   public static function styleText(inText:nme.text.TextField)
    {
       inText.defaultTextFormat = textFormat;
    }
 
-   public function getChromeRect(inDocked:IDockable,inTopGrip:Bool) : Rectangle
+   public static function getChromeRect(inDocked:IDockable,inTopGrip:Bool) : Rectangle
    {
       var pane = inDocked.asPane();
       if (pane!=null)
@@ -434,13 +394,13 @@ class Skin
       return new Rectangle(0,0,0,0);
    }
 
-   public function getMultiDockChromePadding(inN:Int,tabStyle:Bool) : Size
+   public static function getMultiDockChromePadding(inN:Int,tabStyle:Bool) : Size
    {
       return new Size(0,tabStyle ? tabHeight : inN*24);
    }
 
 
-   public function renderToolbarGap(inContainer:Sprite,inX:Float, inY:Float, inW:Float, inH:Float)
+   public static function renderToolbarGap(inContainer:Sprite,inX:Float, inY:Float, inW:Float, inH:Float)
    {
       var gfx = inContainer.graphics;
       gfx.lineStyle();
@@ -449,7 +409,7 @@ class Skin
       gfx.endFill();
    }
 
-   public function renderPaneChrome(inPane:Pane,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inFlags:Int):Void
+   public static function renderPaneChrome(inPane:Pane,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inFlags:Int):Void
    {
       var gfx = inContainer.graphics;
       gfx.lineStyle();
@@ -539,7 +499,7 @@ class Skin
 
    }
 
-   public function renderResizeBars(inDock:SideDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inHorizontal:Bool,inSizes:Array<Float>):Void
+   public static function renderResizeBars(inDock:SideDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inHorizontal:Bool,inSizes:Array<Float>):Void
    {
       var gfx = inContainer.graphics;
       //gfx.lineStyle();
@@ -565,7 +525,7 @@ class Skin
    }
 
 
-   public function addResizeDockZones(outZones:DockZones,inRect:Rectangle,inHorizontal:Bool,inSizes:Array<Float>, inOnDock:IDockable->Int->Void ):Void
+   public static function addResizeDockZones(outZones:DockZones,inRect:Rectangle,inHorizontal:Bool,inSizes:Array<Float>, inOnDock:IDockable->Int->Void ):Void
    {
       var gfx = outZones.container.graphics;
       //gfx.lineStyle();
@@ -622,7 +582,7 @@ class Skin
    }
 
 
-   function clearSprite(outSprite:Sprite)
+   static function clearSprite(outSprite:Sprite)
    {
       outSprite.graphics.clear();
       while(outSprite.numChildren>0)
@@ -631,7 +591,7 @@ class Skin
 
 
 
-   public function renderButton(inWidget:Widget)
+   public static function renderButton(inWidget:Widget)
    {
       var gfx = inWidget.mChrome.graphics;
       var state = inWidget.mState;
@@ -643,7 +603,7 @@ class Skin
       gfx.drawRoundRect(r.x+0.5,r.y+0.5,r.width-1,r.height-1,buttonCorner,buttonCorner);
    }
 
-    public function renderProgressBar(inGfx:Graphics, inWidth:Float, inHeight:Float, inFraction:Float)
+    public static function renderProgressBar(inGfx:Graphics, inWidth:Float, inHeight:Float, inFraction:Float)
    {
       inGfx.clear();
       inGfx.beginFill(0xffffff);
@@ -654,26 +614,29 @@ class Skin
       inGfx.drawRoundRect(0.5,0.5,inWidth*inFraction,inHeight,6,6);
    }
 
-   public function renderDialog(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes)
+   public static function renderDialog(widget:Widget)
    {
+      var outHitBoxes = widget.getHitBoxes();
+      var rect = widget.mRect;
+      var pane = widget.getPane();
       outHitBoxes.clear();
-      clearSprite(outChrome);
+      clearSprite(widget.mChrome);
 
-      var ox = inRect.x+0.5;
-      var oy = inRect.y+0.5;
-      var w = inRect.width;
-      var h = inRect.height;
+      var ox = rect.x+0.5;
+      var oy = rect.y+0.5;
+      var w = rect.width;
+      var h = rect.height;
 
-      var titleWidth = inRect.width;
+      var titleWidth = rect.width;
 
-      var gfx = outChrome.graphics;
+      var gfx = widget.mChrome.graphics;
       gfx.clear();
       gfx.beginFill(panelColor);
       gfx.lineStyle(1,guiDark);
 
       gfx.drawRoundRect(ox,ox,w, h, 7,7 );
 
-      if ( Dock.isResizeable(inPane) )
+      if ( Dock.isResizeable(pane) )
       {
          gfx.endFill();
          for(o in 0...4)
@@ -682,10 +645,9 @@ class Skin
             gfx.moveTo(w-dx,h);
             gfx.lineTo(w,h-dx);
          }
-         outHitBoxes.add( new Rectangle(w-12,h-12,12,12), HitAction.RESIZE(inPane, ResizeFlag.S|ResizeFlag.E) );
+         outHitBoxes.add( new Rectangle(w-12,h-12,12,12), HitAction.RESIZE(pane, ResizeFlag.S|ResizeFlag.E) );
       }
 
-      var pane = inPane.asPane();
 
       if (false)
       {
@@ -694,7 +656,7 @@ class Skin
          var button =  new SimpleButton( state,
                                         getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
                                         getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
-         outChrome.addChild(button);
+         widget.mChrome.addChild(button);
          button.y = Std.int( (title_h - button.height)/2 );
          titleWidth -= button.width + 2;
          button.x = titleWidth;
@@ -723,17 +685,17 @@ class Skin
          //f.push( new DropShadowFilter(2,45,0xffffff,1,0,0,1) );
          //titleField.filters = f;
 
-         outChrome.addChild(titleField);
+         widget.mChrome.addChild(titleField);
 
          if (centerTitle)
             titleField.x = ox + Std.int((titleWidth-titleField.textWidth)/2);
       }
 
-      outHitBoxes.add( new Rectangle(ox,ox,w,title_h), TITLE(inPane) );
+      outHitBoxes.add( new Rectangle(ox,ox,w,title_h), TITLE(pane) );
    }
 
 
-   public function renderMDI(inMDI:Sprite)
+   public static function renderMDI(inMDI:Sprite)
    {
       var gfx = inMDI.graphics;
       gfx.clear();
@@ -745,7 +707,7 @@ class Skin
       }
    }
 
-   function createButtonBitmap(inButton:Int, inState:Int) : BitmapData
+   static function createButtonBitmap(inButton:Int, inState:Int) : BitmapData
    {
       var bmp = new BitmapData(16,16,true, gm2d.RGB.CLEAR );
       var shape = new nme.display.Shape();
@@ -851,36 +813,36 @@ class Skin
       return bmp;
    }
 
-   public function getButtonBitmapData(inButton:Int, inState:Int) : BitmapData
+   public static function getButtonBitmapData(inButton:Int, inState:Int) : BitmapData
    {
       if (mBitmaps[inState][inButton]==null)
          mBitmaps[inState][inButton]=createButtonBitmap(inButton,inState);
       return mBitmaps[inState][inButton];
    }
 
-   public function getButtonBitmap(inButton:Int, inState:Int) : Bitmap
+   public static function getButtonBitmap(inButton:Int, inState:Int) : Bitmap
    {
       return new Bitmap(getButtonBitmapData(inButton,inState));
    }
 
 
-   public function getFrameClientOffset() : Point
+   public static function getFrameClientOffset() : Point
    {
       return new Point(borders,borders+title_h);
    }
-   public function getMiniWinClientOffset() : Point
+   public static function getMiniWinClientOffset() : Point
    {
       return new Point(borders,borders);
    }
-   public function getMinFrameWidth() : Float
+   public static function getMinFrameWidth() : Float
    {
       return 80;
    }
-   public function getResizeBarWidth() : Float
+   public static function getResizeBarWidth() : Float
    {
       return 2;
    }
-   public function getSideBorder() : Float
+   public static function getSideBorder() : Float
    {
       return 0;
    }
@@ -888,7 +850,7 @@ class Skin
 
 
 
-   public function renderFrame(inObj:Sprite, pane:IDockable, inW:Float, inH:Float,
+   public static function renderFrame(inObj:Sprite, pane:IDockable, inW:Float, inH:Float,
              outHitBoxes:HitBoxes,inIsCurrent:Bool)
    {
       outHitBoxes.clear();
@@ -966,7 +928,7 @@ class Skin
       outHitBoxes.add( new Rectangle(0,0,inW,title_h), TITLE(pane) );
    }
 
-   public function renderText(inText:String, inAltText:String,inWidth:Float, inHeight:Float)
+   public static function renderText(inText:String, inAltText:String,inWidth:Float, inHeight:Float)
    {
       mText.text = inText;
       var text_size = mText.textWidth;
@@ -1027,7 +989,7 @@ class Skin
    }
 
 
-   public function renderMiniWin(outChrome:Sprite, pane:Pane, inRect:Rectangle,outHitBoxes:HitBoxes,inFull:Bool)
+   public static function renderMiniWin(outChrome:Sprite, pane:Pane, inRect:Rectangle,outHitBoxes:HitBoxes,inFull:Bool)
    {
       var gfx = outChrome.graphics;
       gfx.clear();
@@ -1080,7 +1042,7 @@ class Skin
 
 
 
-   function initGfx()
+   static function initGfx()
    {
       if (mDrawing==null)
          mDrawing = new Shape();
@@ -1091,11 +1053,11 @@ class Skin
       }
    }
 
-   public function getMDIClientChrome() { return new Rectangle(0,tabHeight, 0, tabHeight); }
+   public static function getMDIClientChrome() { return new Rectangle(0,tabHeight, 0, tabHeight); }
 
   
 
-   public function renderDropZone(inRect:Rectangle, outZones:DockZones, inPosition:DockPosition,
+   public static function renderDropZone(inRect:Rectangle, outZones:DockZones, inPosition:DockPosition,
       inCentred:Bool, onDock:IDockable->Void):Void
    {
       var r:Rectangle = null;
@@ -1185,12 +1147,6 @@ class Skin
          }
       return map;
    }
-
-
-
-
-
-
 
 
 }

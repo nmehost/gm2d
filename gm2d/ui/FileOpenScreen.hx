@@ -333,7 +333,7 @@ class FileOpenScreen extends Screen
    {
       var gfx = graphics;
       gfx.clear();
-      gfx.beginFill(Skin.current.panelColor);
+      gfx.beginFill(Skin.panelColor);
       gfx.drawRect(0,0, stage.stageWidth, stage.stageHeight);
       screenLayout.setRect(0,0, stage.stageWidth, stage.stageHeight);
    }

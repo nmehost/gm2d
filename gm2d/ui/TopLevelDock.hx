@@ -142,11 +142,10 @@ class TopLevelDock implements IDock
       {
          dockZones = new DockZones(inEvent.stageX, inEvent.stageY, overlayContainer);
          root.addDockZones(dockZones);
-         var skin = Skin.current;
-         skin.renderDropZone(size,dockZones,DOCK_LEFT, false,   function(d) addDockable(d,DOCK_LEFT,0) );
-         skin.renderDropZone(size,dockZones,DOCK_RIGHT, false,  function(d) addDockable(d,DOCK_RIGHT,0));
-         skin.renderDropZone(size,dockZones,DOCK_TOP, false,    function(d) addDockable(d,DOCK_TOP,0) );
-         skin.renderDropZone(size,dockZones,DOCK_BOTTOM, false, function(d) addDockable(d,DOCK_BOTTOM,0) );
+         Skin.renderDropZone(size,dockZones,DOCK_LEFT, false,   function(d) addDockable(d,DOCK_LEFT,0) );
+         Skin.renderDropZone(size,dockZones,DOCK_RIGHT, false,  function(d) addDockable(d,DOCK_RIGHT,0));
+         Skin.renderDropZone(size,dockZones,DOCK_TOP, false,    function(d) addDockable(d,DOCK_TOP,0) );
+         Skin.renderDropZone(size,dockZones,DOCK_BOTTOM, false, function(d) addDockable(d,DOCK_BOTTOM,0) );
       }
    }
 

@@ -25,7 +25,7 @@ class ProgressBar extends Widget
 
    override public function redraw()
    {
-      Skin.current.renderProgressBar(graphics,mRect.width,mRect.height,mFraction);
+      Skin.renderProgressBar(graphics,mRect.width,mRect.height,mFraction);
    }
 
 }

@@ -60,7 +60,7 @@ class SpriteMenubar extends Sprite implements Menubar implements IDock
       var nx = mNextX;
       var but = Button.TextButton(inItem.gmText,function(){me.popup(pos);},["SimpleButton"]);
       mButtons.push(but);
-		Skin.current.styleMenu(but);
+		Skin.styleMenu(but);
       but.addEventListener(MouseEvent.MOUSE_OVER, function(_) me.onMouseItem(pos) );
 
       but.x = mNextX;
@@ -106,8 +106,8 @@ class SpriteMenubar extends Sprite implements Menubar implements IDock
    public function layout(inWidth:Float) : Float
    {
        mWidth = inWidth;
-       mHeight = Skin.current.menuHeight;
-       Skin.current.renderMenubar(this,mWidth,mHeight);
+       mHeight = Skin.menuHeight;
+       Skin.renderMenubar(this,mWidth,mHeight);
        for(but in mButtons)
           but.y = (mHeight-but.height)/2;
        return mHeight;

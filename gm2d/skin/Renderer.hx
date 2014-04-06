@@ -31,7 +31,7 @@ class Renderer
    public function new()
    {
       style = Style.StyleNone;
-      textFormat = Skin.current.textFormat;
+      textFormat = Skin.textFormat;
       offset = new Point(0,0);
    }
 

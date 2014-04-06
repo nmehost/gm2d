@@ -34,7 +34,7 @@ class Slider extends Control
       mMin = inMin;
       mX0 = 0;
       mX1 = 1;
-      mSliderRenderer = Skin.current.sliderRenderer;
+      mSliderRenderer = Skin.sliderRenderer;
 
       mTrack = new Sprite();
       addChild(mTrack);

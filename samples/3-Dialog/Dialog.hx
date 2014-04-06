@@ -26,7 +26,7 @@ class Dialog extends Screen
       Game.setCurrentScreen(this);
 
       var skin = Resources.loadSvg("skin.svg");
-      Skin.current.fromSvg(skin);
+      Skin.fromSvg(skin);
 
       var panel = new gm2d.ui.Panel("Settings");
      
