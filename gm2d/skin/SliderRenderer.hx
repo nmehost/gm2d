@@ -61,7 +61,7 @@ class SliderRenderer
 
       result.onCreate = function(inSlider:Slider):Void
       {
-         var layout = inSlider.getLayout();
+         var layout = inSlider.getItemLayout();
          layout.setMinSize(bounds.width,bounds.height);
 
          if (thumb)

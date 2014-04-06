@@ -14,7 +14,7 @@ typedef Hash<T> = haxe.ds.StringMap<T>;
 class Panel extends Widget
 {
    var mGridLayout:GridLayout;
-   var mItemLayout:GridLayout;
+   var mItemGrid:GridLayout;
    var mButtonLayout:Layout;
    var mLayoutDirty:Bool;
    var mLabelLookup:Hash<TextField>;
@@ -33,30 +33,28 @@ class Panel extends Widget
       mGridLayout = new GridLayout(1,"vertical");
       mGridLayout.setSpacing(0,20);
       mGridLayout.setAlignment(Layout.AlignStretch);
-      mItemLayout = new GridLayout(2,"items");
-      mButtonLayout = new GridLayout(null,"buttons");
+      mItemGrid = new GridLayout(2,"items");
+      mButtonLayout = new GridLayout(null,"buttons",0);
       mButtonLayout.setSpacing(10,0);
       mButtonLayout.setBorders(0,10,0,10);
-      mGridLayout.add(mItemLayout);
+      mGridLayout.add(mItemGrid);
       mGridLayout.setRowStretch(1,0);
-      mLayout = new ChildStackLayout();
-      mLayout.add( new DisplayLayout(this).setAlignment( Layout.AlignStretch ) );
-      mLayout.add( mGridLayout );
+      setItemLayout( mGridLayout );
       build();
    }
 
    public function setItemSize(inSize:Int)
    {
-       mItemLayout.setMinColWidth(1,inSize);
+       mItemGrid.setMinColWidth(1,inSize);
    }
 
    public function setStretchX(inItemStretch:Int=33)
    {
       mGridLayout.mAlign =  Layout.AlignTop;
       mGridLayout.setColStretch(0,1);
-      mItemLayout.mAlign =  Layout.AlignTop;
-      mItemLayout.setColStretch(0,inItemStretch);
-      mItemLayout.setColStretch(1,100);
+      mItemGrid.mAlign =  Layout.AlignTop;
+      mItemGrid.setColStretch(0,inItemStretch);
+      mItemGrid.setColStretch(1,100);
       return this;
    }
 
@@ -107,7 +105,7 @@ class Panel extends Widget
    {
       mLayoutDirty = true;
       addChild(inItem);
-      mItemLayout.add( inItem.getLayout() );
+      mItemGrid.add( inItem.getLayout() );
    }
    public function addButton(inButton:gm2d.ui.Button)
    {
@@ -138,7 +136,7 @@ class Panel extends Widget
          layout.mAlign = inAlign;
       else
          layout.mAlign = Layout.AlignStretch;
-      mItemLayout.add( layout );
+      mItemGrid.add( layout );
    }
 
    public function addLabelObj(inLabel:String,inObj:DisplayObject,?inName:String,?inAlign:Null<Int>)
@@ -158,7 +156,7 @@ class Panel extends Widget
    {
       if (inText==null)
       {
-         mItemLayout.add(null);
+         mItemGrid.add(null);
          return;
       }
       mLayoutDirty = true;
@@ -171,7 +169,7 @@ class Panel extends Widget
          layout.mAlign = inAlign;
       else
          layout.mAlign = Layout.AlignRight | Layout.AlignCenterY;
-      mItemLayout.add( layout );
+      mItemGrid.add( layout );
 
       if (inName!=null)
       {

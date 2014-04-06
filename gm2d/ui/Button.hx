@@ -27,8 +27,6 @@ class Button extends Control
    //var mUpBmp:BitmapData;
    var mCurrentDX:Float;
    var mCurrentDY:Float;
-   var mMainLayout:Layout;
-   var mItemLayout:Layout;
    public var onCurrentChangedFunc:Bool->Void;
 
    public function new(inObject:DisplayObject,?inOnClick:Void->Void, ?inLineage:Array<String>, ?inAttribs:Dynamic)
@@ -51,11 +49,15 @@ class Button extends Control
       addEventListener(MouseEvent.MOUSE_DOWN, onDown );
       addEventListener(MouseEvent.MOUSE_UP, onUp );
 
+      var layout:Layout = ( Std.is(mDisplayObj,TextField)) ?
+           new TextLayout(cast mDisplayObj)  : 
+           new DisplayLayout(mDisplayObj) ;
+      layout.mAlign = Layout.AlignCenterX | Layout.AlignCenterY | Layout.AlignPixel;
+      layout.mDebugCol = 0x00ff00;
+      setItemLayout(layout);
+
       build();
    }
-
-   override public function getInnerLayout() : Layout { return getItemLayout(); }
-
 
    function onClick(e:MouseEvent)
    {
@@ -79,7 +81,7 @@ class Button extends Control
          set_down(false);
    }
 
-   public function getItemLayout()
+   public function getInnerLayout()
    {
       getLayout();
       return mItemLayout;
@@ -195,24 +197,6 @@ class Button extends Control
       var layout = result.getItemLayout();
       layout.setBestSize(label.x + label.width, bmp.height);
       return result;
-   }
-
-   override public function createLayout() : Layout
-   {
-      var layout = new ChildStackLayout( );
-      layout.setBorders(0,0,0,0);
-      mMainLayout = new DisplayLayout(this).setOrigin(0,0);
-      mMainLayout.mDebugCol = 0x000000;
-      mMainLayout.mAlign = Layout.AlignStretch | Layout.AlignPixel;
-      layout.add( mMainLayout );
-      mItemLayout = ( Std.is(mDisplayObj,TextField)) ?
-           new TextLayout(cast mDisplayObj)  : 
-           new DisplayLayout(mDisplayObj) ;
-      layout.add(mItemLayout);
-      mItemLayout.mAlign = Layout.AlignCenterX | Layout.AlignCenterY | Layout.AlignPixel;
-      layout.mDebugCol = 0x00ff00;
-      mLayout = layout;
-      return layout;
    }
 
    override public function onCurrentChanged(inCurrent:Bool)

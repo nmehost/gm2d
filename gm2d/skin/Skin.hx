@@ -232,7 +232,7 @@ class Skin
       result.style = Style.StyleCustom(renderButton);
       result.updateLayout = function(ioButton:Widget)
       {
-         var inner = ioButton.getInnerLayout();
+         var inner = ioButton.getItemLayout();
          if (inner!=null)
            inner.setBorders(buttonBorderX,buttonBorderY,buttonBorderX,buttonBorderY);
       };
@@ -274,7 +274,7 @@ class Skin
 
    public function onCreateSlider(inSlider:Slider):Void
    {
-      var layout = inSlider.getLayout();
+      var layout = inSlider.getItemLayout();
       layout.setMinSize(120,20);
 
       inSlider.mThumb = new Sprite();
@@ -282,7 +282,7 @@ class Skin
       gfx.beginFill(controlColor);
       gfx.lineStyle(1,controlBorder);
       gfx.drawRect(-10,0,20,20);
-      inSlider.getLayout().onLayout = function(inX:Float,inY:Float,inW:Float,inH:Float)
+      inSlider.getItemLayout().onLayout = function(inX:Float,inY:Float,inW:Float,inH:Float)
       {
           inSlider.mSliderRenderer.onRender( inSlider, new Rectangle(inX,inY,inW,inH) );
           inSlider.mSliderRenderer.onPosition(inSlider);

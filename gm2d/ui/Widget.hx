@@ -11,10 +11,23 @@ import gm2d.skin.Skin;
 import gm2d.skin.Renderer;
 
 
+
+
+
+
+
+
+
+
+
+
+
 class Widget extends Sprite
 {
+   var mLayout:BorderLayout;
+   var mItemLayout:Layout;
+
    public var wantFocus:Bool;
-   var mLayout:Layout;
    public var mRect : Rectangle;
    public var mChrome : Sprite;
    public var mState(default,null) : WidgetState;
@@ -44,15 +57,26 @@ class Widget extends Sprite
       return inLineage==null ? [inClass] : inLineage.concat([inClass]);
    }
 
+   function setItemLayout(inLayout:Layout)
+   {
+      mItemLayout = inLayout;
+      mLayout = new BorderLayout(mItemLayout,true);
+      mLayout.onLayout = onLayout;
+   }
+
+   public function getLayout() { return mLayout; }
+
    public function build()
    {
-      var layout = getLayout();
-      layout.onLayout = onLayout;
+      if (mLayout==null)
+      {
+         //throw "No layout set";
+         setItemLayout( new Layout() );
+      }
       if (mRenderer!=null)
          mRenderer.layoutWidget(this);
-      var size = layout.getBestSize();
-      layout.setRect(0,0,size.x,size.y);
-      layout.mDebugCol = 0x000000;
+      var size = mLayout.getBestSize();
+      mLayout.setRect(0,0,size.x,size.y);
    }
 
    public function setState(inState:WidgetState)
@@ -66,7 +90,9 @@ class Widget extends Sprite
 
    public function onLayout(inX:Float, inY:Float, inW:Float, inH:Float)
    {
-      mRect = new Rectangle(inX-x,inY-y,inW,inH);
+      x = inX;
+      y = inY;
+      mRect = new Rectangle(0,0,inW,inH);
       redraw();
    }
 
@@ -100,7 +126,7 @@ class Widget extends Sprite
 
    public function wantsFocus() { return wantFocus; }
 
-   public function getInnerLayout() : Layout { return null; }
+   public function getItemLayout() : Layout { return mItemLayout; }
  
    public function getHitBoxes() : HitBoxes { return null; }
 
@@ -111,19 +137,6 @@ class Widget extends Sprite
       mChrome.graphics.clear();
       while(mChrome.numChildren>0)
          mChrome.removeChildAt(0);
-   }
-
-
-   public function createLayout() : Layout
-   {
-      return new DisplayLayout(this);
-   }
-
-   public function getLayout() : Layout
-   {
-      if (mLayout==null)
-         mLayout = createLayout();
-      return mLayout;
    }
 
    public function onKeyDown(event:nme.events.KeyboardEvent ) : Bool { return false; }

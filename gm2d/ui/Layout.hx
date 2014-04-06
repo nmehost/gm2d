@@ -41,7 +41,6 @@ class Layout
    public var mAlign:Int;
 
    public var onLayout:Float->Float->Float->Float->Void;
-   public var includeBorderOnLayout = false;
 
    static var mDebug:nme.display.Graphics;
    static var mDebugObject:Shape;
@@ -94,10 +93,11 @@ class Layout
    }
 
 
-   public function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void
-      { throw "calcSize - not implemented"; }
+   public function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void { }
    public function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
-      { throw "setRect - not implemented"; }
+   {
+      fireLayout(inX, inY, inW, inH);
+   }
    public function setSpacing(inX:Float,inY:Float) : Layout { return this; }
 
    static public function setDebug(inObj:Shape)
@@ -148,13 +148,18 @@ class Layout
       mBBottom = -inDY;
    }
 
-   public function setBestSize(inW:Float, inH:Float) : Layout { return this; }
    public function setBestWidth(inW:Float) : Layout { return this; }
    public function setBestHeight(inH:Float) : Layout { return this; }
+   public function setBestSize(inW:Float, inH:Float) : Layout
+   {
+      setBestWidth(inW);
+      setBestHeight(inH);
+      return this; 
+   }
    public function getColWidths() : Array<Float> { return [ getBestWidth() ]; }
 
-   public function getBestWidth(?inHeight:Null<Float>) : Float { return 0.0; }
-   public function getBestHeight(?inWidth:Null<Float>) : Float { return 0.0; }
+   public function getBestWidth(?inHeight:Null<Float>) : Float { return minWidth; }
+   public function getBestHeight(?inWidth:Null<Float>) : Float { return minHeight; }
 
    public function getBestSize() : Size
    {
@@ -217,16 +222,59 @@ class Layout
    function fireLayout(inX:Float, inY:Float, inW:Float, inH:Float)
    {
       if (onLayout!=null)
-      {
-         if (includeBorderOnLayout)
-            onLayout(inX,inY,inW,inH);
-         else
-            onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
-      }
+         onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
    }
 }
 
 typedef LayoutList = Array<Layout>;
+
+// --- BorderLayout ---------------------------------------------------
+
+class BorderLayout extends Layout
+{
+   var mBase:Layout;
+   var positionMask:Float;
+
+   public function new(inBase:Layout, inParentHasOffset:Bool)
+   {
+      mBase = inBase;
+      positionMask = inParentHasOffset? 0 : 1;
+      super();
+   }
+
+   public override function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void
+   {
+      return mBase.calcSize( inWidth==null  ? null : inWidth-mBLeft-mBRight,
+                             inHeight==null ? null : inHeight-mBTop-mBBottom );
+   }
+
+   public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
+   {
+      alignChild(mBase, inX*positionMask+mBLeft, inY*positionMask+mBTop,
+                         inW-mBLeft-mBRight, inH-mBTop-mBBottom );
+      fireLayout(inX,inY,inW,inH);
+   }
+
+   public override function getBestWidth(?inHeight:Null<Float>) : Float
+   {
+      return mBase.getBestWidth(inHeight==null ? null : inHeight-mBTop-mBBottom) + mBLeft + mBRight;
+   }
+   public override function getBestHeight(?inWidth:Null<Float>) : Float
+   {
+      return mBase.getBestHeight(inWidth==null ? null : inWidth-mBLeft-mBRight) + mBTop + mBBottom;
+   }
+
+   public override function setBestWidth(inW:Float) : Layout
+   {
+      mBase.setBestWidth(inW-mBLeft-mBRight);
+      return this;
+   }
+   public override function setBestHeight(inH:Float) : Layout
+   {
+      mBase.setBestHeight(inH-mBTop-mBBottom);
+      return this;
+   }
+}
 
 // --- DisplayLayout ---------------------------------------------------
 
@@ -381,6 +429,7 @@ class DisplayLayout extends Layout
    }
 }
 
+
 class TextLayout extends DisplayLayout
 {
    public function new(inObj:TextField,inAlign:Int = 0x24, // AlignCenterX|AlignCenterY
@@ -389,7 +438,16 @@ class TextLayout extends DisplayLayout
       super(inObj,inAlign);
 
       mOWidth = inPrefWidth==null ? inObj.width : inPrefWidth;
-      mOHeight =  inPrefHeight==null ? inObj.height : inPrefHeight;
+      if (inPrefHeight==null)
+      {
+         var fmt = inObj.defaultTextFormat;
+         if (fmt!=null && fmt.size!=null)
+            mOHeight = fmt.size * 1.5;
+         else
+            mOHeight = inObj.textHeight;
+      }
+      else
+         mOHeight = inObj.textHeight;
       mDebugCol = 0x00ff00;
    }
 

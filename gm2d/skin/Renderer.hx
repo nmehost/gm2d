@@ -96,7 +96,7 @@ class Renderer
                padding.width-padding.x, padding.height-padding.y);
       }
 
-      var layout = ioWidget.getInnerLayout();
+      var layout = ioWidget.getItemLayout();
       if (layout!=null)
       {
          if (minSizeInner!=null)

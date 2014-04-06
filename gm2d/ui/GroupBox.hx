@@ -15,9 +15,8 @@ class GroupBox extends Control
    var right:Float;
    var title:TextField;
    var tw:Float;
-   var topLayout:Layout;
 
-   public function new(inTitle:String, inIcon:BitmapData)
+   public function new(inTitle:String, inIcon:BitmapData, inLayout:Layout)
    {
       super();
       icon = inIcon;
@@ -43,8 +42,11 @@ class GroupBox extends Control
          Skin.current.styleLabel(title);
          addChild(title);
       }
+
+      setItemLayout(inLayout);
    }
 
+/*
    override public function createLayout() : Layout
    {
       var layout = new ChildStackLayout( );
@@ -60,7 +62,6 @@ class GroupBox extends Control
    {
       return topLayout;
    }
-
    public function setLayout(inLayout:Layout)
    {
       topLayout = inLayout;
@@ -69,6 +70,7 @@ class GroupBox extends Control
       layout.add(inLayout);
       return layout;
    }
+*/
 
    override public function redraw()
    {

@@ -48,7 +48,7 @@ class FrameRenderer extends ButtonRenderer
 
    override public dynamic function updateLayout(widget:Widget)
    {
-      widget.getLayout().setBorders(borders,borders+titleHeight,borders,borders);
+      widget.getItemLayout().setBorders(borders,borders+titleHeight,borders,borders);
    }
 
    override public function renderWidget(inWidget:Widget)
@@ -99,7 +99,7 @@ class FrameRenderer extends ButtonRenderer
       };
       result.updateLayout = function(widget:Widget)
       {
-         var layout = widget.getLayout();
+         var layout = widget.getItemLayout();
          layout.setBorders(interior.x-bounds.x, interior.y-bounds.y,
                              bounds.right-interior.right, bounds.bottom-interior.bottom );
          layout.minWidth = bounds.width;

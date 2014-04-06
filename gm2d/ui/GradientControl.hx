@@ -196,7 +196,7 @@ class GradientControl extends Widget
       vstack.setAlignment(Layout.AlignStretch).setSpacing(0,4);
       updateLockout = 0;
 
-      mLayout = vstack;
+      setItemLayout(vstack);
 
       positionMarker = new Bitmap( bitmaps.get("positionMarker") );
       positionMarker.y = -5;

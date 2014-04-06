@@ -18,6 +18,10 @@ class ChoiceButtons extends Control
       group = new RadioGroup<String>(inOnChoice);
       buttonLayout = new GridLayout(inItemsPerRow,"button");
       buttonLayout.setSpacing(1,1);
+
+
+      setItemLayout(buttonLayout);
+      build();
    }
 
    public static function create(inOnIndex:Int->Void,inKeys:Array<Dynamic>, inBitmaps:haxe.ds.StringMap<BitmapData>, ?inItemsPerRow:Int )
@@ -51,18 +55,5 @@ class ChoiceButtons extends Control
    {
       group.setIndex(inIndex);
    }
-
-
-   override public function createLayout() : Layout
-   {
-      var layout = new ChildStackLayout( );
-      layout.setBorders(0,0,0,0);
-      var meLayout = new DisplayLayout(this).setOrigin(0,0);
-      meLayout.mAlign = Layout.AlignLeft | Layout.AlignTop | Layout.AlignPixel;
-      layout.add( meLayout );
-      layout.add(buttonLayout);
-      return layout;
-   }
-
 
 }

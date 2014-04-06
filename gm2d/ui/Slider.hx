@@ -39,6 +39,9 @@ class Slider extends Control
       mTrack = new Sprite();
       addChild(mTrack);
 
+      setItemLayout( new Layout() );
+
+
       mSliderRenderer.onCreate(this);
 
       mSliding = false;
@@ -53,6 +56,8 @@ class Slider extends Control
       addEventListener(MouseEvent.CLICK, OnClick );
 
       setValueQuiet(inPos);
+      trace("Build...");
+      build();
    }
 
    function setThumbX(inX:Float)

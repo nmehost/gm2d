@@ -39,6 +39,7 @@ class CheckButtons extends ChoiceButtons
       add(new Button(new Bitmap(bmp),null,["ToggleButton"]),"off");
 
       setChecked(inValue);
+      build();
    }
    function onButton(inKey:String) { if (onCheck!=null) onCheck(inKey=="on"); }
 

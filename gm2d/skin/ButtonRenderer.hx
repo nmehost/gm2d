@@ -66,7 +66,7 @@ class ButtonRenderer extends Renderer
    public static function simple( )
    {
       var renderer = new ButtonRenderer();
-      renderer.updateLayout=function(ioButton) ioButton.getInnerLayout().setBorders(2,2,2,2);
+      renderer.updateLayout=function(ioButton) ioButton.getLayout().setBorders(2,2,2,2);
       renderer.downOffset = new Point(0,0);
       renderer.style = Style.StyleCustom(function(inWidget:Widget)
       {
@@ -107,7 +107,7 @@ class ButtonRenderer extends Renderer
       {
          //trace("Min Size:" + bounds.width + "x" + bounds.height);
          ioButton.getLayout().setMinSize(bounds.width, bounds.height);
-         var inner = ioButton.getInnerLayout();
+         var inner = ioButton.getItemLayout();
          if (inner!=null)
             inner.setBorders(interior.x-bounds.x, interior.y-bounds.y,
                              bounds.right-interior.right, bounds.bottom-interior.bottom);

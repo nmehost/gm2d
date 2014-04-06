@@ -37,9 +37,8 @@ class Dialog extends Window
 
       mHitBoxes = new HitBoxes(this,onHitBox);
 
-      mLayout = new StackLayout();
-      mLayout.add(inPane.itemLayout);
-      mLayout.includeBorderOnLayout = true;
+      // todo - make title box
+      setItemLayout(inPane.itemLayout);
 
       build();
 

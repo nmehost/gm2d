@@ -24,8 +24,6 @@ class RGBBox extends Widget
       onColourChange = inOnColour;
       mColour = inColour.clone();
       updateLockout = 0;
-      mLayout = new DisplayLayout(this);
-      getLayout().setMinSize(72,28);
 
       var fmt = new nme.text.TextFormat();
       fmt.align = nme.text.TextFormatAlign.CENTER;
@@ -36,6 +34,8 @@ class RGBBox extends Widget
       textField.borderColor = 0x000000;
       textField.background = true;
       addChild(textField);
+
+      setItemLayout( new Layout().setMinSize(72,28) );
 
       if (inShouldShowPopup)
          textField.addEventListener(MouseEvent.CLICK, function(_) showDialog() );

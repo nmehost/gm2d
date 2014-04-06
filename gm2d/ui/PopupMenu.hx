@@ -55,7 +55,7 @@ class PopupMenu extends Window
             */
          }
       }
-      mLayout = layout;
+      setItemLayout(layout);
       build();
       //mWidth = w+20;
       //mHeight = ty;

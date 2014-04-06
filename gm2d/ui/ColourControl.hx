@@ -56,12 +56,15 @@ class ColourSlider extends Widget
          marker.rotation = 90;
       mColour = new RGBHSV(0xff0000);
       mPos = 1;
-      var layout = getLayout();
+
+      var layout = new Layout();
       layout.minWidth = 20;
       layout.minHeight = 20;
       layout.setBestSize(20,20);
       layout.setBorders(2,2,2,2);
       layout.mAlign = inVertical ? Layout.AlignCenterX : Layout.AlignCenterY;
+      setItemLayout(layout);
+      mLayout.mAlign = layout.mAlign;
       updateMarker();
       build();
    }
@@ -267,10 +270,13 @@ class ColourWheel extends Widget
       addChild(marker);
       mWidth = 100;
       mHeight = 100;
-      var layout = getLayout();
+      var layout = new Layout();
       layout.minWidth = 32;
       layout.minHeight = 32;
       layout.mAlign = Layout.AlignKeepAspect | Layout.AlignStretch;
+      layout.onLayout = onBmpLayout;
+      setItemLayout(layout);
+      getLayout().setAlignment(Layout.AlignStretch);
       mMode = RGBHSV.VALUE;
       build();
    }
@@ -527,7 +533,7 @@ class ColourWheel extends Widget
 
 
 
-   public override function onLayout(x:Float, y:Float, inWidth:Float, inHeight:Float)
+   public function onBmpLayout(x:Float, y:Float, inWidth:Float, inHeight:Float)
    {
       if (mWidth!=inWidth || mHeight!=inHeight)
       {
@@ -617,10 +623,7 @@ class ColourControl extends Widget
       setAll();
       updateLockout = 0;
 
-      var csl = new ChildStackLayout();
-      csl.add( new DisplayLayout(this).setAlignment(Layout.AlignStretch) );
-      csl.add( vstack );
-      mLayout = csl;
+      setItemLayout(vstack);
       build();
    }
 
