@@ -232,6 +232,7 @@ class ColourWheel extends Widget
 
    var mWidth :Float;
    var mHeight : Float;
+   var mContainer:Sprite;
    var bitmap:Bitmap;
    var background:Bitmap;
 
@@ -258,16 +259,19 @@ class ColourWheel extends Widget
          gfx.drawCircle(7.5,7.5,5);
          markerBitmap.draw(s);
       }
+      mContainer = new Sprite();
+      addChild(mContainer);
+
       watcher = MouseWatcher.create(this, onMouse, onMouse, onMouse );
       mColour = inColour.clone();
       background = new Bitmap();
       background.x = -2;
       background.y = -2;
-      addChild(background);
+      mContainer.addChild(background);
       bitmap = new Bitmap();
-      addChild(bitmap);
+      mContainer.addChild(bitmap);
       marker = new Bitmap(markerBitmap);
-      addChild(marker);
+      mContainer.addChild(marker);
       mWidth = 100;
       mHeight = 100;
       var layout = new Layout();
@@ -283,7 +287,7 @@ class ColourWheel extends Widget
 
    function onMouse(inEvent:MouseEvent)
    {
-      var local = globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
+      var local = mContainer.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
       var x_ = local.x-radius;
       var y_ = local.y-radius;
       var h = Math.atan2(-y_,x_) * 180.0 / Math.PI;
@@ -541,6 +545,8 @@ class ColourWheel extends Widget
          mHeight = inHeight;
          buildBmp();
       }
+      mContainer.x = x;
+      mContainer.y = y;
    }
 }
 

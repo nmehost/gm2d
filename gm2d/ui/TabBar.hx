@@ -38,8 +38,10 @@ class TabBar extends Widget
       tabRenderer = Skin.tabRenderer( ["Tabs","TabRenderer"] );
       var layout = new Layout();
       layout.setMinSize(20,18);
-      layout.setAlignment(Layout.AlignStretch | Layout.AlignTop);
+      layout.setAlignment(Layout.AlignStretch);
+      layout.onLayout = layoutTabs;
       setItemLayout(layout);
+      mLayout.setAlignment(Layout.AlignStretch | Layout.AlignTop);
       tabsWidth = tabsHeight = 0;
       mHitBoxes = new HitBoxes(this,inOnHitBox);
       build();
@@ -66,7 +68,7 @@ class TabBar extends Widget
    }
 
 
-   override public function onLayout(inX:Float, inY:Float, inW:Float, inH:Float)
+   function layoutTabs(inX:Float, inY:Float, inW:Float, inH:Float)
    {
       tabsWidth = inW;
       tabsHeight = inH;

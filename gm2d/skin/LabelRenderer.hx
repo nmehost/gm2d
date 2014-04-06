@@ -1,19 +1,12 @@
 package gm2d.skin;
 
-import nme.text.TextField;
 import nme.text.TextFormat;
 import gm2d.svg.Svg;
 import gm2d.svg.SvgRenderer;
-import gm2d.ui.Layout;
 
 
 class LabelRenderer
 {
-   public function new() { }
-
-   public dynamic function styleLabel(ioLabel:TextField) { Skin.current.styleLabel(ioLabel); }
-
-
    public static function fromSvg(inSvg:Svg, inSearch:Array<String>)
    {
       for(layer in inSearch)
@@ -26,7 +19,6 @@ class LabelRenderer
                var text = renderer.findText( function(_,groups) { /*trace(groups);*/return groups[1]==".font"; } );
                if (text!=null)
                {
-                  var result = new LabelRenderer();
                   var fmt = new TextFormat();
                   fmt.size = text.font_size;
                   fmt.font = text.font_family;
@@ -35,18 +27,12 @@ class LabelRenderer
                      case FillSolid(c) : fmt.color = c;
                      default:
                   }
-  
-                  result.styleLabel = function(ioLabel:TextField)
-                  {
-                     Skin.current.styleLabel(ioLabel);
-                     ioLabel.defaultTextFormat = fmt;
-                  };
-                  return result;
+                  return fmt;
                }
             }
          }
       }
-      return new LabelRenderer();
+      return Skin.current.textFormat;
    }
 }
 

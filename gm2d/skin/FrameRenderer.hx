@@ -22,42 +22,40 @@ import nme.display.SimpleButton;
 import gm2d.ui.IDockable;
 import gm2d.ui.Layout;
 import gm2d.ui.Widget;
+import gm2d.ui.Size;
 import gm2d.svg.SvgRenderer;
 import gm2d.svg.Svg;
 
 
 class FrameRenderer extends ButtonRenderer
 {
-   public function new() { super(); titleHeight = 20; borders=5; }
+   public var titleHeight:Float;
+   public var borders:Float;
+
+   public function new()
+   {
+       super();
+       titleHeight = 20;
+       borders=5;
+       padding = new Rectangle(borders, borders+titleHeight, borders*2, borders*2+titleHeight);
+   }
 
 
    public dynamic function renderFrame(outChrome:Sprite, inPane:IDockable, inRect:Rectangle, outHitBoxes:HitBoxes):Void { }
-   public var titleHeight:Float;
-   public var borders:Float;
 
    override public function clone()
    {
       var result = new FrameRenderer();
-      result.copyButton(this);
+      result.copy(this);
       result.renderFrame = renderFrame;
       result.titleHeight = titleHeight;
       result.borders = borders;
       return result;
    }
 
-
-   override public dynamic function updateLayout(widget:Widget)
-   {
-      widget.getItemLayout().setBorders(borders,borders+titleHeight,borders,borders);
-   }
-
    override public function renderWidget(inWidget:Widget)
    {
       renderFrame(inWidget.mChrome, inWidget.getPane(), inWidget.mRect, inWidget.getHitBoxes() );
-   }
-   override public function layoutWidget(ioWidget:Widget)
-   {
-      updateLayout(ioWidget);
    }
 
 
@@ -97,15 +95,10 @@ class FrameRenderer extends ButtonRenderer
          if (gm2d.Lib.isOpenGL)
             outChrome.cacheAsBitmap = true;
       };
-      result.updateLayout = function(widget:Widget)
-      {
-         var layout = widget.getItemLayout();
-         layout.setBorders(interior.x-bounds.x, interior.y-bounds.y,
-                             bounds.right-interior.right, bounds.bottom-interior.bottom );
-         layout.minWidth = bounds.width;
-         layout.minHeight = bounds.height;
-      };
 
+      result.minItemSize = new Size(bounds.width, bounds.height);
+      result.padding = new Rectangle(interior.x-bounds.x, interior.y-bounds.y,
+                             bounds.width-interior.width, bounds.height-interior.height );
       return result;
    }
 }

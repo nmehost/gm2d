@@ -62,6 +62,7 @@ class Widget extends Sprite
       mItemLayout = inLayout;
       mLayout = new BorderLayout(mItemLayout,true);
       mLayout.onLayout = onLayout;
+      return mLayout;
    }
 
    public function getLayout() { return mLayout; }

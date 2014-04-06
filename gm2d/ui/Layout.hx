@@ -171,6 +171,21 @@ class Layout
 
    public function alignChild(child:Layout, x:Float, y:Float, w:Float, h:Float)
    {
+      if ( (child.mAlign & Layout.AlignKeepAspect) > 0 )
+      {
+         if (w*child.minHeight > h*child.minWidth)
+         {
+             var nw = h*child.minWidth/child.minHeight;
+             x+=(w-nw)*0.5;
+             w = nw;
+         }
+         else
+         {
+             var nh = w*child.minHeight/child.minWidth;
+             y+=(h-nh)*0.5;
+             h = nh;
+         }
+      }
 
       switch(child.mAlign & Layout.AlignMaskX)
       {
@@ -257,11 +272,15 @@ class BorderLayout extends Layout
 
    public override function getBestWidth(?inHeight:Null<Float>) : Float
    {
-      return mBase.getBestWidth(inHeight==null ? null : inHeight-mBTop-mBBottom) + mBLeft + mBRight;
+      var w = mBase.getBestWidth(inHeight==null ? null : inHeight-mBTop-mBBottom) + mBLeft + mBRight;
+      if (minWidth>w) return minWidth;
+      return w;
    }
    public override function getBestHeight(?inWidth:Null<Float>) : Float
    {
-      return mBase.getBestHeight(inWidth==null ? null : inWidth-mBLeft-mBRight) + mBTop + mBBottom;
+      var h = mBase.getBestHeight(inWidth==null ? null : inWidth-mBLeft-mBRight) + mBTop + mBBottom;
+      if (minHeight>h) return minHeight;
+      return h;
    }
 
    public override function setBestWidth(inW:Float) : Layout

@@ -90,9 +90,8 @@ class Skin
 
    public function new()
    {
-      textFormat = new TextFormat();
-      textFormat.size = 12;
-      textFormat.font = "Arial";
+      sCurrent = this;
+
       menuHeight = 22;
       mBitmaps = [];
       centerTitle = true;
@@ -113,6 +112,10 @@ class Skin
       title_h = 22;
       borders = 3;
 
+      textFormat = new TextFormat();
+      textFormat.size = 12;
+      textFormat.font = "Arial";
+      textFormat.color = labelColor;
 
       initGfx();
 
@@ -193,17 +196,21 @@ class Skin
           result = cast result.clone();
 
           if (map.exists("downX"))
-             result.downOffset.x = map.get("downX");
+             result.offset = new Point(map.get("downX"), result.offset.y );
           if (map.exists("downY"))
-             result.downOffset.y = map.get("downY");
+             result.offset = new Point(result.offset.x, map.get("downY") );
           if (map.exists("render"))
              result.style = Style.StyleCustom(map.get("render"));
           if (map.exists("upBmp") || map.exists("downBmp"))
           {
-             result.style = Style.StyleCustom(function(widget)
-                renderBmpBackground(widget, map.get("upBmp"), map.get("downBmp") ) );
-             result.updateLayout = function(widget)
-                layoutBmpBackground(widget, map.get("upBmp"), map.get("downBmp") );
+             var up:BitmapData = map.get("upBmp");
+             var down:BitmapData = map.get("downBmp");
+
+             result.style = Style.StyleCustom(function(widget) renderBmpBackground(widget,up,down) );
+
+             var w = up!=null ? up.width : down==null? down.width : 32;
+             var h = up!=null ? up.height : down==null? down.height : 32;
+             result.minSize = new Size(w,h);
           }
        }
        return result;
@@ -230,13 +237,8 @@ class Skin
    {
       var result = new ButtonRenderer();
       result.style = Style.StyleCustom(renderButton);
-      result.updateLayout = function(ioButton:Widget)
-      {
-         var inner = ioButton.getItemLayout();
-         if (inner!=null)
-           inner.setBorders(buttonBorderX,buttonBorderY,buttonBorderX,buttonBorderY);
-      };
-      result.styleLabel = styleLabel;
+      result.padding = new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2);
+      //result.styleLabel = styleLabel;
       return result;
    }
    public function createSliderRenderer()
@@ -269,6 +271,7 @@ class Skin
       var h = up!=null ? up.height : down==null? down.height : 32;
       var layout = widget.getLayout();
       layout.setMinSize(w,h);
+      widget.getItemLayout().setAlignment(Layout.AlignCenter);
    }
 
 
@@ -335,7 +338,7 @@ class Skin
    public static function get_current():Skin
    {
       if (sCurrent==null)
-         sCurrent = new Skin();
+         new Skin();
 
       return sCurrent;
    }
@@ -345,6 +348,7 @@ class Skin
       var fmt = new TextFormat();
       fmt.size = 16;
       fmt.font = "Arial";
+      fmt.color = labelColor;
       return fmt;
    }
 
@@ -396,7 +400,7 @@ class Skin
          label.selectable = false;
       }
       //label.mouseEnabled = false;
-  }
+   }
 
 /*
    public function stylePane(inGfx:Graphics, inRect:Rectangle)

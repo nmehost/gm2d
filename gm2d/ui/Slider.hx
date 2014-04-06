@@ -56,7 +56,6 @@ class Slider extends Control
       addEventListener(MouseEvent.CLICK, OnClick );
 
       setValueQuiet(inPos);
-      trace("Build...");
       build();
    }
 

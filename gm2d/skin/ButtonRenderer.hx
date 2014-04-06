@@ -16,58 +16,28 @@ import gm2d.svg.SvgRenderer;
 import gm2d.ui.Layout;
 import gm2d.ui.Button;
 import gm2d.ui.Widget;
+import gm2d.ui.Size;
 import gm2d.ui.WidgetState;
 
 
 class ButtonRenderer extends Renderer
 {
-   public dynamic function updateLayout(ioWidget:Widget):Void { }
-   public dynamic function styleLabel(ioLabel:TextField):Void { Skin.current.styleLabel(ioLabel); }
-   public var downOffset:Point;
+   //public dynamic function updateLayout(ioWidget:Widget):Void { }
+   //public dynamic function styleLabel(ioLabel:TextField):Void { Skin.current.styleLabel(ioLabel); }
+   //public var downOffset:Point;
 
 
-   public function new() { super(); downOffset = new Point(1,1);  }
-
-   override public function clone() : Renderer
+   public function new()
    {
-      var result = new ButtonRenderer();
-      result.copyButton(this);
-      return result;
+      super();
+      offset = new Point(1,1);
    }
-
-   public function copyButton(inRenderer:ButtonRenderer)
-   {
-      copy(inRenderer);
-      downOffset = inRenderer.downOffset.clone();
-      updateLayout = inRenderer.updateLayout;
-      styleLabel = inRenderer.styleLabel;
-   }
-
-
-   override public function getDownOffset() : Point { return downOffset; }
-
-/*
-   override public function renderWidget(inWidget:Widget)
-   {
-      var tf = inWidget.getLabel();
-      if (tf!=null)
-         renderLabel(tf);
-      render(inWidget);
-   }
-*/
-   override public function layoutWidget(ioWidget:Widget)
-   {
-      updateLayout(ioWidget);
-   }
-
-   override public function renderLabel(ioTextField:TextField) { styleLabel(ioTextField); }
-
 
    public static function simple( )
    {
       var renderer = new ButtonRenderer();
-      renderer.updateLayout=function(ioButton) ioButton.getLayout().setBorders(2,2,2,2);
-      renderer.downOffset = new Point(0,0);
+      renderer.padding = new Rectangle(2,2,4,4);
+      renderer.offset = new Point(0,0);
       renderer.style = Style.StyleCustom(function(inWidget:Widget)
       {
          var gfx = inWidget.mChrome.graphics;
@@ -103,16 +73,11 @@ class ButtonRenderer extends Renderer
          inWidget.mChrome.graphics.clear();
          renderer.renderRect0(inWidget.mChrome.graphics,null,scaleRect,bounds,inWidget.mRect);
       });
-      result.updateLayout = function(ioButton:Widget)
-      {
-         //trace("Min Size:" + bounds.width + "x" + bounds.height);
-         ioButton.getLayout().setMinSize(bounds.width, bounds.height);
-         var inner = ioButton.getItemLayout();
-         if (inner!=null)
-            inner.setBorders(interior.x-bounds.x, interior.y-bounds.y,
-                             bounds.right-interior.right, bounds.bottom-interior.bottom);
-      };
-      result.styleLabel = LabelRenderer.fromSvg(inSvg, [inLayer, "dialog", null] ).styleLabel;
+      result.minSize = new Size(bounds.width, bounds.height);
+      result.padding = new Rectangle(interior.x-bounds.x, interior.y-bounds.y,
+                             bounds.width-interior.width,
+                             bounds.height-interior.height);
+      result.textFormat = LabelRenderer.fromSvg(inSvg, [inLayer, "dialog", null] );
 
 
       return result;

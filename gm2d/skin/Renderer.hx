@@ -21,20 +21,18 @@ class Renderer
 {
    public var style:Style;
    public var textFormat:TextFormat;
-   public var textColor:Int;
    public var offset:Point;
    public var minSize:Size;
-   public var minSizeInner:Size;
+   public var minItemSize:Size;
    public var padding:Rectangle;
-   public var paddingInner:Rectangle;
+   public var margin:Rectangle;
 
 
    public function new()
    {
       style = Style.StyleNone;
-      textFormat = null;
-      textColor = 0xffffff;
-      offset = null;
+      textFormat = Skin.current.textFormat;
+      offset = new Point(0,0);
    }
 
    public function clone() : Renderer
@@ -48,16 +46,13 @@ class Renderer
    {
       style = inRenderer.style;
       textFormat = inRenderer.textFormat;
-      textColor = inRenderer.textColor;
       offset = inRenderer.offset;
       minSize = inRenderer.minSize;
-      minSizeInner = inRenderer.minSizeInner;
+      minItemSize = inRenderer.minItemSize;
       padding = inRenderer.padding;
-      paddingInner = inRenderer.paddingInner;
+      margin = inRenderer.margin;
    }
 
-
-   public function getDownOffset() : Point { return new Point(0,0); }
 
    public function renderWidget(inWidget:Widget)
    {
@@ -76,7 +71,6 @@ class Renderer
    public function renderLabel(label:TextField)
    {
       label.defaultTextFormat = textFormat;
-      label.textColor = textColor;
       if (label.type != nme.text.TextFieldType.INPUT)
       {
          label.autoSize = TextFieldAutoSize.LEFT;
@@ -91,19 +85,19 @@ class Renderer
       {
          if (minSize!=null)
             layout.setMinSize( minSize.x, minSize.y );
-         if (padding!=null)
-            layout.setBorders(padding.x, padding.y,
-               padding.width-padding.x, padding.height-padding.y);
+         if (margin!=null)
+            layout.setBorders(margin.x, margin.y,
+               margin.width-margin.x, margin.height-margin.y);
       }
 
       var layout = ioWidget.getItemLayout();
       if (layout!=null)
       {
-         if (minSizeInner!=null)
-            layout.setMinSize( minSizeInner.x, minSizeInner.y );
-         if (paddingInner!=null)
-            layout.setBorders(paddingInner.x, paddingInner.y,
-               paddingInner.width-paddingInner.x, paddingInner.height-paddingInner.y);
+         if (minItemSize!=null)
+            layout.setMinSize( minItemSize.x, minItemSize.y );
+         if (padding!=null)
+            layout.setBorders(padding.x, padding.y,
+               padding.width-padding.x, padding.height-padding.y);
       }
 
    }

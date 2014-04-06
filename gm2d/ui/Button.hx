@@ -32,7 +32,7 @@ class Button extends Control
    public function new(inObject:DisplayObject,?inOnClick:Void->Void, ?inLineage:Array<String>, ?inAttribs:Dynamic)
    {
       super( Widget.addLine(inLineage,"Button"), inAttribs);
-      var offset = mRenderer.getDownOffset();
+      var offset = mRenderer.offset;
       mDownDX = offset.x;
       mDownDY = offset.y;
 
