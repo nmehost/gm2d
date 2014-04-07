@@ -24,14 +24,24 @@ import gm2d.skin.Renderer;
 
 class Widget extends Sprite
 {
+   public static inline var NORMAL     = 0x0000;
+   public static inline var CURRENT    = 0x0001;
+   public static inline var DOWN       = 0x0002;
+   public static inline var DISABLED   = 0x0004;
+   public static inline var MULTIVALUE = 0x0008;
+
    var mLayout:BorderLayout;
    var mItemLayout:Layout;
+
+   public var state(default,set) : Int;
+   public var disabled(get,set) : Bool;
+   public var down(get,set):Bool;
+   public var isCurrent(get,set):Bool;
+
 
    public var wantFocus:Bool;
    public var mRect : Rectangle;
    public var mChrome : Sprite;
-   public var mState(default,null) : WidgetState;
-   public var mIsDown : Bool;
    public var mRenderer : Renderer;
    public var mLineage : Array<String>;
 
@@ -40,16 +50,14 @@ class Widget extends Sprite
    public function new(?inLineage:Array<String>, ?inAttribs:Dynamic)
    {
       super();
+      Reflect.setField(this,"state",0);
       mLineage = addLine(inLineage,"Widget");
       name = mLineage[0];
-      mRenderer = Skin.renderer(mLineage, inAttribs);
+      mRenderer = Skin.renderer(mLineage, state, inAttribs);
       mChrome = new Sprite();
       addChild(mChrome);
       wantFocus = false;
-      mState = WidgetNormal;
-      mIsDown = false;
       mRect = new Rectangle(0,0,0,0);
-      //highlightColour = 0x0000ff;
    }
 
    public static function addLine(inLineage:Array<String>,inClass:String)
@@ -80,13 +88,14 @@ class Widget extends Sprite
       mLayout.setRect(0,0,size.x,size.y);
    }
 
-   public function setState(inState:WidgetState)
+   public function set_state(inState:Int) : Int
    {
-      if (inState!=mState)
+      if (inState!=state)
       {
-         mState = inState;
+         state = inState;
          redraw();
       }
+      return inState;
    }
 
    public function onLayout(inX:Float, inY:Float, inW:Float, inH:Float)
@@ -154,37 +163,42 @@ class Widget extends Sprite
 		gm2d.Game.popup(inPopup,pos.x,pos.y,inShadow);
    }
 
-   public function clearCurrent()
+   public function get_disabled() return (state & DISABLED) > 0;
+   public function set_disabled(inVal:Bool)
    {
-      var p = parent;
-      while(p!=null)
-      {
-         if (Std.is(p,Window))
-         {
-            var window : Window = cast p;
-            window.setCurrentItem(null);
-            return;
-         }
-         p = p.parent;
-      }
+      if (disabled != inVal)
+         state = state ^ DISABLED;
+      return inVal;
    }
 
-
-
-   public function setCurrent()
+   public function get_down()  return (state & DOWN) > 0;
+   public function set_down(inVal:Bool)
    {
-      var p = parent;
-      while(p!=null)
+      if (down != inVal)
+         state = state ^ DOWN;
+      return inVal;
+   }
+
+   public function get_isCurrent()  return (state & CURRENT) > 0;
+   public function set_isCurrent(inVal:Bool) : Bool
+   {
+      if (isCurrent != inVal)
       {
-         //trace(p);
-         if (Std.is(p,Window))
+         var p = parent;
+         while(p!=null)
          {
-            var window : Window = cast p;
-            window.setCurrentItem(this);
-            return;
+            if (Std.is(p,Window))
+            {
+               var window : Window = cast p;
+               window.setCurrentItem( inVal ? this : null );
+               return inVal;
+            }
+            p = p.parent;
          }
-         p = p.parent;
+ 
+         state = state ^ CURRENT;
       }
+      return inVal;
    }
 
 }

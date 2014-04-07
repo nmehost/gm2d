@@ -22,7 +22,7 @@ import gm2d.ui.Layout;
 
 class TabBar extends Widget
 {
-   public var current:IDockable;
+   public var currentDockable:IDockable;
    public var isMaximised:Bool;
 
    var tabsWidth:Float;
@@ -57,12 +57,12 @@ class TabBar extends Widget
       if (isMaximised)
          flags |=  TabRenderer.SHOW_RESTORE;
       tabRenderer.renderTabs(mChrome, new Rectangle(0,0,tabsWidth,tabsHeight),
-          mDockables, current, mHitBoxes, TabRenderer.TOP, flags);
+          mDockables, currentDockable, mHitBoxes, TabRenderer.TOP, flags);
    }
 
    public function setTop(inCurrent:IDockable, inIsMaximised:Bool)
    {
-      current = inCurrent;
+      currentDockable = inCurrent;
       isMaximised = inIsMaximised;
       redraw();
    }

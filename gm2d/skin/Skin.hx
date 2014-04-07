@@ -85,6 +85,8 @@ class Skin
    public static inline var SHOW_COLLAPSE    = 0x0002;
    public static inline var SHOW_EXPAND      = 0x0004;
 
+   public static var attribSet:Array<RenderAttribs>;
+
    public static var doInit:Dynamic = init();
    public static function init()
    {
@@ -96,6 +98,8 @@ class Skin
       textFormat.color = labelColor;
 
       initGfx();
+
+      attribSet = [];
 
       for(state in  HitBoxes.BUT_STATE_UP...HitBoxes.BUT_STATE_DOWN+1)
          mBitmaps[state] = [];
@@ -128,9 +132,9 @@ class Skin
       return defaultTabRenderer;
    }
 
-   public static function renderer(inLineage:Array<String>, ?inAttribs:Dynamic) : Renderer
+   public static function renderer(inLineage:Array<String>,inState:Int=0, ?inAttribs:Dynamic) : Renderer
    {
-       var result:Renderer = null;
+       var result:Renderer = new Renderer();
 
        if (hasLineage(inLineage,"Dialog"))
        {
@@ -163,7 +167,7 @@ class Skin
              downX:0,
              downY:0,
              render: function(inWidget:Widget) {
-                if (inWidget.mIsDown)
+                if (inWidget.down)
                 {
                    var gfx = inWidget.mChrome.graphics;
                    gfx.beginFill(Skin.guiDark);
@@ -231,7 +235,7 @@ class Skin
 
    static public function renderBmpBackground(widget:Widget, up:BitmapData, down:BitmapData)
    {
-      var bmp = widget.mIsDown ? down : up;
+      var bmp = widget.down ? down : up;
       if (bmp!=null)
       {
           var gfx = widget.mChrome.graphics;
@@ -594,10 +598,9 @@ class Skin
    public static function renderButton(inWidget:Widget)
    {
       var gfx = inWidget.mChrome.graphics;
-      var state = inWidget.mState;
-      gfx.beginFill(state==WidgetDisabled ? disableColor :
-                    state==WidgetNormal ?   controlColor :
-                                            guiMedium );
+      gfx.beginFill(inWidget.disabled ? disableColor :
+                    inWidget.state==0 ? controlColor :
+                                        guiMedium );
       gfx.lineStyle(1,controlBorder);
       var r = inWidget.mRect;
       gfx.drawRoundRect(r.x+0.5,r.y+0.5,r.width-1,r.height-1,buttonCorner,buttonCorner);

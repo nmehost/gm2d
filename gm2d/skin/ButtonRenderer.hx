@@ -31,9 +31,9 @@ class ButtonRenderer
       {
          var gfx = inWidget.mChrome.graphics;
          gfx.clear();
-         if (inWidget.mState!=WidgetNormal)
+         if ( (inWidget.state & (Widget.DOWN | Widget.DISABLED)) > 0 )
          {
-             gfx.beginFill(inWidget.mState==WidgetDisabled ? Skin.disableColor : Skin.guiMedium );
+             gfx.beginFill(inWidget.disabled ? Skin.disableColor : Skin.guiMedium );
              gfx.lineStyle(1,Skin.controlBorder);
              var r = inWidget.mRect;
              gfx.drawRect(r.x+0.5,r.y+0.5,r.width-1,r.height-1);

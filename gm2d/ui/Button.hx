@@ -16,15 +16,11 @@ class Button extends Control
 {
    var mDisplayObj : DisplayObject;
 
-
-   public var down(get_down,set_down):Bool;
    public var isToggle:Bool;
 	public var noFocus:Bool;
    public var mCallback : Void->Void;
    var mDownDX:Float;
    var mDownDY:Float;
-   //var mDownBmp:BitmapData;
-   //var mUpBmp:BitmapData;
    var mCurrentDX:Float;
    var mCurrentDY:Float;
    public var onCurrentChangedFunc:Bool->Void;
@@ -37,7 +33,6 @@ class Button extends Control
       mDownDY = offset.y;
 
       mCallback = inOnClick;
-      mIsDown = false;
       mDisplayObj = inObject;
 
       addChild(mDisplayObj);
@@ -111,27 +106,14 @@ class Button extends Control
       down = !mIsDown;
    }
    */
-   public function get_down() : Bool { return mIsDown; }
-   public function set_down(inDown:Bool) : Bool
+   override public function set_down(inDown:Bool) : Bool
    {
-      if (inDown!=mIsDown)
+      if (inDown!=down)
       {
-         mIsDown = inDown;
-         /*
-         if (mDownBmp!=null || mUpBmp!=null)
-         {
-            var gfx = mChrome.graphics;
-            gfx.clear();
-            var bmp:BitmapData = mIsDown?mDownBmp:mUpBmp;
-            if (bmp!=null)
-            {
-               gfx.beginBitmapFill(bmp,null,true,true);
-               gfx.drawRect(0,0,bmp.width,bmp.height);
-            }
-         }
-         */
-			var dx = mIsDown ? mDownDX : 0;
-			var dy = mIsDown ? mDownDY : 0;
+         state = state ^ Widget.DOWN;
+
+			var dx = inDown ? mDownDX : 0;
+			var dy = inDown ? mDownDY : 0;
          if (dx!=mCurrentDX)
          {
 			   mDisplayObj.x += dx-mCurrentDX;
@@ -151,7 +133,7 @@ class Button extends Control
             mRenderer.renderWidget(this);
          }
       }
-      return mIsDown;
+      return inDown;
    }
 
 
@@ -224,7 +206,7 @@ class BmpButton extends Button
 {
    public var bitmap(default,null):Bitmap;
    public var normal:BitmapData;
-   public var disabled:BitmapData;
+   public var disabledBmp:BitmapData;
 
    public function new(inBitmapData:BitmapData,?inOnClick:Void->Void)
    {
@@ -261,9 +243,9 @@ class BmpButton extends Button
          bitmap.bitmapData = normal;
       else
       {
-         if (disabled==null)
-            disabled = createDisabled(normal);
-         bitmap.bitmapData = disabled;
+         if (disabledBmp==null)
+            disabledBmp = createDisabled(normal);
+         bitmap.bitmapData = disabledBmp;
       }
    }
 }

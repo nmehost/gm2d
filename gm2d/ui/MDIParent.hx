@@ -174,7 +174,7 @@ class MDIParent extends Sprite implements IDock implements IDockable
             clientArea.setChildIndex(mChildren[idx], mChildren.length-1);
             redrawTabs();
             for(child in mChildren)
-              child.setState(child.pane==current ? WidgetCurrent : WidgetNormal );
+              child.isCurrent = child.pane==current;
          }
       }
       return true;
@@ -319,7 +319,7 @@ class MDIParent extends Sprite implements IDock implements IDockable
       }
 
       for(child in mChildren)
-         child.setState(child.pane==current ? WidgetCurrent : WidgetNormal);
+         child.isCurrent = child.pane==current;
 
       inPane.setDock(this,clientArea);
       inPane.setRect(0,0,clientWidth,clientHeight);
