@@ -180,7 +180,7 @@ class BitmapText extends Control
       {
          //stage.showKeyboard(false);
          // Set current to "next" ?
-         clearCurrent();
+         isCurrent = false;
       }
 
       var key = event.keyCode;

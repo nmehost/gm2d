@@ -32,6 +32,10 @@ import gm2d.ui.Layout;
 import gm2d.ui.Slider;
 import gm2d.ui.Widget;
 
+import gm2d.skin.FillStyle;
+import gm2d.skin.LineStyle;
+import gm2d.skin.Style;
+
 import nme.display.SimpleButton;
 import gm2d.svg.Svg;
 import gm2d.svg.SvgRenderer;
@@ -39,22 +43,26 @@ import gm2d.CInt;
 
 
 
+
 class Skin
 {
-   public static var centerTitle = true;
-   public static var buttonBorderX = 10;
-   public static var buttonBorderY = 5;
+   public static var roundRectRad = 6.0;
    public static var guiLight = 0xf0f0e0;
    public static var guiMedium = 0xe0e0d0;
    public static var guiDark = 0xa0a090;
+   public static var guiDisabled = 0x808080;
+   public static var guiBorder = 0x000000;
+
+   public static var controlBorder = 0x000000;
+   public static var centerTitle = true;
+   public static var buttonBorderX = 10;
+   public static var buttonBorderY = 5;
    public static var mdiBGColor = 0x404040;
    public static var labelColor = 0x000000;
    public static var panelColor = guiMedium;
    public static var controlColor = guiLight;
    public static var disableColor = 0x808080;
-   public static var controlBorder = 0x000000;
    public static var tabGradientColor = 0x909080;
-   public static var buttonCorner = 6.0;
    public static var menuHeight:Float = 22;
 
 
@@ -63,7 +71,7 @@ class Skin
 
 
    public static var dialogRenderer:Renderer;
-   public static var buttonRenderer:Renderer;
+   //public static var buttonRenderer:Renderer;
    public static var sliderRenderer:SliderRenderer;
    public static var defaultTabRenderer:TabRenderer;
 
@@ -100,12 +108,39 @@ class Skin
       initGfx();
 
       attribSet = [];
+      addAttribs("Button", null, {
+          style: StyleRoundRect,
+          fill: FillLight,
+          line: LineBorder,
+          padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
+          offset: new Point(1,1),
+        });
+      addAttribs("ToggleButton", null, {
+         offset: new Point(0,0)
+        });
+      addAttribs("SimpleButton", null, {
+          offset: new Point(0,0),
+          line: LineNone,
+          fill: FillNone,
+          style: StyleRect,
+          padding: new Rectangle(2,2,4,4),
+        });
+      addAttribs("SimpleButton", Widget.DOWN, {
+          line: LineBorder,
+        });
+      addAttribs(null, Widget.DOWN, {
+          fill: FillMedium,
+        });
+      addAttribs(null, Widget.DISABLED, {
+          fill: FillDisabled,
+        });
+
 
       for(state in  HitBoxes.BUT_STATE_UP...HitBoxes.BUT_STATE_DOWN+1)
          mBitmaps[state] = [];
 
       dialogRenderer = createDialogRenderer();
-      buttonRenderer = createButtonRenderer();
+      //buttonRenderer = createButtonRenderer();
       sliderRenderer = createSliderRenderer();
       defaultTabRenderer = createTabRenderer();
 
@@ -113,6 +148,27 @@ class Skin
 
       return null;
    }
+
+   public static function addAttribs(inLine:String, inState:Null<Int>, inAttribs:Dynamic)
+   {
+      attribSet.push( new RenderAttribs(inLine, inState, inAttribs) );
+   }
+
+   public static function replaceAttribs(inLine:String, inState:Null<Int>, inAttribs:Dynamic)
+   {
+      var idx = 0;
+      for(idx in 0...attribSet.length)
+      {
+         if (attribSet[idx].line == inLine && attribSet[idx].state==inState)
+         {
+            attribSet[idx] = new RenderAttribs(inLine,inState,inAttribs);
+            return;
+         }
+      }
+      addAttribs(inLine,inState,inAttribs);
+   }
+
+
 
    public static function hasLineage(inLineage:Array<String>, inClassName)
    {
@@ -134,72 +190,22 @@ class Skin
 
    public static function renderer(inLineage:Array<String>,inState:Int=0, ?inAttribs:Dynamic) : Renderer
    {
-       var result:Renderer = new Renderer();
+       var map = createAttribMap(inAttribs);
+       for(attrib in attribSet)
+          if (attrib.matches(inLineage,inState))
+             attrib.merge(map);
+
+       var result:Renderer = new Renderer(map);
 
        if (hasLineage(inLineage,"Dialog"))
        {
           result = dialogRenderer;
        }
-       else if (hasLineage(inLineage,"ChoiceButton"))
-       {
-          result = ButtonRenderer.simple();
-       }
-       else if (hasLineage(inLineage,"SimpleButton"))
-       {
-          result = ButtonRenderer.simple();
-       }
-       else if (hasLineage(inLineage,"Button"))
-       {
-          result = buttonRenderer;
-       }
        else if (hasLineage(inLineage,"MDIParent"))
        {
           result = dialogRenderer;
        }
-       else
-          result = new Renderer();
 
-       var map = createAttribMap(inAttribs,false);
-
-       if (hasLineage(inLineage,"ToggleButton"))
-       {
-          map = mergeAttribMap(map,  {
-             downX:0,
-             downY:0,
-             render: function(inWidget:Widget) {
-                if (inWidget.down)
-                {
-                   var gfx = inWidget.mChrome.graphics;
-                   gfx.beginFill(Skin.guiDark);
-                   var r = inWidget.mRect;
-                   gfx.drawRect(r.x, r.y, r.width, r.height);
-                }
-             }
-          });
-       }
-
-       if (map!=null)
-       {
-          result = cast result.clone();
-
-          if (map.exists("downX"))
-             result.offset = new Point(map.get("downX"), result.offset.y );
-          if (map.exists("downY"))
-             result.offset = new Point(result.offset.x, map.get("downY") );
-          if (map.exists("render"))
-             result.style = Style.StyleCustom(map.get("render"));
-          if (map.exists("upBmp") || map.exists("downBmp"))
-          {
-             var up:BitmapData = map.get("upBmp");
-             var down:BitmapData = map.get("downBmp");
-
-             result.style = Style.StyleCustom(function(widget) renderBmpBackground(widget,up,down) );
-
-             var w = up!=null ? up.width : down==null? down.width : 32;
-             var h = up!=null ? up.height : down==null? down.height : 32;
-             result.minSize = new Size(w,h);
-          }
-       }
        return result;
    }
 
@@ -210,6 +216,7 @@ class Skin
       result.style = Style.StyleCustom(renderDialog);
       return result;
    }
+   /*
    public static function createButtonRenderer()
    {
       var result = new Renderer();
@@ -218,6 +225,7 @@ class Skin
       result.offset = new Point(1,1);
       return result;
    }
+   */
    public static function createSliderRenderer()
    {
       var result = new SliderRenderer();
@@ -297,7 +305,7 @@ class Skin
       if (inSvg.hasGroup("slider"))
          sliderRenderer = SliderRenderer.fromSvg(inSvg,"slider");
       if (inSvg.hasGroup("button"))
-         buttonRenderer = ButtonRenderer.fromSvg(inSvg,"button");
+         replaceAttribs("Button", null, ButtonRenderer.fromSvg(inSvg,"button") );
    }
 
    public static function getScaleRect(inRenderer:SvgRenderer, inBounds:Rectangle) : Rectangle
@@ -603,7 +611,7 @@ class Skin
                                         guiMedium );
       gfx.lineStyle(1,controlBorder);
       var r = inWidget.mRect;
-      gfx.drawRoundRect(r.x+0.5,r.y+0.5,r.width-1,r.height-1,buttonCorner,buttonCorner);
+      gfx.drawRoundRect(r.x+0.5,r.y+0.5,r.width-1,r.height-1,roundRectRad,roundRectRad);
    }
 
     public static function renderProgressBar(inGfx:Graphics, inWidth:Float, inHeight:Float, inFraction:Float)
@@ -1128,10 +1136,8 @@ class Skin
 
 
 
-   static function createAttribMap(inAttribs:Dynamic, inCreateEmpty:Bool=false) : Map<String, Dynamic>
+   static function createAttribMap(inAttribs:Dynamic) : Map<String, Dynamic>
    {
-      if (!inCreateEmpty && inAttribs==null)
-         return null;
       var result = new Map<String,Dynamic>();
       if (inAttribs!=null)
          for(key in Reflect.fields(inAttribs))

@@ -22,30 +22,11 @@ import gm2d.ui.WidgetState;
 
 class ButtonRenderer
 {
-   public static function simple( )
-   {
-      var renderer = new Renderer();
-      renderer.padding = new Rectangle(2,2,4,4);
-      renderer.offset = new Point(0,0);
-      renderer.style = Style.StyleCustom(function(inWidget:Widget)
-      {
-         var gfx = inWidget.mChrome.graphics;
-         gfx.clear();
-         if ( (inWidget.state & (Widget.DOWN | Widget.DISABLED)) > 0 )
-         {
-             gfx.beginFill(inWidget.disabled ? Skin.disableColor : Skin.guiMedium );
-             gfx.lineStyle(1,Skin.controlBorder);
-             var r = inWidget.mRect;
-             gfx.drawRect(r.x+0.5,r.y+0.5,r.width-1,r.height-1);
-         }
-      });
-      return renderer;
-   }
-
-
    public static function fromSvg( inSvg:Svg,?inLayer:String)
    {
       var renderer = new SvgRenderer(inSvg,inLayer);
+
+      var result:Dynamic = {};
 
       var interior = renderer.getMatchingRect(Skin.svgInterior);
       var bounds = renderer.getMatchingRect(Skin.svgBounds);
@@ -55,7 +36,6 @@ class ButtonRenderer
          interior = bounds;
       var scaleRect = Skin.getScaleRect(renderer,bounds);
 
-      var result = new Renderer();
       result.offset = new Point(1,1);
 
       result.style = Style.StyleCustom(function(inWidget:Widget)
@@ -68,7 +48,6 @@ class ButtonRenderer
                              bounds.width-interior.width,
                              bounds.height-interior.height);
       result.textFormat = LabelRenderer.fromSvg(inSvg, [inLayer, "dialog", null] );
-
 
       return result;
    }

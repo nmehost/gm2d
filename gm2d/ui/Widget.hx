@@ -11,17 +11,6 @@ import gm2d.skin.Skin;
 import gm2d.skin.Renderer;
 
 
-
-
-
-
-
-
-
-
-
-
-
 class Widget extends Sprite
 {
    public static inline var NORMAL     = 0x0000;
@@ -44,12 +33,14 @@ class Widget extends Sprite
    public var mChrome : Sprite;
    public var mRenderer : Renderer;
    public var mLineage : Array<String>;
+   public var mAttribs : Dynamic;
 
    //var highlightColour:Int;
 
    public function new(?inLineage:Array<String>, ?inAttribs:Dynamic)
    {
       super();
+      mAttribs = inAttribs;
       Reflect.setField(this,"state",0);
       mLineage = addLine(inLineage,"Widget");
       name = mLineage[0];
@@ -93,6 +84,7 @@ class Widget extends Sprite
       if (inState!=state)
       {
          state = inState;
+         mRenderer = Skin.renderer(mLineage, state, mAttribs);
          redraw();
       }
       return inState;
@@ -110,7 +102,9 @@ class Widget extends Sprite
    {
       clearChrome();
       if (mRenderer!=null)
+      {
          mRenderer.renderWidget(this);
+      }
    }
 
 

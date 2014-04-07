@@ -5,7 +5,9 @@ import gm2d.ui.Widget;
 enum Style
 {
    StyleNone;
-   StyleShape( fill:FillStyle, line:LineStyle, shape:ShapeStyle );
+   StyleRect;
+   StyleRoundRect;
+   StyleRoundRectRad(inRad:Float);
    StyleCustom( render:Widget->Void );
 }
 
