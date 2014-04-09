@@ -26,6 +26,7 @@ class Renderer
    public var offset:Point;
    public var minSize:Size;
    public var minItemSize:Size;
+   public var align:Null<Int>;
    public var padding:Rectangle;
    public var margin:Rectangle;
 
@@ -35,6 +36,7 @@ class Renderer
       style = Style.StyleNone;
       textFormat = Skin.textFormat;
       offset = new Point(0,0);
+      align = null;
 
       if (map!=null)
       {
@@ -54,33 +56,36 @@ class Renderer
             minSize = map.get("minSize");
          if (map.exists("minItemSize"))
             minSize = map.get("minItemSize");
+         if (map.exists("align"))
+            align = map.get("align");
 
          if (map.exists("render"))
              style = Style.StyleCustom(map.get("render"));
          else if (map.exists("style"))
              style = map.get("style");
 
-/*
-          if (map.exists("upBmp") || map.exists("downBmp"))
-          {
-             var up:BitmapData = map.get("upBmp");
-             var down:BitmapData = map.get("downBmp");
-
-             result.style = Style.StyleCustom(function(widget) renderBmpBackground(widget,up,down) );
-
-             var w = up!=null ? up.width : down==null? down.width : 32;
-             var h = up!=null ? up.height : down==null? down.height : 32;
-             result.minSize = new Size(w,h);
-          }
-          */
-       }
+         if (fillStyle!=null)
+         {
+            switch(fillStyle)
+            {
+               case FillStyle.FillBitmap(bmp):
+                  var w = bmp.width;
+                  var h = bmp.height;
+                  if (minSize==null)
+                     minSize = new Size(w,h);
+                  else
+                     minSize = new Size(w>minSize.x ? w : minSize.x ,h>minSize.y ? h : minSize.y);
+               default:
+            }
+         }
+      }
    }
 
 
-   function setGraphics(inGraphics:Graphics):Bool
+
+   function setFill(inGraphics:Graphics,rect:Rectangle):Bool
    {
       var filled = false;
-      var lined = false;
 
       if (fillStyle!=null)
       {
@@ -101,10 +106,20 @@ class Renderer
 
              case FillStyle.FillSolid(rgb,a):
                 inGraphics.beginFill(rgb,a);
+
+             case FillStyle.FillBitmap(bmp):
+                inGraphics.beginBitmapFill(bmp);
+
              default:
                  filled = false;
           }
       }
+      return filled;
+   }
+
+   function setLine(inGraphics:Graphics,rect:Rectangle):Bool
+   {
+      var lined = false;
       if (lineStyle!=null)
       {
          lined = true;
@@ -120,8 +135,7 @@ class Renderer
                lined=false;
          }
       }
-
-      return filled || lined;
+      return lined;
    }
 
 
@@ -135,36 +149,40 @@ class Renderer
          return;
 
       var gfx = inWidget.mChrome.graphics;
-      var set = setGraphics(gfx);
       var r = inWidget.mRect;
+      var lined = setLine(gfx,r);
+      var filled = setFill(gfx,r);
+
+      var offset = lined ? 0.5 : 0;
 
       switch(style)
       {
          case StyleNone:
          case StyleRect:
-            if (set)
-               gfx.drawRect(r.x+0.5, r.y+0.5, r.width, r.height);
+            if (lined || filled)
+               gfx.drawRect(r.x, r.y, r.width, r.height);
 
          case StyleRoundRect:
-            if (set)
-               gfx.drawRoundRect(r.x+0.5, r.y+0.5, r.width-1, r.height-1,
+            if (lined || filled)
+               gfx.drawRoundRect(r.x+offset, r.y+offset, r.width, r.height,
                    Skin.roundRectRad,Skin.roundRectRad);
 
          case StyleRoundRectRad(rad):
-            if (set)
-               gfx.drawRoundRect(r.x+0.5, r.y+0.5, r.width-1, r.height-1, rad,rad);
+            if (lined || filled)
+               gfx.drawRoundRect(r.x+offset, r.y+offset, r.width, r.height, rad,rad);
 
          case StyleCustom( render ):
             render(inWidget);
-            set = true;
+            filled = true;
       }
 
-      if (set)
+      if (lined || filled)
       {
          gfx.endFill();
          gfx.lineStyle();
       }
    }
+
    public function renderLabel(label:TextField)
    {
       label.defaultTextFormat = textFormat;
@@ -185,6 +203,8 @@ class Renderer
          if (margin!=null)
             layout.setBorders(margin.x, margin.y,
                margin.width-margin.x, margin.height-margin.y);
+         if (align!=null)
+            layout.setAlignment(align);
       }
 
       var layout = ioWidget.getItemLayout();
