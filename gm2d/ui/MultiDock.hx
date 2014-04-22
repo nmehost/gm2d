@@ -183,10 +183,14 @@ class MultiDock implements IDock implements IDockable
          if (pane!=null)
          {
             var but = (currentDockable==d) ? MiniButton.MINIMIZE : MiniButton.EXPAND;
+            var button =  Button.create(["MultiDock", "UiButton"], { id:but });
+
+            /*
             var state =  Skin.getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
             var button =  new SimpleButton( state,
                                         Skin.getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
                                         Skin.getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
+            */
             inContainer.addChild(button);
             button.x = mRect.right-16;
             button.y = Std.int( y + 3);
@@ -194,7 +198,8 @@ class MultiDock implements IDock implements IDockable
             outHitBoxes.add(new Rectangle(mRect.x+2, y+2, mRect.width-18, 18), TITLE(pane) );
 
             if (outHitBoxes.mCallback!=null)
-               button.addEventListener( MouseEvent.CLICK, function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
+               button.mCallback = function() outHitBoxes.mCallback( BUTTON(pane,but), null);
+               //button.addEventListener( MouseEvent.CLICK, function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
          }
 
          if (pane!=null)

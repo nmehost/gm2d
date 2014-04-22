@@ -3,6 +3,7 @@ package gm2d.skin;
 import nme.display.Bitmap;
 import nme.display.Sprite;
 import nme.display.Graphics;
+import nme.display.BitmapData;
 import nme.text.TextField;
 import nme.text.TextFieldAutoSize;
 import nme.events.MouseEvent;
@@ -15,6 +16,7 @@ import gm2d.ui.Widget;
 import gm2d.ui.WidgetState;
 import gm2d.ui.Size;
 import gm2d.skin.Style;
+import gm2d.skin.BitmapStyle;
 
 
 class Renderer
@@ -29,12 +31,13 @@ class Renderer
    public var align:Null<Int>;
    public var padding:Rectangle;
    public var margin:Rectangle;
+   public var bitmapStyle:BitmapStyle;
 
 
    public function new(?map:Map<String,Dynamic>)
    {
       style = Style.StyleNone;
-      textFormat = Skin.textFormat;
+      textFormat = Skin.getTextFormat();
       offset = new Point(0,0);
       align = null;
 
@@ -58,11 +61,16 @@ class Renderer
             minSize = map.get("minItemSize");
          if (map.exists("align"))
             align = map.get("align");
-
-         if (map.exists("render"))
-             style = Style.StyleCustom(map.get("render"));
-         else if (map.exists("style"))
+         if (map.exists("font"))
+            textFormat.font = map.get("font");
+         if (map.exists("fontColor"))
+            textFormat.color = map.get("fontColor");
+         if (map.exists("fontSize"))
+            textFormat.size = map.get("fontSize");
+         if (map.exists("style"))
              style = map.get("style");
+         if (map.exists("bitmap"))
+             bitmapStyle = map.get("bitmap");
 
          if (fillStyle!=null)
          {
@@ -180,6 +188,24 @@ class Renderer
       {
          gfx.endFill();
          gfx.lineStyle();
+      }
+   }
+
+   public function getBitmap(inId:String, inState:Int) : BitmapData
+   {
+      if (bitmapStyle==null)
+      {
+         return null;
+      }
+      switch(bitmapStyle)
+      {
+         case BitmapBitmap(bmBitmapData):
+            // TODO - disable
+            return bmBitmapData;
+         case BitmapFactory(factory):
+            return factory(inId,inState);
+         case BitmapAndDisable(bmp,bmpDisabled):
+            return ( (inState&Widget.DISABLED>0) ? bmpDisabled : bmp );
       }
    }
 

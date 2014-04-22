@@ -6,7 +6,6 @@ import nme.display.Shape;
 import nme.display.Sprite;
 import gm2d.ui.Button;
 import gm2d.skin.Skin;
-import gm2d.skin.ButtonRenderer;
 import gm2d.ui.WidgetState;
 
 

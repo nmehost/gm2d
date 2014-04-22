@@ -34,6 +34,7 @@ import gm2d.ui.Widget;
 
 import gm2d.skin.FillStyle;
 import gm2d.skin.LineStyle;
+import gm2d.skin.BitmapStyle;
 import gm2d.skin.Style;
 
 import nme.display.SimpleButton;
@@ -43,15 +44,19 @@ import gm2d.CInt;
 
 
 
+typedef AttribSet = Array<RenderAttribs>;
 
 class Skin
 {
+   // You can use these to set the defaults before you create a Widget
    public static var roundRectRad = 6.0;
    public static var guiLight = 0xf0f0e0;
    public static var guiMedium = 0xe0e0d0;
    public static var guiDark = 0xa0a090;
    public static var guiDisabled = 0x808080;
    public static var guiBorder = 0x000000;
+   public static var textFormat:nme.text.TextFormat;
+
 
    public static var controlBorder = 0x000000;
    public static var centerTitle = true;
@@ -66,25 +71,15 @@ class Skin
    public static var menuHeight:Float = 22;
 
 
-   public static var textFormat:nme.text.TextFormat;
-   public static var mBitmaps:Array< Array<BitmapData> >;
+   public static var mBitmaps:Map<String,BitmapData>;
 
 
-   public static var dialogRenderer:Renderer;
-   //public static var buttonRenderer:Renderer;
    public static var sliderRenderer:SliderRenderer;
    public static var defaultTabRenderer:TabRenderer;
 
    public static var tabHeight:Int = 24;
    public static var title_h:Int = 22;
    public static var borders:Int = 3;
-
-   public static var svgInterior = ~/\.interior/;
-   public static var svgScaleX = ~/\.scaleX/;
-   public static var svgScaleY = ~/\.scaleY/;
-   public static var svgBounds = ~/\.bounds/;
-   public static var svgActive = ~/\.active/;
-   public static var svgThumb = ".thumb";
 
    public static var mDrawing:Shape;
    public static var mText:TextField;
@@ -93,20 +88,25 @@ class Skin
    public static inline var SHOW_COLLAPSE    = 0x0002;
    public static inline var SHOW_EXPAND      = 0x0004;
 
-   public static var attribSet:Array<RenderAttribs>;
+   public static var attribSet:AttribSet;
+   public static var idAttribs:Map<String,AttribSet>;
 
    public static var doInit:Dynamic = init();
    public static function init()
    {
       menuHeight = 22;
-      mBitmaps = [];
+      var titleHeight = 26;
+
+      mBitmaps = new Map<String, BitmapData>();
       textFormat = new TextFormat();
-      textFormat.size = 12;
+      textFormat.size = 14;
       textFormat.font = "Arial";
-      textFormat.color = labelColor;
+      textFormat.color = 0x000000;
+
 
       initGfx();
 
+      idAttribs = new Map<String,AttribSet>();
       attribSet = [];
       addAttribs("Button", null, {
           style: StyleRoundRect,
@@ -128,6 +128,19 @@ class Skin
       addAttribs("SimpleButton", Widget.DOWN, {
           line: LineBorder,
         });
+      addAttribs("Dock", null, {
+          style: StyleRect,
+          fill: FillMedium,
+          padding: null,
+        });
+      addAttribs("UiButton", null, {
+          style: StyleNone,
+          bitmap: BitmapFactory(DefaultBitmaps.factory),
+        });
+      addAttribs("Frame", null, {
+          style: Style.StyleCustom(renderDialog),
+          padding: new Rectangle(borders, borders+titleHeight, borders*2, borders*2+titleHeight),
+        });
       addAttribs(null, Widget.DOWN, {
           fill: FillMedium,
         });
@@ -136,17 +149,19 @@ class Skin
         });
 
 
-      for(state in  HitBoxes.BUT_STATE_UP...HitBoxes.BUT_STATE_DOWN+1)
-         mBitmaps[state] = [];
-
-      dialogRenderer = createDialogRenderer();
-      //buttonRenderer = createButtonRenderer();
       sliderRenderer = createSliderRenderer();
       defaultTabRenderer = createTabRenderer();
 
-
-
       return null;
+   }
+
+   public static function addId(inId:String, inState:Null<Int>, inAttribs:Dynamic)
+   {
+      var attribs = idAttribs.get(inId);
+      if (attribs==null)
+         idAttribs.set( inId, attribs = new AttribSet() );
+      
+      attribs.push( new RenderAttribs(null, inState, inAttribs) );
    }
 
    public static function addAttribs(inLine:String, inState:Null<Int>, inAttribs:Dynamic)
@@ -190,42 +205,25 @@ class Skin
 
    public static function renderer(inLineage:Array<String>,inState:Int=0, ?inAttribs:Dynamic) : Renderer
    {
-       var map = createAttribMap(inAttribs);
+       var map = new Map<String,Dynamic>();
        for(attrib in attribSet)
           if (attrib.matches(inLineage,inState))
              attrib.merge(map);
-
-       var result:Renderer = new Renderer(map);
-
-       if (hasLineage(inLineage,"Dialog"))
+       if (inAttribs!=null && Reflect.hasField(inAttribs,"id"))
        {
-          result = dialogRenderer;
+          var id = Reflect.field(inAttribs,"id");
+          var attribs = idAttribs.get(id);
+          if (attribs!=null)
+             for(attrib in attribs)
+                if (attrib.matches(inLineage,inState))
+                   attrib.merge(map);
        }
-       else if (hasLineage(inLineage,"MDIParent"))
-       {
-          result = dialogRenderer;
-       }
+       mergeAttribMap(map,inAttribs);
 
-       return result;
+       return new Renderer(map);
    }
 
 
-   public static function createDialogRenderer()
-   {
-      var result = FrameRenderer.create(borders,26);
-      result.style = Style.StyleCustom(renderDialog);
-      return result;
-   }
-   /*
-   public static function createButtonRenderer()
-   {
-      var result = new Renderer();
-      result.style = Style.StyleCustom(renderButton);
-      result.padding = new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2);
-      result.offset = new Point(1,1);
-      return result;
-   }
-   */
    public static function createSliderRenderer()
    {
       var result = new SliderRenderer();
@@ -241,6 +239,7 @@ class Skin
 
 
 
+/*
    static public function renderBmpBackground(widget:Widget, up:BitmapData, down:BitmapData)
    {
       var bmp = widget.down ? down : up;
@@ -260,7 +259,7 @@ class Skin
       layout.setMinSize(w,h);
       widget.getItemLayout().setAlignment(Layout.AlignCenter);
    }
-
+*/
 
    public static function onCreateSlider(inSlider:Slider):Void
    {
@@ -301,33 +300,20 @@ class Skin
    public static function fromSvg(inSvg:Svg)
    {
       if (inSvg.hasGroup("dialog"))
-         dialogRenderer = FrameRenderer.fromSvg(inSvg,"dialog");
+         replaceAttribs("Frame", null, SvgSkin.createFrameRenderer(inSvg,"dialog") );
       if (inSvg.hasGroup("slider"))
-         sliderRenderer = SliderRenderer.fromSvg(inSvg,"slider");
+         sliderRenderer = SvgSkin.createSliderRenderer(inSvg,"slider");
       if (inSvg.hasGroup("button"))
-         replaceAttribs("Button", null, ButtonRenderer.fromSvg(inSvg,"button") );
+         replaceAttribs("Button", null, SvgSkin.createButtonRenderer(inSvg,"button") );
    }
-
-   public static function getScaleRect(inRenderer:SvgRenderer, inBounds:Rectangle) : Rectangle
-   {
-      var scaleX = inRenderer.getMatchingRect(svgScaleX);
-      var scaleY = inRenderer.getMatchingRect(svgScaleY);
-      if (scaleX==null && scaleY==null)
-         return null;
-      return  new Rectangle(scaleX==null ? inBounds.x - 1000 : scaleX.x,
-                            scaleY==null ? inBounds.y - 1000 : scaleY.y,
-                            scaleX==null ? inBounds.width + 2000 : scaleX.width,
-                            scaleY==null ? inBounds.height + 2000 : scaleY.height );
-   }
-
 
 
    public static function getTextFormat()
    {
       var fmt = new TextFormat();
-      fmt.size = 16;
-      fmt.font = "Arial";
-      fmt.color = labelColor;
+      fmt.size = textFormat.size;
+      fmt.font = textFormat.font;
+      fmt.color = textFormat.color;
       return fmt;
    }
 
@@ -481,10 +467,14 @@ class Skin
             if ( (inFlags&flags[i])!=0 )
             {
                var but = buts[i];
+               /*
                var state = getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
                var button = new SimpleButton( state,
                                   getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
                                   getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
+               */
+               var button =  Button.create(["PaneButton", "UiButton"], { id:but });
+
                inContainer.addChild(button);
                button.x = inRect.x + w - 16 - 2;
                w-=16+2;
@@ -602,7 +592,7 @@ class Skin
    }
 
 
-
+/*
    public static function renderButton(inWidget:Widget)
    {
       var gfx = inWidget.mChrome.graphics;
@@ -613,7 +603,7 @@ class Skin
       var r = inWidget.mRect;
       gfx.drawRoundRect(r.x+0.5,r.y+0.5,r.width-1,r.height-1,roundRectRad,roundRectRad);
    }
-
+*/
     public static function renderProgressBar(inGfx:Graphics, inWidth:Float, inHeight:Float, inFraction:Float)
    {
       inGfx.clear();
@@ -659,7 +649,7 @@ class Skin
          outHitBoxes.add( new Rectangle(w-12,h-12,12,12), HitAction.RESIZE(pane, ResizeFlag.S|ResizeFlag.E) );
       }
 
-
+      /*
       if (false)
       {
          var but = MiniButton.CLOSE;
@@ -676,6 +666,7 @@ class Skin
             button.addEventListener( MouseEvent.CLICK,
                function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
       }
+      */
 
       var title = pane==null ? "" : pane.title;
       if (title!="")
@@ -718,124 +709,20 @@ class Skin
       }
    }
 
-   static function createButtonBitmap(inButton:Int, inState:Int) : BitmapData
+/*
+   public static function getButtonBitmapData(inButton:String, inState:Int) : BitmapData
    {
-      var bmp = new BitmapData(16,16,true, gm2d.RGB.CLEAR );
-      var shape = new nme.display.Shape();
-      var gfx = shape.graphics;
-
-      if (false)
-      {
-         var cols = [ 0xff0000, 0x00ff00, 0x0000ff ];
-         gfx.beginFill(cols[inState]);
-         gfx.drawRect(0,0,16,16);
-         gfx.endFill();
-      }
-
-
-      gfx.lineStyle(1,0xffffff);
-      var matrix = new Matrix();
-
-      if (inButton==MiniButton.CLOSE)
-      {
-         gfx.moveTo(3,3);
-         gfx.lineTo(12,12);
-         gfx.moveTo(12,3);
-         gfx.lineTo(3,12);
-      }
-      if (inButton==MiniButton.MINIMIZE)
-      {
-         gfx.moveTo(3,12);
-         gfx.lineTo(12,12);
-      }
-      else if (inButton==MiniButton.MAXIMIZE)
-      {
-         gfx.drawRect(3,3,11,11);
-      }
-      else if (inButton==MiniButton.RESTORE)
-      {
-         gfx.drawRect(3,3,6,6);
-         gfx.drawRect(8,8,6,6);
-      }
-      else if (inButton==MiniButton.EXPAND)
-      {
-         gfx.drawRect(4,2,8,12);
-      }
-      else if (inButton==MiniButton.POPUP)
-      {
-         gfx.beginFill(0xffffff);
-         gfx.moveTo(5,7);
-         gfx.lineTo(11,7);
-         gfx.lineTo(8,10);
-         gfx.lineTo(5,7);
-      }
-
-      else if (inButton==MiniButton.PIN)
-      {
-         gfx.moveTo(1,7);
-         gfx.lineTo(5,7);
-         gfx.drawRect(5,3,2,9);
-         gfx.drawRect(7,5,6,5);
-      }
-
-      else if (inButton==MiniButton.ADD)
-      {
-         gfx.lineStyle(1,0x000000);
-         gfx.beginFill(0x00ff00);
-         gfx.moveTo(3,5);
-         gfx.lineTo(5,5);
-         gfx.lineTo(5,3);
-         gfx.lineTo(9,3);
-         gfx.lineTo(9,5);
-         gfx.lineTo(11,5);
-         gfx.lineTo(11,9);
-         gfx.lineTo(9,9);
-         gfx.lineTo(9,11);
-         gfx.lineTo(5,11);
-         gfx.lineTo(5,9);
-         gfx.lineTo(3,9);
-         gfx.lineTo(3,5);
-      }
-      else if (inButton==MiniButton.REMOVE)
-      {
-         gfx.lineStyle(1,0x000000);
-         gfx.beginFill(0xff0000);
-         gfx.moveTo(3,5);
-         gfx.lineTo(11,5);
-         gfx.lineTo(11,9);
-         gfx.lineTo(3,9);
-         gfx.lineTo(3,5);
-      }
-
-
-      if (inState==HitBoxes.BUT_STATE_DOWN)
-         matrix.tx = matrix.ty = 1.5;
-      else
-         matrix.tx = matrix.ty = 0.5;
-
-      if (inState!=HitBoxes.BUT_STATE_UP)
-      {
-         // todo: why does this not work in flash
-         var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, 3, 3, 2, 2, false, false);
-         shape.filters = [ glow ];
-      }
-        
-      bmp.draw(shape,matrix);
-      return bmp;
+      var key = inButton + ":" + inState;
+      if (!mBitmaps.exists(key))
+         mBitmaps.set(key,createButtonBitmap(inButton,inState));
+      return mBitmaps.get(key);
    }
 
-   public static function getButtonBitmapData(inButton:Int, inState:Int) : BitmapData
-   {
-      if (mBitmaps[inState][inButton]==null)
-         mBitmaps[inState][inButton]=createButtonBitmap(inButton,inState);
-      return mBitmaps[inState][inButton];
-   }
-
-   public static function getButtonBitmap(inButton:Int, inState:Int) : Bitmap
+   public static function getButtonBitmap(inButton:String, inState:Int) : Bitmap
    {
       return new Bitmap(getButtonBitmapData(inButton,inState));
    }
-
+*/
 
    public static function getFrameClientOffset() : Point
    {
@@ -913,10 +800,13 @@ class Skin
 
       for(but in [ MiniButton.CLOSE, MiniButton.MINIMIZE, MiniButton.MAXIMIZE ] )
       {
+         var button =  Button.create(["PaneButton", "UiButton"], { id:but });
+         /*
          var state =  getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
          var button =  new SimpleButton( state,
                                         getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
                                         getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
+         */
          inObj.addChild(button);
          button.y = Std.int( (title_h - button.height)/2 );
          x-= button.width;
@@ -1135,6 +1025,14 @@ class Skin
    }
 
 
+   static function mergeAttribMap(map:Map<String,Dynamic>, inAttribs:Dynamic)
+   {
+      if (inAttribs!=null)
+         for(key in Reflect.fields(inAttribs))
+             map.set(key, Reflect.field(inAttribs,key));
+   }
+
+
 
    static function createAttribMap(inAttribs:Dynamic) : Map<String, Dynamic>
    {
@@ -1143,18 +1041,6 @@ class Skin
          for(key in Reflect.fields(inAttribs))
              result.set(key, Reflect.field(inAttribs,key));
       return result;
-   }
-
-   static function mergeAttribMap(map: Map<String, Dynamic>, inAttribs:Dynamic) : Map<String, Dynamic>
-   {
-      if (map==null)
-          map = new  Map<String, Dynamic>();
-      for(key in Reflect.fields(inAttribs))
-         if (!map.exists(key))
-         {
-            map.set(key, Reflect.field(inAttribs,key));
-         }
-      return map;
    }
 
 

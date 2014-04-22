@@ -26,7 +26,7 @@ class Dialog extends Window
 
    public function new(inPane:Pane, ?inAttribs:Dynamic, ?inLineage:Array<String>)
    {
-      super(Widget.addLine(inLineage,"Dialog"), inAttribs);
+      super(Widget.addLines(inLineage,["Dialog","Frame"]), inAttribs);
       mPane = inPane;
       mContent = new Sprite();
       inPane.setDock(null,this);

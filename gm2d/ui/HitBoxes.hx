@@ -17,19 +17,16 @@ class ResizeFlag
 
 class MiniButton
 {
-   public static inline var CLOSE    = 0;
-   public static inline var MINIMIZE = 1;
-   public static inline var MAXIMIZE = 2;
-   public static inline var RESTORE = 3;
-   public static inline var POPUP = 4;
-   public static inline var EXPAND = 6;
-   public static inline var PIN  = 7;
-   public static inline var ADD  = 8;
-   public static inline var REMOVE  = 9;
-
-   public static inline var COUNT = 10;
-
-   public static inline var TITLE = 10;
+   public static inline var CLOSE    = "#close";
+   public static inline var MINIMIZE = "#minimize";
+   public static inline var MAXIMIZE = "#maximize";
+   public static inline var RESTORE  = "#restore";
+   public static inline var POPUP    = "#popup";
+   public static inline var EXPAND   = "#expand";
+   public static inline var PIN      = "#pin";
+   public static inline var ADD      = "#add";
+   public static inline var REMOVE   = "#remove";
+   //public static inline var TITLE = 10;
 }
 
 enum HitAction
@@ -37,7 +34,7 @@ enum HitAction
    NONE;
    REDRAW;
    DRAG(pane:IDockable);
-   BUTTON(pane:IDockable,button:Int);
+   BUTTON(pane:IDockable,buttonId:String);
    TITLE(pane:IDockable);
    RESIZE(pane:IDockable,flags:Int);
    DOCKSIZE(dock:SideDock,index:Int);
@@ -139,14 +136,14 @@ class HitBoxes
       rects.push( new HitBox(rect,action) );
    }
 
-   function buttonID(inAction:HitAction) : Int
+   function buttonID(inAction:HitAction) : String
    {
       switch(inAction)
       {
          case BUTTON(_,id): return id;
          default:
       }
-      return -1;
+      return "";
    }
 
    public function onDown(inX:Float, inY:Float,inEvent:MouseEvent)

@@ -43,7 +43,11 @@ class Widget extends Sprite
       mAttribs = inAttribs;
       Reflect.setField(this,"state",0);
       mLineage = addLine(inLineage,"Widget");
-      name = mLineage[0];
+      if (mAttribs!=null && Reflect.hasField(inAttribs,"id"))
+         name = Reflect.field(inAttribs,"id");
+      else
+         name = mLineage[0];
+
       mRenderer = Skin.renderer(mLineage, state, inAttribs);
       mChrome = new Sprite();
       addChild(mChrome);
@@ -55,6 +59,11 @@ class Widget extends Sprite
    {
       return inLineage==null ? [inClass] : inLineage.concat([inClass]);
    }
+   public static function addLines(inLineage:Array<String>,inClasses:Array<String>)
+   {
+      return inLineage==null ? inClasses : inLineage.concat(inClasses);
+   }
+
 
    function setItemLayout(inLayout:Layout)
    {

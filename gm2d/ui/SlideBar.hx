@@ -1,6 +1,7 @@
 package gm2d.ui;
 
 import gm2d.ui.Menubar;
+import gm2d.ui.Widget;
 import nme.display.DisplayObjectContainer;
 import gm2d.ui.DockPosition;
 import gm2d.ui.MouseWatcher;
@@ -8,6 +9,7 @@ import nme.display.Sprite;
 import gm2d.ui.HitBoxes;
 import nme.events.MouseEvent;
 import gm2d.skin.TabRenderer;
+import gm2d.skin.Renderer;
 import gm2d.skin.Skin;
 import nme.geom.Rectangle;
 
@@ -22,7 +24,7 @@ class SlideBar extends Sprite implements IDock
    var minSize:Null<Int>;
    var maxSize:Null<Int>;
    var tabPos:Null<Int>;
-   var background:Sprite;
+   var background:Widget;
    var paneContainer:Sprite;
    var overlayContainer:Sprite;
    var slideOver:Bool;
@@ -68,13 +70,22 @@ class SlideBar extends Sprite implements IDock
          case DOCK_TOP: TabRenderer.BOTTOM;
          default:0;
       };
+      var line  = switch(pos) {
+         case DOCK_LEFT: "SlideLeft";
+         case DOCK_RIGHT: "SlideRight";
+         case DOCK_BOTTOM: "SlideBottom";
+         case DOCK_TOP: "SlideTop";
+         default: "SlideDock";
+      };
+
 
       children = new Array<IDockable>();
       current = null;
       pinned = false;
 
 
-      background = new Sprite();
+      background = new Widget([line,"Dock"]);
+      background.build();
       addChild(background);
       paneContainer = new Sprite();
       addChild(paneContainer);
@@ -275,6 +286,8 @@ class SlideBar extends Sprite implements IDock
 
       fullRect = new Rectangle(0,0,size.x,size.y);
 
+      background.getLayout().setRect(fullRect.x, fullRect.y, fullRect.width, fullRect.height);
+
       chromeDirty = true;
 
       if (slideOver)
@@ -287,21 +300,14 @@ class SlideBar extends Sprite implements IDock
     {
       if (current==null)
          return;
+
       if (chromeDirty)
       {
          chromeDirty = false;
          hitBoxes.clear();
 
-         var gfx = background.graphics;
-         gfx.clear();
-         while(background.numChildren>0)
-            background.removeChildAt(0);
-
-         gfx.beginFill(Skin.panelColor);
-         gfx.drawRect(fullRect.x, fullRect.y, fullRect.width, fullRect.height);
-         gfx.endFill();
-
-         current.renderChrome(background,hitBoxes);
+         background.redraw();
+         current.renderChrome(background.mChrome,hitBoxes);
 
          if (tabRenderer!=null)
          {

@@ -7,23 +7,25 @@ import nme.geom.Rectangle;
 
 import gm2d.ui.Pane;
 
+/*
 class ToolbarItem
 {
-   public function new(inWin:DisplayObject, inWidth:Float, inHeight:Float)
+   public function new(inWin:Widget, inWidth:Float, inHeight:Float)
    {
      win = inWin;
      w = inWidth;
      h = inHeight;
    }
-   public var win:DisplayObject;
+   public var win:Widget;
    public var w:Float;
    public var h:Float;
 }
+*/
 
 class Toolbar extends Pane
 {
    var root:Sprite;
-   var items:Array<ToolbarItem>;
+   var items:Array<Widget>;
    public var padX:Float;
    public var padY:Float;
    public var layoutRows:Int;
@@ -31,18 +33,16 @@ class Toolbar extends Pane
    public function new(inTitle:String)
    {
       root = new Sprite();
-      items = new Array<ToolbarItem>();
+      items = new Array<Widget>();
       padX = 2.0;
       padY = 2.0;
       super(root, inTitle, Dock.RESIZABLE  | Dock.TOOLBAR );
    }
 
-   public function addTool(inTool:DisplayObject,?inWidth:Int, ?inHeight:Int)
+   public function addTool(inTool:Widget)
    {
       root.addChild(inTool);
-      var w = inWidth!=null ? inWidth : inTool.width;
-      var h = inHeight!=null ? inHeight : inTool.height;
-      items.push(new ToolbarItem(inTool,w,h));
+      items.push(inTool);
    }
    public function getRoot() { return root; }
 
@@ -56,22 +56,21 @@ class Toolbar extends Pane
       layoutRows = 1;
       for(item in items)
       {
-         if (row_height>0 && x+item.w>max)
+         var size = item.getLayout().getBestSize();
+         var w = size.x;
+         var h = size.y;
+         if (row_height>0 && x+w>max)
          {
             y+=row_height + padY*2;
             x = padX;
             row_height = 0;
             layoutRows++;
          }
-         // TODO: center-y?
          if (inDoMove)
-         {
-            item.win.x=x;
-            item.win.y=y;
-         }
-         if (item.h>row_height)
-            row_height = item.h;
-         x+=item.w+padX;
+            item.getLayout().setRect(x,y,w,h);
+         if (h>row_height)
+            row_height = h;
+         x+=w+padX;
          if (x>maxX)
             maxX = x;
          x+=padX;
@@ -116,8 +115,11 @@ class Toolbar extends Pane
           // Start with 1 column...
           var minWidth = 0.0;
           for(item in items)
-             if (item.w>minWidth)
-                minWidth = item.w;
+          {
+             var w = item.getLayout().getBestSize().x;
+             if (w>minWidth)
+                minWidth = w;
+          }
 
           var tryWidth = minWidth;
           layout(tryWidth,false);

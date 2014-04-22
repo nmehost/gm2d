@@ -134,14 +134,17 @@ class GradientControl extends Widget
 
       var addRemoveLayout = new GridLayout(2,0);
       addRemoveLayout.setSpacing(0,0);
-      var addStop = Button.BMPButton(Skin.getButtonBitmapData(MiniButton.ADD,0),onAddStop);
+      var addStop = Button.create(["PaneButton", "UiButton"], { id:MiniButton.ADD }, onAddStop);
       addChild(addStop);
-      addStop.getItemLayout().setBorders(5,5,5,5);
-      addRemoveLayout.add(addStop.getLayout().setBorders(5,5,5,5));
-      var removeStop = Button.BMPButton(Skin.getButtonBitmapData(MiniButton.REMOVE,0),onRemoveStop);
+      //var addStop = Button.BMPButton(Skin.getButtonBitmapData(MiniButton.ADD,0),onAddStop);
+      //addStop.getItemLayout().setBorders(5,5,5,5);
+
+      addRemoveLayout.add(addStop.getLayout());
+      var removeStop = Button.create(["PaneButton", "UiButton"], { id:MiniButton.REMOVE }, onRemoveStop);
+      //var removeStop = Button.BMPButton(Skin.getButtonBitmapData(MiniButton.REMOVE,0),onRemoveStop);
       addChild(removeStop);
-      removeStop.getItemLayout().setBorders(5,5,5,5);
-      addRemoveLayout.add(removeStop.getLayout().setBorders(5,5,5,5));
+      //removeStop.getItemLayout().setBorders(5,5,5,5);
+      addRemoveLayout.add(removeStop.getLayout());
       stopControls.add(addRemoveLayout);
       stopControls.setSpacing(4,4);
 

@@ -15,6 +15,7 @@ import gm2d.skin.Renderer;
 class Button extends Control
 {
    var mDisplayObj : DisplayObject;
+   var mStateBitmap : Bitmap;
 
    public var isToggle:Bool;
 	public var noFocus:Bool;
@@ -35,7 +36,6 @@ class Button extends Control
       mCallback = inOnClick;
       mDisplayObj = inObject;
 
-      addChild(mDisplayObj);
       mCurrentDX = mCurrentDY = 0;
       noFocus = false;
       mouseChildren = false;
@@ -44,14 +44,38 @@ class Button extends Control
       addEventListener(MouseEvent.MOUSE_DOWN, onDown );
       addEventListener(MouseEvent.MOUSE_UP, onUp );
 
-      var layout:Layout = ( Std.is(mDisplayObj,TextField)) ?
+      if (mDisplayObj==null)
+      {
+         var bmp = mRenderer.getBitmap(name,0);
+         if (bmp!=null)
+            mDisplayObj = mStateBitmap = new Bitmap(bmp);
+      }
+
+      if (mDisplayObj!=null)
+      {
+         addChild(mDisplayObj);
+         var layout:Layout = ( Std.is(mDisplayObj,TextField)) ?
            new TextLayout(cast mDisplayObj)  : 
            new DisplayLayout(mDisplayObj) ;
-      layout.mAlign = Layout.AlignCenterX | Layout.AlignCenterY | Layout.AlignPixel;
-      layout.mDebugCol = 0x00ff00;
-      setItemLayout(layout);
+         layout.mAlign = Layout.AlignCenterX | Layout.AlignCenterY | Layout.AlignPixel;
+         layout.mDebugCol = 0x00ff00;
+         setItemLayout(layout);
+      }
 
       build();
+   }
+
+   override public function redraw()
+   {
+      if (mStateBitmap!=null)
+         mStateBitmap.bitmapData = mRenderer.getBitmap(name,state);
+      super.redraw();
+   }
+
+
+   public static function create(?inLineage:Array<String>, ?inAttribs:Dynamic,?inOnClick:Void->Void)
+   {
+      return new Button(null,inOnClick,inLineage,inAttribs);
    }
 
    function onClick(e:MouseEvent)
@@ -84,7 +108,7 @@ class Button extends Control
 
    override public function getLabel() : TextField
    { 
-      if (Std.is(mDisplayObj,TextField))
+      if (mDisplayObj!=null && Std.is(mDisplayObj,TextField))
          return cast mDisplayObj;
       return null;
    }
@@ -112,17 +136,20 @@ class Button extends Control
       {
          state = state ^ Widget.DOWN;
 
-			var dx = inDown ? mDownDX : 0;
-			var dy = inDown ? mDownDY : 0;
-         if (dx!=mCurrentDX)
+         if (mDisplayObj!=null)
          {
-			   mDisplayObj.x += dx-mCurrentDX;
-				mCurrentDX = dx;
-         }
-         if (dy!=mCurrentDY)
-         {
-			   mDisplayObj.y += dy-mCurrentDY;
-				mCurrentDY = dy;
+			   var dx = inDown ? mDownDX : 0;
+			   var dy = inDown ? mDownDY : 0;
+            if (dx!=mCurrentDX)
+            {
+			      mDisplayObj.x += dx-mCurrentDX;
+				   mCurrentDX = dx;
+            }
+            if (dy!=mCurrentDY)
+            {
+			      mDisplayObj.y += dy-mCurrentDY;
+				   mCurrentDY = dy;
+            }
          }
 
          if (mRenderer!=null && mRect!=null)
