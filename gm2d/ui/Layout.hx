@@ -168,6 +168,10 @@ class Layout
       return new Size(w,h);
    }
 
+   public function align(x:Float, y:Float, w:Float, h:Float)
+   {
+      alignChild(this, x,y,w,h);
+   }
 
    public function alignChild(child:Layout, x:Float, y:Float, w:Float, h:Float)
    {

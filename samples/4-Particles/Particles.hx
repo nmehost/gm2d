@@ -8,7 +8,7 @@ import gm2d.Game;
 import nme.events.Event;
 import gm2d.Screen;
 
-import gm2d.ui.Accelerometer;
+import nme.ui.Accelerometer;
 
 import nme.ui.Keyboard;
 
@@ -114,7 +114,7 @@ class Particles extends Screen
    {
       var alive = new Array<Particle>();
 
-      var acc = gm2d.ui.Accelerometer.get();
+      var acc = Accelerometer.get();
       if (acc!=null)
       {
          Particle.GRAVITY_X = acc.y*9.8;

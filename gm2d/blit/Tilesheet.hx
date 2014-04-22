@@ -142,6 +142,13 @@ class Tilesheet
       return result;
    }
 
+   #if !flash
+   public function drawTiles(graphics:nme.display.Graphics, tileData:Array<Float>, smooth:Bool = false, flags:Int = 0):Void 
+   {
+      graphics.drawTiles(gm2dSheet, tileData, smooth, flags);
+   }
+   #end
+
 	inline public function get_width() : Int { return gm2dData.width; }
 	inline public function get_height() : Int { return gm2dData.height; }
 
