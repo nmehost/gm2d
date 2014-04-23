@@ -66,6 +66,11 @@ class Layout
       mAlign = inAlign;
       return this;
    }
+   public function stretch()
+   {
+      mAlign = Layout.AlignStretch;
+      return this;
+   }
 
    public function pixelAlign()
    {

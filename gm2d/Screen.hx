@@ -2,6 +2,7 @@ package gm2d;
 
 import gm2d.Game;
 import gm2d.ui.Dialog;
+import gm2d.ui.Widget;
 import nme.events.MouseEvent;
 import nme.events.KeyboardEvent;
 import nme.ui.Keyboard;
@@ -12,13 +13,13 @@ class Screen extends gm2d.ui.Window
    var mPaused:Bool;
    public var timeline(default,null):Timeline;
 
-   public function new()
+   public function new(?inLineage:Array<String>, ?inAttribs:Dynamic )
    {
 	   Game.create();
       mPaused = false;
       name = "Screen";
       timeline = new Timeline();
-      super();
+      super(Widget.addLine(inLineage,"Screen"),inAttribs);
    }
 
    public function makeCurrent()
@@ -47,7 +48,7 @@ class Screen extends gm2d.ui.Window
    public function wantsCursor() : Bool { return true; }
    public function goBack() : Bool { Game.close(); return true; }
 
-   public function getScaleMode() : ScreenScaleMode { return ScreenScaleMode.CENTER_SCALED; }
+   public function getScaleMode() : ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
 
    function setScreen(inName:String) { return Game.setScreen(inName); }
    function showDialog(inName:String) { Game.showDialog(inName); }

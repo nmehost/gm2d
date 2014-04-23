@@ -90,6 +90,7 @@ class ListControl extends ScrollWidget
       onSelect = null;
       mColAlign = [];
       mMultiSelect = null;
+      setItemLayout( new Layout().setMinSize(inWidth,inItemHeight).stretch() );
       setScrollRange(inWidth,inWidth,inItemHeight,inItemHeight);
       build();
    }
@@ -355,13 +356,14 @@ class ListControl extends ScrollWidget
    public static inline var SELECT_TOGGLE      = 0x02;
    public static inline var SELECT_NO_CALLBACK = 0x04;
    public static inline var SELECT_SHOW_ITEM   = 0x08;
+   public static inline var SELECT_FROM_CLICK  = 0x10;
 
    public function select(inIndex:Int,inFlags:Int=0)
    {
       var i = inIndex < 0 ? 0 : inIndex>=mRows.length ? mRows.length-1 : inIndex;
       if (i>=0)
       {
-         if (mSelected!=i || mMultiSelect!=null || (inFlags!=0))
+         if (mSelected!=i || mMultiSelect!=null || ((inFlags & ~SELECT_NO_CALLBACK)!=0))
          {
             var toggle = (inFlags&SELECT_TOGGLE)!=0;
             var range = (inFlags&SELECT_RANGE)!=0;
@@ -474,7 +476,7 @@ class ListControl extends ScrollWidget
 
    override function doClick(inX:Float, inY:Float,ev:MouseEvent)
    {
-      var flags = 0;
+      var flags = SELECT_FROM_CLICK;
       if (onMultiSelect!=null)
       {
          if (ev.ctrlKey)
@@ -520,7 +522,7 @@ class ListControl extends ScrollWidget
 
    override public function onLayout(inX:Float, inY:Float, inW:Float, inH:Float)
    {
-      // trace('ListControl setRect  $inX, $inY, $inW, $inH' );
+      //trace('ListControl setRect  $inX, $inY, $inW, $inH' );
       mRect = new Rectangle(inX-x,inY-y,inW,inH);
       redraw();
    }

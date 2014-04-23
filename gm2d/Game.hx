@@ -141,6 +141,8 @@ class Game
          case 270: parent.rotation=270; parent.x = 0; parent.y=sw;
          default: throw("Unsupported orientation :" + rotation);
       }
+
+      layoutScreen();
    }
 
    public static function isKeyDown(inCode:Int) { return mKeyDown[inCode]; } 
@@ -246,6 +248,20 @@ class Game
       }
    }
 
+   public static function layoutScreen()
+   {
+      if (mCurrentScreen!=null)
+      {
+         var layout = mCurrentScreen.getLayout();
+         if (layout!=null)
+         {
+            var stage = nme.Lib.current.stage;
+            layout.setRect(0,0,stage.stageWidth, stage.stageHeight);
+         }
+      }
+   }
+ 
+
 
 
    static public function setCurrentScreen(inScreen:Screen)
@@ -269,7 +285,7 @@ class Game
            (mode==ScreenScaleMode.PIXEL_PERFECT || mode==ScreenScaleMode.TOPLEFT_UNSCALED) ?
            StageScaleMode.NO_SCALE  : StageScaleMode.SHOW_ALL;
            */
-         
+        
          mScreenParent.addChild(mCurrentScreen);
          mCurrentScreen.onActivate(true);
          updateScale();
@@ -282,6 +298,7 @@ class Game
                nme.ui.Mouse.hide();
          }
 
+         layoutScreen();
          mCurrentScreen.setRunning(mCurrentDialog==null);
       }
 
