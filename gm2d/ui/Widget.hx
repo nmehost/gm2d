@@ -63,11 +63,23 @@ class Widget extends Sprite
    {
       return inLineage==null ? inClasses : inLineage.concat(inClasses);
    }
+   public static function addAttribs(inAttribs0:Dynamic,inAttribs1:Dynamic)
+   {
+      if (inAttribs0==null)
+         return inAttribs1;
+      var result:Dynamic = [];
+      for(field in Reflect.fields(inAttribs0))
+         Reflect.setField(result, field, Reflect.field(inAttribs0,field));
+      for(field in Reflect.fields(inAttribs1))
+         Reflect.setField(result, field, Reflect.field(inAttribs0,field));
 
+      return result;
+   }
+ 
 
    function setItemLayout(inLayout:Layout)
    {
-      mItemLayout = inLayout;
+      mItemLayout = inLayout.stretch();
       mLayout = new BorderLayout(mItemLayout,true);
       mLayout.onLayout = onLayout;
       return mLayout;

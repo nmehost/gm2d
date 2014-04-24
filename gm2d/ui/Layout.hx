@@ -274,7 +274,8 @@ class BorderLayout extends Layout
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
-      alignChild(mBase, inX*positionMask+mBLeft, inY*positionMask+mBTop,
+      // trace('BorderLayout setRect $inX,$inY $inW,$inH $mBLeft $mBTop / $positionMask');
+      alignChild(mBase, (inX+mBLeft)*positionMask, (inY+mBTop)*positionMask,
                          inW-mBLeft-mBRight, inH-mBTop-mBBottom );
       fireLayout(inX,inY,inW,inH);
    }

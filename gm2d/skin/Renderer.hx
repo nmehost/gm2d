@@ -32,14 +32,16 @@ class Renderer
    public var padding:Rectangle;
    public var margin:Rectangle;
    public var bitmapStyle:BitmapStyle;
+   public var map:Map<String,Dynamic>;
 
 
-   public function new(?map:Map<String,Dynamic>)
+   public function new(?inMap:Map<String,Dynamic>)
    {
       style = Style.StyleNone;
       textFormat = Skin.getTextFormat();
       offset = new Point(0,0);
       align = null;
+      map = inMap;
 
       if (map!=null)
       {
@@ -50,9 +52,25 @@ class Renderer
          if (map.exists("line"))
             lineStyle = map.get("line");
          if (map.exists("padding"))
-            padding = map.get("padding");
+         {
+            var p = map.get("padding");
+            if (p==null)
+               padding = null;
+            else if (Std.is(p,Rectangle))
+               padding = p;
+            else
+               padding = new Rectangle(p,p,p*2,p*2);
+         }
          if (map.exists("margin"))
-            margin = map.get("margin");
+         {
+            var m = map.get("margin");
+            if (m==null)
+               margin = null;
+            else if (Std.is(m,Rectangle))
+               margin = m;
+            else
+               margin = new Rectangle(m,m,m*2,m*2);
+         }
          if (map.exists("textFormat"))
             textFormat = map.get("textFormat");
          if (map.exists("minSize"))
@@ -89,6 +107,12 @@ class Renderer
       }
    }
 
+   public function getDefaultFloat(inName:String, inDefault:Float):Float
+   {
+      if (map==null || !map.exists(inName))
+         return inDefault;
+      return map.get(inName);
+   }
 
 
    function setFill(inGraphics:Graphics,rect:Rectangle):Bool

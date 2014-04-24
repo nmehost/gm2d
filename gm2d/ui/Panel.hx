@@ -22,16 +22,18 @@ class Panel extends Widget
    var mTitle:String;
    var mPane:Pane;
 
-   public function new(inTitle:String = "", ?inLineage:Array<String>)
+   public function new(inTitle:String = "", ?inLineage:Array<String>, ?inAttribs:Dynamic)
    {
-      super(Widget.addLine(inLineage,"Panel"),{title:inTitle});
+      if (inTitle!="")
+         inAttribs = Widget.addAttribs(inAttribs, {title:inTitle});
+      super(Widget.addLine(inLineage,"Panel"),inAttribs);
 
       mButtons = [];
       mLayoutDirty = true;
       mTitle = inTitle;
 
       mGridLayout = new GridLayout(1,"vertical");
-      mGridLayout.setSpacing(0,20);
+      mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",20) );
       mGridLayout.setAlignment(Layout.AlignStretch);
       mItemGrid = new GridLayout(2,"items");
       mButtonLayout = new GridLayout(null,"buttons",0);

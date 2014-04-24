@@ -128,6 +128,9 @@ class Skin
       addAttribs("SimpleButton", Widget.DOWN, {
           line: LineBorder,
         });
+      addAttribs("TextLabel", null, {
+          align: Layout.AlignLeft,
+        });
       addAttribs("Dock", null, {
           style: StyleRect,
           fill: FillMedium,
