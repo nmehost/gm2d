@@ -13,6 +13,7 @@ class TextInput extends TextLabel
    public function new(inVal="", ?onUpdate:String->Void,?inLineage:Array<String>)
    {
        super(inVal,Widget.addLine(inLineage,"TextInput"));
+       wantFocus = true;
 
        if (onUpdate!=null)
        {

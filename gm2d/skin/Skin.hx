@@ -112,6 +112,7 @@ class Skin
           style: StyleRoundRect,
           fill: FillLight,
           line: LineBorder,
+          textAlign: "center",
           padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
           offset: new Point(1,1),
         });
@@ -130,6 +131,16 @@ class Skin
         });
       addAttribs("TextLabel", null, {
           align: Layout.AlignLeft,
+        });
+      addAttribs("PanelText", null, {
+          align: Layout.AlignRight,
+        });
+
+      addAttribs("TextInput", null, {
+          style: StyleRect,
+          align: Layout.AlignLeft,
+          line: LineBorder,
+          fill: FillSolid(0xffffff,1),
         });
       addAttribs("Dock", null, {
           style: StyleRect,

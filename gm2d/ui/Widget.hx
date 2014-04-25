@@ -24,8 +24,11 @@ class Widget extends Sprite
 
    public var state(default,set) : Int;
    public var disabled(get,set) : Bool;
+   public var enabled(get,set) : Bool;
    public var down(get,set):Bool;
    public var isCurrent(get,set):Bool;
+
+   public var text(get_text,set_text):String;
 
 
    public var wantFocus:Bool;
@@ -95,7 +98,40 @@ class Widget extends Sprite
          setItemLayout( new Layout() );
       }
       if (mRenderer!=null)
+      {
          mRenderer.layoutWidget(this);
+
+         var tf = getLabel();
+         if (tf!=null)
+         {
+            var alternate = mRenderer.getDynamic("alternateText");
+            var textLayout = alternate==null ? null : mItemLayout.findTextLayout();
+            if (textLayout!=null)
+            {
+               var t0 = tf.text;
+               var w = tf.width;
+               var rebuild = false;
+
+               var strs:Array<String> = Std.is(alternate,Array) ? alternate :
+                        [ Std.string(alternate) ];
+               for(str in strs)
+               {
+                  tf.text = str;
+                  w = tf.width;
+                  if (w>textLayout.minWidth)
+                  {
+                     rebuild = true;
+                     textLayout.setMinWidth(w);
+                  }
+               }
+
+               tf.text = t0;
+               if (rebuild)
+                  mRenderer.layoutWidget(this);
+            }
+         }
+      }
+
       var size = mLayout.getBestSize();
       mLayout.setRect(0,0,size.x,size.y);
    }
@@ -109,6 +145,22 @@ class Widget extends Sprite
          redraw();
       }
       return inState;
+   }
+
+   public function set_text(inText:String) : String
+   {
+      var label = getLabel();
+      if (label!=null)
+         label.text = inText;
+      return inText;
+   }
+
+   public function get_text() : String
+   {
+      var label = getLabel();
+      if (label!=null)
+         return label.text;
+      return null;
    }
 
    public function onLayout(inX:Float, inY:Float, inW:Float, inH:Float)
@@ -177,6 +229,16 @@ class Widget extends Sprite
 	   var pos = localToGlobal( new Point(inX,inY) );
 		gm2d.Game.popup(inPopup,pos.x,pos.y,inShadow);
    }
+
+   public function get_enabled() return (state & DISABLED) == 0;
+   public function set_enabled(inVal:Bool)
+   {
+      var setDisabled = !inVal;
+      if (disabled != setDisabled)
+         state = state ^ DISABLED;
+      return inVal;
+   }
+
 
    public function get_disabled() return (state & DISABLED) > 0;
    public function set_disabled(inVal:Bool)

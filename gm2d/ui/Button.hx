@@ -7,6 +7,7 @@ import nme.display.DisplayObjectContainer;
 import nme.display.Sprite;
 import nme.events.MouseEvent;
 import nme.text.TextField;
+import nme.text.TextFieldAutoSize;
 import nme.geom.Rectangle;
 import gm2d.ui.Layout;
 import gm2d.skin.Skin;
@@ -51,18 +52,27 @@ class Button extends Control
             mDisplayObj = mStateBitmap = new Bitmap(bmp);
       }
 
+      var tf:TextField = null;
+      var layout:Layout = null;
       if (mDisplayObj!=null)
       {
          addChild(mDisplayObj);
-         var layout:Layout = ( Std.is(mDisplayObj,TextField)) ?
-           new TextLayout(cast mDisplayObj)  : 
-           new DisplayLayout(mDisplayObj) ;
+         if ( Std.is(mDisplayObj,TextField))
+         {
+            var tf = cast mDisplayObj;
+            layout = new AutoTextLayout(tf);
+         }
+         else
+         {
+            layout = new DisplayLayout(mDisplayObj);
+         }
          layout.mAlign = Layout.AlignCenterX | Layout.AlignCenterY | Layout.AlignPixel;
          layout.mDebugCol = 0x00ff00;
          setItemLayout(layout);
       }
 
       build();
+
    }
 
    override public function redraw()
@@ -112,6 +122,9 @@ class Button extends Control
          return cast mDisplayObj;
       return null;
    }
+
+
+
 
 /*
    public function setBGStates(inUpBmp:BitmapData, inDownBmp:BitmapData,
@@ -179,14 +192,16 @@ class Button extends Control
    }
 
 
-   public static function TextButton(inText:String,inOnClick:Void->Void,?inLineage:Array<String>)
+   public static function TextButton(inText:String,inOnClick:Void->Void,?inLineage:Array<String>,
+       ?inArrtibs:Dynamic)
    {
-      var renderer = Skin.renderer(["ButtonText","StaticText","Text"]);
+      var renderer = Skin.renderer(["ButtonText","Button","StaticText","Text"]);
       var label = new TextField();
-      renderer.renderLabel(label);
+      //label.align = "center";
       label.text = inText;
+      renderer.renderLabel(label);
       label.selectable = false;
-      var result =  new Button(label,inOnClick,Widget.addLine(inLineage,"TextButton"));
+      var result =  new Button(label,inOnClick,Widget.addLine(inLineage,"TextButton"),inArrtibs);
       return result;
    }
 
@@ -197,9 +212,10 @@ class Button extends Control
       sprite.addChild(bmp);
       var label = new TextField();
       var renderer = Skin.renderer(["ButtonText","StaticText","Text"]);
-      renderer.renderLabel(label);
       label.text = inText;
+      renderer.renderLabel(label);
       sprite.addChild(label);
+      label.autoSize = TextFieldAutoSize.LEFT;
       label.x = bmp.width;
       label.y = (bmp.height - label.height)/2;
       var result = new Button(sprite,inOnClick,Widget.addLine(inLineage,"BitmapButton"));

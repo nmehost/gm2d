@@ -85,6 +85,10 @@ class Renderer
             textFormat.color = map.get("fontColor");
          if (map.exists("fontSize"))
             textFormat.size = map.get("fontSize");
+         if (map.exists("textAlign"))
+            textFormat.align = map.get("textAlign");
+         if (map.exists("bold"))
+            textFormat.bold= map.get("bold");
          if (map.exists("style"))
              style = map.get("style");
          if (map.exists("bitmap"))
@@ -108,6 +112,13 @@ class Renderer
    }
 
    public function getDefaultFloat(inName:String, inDefault:Float):Float
+   {
+      if (map==null || !map.exists(inName))
+         return inDefault;
+      return map.get(inName);
+   }
+
+   public function getDynamic(inName:String, ?inDefault:Dynamic):Dynamic
    {
       if (map==null || !map.exists(inName))
          return inDefault;
@@ -236,9 +247,11 @@ class Renderer
    public function renderLabel(label:TextField)
    {
       label.defaultTextFormat = textFormat;
+      label.setTextFormat(textFormat);
       if (label.type != nme.text.TextFieldType.INPUT)
       {
-         label.autoSize = TextFieldAutoSize.LEFT;
+         //label.autoSize = TextFieldAutoSize.LEFT;
+         label.autoSize = TextFieldAutoSize.NONE;
          label.selectable = false;
       }
    }

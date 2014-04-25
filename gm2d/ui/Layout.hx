@@ -4,6 +4,7 @@ import nme.display.DisplayObject;
 import nme.display.Graphics;
 import nme.display.Shape;
 import nme.text.TextField;
+import nme.text.TextFieldAutoSize;
 import nme.geom.Point;
 
 // --- Layout -------------------------------------------
@@ -95,6 +96,21 @@ class Layout
    {
       minHeight = inHeight;
       return this;
+   }
+
+   public function findTextLayout() : TextLayout  { return null; }
+   public static function findTextLayoutInList(inLayouts:LayoutList) : TextLayout
+   {
+      for(layout in inLayouts)
+      {
+        if (layout!=null)
+        {
+           var result = layout.findTextLayout();
+           if (result!=null)
+              return result;
+        }
+      }
+      return null;
    }
 
 
@@ -265,6 +281,9 @@ class BorderLayout extends Layout
       positionMask = inParentHasOffset? 0 : 1;
       super();
    }
+
+   override public function findTextLayout() : TextLayout  { return mBase.findTextLayout(); }
+
 
    public override function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void
    {
@@ -480,6 +499,8 @@ class TextLayout extends DisplayLayout
       mDebugCol = 0x00ff00;
    }
 
+   override public function findTextLayout() : TextLayout  { return this; }
+
    override public function renderDebug(pos:Point, w:Float, h:Float)
    {
      var text:TextField = cast mObj;
@@ -495,8 +516,20 @@ class TextLayout extends DisplayLayout
 
       text.x = x;// - 2;
       text.y = y;// - 2;
+      text.autoSize = TextFieldAutoSize.NONE;
       text.width = w;
       text.height = h;
+   }
+}
+
+class AutoTextLayout extends TextLayout
+{
+   public function new(inObj:TextField,inAlign:Int = 0x24, // AlignCenterX|AlignCenterY
+           ?inPrefWidth:Null<Float>,?inPrefHeight:Null<Float>)
+   {
+      var old = inObj.autoSize;
+      inObj.autoSize = TextFieldAutoSize.LEFT;
+      super(inObj,inAlign,inPrefWidth,inPrefHeight);
    }
 }
 
@@ -517,6 +550,12 @@ class StackLayout extends Layout
       offsetLeft = offsetRight = offsetTop = offsetBottom = 0;
       super();
    }
+
+   override public function findTextLayout() : TextLayout
+   {
+      return Layout.findTextLayoutInList(mChildren);
+   }
+
 
    public override function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void
    {
@@ -919,6 +958,20 @@ class GridLayout extends Layout
      }
    }
 
+   override public function findTextLayout() : TextLayout
+   {
+      for(row in mRowInfo)
+      {
+         if (row==null)
+             continue;
+         var result = Layout.findTextLayoutInList(row.mCols);
+         if (result!=null)
+            return result;
+      }
+      return null;
+   }
+
+
    public override function getBestWidth(?inHeight:Null<Float>) : Float
    {
       BestColWidths();
@@ -1050,6 +1103,12 @@ class FlowLayout extends Layout
       spaceX = spaceY = 0.0;
       setAlignment(Layout.AlignStretch);
    }
+
+   override public function findTextLayout() : TextLayout
+   {
+      return Layout.findTextLayoutInList(mChildren);
+   }
+
 
    public function setRowAlign(inAlign:Int)
    {

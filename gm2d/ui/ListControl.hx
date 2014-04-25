@@ -520,13 +520,16 @@ class ListControl extends ScrollWidget
       }
    }
 
+/*
    override public function onLayout(inX:Float, inY:Float, inW:Float, inH:Float)
    {
-      //trace('ListControl setRect  $inX, $inY, $inW, $inH' );
+      trace('ListControl setRect  $inX, $inY, $inW, $inH' );
+      x = inX;
+      y = inY;
       mRect = new Rectangle(inX-x,inY-y,inW,inH);
       redraw();
    }
-
+*/
 
 
    override public function redraw()

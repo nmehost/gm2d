@@ -29,7 +29,7 @@ class ComboList extends Window
       mList.scrollRect = null;
       mList.onSelect = onSelect;
       mList.onClick = function(_)  gm2d.Game.closePopup();
-      setItemLayout(mList.getLayout().stretch());
+      setItemLayout(mList.getLayout().setMinWidth(inW).stretch());
    }
 
    public function getControlHeight() { return mList.getControlHeight(); }
@@ -38,13 +38,13 @@ class ComboList extends Window
    {
       if (mList.scrollRect!=null)
          return mList.scrollRect.width;
-      return width;
+      return mLayout.getBestWidth();
    }
    override public function getWindowHeight()
    {
       if (mList.scrollRect!=null)
          return mList.scrollRect.height;
-      return height;
+      return mLayout.getBestHeight();
    }
 
    override function windowMouseMove(inEvent:MouseEvent)
@@ -141,7 +141,8 @@ class ComboBox extends TextInput
 
    function onClick(event:MouseEvent)
    {
-      if (event.target==this)
+      // TODO - position
+      if (event.target==this || event.target==mChrome)
           doPopup();
    }
 
@@ -168,9 +169,10 @@ class ComboBox extends TextInput
 
    function doPopup()
    {
+      var w = mRect.width;
       var pop = mDisplay != null ?
-            new ComboList(this, mRect.width, mDisplay,selectOnMove) :
-            new ComboList(this, mRect.width, mOptions,selectOnMove);
+            new ComboList(this, w, mDisplay,selectOnMove) :
+            new ComboList(this, w, mOptions,selectOnMove);
 
       var pos = this.localToGlobal( new nme.geom.Point(0,0) );
       var h = pop.getControlHeight();

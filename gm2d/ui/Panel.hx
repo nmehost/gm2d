@@ -6,6 +6,7 @@ import nme.display.Sprite;
 import nme.text.TextField;
 import nme.text.TextFormat;
 import gm2d.ui.Layout;
+import gm2d.ui.TextLabel;
 import gm2d.skin.Renderer;
 import gm2d.skin.Skin;
 
@@ -17,7 +18,7 @@ class Panel extends Widget
    var mItemGrid:GridLayout;
    var mButtonLayout:Layout;
    var mLayoutDirty:Bool;
-   var mLabelLookup:Hash<TextField>;
+   var mLabelLookup:Hash<TextLabel>;
    var mButtons:Array<Button>;
    var mTitle:String;
    var mPane:Pane;
@@ -107,7 +108,7 @@ class Panel extends Widget
    {
       mLayoutDirty = true;
       addChild(inItem);
-      mItemGrid.add( inItem.getLayout() );
+      mItemGrid.add( inItem.getLayout().stretch() );
    }
    public function addButton(inButton:gm2d.ui.Button)
    {
@@ -162,20 +163,14 @@ class Panel extends Widget
          return;
       }
       mLayoutDirty = true;
-      var label = new TextField();
-      mRenderer.renderLabel(label);
-      label.text = inText;
+      var label = new TextLabel(inText, ["Panel:" + mTitle, "PanelText"]);
       addChild(label);
-      var layout = new TextLayout(label);
-      if (inAlign!=null)
-         layout.mAlign = inAlign;
-      else
-         layout.mAlign = Layout.AlignRight | Layout.AlignCenterY;
-      mItemGrid.add( layout );
+      mItemGrid.add( label.getLayout() );
 
       if (inName!=null)
       {
-          if (mLabelLookup!=null) mLabelLookup = new Hash<TextField>();
+          if (mLabelLookup!=null)
+             mLabelLookup = new Hash<TextLabel>();
           mLabelLookup.set(inName,label);
       }
    }
