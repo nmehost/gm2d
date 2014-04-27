@@ -132,7 +132,7 @@ class GradientControl extends Widget
       position.setTextWidth(64);
       stopControls.add(position.getLayout());
 
-      var addRemoveLayout = new GridLayout(2,0);
+      var addRemoveLayout = new GridLayout(2);
       addRemoveLayout.setSpacing(0,0);
       var addStop = Button.create(["PaneButton", "UiButton"], { id:MiniButton.ADD }, onAddStop);
       addChild(addStop);
@@ -148,7 +148,7 @@ class GradientControl extends Widget
       stopControls.add(addRemoveLayout);
       stopControls.setSpacing(4,4);
 
-      var controls = new GridLayout(2,0);
+      var controls = new GridLayout(2);
       controls.add(stopControls);
       controls.add(gradLayout);
       controls.setColStretch(1,1);
@@ -166,7 +166,7 @@ class GradientControl extends Widget
 
       if (!createdBmps)
          createBmps();
-      var properties = new GridLayout(4,0);
+      var properties = new GridLayout(4);
 
       properties.add( addLabel("Spread") );
       spread = ChoiceButtons.create( onSpread, Gradient.spreads, bitmaps );
@@ -190,7 +190,7 @@ class GradientControl extends Widget
       addChild(focal);
       properties.add( focal.getLayout() );
 
-      var vstack = new GridLayout(1,0);
+      var vstack = new VerticalLayout();
       vstack.add(swatches);
       vstack.add(controls);
       vstack.add(properties);

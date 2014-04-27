@@ -31,6 +31,7 @@ class ListControl extends ScrollWidget
 {
    var mRows:Array<ListControlRow>;
    var mRowPos:Array<Float>;
+   var mStretchCol:Null<Int>;
    var mOrigItemHeight:Float;
    var mItemHeight:Float;
    var mSelected :Int;
@@ -65,6 +66,7 @@ class ListControl extends ScrollWidget
       super(Widget.addLine(inLineage,"List"));
       selectAlpha = 1.0;
       evenAlpha = 1.0;
+      mStretchCol = null;
       oddAlpha = 1.0;
       selectColour = 0xd0d0f0;
       evenColour = 0xffffff;
@@ -118,6 +120,12 @@ class ListControl extends ScrollWidget
          if (mColAlign.length==i)
             mColAlign.push(Layout.AlignCenterY | Layout.AlignLeft);
       mColAlign[inIdx] = inAlign;
+   }
+
+   public function setStretchCol(inCol:Null<Int>)
+   {
+      mStretchCol = inCol;
+      recalcPos();
    }
 
    public function deselect()
@@ -176,6 +184,22 @@ class ListControl extends ScrollWidget
          mColPos[i] = pos;
          #if neko if (mColWidths[i]==null) mColWidths[i] = 0; #end
          pos += mColWidths[i] + mXGap;
+      }
+      if (mStretchCol!=null && mStretchCol<mColWidths.length && mStretchCol>=0)
+      {
+         var w = mRect.width;
+         if (pos!=w)
+         {
+            //trace("List adjust " + (w-pos) );
+            mColWidths[mStretchCol] += w-pos;
+            trace(mColWidths);
+            pos = mXStart;
+            for(i in 0...mColWidths.length)
+            {
+               mColPos[i] = pos;
+               pos += mColWidths[i] + mXGap;
+            }
+         }
       }
       mColPos.push(pos);
 
@@ -520,20 +544,16 @@ class ListControl extends ScrollWidget
       }
    }
 
-/*
    override public function onLayout(inX:Float, inY:Float, inW:Float, inH:Float)
    {
-      trace('ListControl setRect  $inX, $inY, $inW, $inH' );
-      x = inX;
-      y = inY;
-      mRect = new Rectangle(inX-x,inY-y,inW,inH);
-      redraw();
+      recalcPos();
+      super.onLayout(inX,inY,inW,inH);
    }
-*/
 
 
    override public function redraw()
    {
+      super.redraw();
       for(row_idx in mChildrenClean...mRows.length)
       {
          var row = mRows[row_idx];

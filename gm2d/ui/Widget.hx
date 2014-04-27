@@ -99,8 +99,6 @@ class Widget extends Sprite
       }
       if (mRenderer!=null)
       {
-         mRenderer.layoutWidget(this);
-
          var tf = getLabel();
          if (tf!=null)
          {
@@ -108,9 +106,10 @@ class Widget extends Sprite
             var textLayout = alternate==null ? null : mItemLayout.findTextLayout();
             if (textLayout!=null)
             {
+               mRenderer.renderLabel(tf);
+
                var t0 = tf.text;
                var w = tf.width;
-               var rebuild = false;
 
                var strs:Array<String> = Std.is(alternate,Array) ? alternate :
                         [ Std.string(alternate) ];
@@ -119,17 +118,13 @@ class Widget extends Sprite
                   tf.text = str;
                   w = tf.width;
                   if (w>textLayout.minWidth)
-                  {
-                     rebuild = true;
                      textLayout.setMinWidth(w);
-                  }
                }
-
                tf.text = t0;
-               if (rebuild)
-                  mRenderer.layoutWidget(this);
             }
          }
+
+         mRenderer.layoutWidget(this);
       }
 
       var size = mLayout.getBestSize();

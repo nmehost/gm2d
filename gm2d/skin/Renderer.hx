@@ -118,6 +118,14 @@ class Renderer
       return map.get(inName);
    }
 
+   public function getDefaultBool(inName:String, inDefault:Bool):Bool
+   {
+      if (map==null || !map.exists(inName))
+         return inDefault;
+      return map.get(inName);
+   }
+
+
    public function getDynamic(inName:String, ?inDefault:Dynamic):Dynamic
    {
       if (map==null || !map.exists(inName))
@@ -149,6 +157,9 @@ class Renderer
 
              case FillStyle.FillSolid(rgb,a):
                 inGraphics.beginFill(rgb,a);
+
+             case FillStyle.FillTransparent:
+                inGraphics.beginFill(0,0);
 
              case FillStyle.FillBitmap(bmp):
                 inGraphics.beginBitmapFill(bmp);

@@ -251,11 +251,11 @@ class BmpButton extends Button
    public var normal:BitmapData;
    public var disabledBmp:BitmapData;
 
-   public function new(inBitmapData:BitmapData,?inOnClick:Void->Void)
+   public function new(inBitmapData:BitmapData,?inOnClick:Void->Void,?inLineage:Array<String>,?inAttribs:Dynamic)
    {
       normal = inBitmapData;
       bitmap = new Bitmap(normal);
-      super(bitmap,inOnClick);
+      super(bitmap,inOnClick,inLineage,inAttribs);
    }
 
    public function createDisabled(inBmp:BitmapData)

@@ -9,6 +9,7 @@ enum FillStyle
    FillMedium;
    FillDark;
    FillDisabled;
+   FillTransparent;
    FillBitmap( bmp:BitmapData );
    FillSolid( rgb:Int, a:Float );
 }

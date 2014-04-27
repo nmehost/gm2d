@@ -153,6 +153,11 @@ class ComboBox extends TextInput
       return new DisplayLayout(bitmap);
    }
 
+   public function setOptions(inOptions:Array<String>,?inDisplay:Array<Dynamic>)
+   {
+      mOptions = inOptions==null ? null : inOptions.copy();
+      mDisplay = inDisplay==null ? null : inDisplay.copy();
+   }
 
 
    public function onListSelect(inIndex:Int)

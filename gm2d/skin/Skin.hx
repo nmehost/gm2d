@@ -161,6 +161,14 @@ class Skin
       addAttribs(null, Widget.DISABLED, {
           fill: FillDisabled,
         });
+      addAttribs(null, Widget.DISABLED, {
+          fill: FillDisabled,
+        });
+      addAttribs("NoChrome", null, {
+          fill: FillNone,
+          line: LineNone,
+          style: StyleNone,
+        });
 
 
       sliderRenderer = createSliderRenderer();

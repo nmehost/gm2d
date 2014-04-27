@@ -37,7 +37,11 @@ class Panel extends Widget
       mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",20) );
       mGridLayout.setAlignment(Layout.AlignStretch);
       mItemGrid = new GridLayout(2,"items");
-      mButtonLayout = new GridLayout(null,"buttons",0);
+      mItemGrid.setColStretch(1,1);
+      mItemGrid.setAlignment(Layout.AlignTop);
+      mItemGrid.setSpacing(mRenderer.getDefaultFloat("labelGap", 10),
+                           mRenderer.getDefaultFloat("lineGap",10) );
+      mButtonLayout = new GridLayout(null,"buttons");
       mButtonLayout.setSpacing(10,0);
       mButtonLayout.setBorders(0,10,0,10);
       mGridLayout.add(mItemGrid);

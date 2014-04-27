@@ -13,9 +13,9 @@ class TextLabel extends Control
    var mText:TextField;
    var mTextLayout:Layout;
 
-   public function new(inVal="",?inLineage:Array<String>)
+   public function new(inVal="",?inLineage:Array<String>, ?inAttribs:Dynamic )
    {
-       super(Widget.addLine(inLineage,"TextLabel"));
+       super(Widget.addLine(inLineage,"TextLabel"),inAttribs);
        wantFocus = false;
 
 
@@ -27,6 +27,8 @@ class TextLabel extends Control
 
        if (isInput())
           mText.type = nme.text.TextFieldType.INPUT;
+       if (mRenderer.getDefaultBool("multiline",false))
+          mText.multiline = true;
        mText.text = inVal;
        mRenderer.renderLabel(mText);
        mText.x = 0.5;
@@ -44,7 +46,7 @@ class TextLabel extends Control
           setItemLayout( mTextLayout );
        else
        {
-          var grid = new GridLayout(2,"grid",0);
+          var grid = new GridLayout(2,"grid");
           grid.setColStretch(0,1);
           grid.add( mTextLayout );
           grid.add( extra );

@@ -67,11 +67,11 @@ class FileOpenScreen extends Screen
       docIcon = new gm2d.icons.Document().toBitmap();
 
 
-      var top = new GridLayout(1,"vlayout",0);
+      var top = new VerticalLayout();
       top.add(StaticText.createLayout(inMessage,this));
       top.setColStretch(0,1);
 
-      var dir_buttons = new GridLayout(null,"dir button",0).setAlignment(Layout.AlignLeft);
+      var dir_buttons = new VerticalLayout().setName("dir button").setAlignment(Layout.AlignLeft);
       dir_buttons.setSpacing(2,10);
 
       var button = Button.TextButton("All", function() setDir(null) );
@@ -183,7 +183,7 @@ class FileOpenScreen extends Screen
 
       top.setRowStretch(isSave ? 3:2,1);
 
-      var buttons = new GridLayout(null,"buttons",1);
+      var buttons = new HorizontalLayout();
       buttons.setSpacing(10,0);
 
       if (isSave)

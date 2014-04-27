@@ -581,7 +581,7 @@ class ColourControl extends Widget
       updateLockout = 1;
       mMode = RGBHSV.HUE;
 
-      var all =  new GridLayout(3,"All",0);
+      var all =  new GridLayout(3,"All");
       all.setDebugOwner(this);
       all.add( createNumberBoxes() );
 
@@ -611,7 +611,7 @@ class ColourControl extends Widget
 
       all.setColStretch(2,1);
 
-      var swatches = new GridLayout(10,"Swatches",0);
+      var swatches = new GridLayout(10,"Swatches");
       swatches.setSpacing(4,4);
       for(i in 0...20)
       {
