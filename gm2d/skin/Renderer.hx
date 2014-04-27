@@ -29,6 +29,7 @@ class Renderer
    public var minSize:Size;
    public var minItemSize:Size;
    public var align:Null<Int>;
+   public var itemAlign:Null<Int>;
    public var padding:Rectangle;
    public var margin:Rectangle;
    public var bitmapStyle:BitmapStyle;
@@ -79,6 +80,8 @@ class Renderer
             minSize = map.get("minItemSize");
          if (map.exists("align"))
             align = map.get("align");
+         if (map.exists("itemAlign"))
+            itemAlign = map.get("itemAlign");
          if (map.exists("font"))
             textFormat.font = map.get("font");
          if (map.exists("fontColor"))
@@ -289,6 +292,8 @@ class Renderer
          if (padding!=null)
             layout.setBorders(padding.x, padding.y,
                padding.width-padding.x, padding.height-padding.y);
+         if (itemAlign!=null)
+            layout.setAlignment(itemAlign);
       }
 
    }

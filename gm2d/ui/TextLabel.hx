@@ -39,7 +39,8 @@ class TextLabel extends Control
        //mText.autoSize = nme.text.TextFieldAutoSize.LEFT;
        //trace(inVal + ":" + mText.width + "x" + mText.height);
 
-       mTextLayout = new AutoTextLayout(mText).setAlignment(Layout.AlignStretch);
+       mTextLayout = new AutoTextLayout(mText).setAlignment(Layout.AlignCenterY);
+       //trace("   => " + mTextLayout.getBestWidth() + "x" + mTextLayout.getBestHeight() );
 
        var extra = createExtraWidgetLayout();
        if (extra==null)
@@ -53,7 +54,7 @@ class TextLabel extends Control
           grid.setAlignment(Layout.AlignStretch  | Layout.AlignCenterY );
           grid.setSpacing(0,0);
           grid.mDbgObj = this;
-          setItemLayout(grid);
+          setItemLayout(grid).setAlignment(Layout.AlignCenterY);
        }
 
 

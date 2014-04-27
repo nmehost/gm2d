@@ -36,6 +36,7 @@ class GradSwatchBox extends Widget
       gfx.lineStyle(1,0x000000);
       gfx.drawRect(0.5,0.5,inSize,inSize);
       addEventListener(MouseEvent.MOUSE_DOWN, function(_) inControl.setGradient(inSwatch.gradient) );
+      setItemLayout( new Layout().setMinSize(inSize,inSize) );
    }
 }
 
@@ -130,7 +131,7 @@ class GradientControl extends Widget
       position = new NumericInput(0.0, false, 0, 1, 0.004, onPosition);
       addChild(position);
       position.setTextWidth(64);
-      stopControls.add(position.getLayout());
+      stopControls.add(position.getLayout().setAlignment(Layout.AlignCenterX));
 
       var addRemoveLayout = new GridLayout(2);
       addRemoveLayout.setSpacing(0,0);
@@ -190,12 +191,14 @@ class GradientControl extends Widget
       addChild(focal);
       properties.add( focal.getLayout() );
 
+      properties.setColStretch(0,0);
+      properties.setColStretch(1,0);
+
       var vstack = new VerticalLayout();
-      vstack.add(swatches);
-      vstack.add(controls);
-      vstack.add(properties);
-      vstack.setColStretch(0,1);
-      vstack.setAlignment(Layout.AlignStretch).setSpacing(0,4);
+      vstack.add(swatches.setAlignment(Layout.AlignCenterY | Layout.AlignCenterX));
+      vstack.add(controls.setAlignment(Layout.AlignCenterY));
+      vstack.add(properties.setAlignment(Layout.AlignCenterY));
+      vstack.setAlignment(Layout.AlignStretch).setSpacing(0,15);
       updateLockout = 0;
 
       setItemLayout(vstack);
@@ -347,11 +350,10 @@ class GradientControl extends Widget
 
    public function addLabel(inText:String)
    {
-      var label = new TextField();
-      mRenderer.renderLabel(label);
-      label.text = inText;
+      //var label = new TextField();
+      var label = new TextLabel(inText);
       addChild(label);
-      return new TextLayout(label);
+      return label.getLayout().setAlignment( Layout.AlignCenterY | Layout.AlignRight );
    }
 
    function onColourDialog(dialog:RGBDialog)

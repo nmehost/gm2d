@@ -113,6 +113,7 @@ class Skin
           fill: FillLight,
           line: LineBorder,
           textAlign: "center",
+          itemAlign: Layout.AlignCenter,
           padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
           offset: new Point(1,1),
         });

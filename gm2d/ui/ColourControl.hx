@@ -62,9 +62,8 @@ class ColourSlider extends Widget
       layout.minHeight = 20;
       layout.setBestSize(20,20);
       layout.setBorders(2,2,2,2);
-      layout.mAlign = inVertical ? Layout.AlignCenterX : Layout.AlignCenterY;
       setItemLayout(layout);
-      mLayout.mAlign = layout.mAlign;
+      getLayout().setAlignment(inVertical ? Layout.AlignCenterX : Layout.AlignCenterY);
       updateMarker();
       build();
    }
@@ -609,7 +608,12 @@ class ColourControl extends Widget
       addChild(alphaSlider);
       all.add(alphaSlider.getLayout().setBorders(0,0,6,0));
 
+      all.setSpacing(10,10);
+      all.setColStretch(0,0);
+      all.setColStretch(1,0);
       all.setColStretch(2,1);
+      all.setRowStretch(0,1);
+      all.setRowStretch(1,0);
 
       var swatches = new GridLayout(10,"Swatches");
       swatches.setSpacing(4,4);
