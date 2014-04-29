@@ -141,6 +141,11 @@ class Layout
       mBBottom = inY;
       return this;
    }
+   public function setIndent(inL:Float) : Layout
+   {
+      mBLeft = inL;
+      return this;
+   }
    public function setBorders(inL:Float,inT:Float,inR:Float,inB:Float) : Layout
    {
       mBLeft = inL;
@@ -358,6 +363,11 @@ class DisplayLayout extends Layout
    {
    }
 
+   public function getObject() : DisplayObject
+   {
+      return mObj;
+   }
+
    public function setOrigin(inX:Float,inY:Float) : DisplayLayout
    {
       mOX = inX;
@@ -496,12 +506,12 @@ class TextLayout extends DisplayLayout
       {
          var fmt = inObj.defaultTextFormat;
          if (fmt!=null && fmt.size!=null)
-            mOHeight = fmt.size * 1.5;
+            mOHeight = fmt.size * 1.5 * inObj.numLines;
          else
-            mOHeight = inObj.textHeight;
+            mOHeight = inObj.height;
       }
       else
-         mOHeight = inObj.textHeight;
+         mOHeight = inObj.height;
       mDebugCol = 0x00ff00;
    }
 

@@ -192,7 +192,6 @@ class ListControl extends ScrollWidget
          {
             //trace("List adjust " + (w-pos) );
             mColWidths[mStretchCol] += w-pos;
-            trace(mColWidths);
             pos = mXStart;
             for(i in 0...mColWidths.length)
             {

@@ -136,7 +136,18 @@ class Skin
       addAttribs("PanelText", null, {
           align: Layout.AlignRight,
         });
-
+      addAttribs("GroupBox", null, {
+          margin: 10,
+          padding: new Rectangle(0,20,0,20),
+          line:LineBorder,
+          fill: FillLight,
+          style:StyleRoundRect
+        });
+      addAttribs("GroupBoxTitle", null, {
+          line: LineBorder,
+          fill: FillLight,
+          style: StyleRoundRect,
+        });
       addAttribs("TextInput", null, {
           style: StyleRect,
           align: Layout.AlignLeft,
