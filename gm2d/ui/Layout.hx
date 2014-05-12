@@ -209,15 +209,15 @@ class Layout
    {
       if ( (child.mAlign & Layout.AlignKeepAspect) > 0 )
       {
-         if (w*child.minHeight > h*child.minWidth)
+         if (w*child.getBestHeight() > h*child.getBestWidth())
          {
-             var nw = h*child.minWidth/child.minHeight;
+             var nw = h*child.getBestWidth()/child.getBestHeight();
              x+=(w-nw)*0.5;
              w = nw;
          }
          else
          {
-             var nh = w*child.minHeight/child.minWidth;
+             var nh = w*child.getBestHeight()/child.getBestWidth();
              y+=(h-nh)*0.5;
              h = nh;
          }
