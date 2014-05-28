@@ -58,6 +58,7 @@ class FileOpenScreen extends Screen
       #else
       flags = inFlags;
       message = inMessage;
+      if (message=="") message = "Select File";
       
       saveName = inSaveName;
       filter = inFilter;
@@ -68,11 +69,13 @@ class FileOpenScreen extends Screen
 
 
       var top = new VerticalLayout();
-      top.add(StaticText.createLayout(inMessage,this));
+      top.add(StaticText.createLayout(message,this));
+      top.setRowStretch(1,0);
       top.setColStretch(0,1);
 
-      var dir_buttons = new VerticalLayout().setName("dir button").setAlignment(Layout.AlignLeft);
-      dir_buttons.setSpacing(2,10);
+
+      var dir_buttons = new HorizontalLayout().setName("dir button").setAlignment(Layout.AlignLeft|Layout.AlignTop);
+      dir_buttons.setSpacing(10,0).setBorders(5,5,5,5);
 
       var button = Button.TextButton("All", function() setDir(null) );
       addChild(button);
@@ -181,6 +184,9 @@ class FileOpenScreen extends Screen
       layout.mAlign = Layout.AlignStretch;
       top.add(layout);
 
+      top.setRowStretch(0,0);
+      top.setRowStretch(1,0);
+      top.setRowStretch(2,0);
       top.setRowStretch(isSave ? 3:2,1);
 
       var buttons = new HorizontalLayout();
@@ -194,7 +200,7 @@ class FileOpenScreen extends Screen
       }
       var button = Button.TextButton("Cancel", function() onCancel() );
       addChild(button);
-      buttons.add(button.getLayout());
+      buttons.add(button.getLayout().setBorders(0,5,0,0));
 
       top.add(buttons);
 

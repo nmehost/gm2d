@@ -13,6 +13,7 @@ import gm2d.ui.FileOpen;
 import nme.display.Loader;
 import nme.events.Event;
 import gm2d.ui.Dock;
+import gm2d.ui.SideDock;
 import gm2d.ui.IDockable;
 import gm2d.RGBHSV;
 import gm2d.ui.ColourControl;
@@ -28,13 +29,17 @@ class SampleApp extends App
       //Game.debugLayout = true;
       createMenus();
 
+      var side = new SideDock(DOCK_TOP);
+
       var colour = new ColourControl( new RGBHSV(0xff00ff) );
       var pane = new Pane(colour,"Colour 1",Dock.RESIZABLE,null, colour.getLayout().setMinWidth(400) );
-      addPane( pane, DockPosition.DOCK_LEFT);
+      side.addDockable( pane, DockPosition.DOCK_TOP,0);
 
       var colour = new ColourControl( new RGBHSV(0xff00ff) );
       var pane = new Pane(colour,"Colour 2",Dock.RESIZABLE,null, colour.getLayout().setMinWidth(400) );
-      addPane( pane, DockPosition.DOCK_LEFT);
+      side.addDockable( pane, DockPosition.DOCK_TOP,1);
+
+      addPane(side, DockPosition.DOCK_LEFT,0);
 
 
       //var dlg = new gm2d.ui.Dialog(pane);

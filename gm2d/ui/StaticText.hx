@@ -11,8 +11,10 @@ class StaticText
    public static function create(inText:String,?inParent:DisplayObjectContainer)
    {
       var label = new TextField();
+      label.text = inText;
       var renderer = Skin.renderer(["StaticText","Text"]);
       renderer.renderLabel(label);
+      label.autoSize = nme.text.TextFieldAutoSize.LEFT;
       if (inParent!=null)
          inParent.addChild(label);
       return label;
