@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+  
+  <meta
+     title="WWX 2014"
+     package="com.gamehaxe.wwx2014"
+     version="1.0.0"
+     company="nme" 
+  />
+  
+  <app
+     file="Wwx2014" 
+     main="Wwx2014"
+  />
+  
+  <window
+     width="640" 
+     height="480" 
+     orientation="landscape" 
+     fps="60"
+     background="0x000000"
+     require_shaders="true"
+     resizable="true"
+     hardware="true"
+  />
+  
+
+  <assets>
+     <image name="Blobs.png"/>
+     <image name="Bullet.png"/>
+     <image name="BuildMagic.jpg"/>
+     <image name="Level1.jpg"/>
+     <image name="Level2.jpg"/>
+     <image name="Level3.jpg"/>
+     <image name="Level4.jpg"/>
+  </assets>
+  <lib name="gm2d" />
+  <haxelib name="nme" />
+  
+</project>
