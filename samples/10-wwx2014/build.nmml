@@ -23,9 +23,11 @@
      resizable="true"
      hardware="true"
   />
+
+  <staticlink value="true" />
   
 
-  <assets>
+  <assets embed="true">
      <image name="Blobs.png"/>
      <image name="Bullet.png"/>
      <image name="BuildMagic.jpg"/>
