@@ -217,16 +217,16 @@ class Renderer
          case StyleNone:
          case StyleRect:
             if (lined || filled)
-               gfx.drawRect(r.x, r.y, r.width, r.height);
+               gfx.drawRect(r.x-offset, r.y-offset, r.width+offset*2, r.height+offset*2);
 
          case StyleRoundRect:
             if (lined || filled)
-               gfx.drawRoundRect(r.x+offset, r.y+offset, r.width, r.height,
+               gfx.drawRoundRect(r.x-offset, r.y-offset, r.width+offset*2, r.height+offset*2,
                    Skin.roundRectRad,Skin.roundRectRad);
 
          case StyleRoundRectRad(rad):
             if (lined || filled)
-               gfx.drawRoundRect(r.x+offset, r.y+offset, r.width, r.height, rad,rad);
+               gfx.drawRoundRect(r.x-offset, r.y-offset, r.width+offset*2, r.height+offset*2, rad,rad);
 
          case StyleCustom( render ):
             render(inWidget);

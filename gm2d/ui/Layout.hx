@@ -21,8 +21,13 @@ class Layout
    public static var AlignMaskX    = AlignLeft | AlignRight | AlignCenterX;
    public static var AlignMaskY    = AlignTop | AlignBottom | AlignCenterY;
    public static var AlignCenter   = AlignCenterX | AlignCenterY;
-   public static inline var AlignPixel    = 0x0100;
+
+   // Default to pixel alignment...
+   public static inline var AlignPixel    = 0x0000;
+   public static inline var AlignSubPixel = 0x0100;
+
    public static inline var AlignHalfPixel= 0x0200;
+
    public static inline var AlignKeepAspect= 0x0400;
 
    public var mBLeft:Float;
@@ -75,9 +80,22 @@ class Layout
 
    public function pixelAlign()
    {
-      mAlign |= Layout.AlignPixel;
+      mAlign &= ~(Layout.AlignSubPixel | Layout.AlignHalfPixel);
       return this;
    }
+
+   public function subPixelAlign()
+   {
+      mAlign = (mAlign & ~Layout.AlignHalfPixel) | Layout.AlignSubPixel;
+      return this;
+   }
+
+   public function halfPixelAlign()
+   {
+      mAlign = (mAlign & ~Layout.AlignSubPixel) | Layout.AlignHalfPixel;
+      return this;
+   }
+
 
    public function setMinSize(inWidth:Float,inHeight:Float) : Layout
    {
@@ -259,6 +277,26 @@ class Layout
             if (bh>h) bh = h;
             h = bh;
       }
+
+      if (child.mAlign & Layout.AlignHalfPixel > 0)
+      {
+         var right = Std.int(x+w+0.5) + 0.5;
+         var bottom = Std.int(y+h+0.5) + 0.5;
+         x = Std.int(x+0.5) + 0.5;
+         y = Std.int(y+0.5) + 0.5;
+         w = right - x;
+         h = bottom - y;
+      }
+      else if (child.mAlign & Layout.AlignSubPixel == 0)
+      {
+         var right = Std.int(x+w+0.5);
+         var bottom = Std.int(y+h+0.5);
+         x = Std.int(x+0.5);
+         y = Std.int(y+0.5);
+         w = right - x;
+         h = bottom - y;
+      }
+
       child.setRect(x,y,w,h);
 
       /*
@@ -396,31 +434,9 @@ class DisplayLayout extends Layout
 
    function setObjRect(x:Float,y:Float,w:Float,h:Float)
    {
-      if (mAlign & Layout.AlignPixel > 0)
-      {
-         mObj.x = Std.int(x);
-         mObj.y = Std.int(y);
-      }
-      else if (mAlign & Layout.AlignHalfPixel > 0)
-      {
-         mObj.x = Std.int(x) + 0.5;
-         mObj.y = Std.int(y) + 0.5;
-      }
-      else
-      {
-         mObj.x = x;
-         mObj.y = y;
-      }
+      mObj.x = x;
+      mObj.y = y;
 
-      /*
-      if (Std.is(mObj,Widget))
-      {
-         var widget:Widget = cast mObj;
-         widget.layout(w,h);
-      }
-      else
-      */
-      
       if (mObj.scale9Grid != null)
       {
          mObj.width = w;
@@ -458,6 +474,25 @@ class DisplayLayout extends Layout
          case Layout.AlignCenterY:
             y = y + (h - oh)/2;
             h = oh;
+      }
+
+      if (mAlign & Layout.AlignHalfPixel > 0)
+      {
+         var right = Std.int(x+w+0.5) + 0.5;
+         var bottom = Std.int(y+h+0.5) + 0.5;
+         x = Std.int(x+0.5) + 0.5;
+         y = Std.int(y+0.5) + 0.5;
+         w = right - x;
+         h = bottom - y;
+      }
+      else if (mAlign & Layout.AlignSubPixel == 0)
+      {
+         var right = Std.int(x+w+0.5);
+         var bottom = Std.int(y+h+0.5);
+         x = Std.int(x+0.5);
+         y = Std.int(y+0.5);
+         w = right - x;
+         h = bottom - y;
       }
 
        
@@ -528,10 +563,8 @@ class TextLayout extends DisplayLayout
    override function setObjRect(x:Float,y:Float,w:Float,h:Float)
    {
       var text:TextField = cast mObj;
-      //trace('TextLayout setObjRect $x,$y, $w,$h  ' + text.text);
-
-      text.x = x;// - 2;
-      text.y = y;// - 2;
+      text.x = x;
+      text.y = y;
       text.autoSize = TextFieldAutoSize.NONE;
       text.width = w;
       text.height = h;
@@ -668,7 +701,6 @@ class ChildStackLayout extends StackLayout
          Layout.mDebug.drawRect(inX,inY,inW,inH);
       }
 
-
       var new_w = inW-mBLeft-mBRight;
       var new_h = inH-mBTop-mBBottom;
       for(i in 0...mChildren.length)
@@ -777,6 +809,7 @@ class GridLayout extends Layout
    }
 
 
+   /*
    public static function createKeepAspect(inMinWidth:Float, inMinHeight:Float, inBase:Layout)
    {
       var result = new GridLayout(1,"KeepAspect");
@@ -786,6 +819,7 @@ class GridLayout extends Layout
       inBase.mAlign |= Layout.AlignKeepAspect;
       return result;
    }
+   */
 
    public override function add(inLayout:Layout) : Layout
    {
@@ -1055,59 +1089,11 @@ class GridLayout extends Layout
          for(c in 0...row.mCols.length)
          {
             var col_w = mColInfo[c].mWidth;
-            var ox = x;
-            var oy = y;
-            var w = col_w;
-            var h = row_h;
 
             var item = row.mCols[c];
 
             if (item!=null)
-            {
-               if ((item.mAlign & Layout.AlignMaskX)!=0)
-                   w = item.getBestWidth();
-               if ((item.mAlign & Layout.AlignMaskY)!=0)
-                   h = item.getBestHeight(col_w);
-
-               if ( (item.mAlign & Layout.AlignKeepAspect)>0 && item.minWidth>0 && item.minHeight>0 )
-               {
-                  var w0 = w - item.mBLeft - item.mBRight;
-                  var h0 = h - item.mBTop - item.mBBottom;
-                  
-                  if (w0*item.minHeight > h0*item.minWidth)
-                  {
-                     var new_w = h0*item.minWidth/item.minHeight + item.mBLeft + item.mBRight;
-                     ox += (w-new_w)*0.5;
-                     w = new_w;
-                  }
-                  else
-                  {
-                     var new_h = w0*item.minHeight/item.minWidth + item.mBTop + item.mBBottom;
-                     oy += (h-new_h)*0.5;
-                     h = new_h;
-                  }
-               }
-
-               switch(item.mAlign & Layout.AlignMaskX)
-               {
-                  case Layout.AlignRight:
-                     ox += col_w - w;
-                  case Layout.AlignCenterX:
-                     ox += (col_w - w)/2;
-               }
-               //trace(indent + "Put " + w + " in " + col_w);
-
-
-               switch(item.mAlign & Layout.AlignMaskY)
-               {
-                  case Layout.AlignBottom:
-                     oy += row_h - h;
-                  case Layout.AlignCenterY:
-                     oy += (row_h - h)/2;
-               }
-
-               item.setRect(ox,oy,w,h);
-            }
+               alignChild(item, x, y, col_w, row_h );
 
             x+=col_w + mSpaceX;
          }

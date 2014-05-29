@@ -80,9 +80,11 @@ class Widget extends Sprite
    }
  
 
-   function setItemLayout(inLayout:Layout)
+   function setItemLayout(inLayout:Layout,inStretch:Bool=true)
    {
-      mItemLayout = inLayout.stretch();
+      mItemLayout = inLayout;
+      if (inStretch)
+         mItemLayout.stretch();
       mLayout = new BorderLayout(mItemLayout,true);
       mLayout.onLayout = onLayout;
       return mLayout;

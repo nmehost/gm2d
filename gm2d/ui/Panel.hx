@@ -34,7 +34,7 @@ class Panel extends Widget
       mTitle = inTitle;
 
       mGridLayout = new GridLayout(1,"vertical");
-      mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",20) );
+      mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",0) );
       mGridLayout.setAlignment(Layout.AlignStretch);
       mItemGrid = new GridLayout(2,"items");
       mItemGrid.setColStretch(1,1);
@@ -43,7 +43,7 @@ class Panel extends Widget
                            mRenderer.getDefaultFloat("lineGap",10) );
       mButtonLayout = new GridLayout(null,"buttons");
       mButtonLayout.setSpacing(10,0);
-      mButtonLayout.setBorders(0,10,0,10);
+      //mButtonLayout.setBorders(0,10,0,10);
       mGridLayout.add(mItemGrid);
       mGridLayout.setRowStretch(1,0);
       setItemLayout( mGridLayout );
@@ -79,30 +79,6 @@ class Panel extends Widget
       return mPane;
    }
 
-   /*
-   public function doLayout()
-   {
-      mLayoutDirty = false;
-      //trace("DoLayout:" + mForceWidth + "," + mForceHeight);
-      mGridLayout.calcSize(mForceWidth,mForceHeight);
-      mGridLayout.setRect(0,0,mGridLayout.width,mGridLayout.height);
-      onLaidOut();
-      Layout.setDebug(null);
-   }
-   */
-
-   /*
-   override public function layout(inX:Float,inY:Float)
-   {
-      mGridLayout.setRect(0,0,inX,inY);
-      onLaidOut();
-      Layout.setDebug(null);
-   }
-   */
-
-
-   //public dynamic function onLaidOut() { }
-
    public function setBorders(inL:Float,inT:Float,inR:Float,inB:Float)
    {
       mGridLayout.setBorders(inL,inT,inR,inB);
@@ -121,7 +97,6 @@ class Panel extends Widget
 
       mLayoutDirty = true;
       addChild(inButton);
-      // inButton.setBG( Skin.renderButton, w+inExtraX,h+inExtraY);
       mButtons.push(inButton);
       mButtonLayout.add( inButton.getLayout() );
    }

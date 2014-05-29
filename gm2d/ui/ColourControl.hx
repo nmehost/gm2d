@@ -168,8 +168,11 @@ class ColourSlider extends Widget
          gfx.beginGradientFill(GradientType.LINEAR, cols, alphas, ratio, gradientBox() );
       }
 
-      gfx.lineStyle(1,0x000000);
       gfx.drawRect(0,0,mRect.width,mRect.height);
+      gfx.endFill();
+
+      gfx.lineStyle(1,0x000000);
+      gfx.drawRect(-0.5,-0.5,mRect.width+1,mRect.height+1);
       updateMarker();
    }
 }
@@ -277,8 +280,9 @@ class ColourWheel extends Widget
       layout.minWidth = 32;
       layout.minHeight = 32;
       layout.mAlign = Layout.AlignKeepAspect | Layout.AlignStretch;
+      layout.name = "colour";
       layout.onLayout = onBmpLayout;
-      setItemLayout(layout);
+      setItemLayout(layout,false);
       getLayout().setAlignment(Layout.AlignStretch);
       mMode = RGBHSV.VALUE;
       build();

@@ -31,8 +31,8 @@ class TextLabel extends Control
           mText.multiline = true;
        mText.text = inVal;
        mRenderer.renderLabel(mText);
-       mText.x = 0.5;
-       mText.y = 0.5;
+       mText.x = 0;
+       mText.y = 0;
        //mText.border = true;
        //mText.borderColor = 0x000000;
 
