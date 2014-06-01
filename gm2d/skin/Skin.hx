@@ -167,6 +167,19 @@ class Skin
           style: Style.StyleCustom(renderDialog),
           padding: new Rectangle(borders, borders+titleHeight, borders*2, borders*2+titleHeight),
         });
+      addAttribs("Line", null, {
+          fill: FillDark,
+          line: LineNone,
+          style: StyleRect,
+          minSize: new Size(1,1),
+          align: Layout.AlignStretch,
+        });
+      addAttribs("VLine", null, {
+          align: Layout.AlignStretch | Layout.AlignCenterX,
+        });
+      addAttribs("HLine", null, {
+          align: Layout.AlignStretch | Layout.AlignCenterY,
+        });
       addAttribs(null, Widget.DOWN, {
           fill: FillMedium,
         });
