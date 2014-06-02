@@ -79,13 +79,16 @@ class TextLabel extends Control
    }
 
 
-   override public function onCurrentChanged(inCurrent:Bool)
+   override public function set_isCurrent(inVal:Bool) : Bool
    {
-      super.onCurrentChanged(inCurrent);
-      if (stage!=null)
-         stage.focus = inCurrent ? mText : null;
+      super.set_isCurrent(inVal);
+      if (isInput())
+      {
+         if (stage!=null)
+            stage.focus = inVal ? mText : null;
+      }
+      return inVal;
    }
-
 
    public override function onKeyDown(event:nme.events.KeyboardEvent ) : Bool
    {

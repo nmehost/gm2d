@@ -67,10 +67,10 @@ class Window extends Widget
       if (inItem!=mCurrent)
       {
          if (mCurrent!=null)
-            mCurrent.onCurrentChanged(false);
+            mCurrent.isCurrent = false;
          mCurrent = inItem;
          if (mCurrent!=null)
-            mCurrent.onCurrentChanged(true);
+            mCurrent.isCurrent = true;
       }
    }
 

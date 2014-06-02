@@ -74,6 +74,7 @@ class Skin
    public static var mBitmaps:Map<String,BitmapData>;
 
 
+   public static var currentFilters:Array<BitmapFilter>;
    public static var sliderRenderer:SliderRenderer;
    public static var defaultTabRenderer:TabRenderer;
 
@@ -102,12 +103,18 @@ class Skin
       textFormat.size = 14;
       textFormat.font = "Arial";
       textFormat.color = 0x000000;
+      var tabSize = 32;
 
+      var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, 3, 3, 3, 3, false, false);
+      currentFilters = [ glow ];
 
       initGfx();
 
       idAttribs = new Map<String,AttribSet>();
       attribSet = [];
+      addAttribs(null, Widget.CURRENT, {
+          filters: currentFilters,
+       });
       addAttribs("Button", null, {
           style: StyleRoundRect,
           fill: FillLight,
@@ -180,6 +187,14 @@ class Skin
       addAttribs("HLine", null, {
           align: Layout.AlignStretch | Layout.AlignCenterY,
         });
+      addAttribs("TabBar", null, {
+          minSize: new Size(tabSize,tabSize),
+        });
+      addAttribs("Menubar", null, {
+          minSize: new Size(0,menuHeight),
+          line: LineNone,
+          style: StyleCustom(renderMenubar),
+        });
       addAttribs(null, Widget.DOWN, {
           fill: FillMedium,
         });
@@ -189,6 +204,29 @@ class Skin
       addAttribs(null, Widget.DISABLED, {
           fill: FillDisabled,
         });
+      addAttribs("MenubarItem", null, {
+          filters:null,
+          line: LineNone,
+        });
+      addAttribs("PopupMenu", null, {
+          style: StyleRect,
+          fill: FillLight,
+          line: LineBorder,
+        });
+      addAttribs("PopupMenuItem", null, {
+          style: StyleRect,
+          fill: FillLight,
+          textAlign: "left",
+          align: Layout.AlignStretch | Layout.AlignCenterY,
+        });
+      addAttribs("PopupMenuItem", Widget.CURRENT, {
+          fill: FillMedium,
+          //line: LineBorder,
+          textColor: 0xffffff,
+          filters: null,
+        });
+
+
       addAttribs("NoChrome", null, {
           fill: FillNone,
           line: LineNone,
@@ -365,6 +403,7 @@ class Skin
    }
 
 
+/*
    public static function renderCurrent(inWidget:Widget)
    {
       var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, 3, 3, 3, 3, false, false);
@@ -374,26 +413,30 @@ class Skin
    {
       inWidget.filters = null;
    }
+*/
 
-   public static function renderMenubar(inObject:Sprite,inW:Float, inH:Float)
+   public static function renderMenubar(widget:Widget)
    {
-      var gfx = inObject.graphics;
+      var gfx = widget.graphics;
       gfx.clear();
       var mtx = new nme.geom.Matrix();
-      mtx.createGradientBox(inH,inH,Math.PI * 0.5);
+      var rect = widget.mRect;
+      mtx.createGradientBox(rect.height,rect.height,Math.PI * 0.5);
       var cols:Array<CInt> = [guiLight, guiMedium, guiDark];
       var alphas:Array<Float> = [1.0, 1.0, 1.0];
       var ratio:Array<Int> = [0, 128, 255];
       gfx.beginGradientFill(nme.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
-      gfx.drawRect(0,0,inW,inH);
+      gfx.drawRect(0,0,rect.width,rect.height);
    }
 
+   /*
    public static function styleMenu(inItem:Button)
    {
       inItem.getLabel().backgroundColor = 0x4040a0;
       inItem.getLabel().textColor = 0x000000;
       inItem.onCurrentChangedFunc = function(_) { };
    }
+   */
 
    public static function styleLabel(label:TextField)
    {

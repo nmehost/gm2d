@@ -4,6 +4,7 @@ import nme.display.Bitmap;
 import nme.display.Sprite;
 import nme.display.Graphics;
 import nme.display.BitmapData;
+import nme.filters.BitmapFilter;
 import nme.text.TextField;
 import nme.text.TextFieldAutoSize;
 import nme.events.MouseEvent;
@@ -32,6 +33,7 @@ class Renderer
    public var itemAlign:Null<Int>;
    public var padding:Rectangle;
    public var margin:Rectangle;
+   public var filters:Array<BitmapFilter>;
    public var bitmapStyle:BitmapStyle;
    public var map:Map<String,Dynamic>;
 
@@ -96,6 +98,8 @@ class Renderer
              style = map.get("style");
          if (map.exists("bitmap"))
              bitmapStyle = map.get("bitmap");
+         if (map.exists("filters"))
+             filters = map.get("filters");
 
          if (fillStyle!=null)
          {
@@ -201,6 +205,7 @@ class Renderer
       var label = inWidget.getLabel();
       if (label!=null)
          renderLabel(label);
+      inWidget.filters = filters;
 
       if (style==StyleNone)
          return;

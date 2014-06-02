@@ -19,13 +19,13 @@ class Button extends Control
    var mStateBitmap : Bitmap;
 
    public var isToggle:Bool;
-	public var noFocus:Bool;
+   public var noFocus:Bool;
    public var mCallback : Void->Void;
    var mDownDX:Float;
    var mDownDY:Float;
    var mCurrentDX:Float;
    var mCurrentDY:Float;
-   public var onCurrentChangedFunc:Bool->Void;
+   //public var onCurrentChangedFunc:Bool->Void;
 
    public function new(inObject:DisplayObject,?inOnClick:Void->Void, ?inLineage:Array<String>, ?inAttribs:Dynamic)
    {
@@ -61,12 +61,12 @@ class Button extends Control
          {
             var tf = cast mDisplayObj;
             layout = new AutoTextLayout(tf);
+            name += " " +tf.text;
          }
          else
          {
             layout = new DisplayLayout(mDisplayObj);
          }
-         layout.mAlign = Layout.AlignCenterX | Layout.AlignCenterY | Layout.AlignPixel;
          layout.mDebugCol = 0x00ff00;
          setItemLayout(layout);
       }
@@ -123,26 +123,6 @@ class Button extends Control
       return null;
    }
 
-
-
-
-/*
-   public function setBGStates(inUpBmp:BitmapData, inDownBmp:BitmapData,
-             inDownDX:Int = 0, inDownDY:Int = 0)
-   {
-      mUpBmp = inUpBmp;
-      mDownBmp = inDownBmp;
-      var w = mUpBmp!=null ? mUpBmp.width : mDownBmp==null? mDownBmp.width : 32;
-      var h = mUpBmp!=null ? mUpBmp.height : mDownBmp==null? mDownBmp.height : 32;
-      var layout = getLayout();
-      mMainLayout.setBestSize(w,h);
-      mDownDX = inDownDX;
-      mDownDY = inDownDY;
-      mIsDown = !mIsDown;
-      mItemLayout.setRect(0,0,w,h);
-      down = !mIsDown;
-   }
-   */
    override public function set_down(inDown:Bool) : Bool
    {
       if (inDown!=down)
@@ -151,26 +131,18 @@ class Button extends Control
 
          if (mDisplayObj!=null)
          {
-			   var dx = inDown ? mDownDX : 0;
-			   var dy = inDown ? mDownDY : 0;
+            var dx = inDown ? mDownDX : 0;
+            var dy = inDown ? mDownDY : 0;
             if (dx!=mCurrentDX)
             {
-			      mDisplayObj.x += dx-mCurrentDX;
-				   mCurrentDX = dx;
+               mDisplayObj.x += dx-mCurrentDX;
+               mCurrentDX = dx;
             }
             if (dy!=mCurrentDY)
             {
-			      mDisplayObj.y += dy-mCurrentDY;
-				   mCurrentDY = dy;
+               mDisplayObj.y += dy-mCurrentDY;
+               mCurrentDY = dy;
             }
-         }
-
-         if (mRenderer!=null && mRect!=null)
-         {
-            mChrome.graphics.clear();
-            while(mChrome.numChildren>0)
-               mChrome.removeChildAt(0);
-            mRenderer.renderWidget(this);
          }
       }
       return inDown;
@@ -195,11 +167,12 @@ class Button extends Control
    public static function TextButton(inText:String,inOnClick:Void->Void,?inLineage:Array<String>,
        ?inArrtibs:Dynamic)
    {
-      var renderer = Skin.renderer(["ButtonText","Button","StaticText","Text"]);
+      var renderer = Skin.renderer(Widget.addLines(inLineage,["ButtonText","Button","StaticText","Text"]));
       var label = new TextField();
-      //label.align = "center";
       label.text = inText;
       renderer.renderLabel(label);
+      //label.border = true;
+      //label.borderColor = 0x0000ff;
       label.selectable = false;
       var result =  new Button(label,inOnClick,Widget.addLine(inLineage,"TextButton"),inArrtibs);
       return result;
@@ -211,7 +184,7 @@ class Button extends Control
       var bmp = new Bitmap(inBitmapData);
       sprite.addChild(bmp);
       var label = new TextField();
-      var renderer = Skin.renderer(["ButtonText","StaticText","Text"]);
+      var renderer = Skin.renderer(Widget.addLines(inLineage,["ButtonText","StaticText","Text"]));
       label.text = inText;
       renderer.renderLabel(label);
       sprite.addChild(label);
@@ -224,14 +197,15 @@ class Button extends Control
       return result;
    }
 
+/*
    override public function onCurrentChanged(inCurrent:Bool)
-	{
-	   if (onCurrentChangedFunc!=null)
-			onCurrentChangedFunc(inCurrent);
-		else
-		   super.onCurrentChanged(inCurrent);
-	}
-
+   {
+      if (onCurrentChangedFunc!=null)
+         onCurrentChangedFunc(inCurrent);
+      else
+         super.onCurrentChanged(inCurrent);
+   }
+*/
 
    override public function activate(inDirection:Int)
    {

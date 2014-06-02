@@ -58,6 +58,7 @@ class TabRenderer
       bitmap.draw(shape);
    }
 
+
    public function getHeight()
    {
       return  Skin.tabHeight;
@@ -77,7 +78,7 @@ class TabRenderer
                               inFlags:Int,
                               ?inTabPos:Null<Int> )
    {
-      var tabHeight = Skin.tabHeight;
+      //var tabHeight = Skin.tabHeight;
       var tmpText = Skin.mText;
       var shape = Skin.mDrawing;
 
@@ -88,6 +89,7 @@ class TabRenderer
       var tabX = new Array<Float>();
 
       var w = inSide==TOP || inSide==BOTTOM ? inRect.width : inRect.height;
+      var tabHeight = Std.int(inSide==TOP || inSide==BOTTOM ? inRect.height : inRect.width);
 
       var buts = new Array<Widget>();
       var butPos = new Array<Int>();

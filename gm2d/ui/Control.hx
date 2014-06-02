@@ -14,6 +14,7 @@ class Control extends Widget
 		wantFocus = true;
    }
 
+/*
    override public function onCurrentChanged(inCurrent:Bool)
    {
 	   if (inCurrent)
@@ -21,7 +22,7 @@ class Control extends Widget
 		else
 		   Skin.clearCurrent(this);
    }
-
+*/
 }
 
 

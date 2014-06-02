@@ -64,7 +64,7 @@ class Widget extends Sprite
    }
    public static function addLines(inLineage:Array<String>,inClasses:Array<String>)
    {
-      return inLineage==null ? inClasses : inLineage.concat(inClasses);
+      return inLineage==null ? inClasses : inClasses==null ? inLineage : inLineage.concat(inClasses);
    }
    public static function addAttribs(inAttribs0:Dynamic,inAttribs1:Dynamic)
    {
@@ -234,8 +234,6 @@ class Widget extends Sprite
 
    public function activate(inDirection:Int) { }
 
-   public function onCurrentChanged(inCurrent:Bool) { }
-
    public function popup(inPopup:Window,inX:Float,inY:Float,inShadow:Bool=true)
    {
 	   var pos = localToGlobal( new Point(inX,inY) );
@@ -273,6 +271,8 @@ class Widget extends Sprite
    {
       if (isCurrent != inVal)
       {
+         state = state ^ CURRENT;
+
          var p = parent;
          while(p!=null)
          {
@@ -284,8 +284,6 @@ class Widget extends Sprite
             }
             p = p.parent;
          }
- 
-         state = state ^ CURRENT;
       }
       return inVal;
    }

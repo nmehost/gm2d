@@ -28,27 +28,28 @@ interface Menubar
    public function closeMenu(inItem:MenuItem):Void;
 } 
 
-class SpriteMenubar extends Sprite implements Menubar implements IDock
+class SpriteMenubar extends Widget implements Menubar implements IDock
 {
    var mWidth:Float;
    var mHeight:Float;
    var mNextX:Float;
    var mCurrentItem:Int;
-	var mNormalParent:DisplayObjectContainer;
+   var mNormalParent:DisplayObjectContainer;
 
    var mItems:Array<MenuItem>;
    var mButtons:Array<Button>;
 
    public function new(inParent:DisplayObjectContainer,?dummy:Int)
    {
-      super();
+      super(["Menubar"]);
       if (inParent!=null)
          inParent.addChild(this);
       mItems = [];
       mButtons = [];
       mNextX = 2;
       mCurrentItem = -1;
-		mNormalParent = null;
+      mNormalParent = null;
+      build();
    }
 
    public function add(inItem:MenuItem)
@@ -58,9 +59,10 @@ class SpriteMenubar extends Sprite implements Menubar implements IDock
       
       var me = this;
       var nx = mNextX;
-      var but = Button.TextButton(inItem.gmText,function(){me.popup(pos);},["SimpleButton"]);
+      var but = Button.TextButton(inItem.gmText,function(){me.showMenu(pos);},
+                  ["MenubarItem", "SimpleButton" ]);
+      but.isToggle = true;
       mButtons.push(but);
-		Skin.styleMenu(but);
       but.addEventListener(MouseEvent.MOUSE_OVER, function(_) me.onMouseItem(pos) );
 
       but.x = mNextX;
@@ -71,43 +73,43 @@ class SpriteMenubar extends Sprite implements Menubar implements IDock
    function onMouseItem(inPos:Int)
    {
       if (mCurrentItem>=0  && mCurrentItem!=inPos)
-         popup(inPos);
+         showMenu(inPos);
    }
 
-   public function popup(inPos:Int)
+   public function showMenu(inPos:Int)
    {
       Game.closePopup();
       mCurrentItem = inPos;
-      mButtons[mCurrentItem].getLabel().background = true;
-      mButtons[mCurrentItem].getLabel().textColor = 0xffffff;
-		if (mNormalParent==null)
-		{
-		   mNormalParent = parent;
-			Game.moveToPopupLayer(this);
-		}
+      for(b in 0...mButtons.length)
+         mButtons[b].down = b==mCurrentItem;
+
+      if (mNormalParent==null)
+      {
+         mNormalParent = parent;
+         Game.moveToPopupLayer(this);
+      }
       Game.popup( new PopupMenu(mItems[inPos],this), mButtons[inPos].x, mHeight );
    }
 
    public function closeMenu(inItem:MenuItem)
    {
-	   if (mNormalParent!=null)
-		{
-		   mNormalParent.addChildAt(this,0);
-			mNormalParent = null;
-		}
-      if (mCurrentItem>=0 && mItems[mCurrentItem]==inItem)
+      if (mNormalParent!=null)
       {
-         mButtons[mCurrentItem].getLabel().background = false;
-         mButtons[mCurrentItem].getLabel().textColor = 0x000000;
-         mCurrentItem = -1;
+         mNormalParent.addChildAt(this,0);
+         mNormalParent = null;
       }
+      for(b in 0...mButtons.length)
+         mButtons[b].down = false;
    }
 
    public function layout(inWidth:Float) : Float
    {
-       mWidth = inWidth;
-       mHeight = Skin.menuHeight;
-       Skin.renderMenubar(this,mWidth,mHeight);
+      var size = mLayout.getBestSize();
+      mWidth = inWidth;
+      mHeight = size.y;
+      mLayout.setRect(0,0,mWidth,mHeight);
+
+       //Skin.renderMenubar(this,mWidth,mHeight);
        for(but in mButtons)
           but.y = (mHeight-but.height)/2;
        return mHeight;

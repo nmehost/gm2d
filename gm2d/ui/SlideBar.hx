@@ -305,23 +305,27 @@ class SlideBar extends Sprite implements IDock
       {
          chromeDirty = false;
          hitBoxes.clear();
-
          background.redraw();
          current.renderChrome(background.mChrome,hitBoxes);
 
          if (tabRenderer!=null)
          {
+            var tabRect = fullRect.clone();
+            if (pos==DOCK_LEFT || pos==DOCK_RIGHT)
+               tabRect.width = tabRenderer.getHeight();
+            else
+               tabRect.height = tabRenderer.getHeight();
             if (pinned)
             {
                var flags = TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_PIN;
-               tabRenderer.renderTabs(background, fullRect, children, current,
+               tabRenderer.renderTabs(background.mChrome, tabRect, children, current,
                   hitBoxes,  TabRenderer.TOP, flags, tabPos );
             }
             else
             {
                var flags = TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_PIN |
                      TabRenderer.IS_OVERLAPPED;
-               tabRenderer.renderTabs(background, fullRect, children, current,
+               tabRenderer.renderTabs(background.mChrome, tabRect, children, current,
                   hitBoxes, tabSide, flags, tabPos );
             }
          }
