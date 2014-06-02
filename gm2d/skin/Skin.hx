@@ -164,6 +164,7 @@ class Skin
       addAttribs("Dock", null, {
           style: StyleRect,
           fill: FillMedium,
+          filters: null,
           padding: null,
         });
       addAttribs("UiButton", null, {
@@ -226,8 +227,12 @@ class Skin
           filters: null,
         });
 
+      addAttribs("NoFilters", null, {
+          filters: null,
+        });
 
       addAttribs("NoChrome", null, {
+          filters: null,
           fill: FillNone,
           line: LineNone,
           style: StyleNone,
