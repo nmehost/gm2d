@@ -59,7 +59,7 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
       
       var me = this;
       var nx = mNextX;
-      var but = Button.TextButton(inItem.gmText,function(){me.showMenu(pos);},
+      var but = Button.TextButton(inItem.text,function(){me.showMenu(pos);},
                   ["MenubarItem", "SimpleButton" ]);
       but.isToggle = true;
       mButtons.push(but);

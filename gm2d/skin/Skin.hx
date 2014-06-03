@@ -69,9 +69,7 @@ class Skin
    public static var disableColor = 0x808080;
    public static var tabGradientColor = 0x909080;
    public static var menuHeight:Float = 22;
-
-
-   public static var mBitmaps:Map<String,BitmapData>;
+   public static var titleHeight = 26;
 
 
    public static var currentFilters:Array<BitmapFilter>;
@@ -91,29 +89,43 @@ class Skin
 
    public static var attribSet:AttribSet;
    public static var idAttribs:Map<String,AttribSet>;
+   public static var resolveAttribs: String->AttribSet = defaultResolveAttribs;
 
+   public static var tabSize = 32;
    public static var doInit:Dynamic = init();
+
+
    public static function init()
    {
-      menuHeight = 22;
-      var titleHeight = 26;
+      if (textFormat==null)
+      {
+         textFormat = new TextFormat();
+         textFormat.size = 14;
+         textFormat.font = "Arial";
+         textFormat.color = 0x000000;
+      }
 
-      mBitmaps = new Map<String, BitmapData>();
-      textFormat = new TextFormat();
-      textFormat.size = 14;
-      textFormat.font = "Arial";
-      textFormat.color = 0x000000;
-      var tabSize = 32;
+      if (currentFilters==null)
+      {
+         var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, 3, 3, 3, 3, false, false);
+         currentFilters = [ glow ];
+      }
 
-      var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, 3, 3, 3, 3, false, false);
-      currentFilters = [ glow ];
+      if (sliderRenderer==null)
+         sliderRenderer = createSliderRenderer();
+
+      if (defaultTabRenderer==null)
+         defaultTabRenderer = createTabRenderer();
 
       initGfx();
 
-      idAttribs = new Map<String,AttribSet>();
+      if (idAttribs==null)
+         idAttribs = new Map<String,AttribSet>();
+
+      // Rebuild attribs from scratch
       attribSet = [];
       addAttribs(null, Widget.CURRENT, {
-          filters: currentFilters,
+          filters: currentFilters!=null && currentFilters.length==0 ? null : currentFilters,
        });
       addAttribs("Button", null, {
           style: StyleRoundRect,
@@ -239,9 +251,6 @@ class Skin
         });
 
 
-      sliderRenderer = createSliderRenderer();
-      defaultTabRenderer = createTabRenderer();
-
       return null;
    }
 
@@ -303,6 +312,13 @@ class Skin
        {
           var id = Reflect.field(inAttribs,"id");
           var attribs = idAttribs.get(id);
+          if (attribs==null && resolveAttribs!=null)
+          {
+             attribs = resolveAttribs(id);
+             if (attribs==null)
+                attribs = [];
+             idAttribs.set(id, attribs);
+          }
           if (attribs!=null)
              for(attrib in attribs)
                 if (attrib.matches(inLineage,inState))
@@ -327,29 +343,6 @@ class Skin
       return result;
    }
 
-
-
-/*
-   static public function renderBmpBackground(widget:Widget, up:BitmapData, down:BitmapData)
-   {
-      var bmp = widget.down ? down : up;
-      if (bmp!=null)
-      {
-          var gfx = widget.mChrome.graphics;
-          gfx.beginBitmapFill(bmp,null,true,true);
-          gfx.drawRect(0,0,bmp.width,bmp.height);
-      }
-   }
-
-   static public function layoutBmpBackground(widget:Widget, up:BitmapData, down:BitmapData)
-   {
-      var w = up!=null ? up.width : down==null? down.width : 32;
-      var h = up!=null ? up.height : down==null? down.height : 32;
-      var layout = widget.getLayout();
-      layout.setMinSize(w,h);
-      widget.getItemLayout().setAlignment(Layout.AlignCenter);
-   }
-*/
 
    public static function onCreateSlider(inSlider:Slider):Void
    {
@@ -408,18 +401,6 @@ class Skin
    }
 
 
-/*
-   public static function renderCurrent(inWidget:Widget)
-   {
-      var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, 3, 3, 3, 3, false, false);
-      inWidget.filters = [ glow ];
-   }
-   public static function clearCurrent(inWidget:Widget)
-   {
-      inWidget.filters = null;
-   }
-*/
-
    public static function renderMenubar(widget:Widget)
    {
       var gfx = widget.graphics;
@@ -434,14 +415,6 @@ class Skin
       gfx.drawRect(0,0,rect.width,rect.height);
    }
 
-   /*
-   public static function styleMenu(inItem:Button)
-   {
-      inItem.getLabel().backgroundColor = 0x4040a0;
-      inItem.getLabel().textColor = 0x000000;
-      inItem.onCurrentChangedFunc = function(_) { };
-   }
-   */
 
    public static function styleLabel(label:TextField)
    {
@@ -455,14 +428,6 @@ class Skin
       //label.mouseEnabled = false;
    }
 
-/*
-   public function stylePane(inGfx:Graphics, inRect:Rectangle)
-   {
-      inGfx.clear();
-      inGfx.beginFill(panelColor);
-      inGfx.drawRect(inRect.x, inRect.y, inRect.w, inRect.h );
-   }
-*/
 
    public static function styleText(inText:nme.text.TextField)
    {
@@ -686,19 +651,6 @@ class Skin
          outSprite.removeChildAt(0);
    }
 
-
-/*
-   public static function renderButton(inWidget:Widget)
-   {
-      var gfx = inWidget.mChrome.graphics;
-      gfx.beginFill(inWidget.disabled ? disableColor :
-                    inWidget.state==0 ? controlColor :
-                                        guiMedium );
-      gfx.lineStyle(1,controlBorder);
-      var r = inWidget.mRect;
-      gfx.drawRoundRect(r.x+0.5,r.y+0.5,r.width-1,r.height-1,roundRectRad,roundRectRad);
-   }
-*/
     public static function renderProgressBar(inGfx:Graphics, inWidth:Float, inHeight:Float, inFraction:Float)
    {
       inGfx.clear();
@@ -803,21 +755,6 @@ class Skin
          gfx.drawRect(rect.x, rect.y, rect.width, rect.height );
       }
    }
-
-/*
-   public static function getButtonBitmapData(inButton:String, inState:Int) : BitmapData
-   {
-      var key = inButton + ":" + inState;
-      if (!mBitmaps.exists(key))
-         mBitmaps.set(key,createButtonBitmap(inButton,inState));
-      return mBitmaps.get(key);
-   }
-
-   public static function getButtonBitmap(inButton:String, inState:Int) : Bitmap
-   {
-      return new Bitmap(getButtonBitmapData(inButton,inState));
-   }
-*/
 
    public static function getFrameClientOffset() : Point
    {
@@ -1139,7 +1076,41 @@ class Skin
    }
 
 
+   public static function defaultResolveAttribs(inId) : AttribSet
+   {
+      var result = new AttribSet();
+
+      switch(inId)
+      {
+         case "#checked":
+            var gfx = mDrawing.graphics;
+            gfx.clear();
+            gfx.lineStyle(4,0x00ff00);
+            gfx.moveTo(4,16);
+            gfx.lineTo(8,20);
+            gfx.lineTo(20,8);
+            var bmp = new BitmapData(24,24,true,gm2d.RGB.CLEAR );
+            bmp.draw(mDrawing);
+            result.push( new RenderAttribs(null, null, { buttonBitmap:bmp } ) );
+
+         case "#unchecked":
+            var gfx = mDrawing.graphics;
+            gfx.clear();
+            gfx.lineStyle(4,0xff0000);
+            gfx.moveTo(8,8);
+            gfx.lineTo(16,16);
+            gfx.moveTo(8,16);
+            gfx.lineTo(16,8);
+            var bmp = new BitmapData(24,24,true,gm2d.RGB.CLEAR );
+            bmp.draw(mDrawing);
+            result.push( new RenderAttribs(null, null, { buttonBitmap:bmp } ) );
+       }
+
+       return result;
+   }
 }
+
+
 
 
 

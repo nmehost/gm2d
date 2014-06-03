@@ -4,9 +4,11 @@ import gm2d.ui.Button;
 
 class RadioGroup<Key>
 {
+   public var onButton:Dynamic->Void;
+   public var onItem:Int->Void;
+
    var buttons:Array<Button>;
    var keys:Array<Key>;
-   var onButton:Dynamic->Void;
 
    public function new(inOnButton:Key->Void)
    {
@@ -17,7 +19,11 @@ class RadioGroup<Key>
    public function setState(inKey:Key)
    {
       for(i in 0...keys.length)
+      {
          buttons[i].down = keys[i]==inKey;
+         if (onItem!=null && keys[i]==inKey)
+             onItem(i);
+      }
    }
    public function setIndex(inIndex:Int)
    {
@@ -28,7 +34,10 @@ class RadioGroup<Key>
    {
       buttons.push(inButton);
       keys.push(inKey);
-      inButton.mCallback = function() { setState(inKey); onButton(inKey); }
+      var nextIndex = keys.length;
+      inButton.mCallback = onItem!=null ?
+          function() { setIndex(nextIndex%keys.length); } :
+          function() { setState(inKey); onButton(inKey); }
       return inButton;
    }
 }

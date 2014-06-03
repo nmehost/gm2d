@@ -10,17 +10,28 @@ import gm2d.skin.Skin;
 class ChoiceButtons extends Control
 {
    var group:RadioGroup<String>;
-   var buttonLayout:GridLayout;
+   var layout:Layout;
 
-   public function new(inOnChoice:String->Void,?inItemsPerRow:Null<Int>)
+   public function new(inOnChoice:String->Void,?inItemsPerRow:Null<Int>,?inAttribs:Dynamic)
    {
-      super();
+      super(["ChoiceButtons"], inAttribs);
+
       group = new RadioGroup<String>(inOnChoice);
-      buttonLayout = new GridLayout(inItemsPerRow,"button");
-      buttonLayout.setSpacing(1,1);
 
+      if (!mRenderer.getDefaultBool("overlapped", false ) )
+      {
+         var grid  = new GridLayout(inItemsPerRow,"button");
+         grid.setSpacing(1,1);
+         layout = grid;
+      }
+      else
+      {
+         var paged = new PagedLayout();
+         group.onItem = paged.setPage;
+         layout = paged;
+      }
 
-      setItemLayout(buttonLayout);
+      setItemLayout(layout);
       build();
    }
 
@@ -40,10 +51,12 @@ class ChoiceButtons extends Control
       return result;
    }
 
-   public function add(inButton:Button,inKey:String)
+   public function add(inButton:Button,?inKey:String)
    {
       addChild(inButton);
-      buttonLayout.add(inButton.getLayout().pixelAlign());
+      layout.add(inButton.getLayout().pixelAlign());
+      if (inKey==null)
+         inKey = inButton.getId();
       group.add(inButton,inKey);
    }
    public function setValue(inKey:String)

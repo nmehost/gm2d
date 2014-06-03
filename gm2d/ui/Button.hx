@@ -36,6 +36,12 @@ class Button extends Control
 
       mCallback = inOnClick;
       mDisplayObj = inObject;
+      if (mDisplayObj==null)
+      {
+         var bmp:BitmapData = mRenderer.getDynamic("buttonBitmap");
+         if (bmp!=null)
+            mDisplayObj = new Bitmap(bmp);
+      }
 
       mCurrentDX = mCurrentDY = 0;
       noFocus = false;

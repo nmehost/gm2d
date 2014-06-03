@@ -105,6 +105,13 @@ class Widget extends Sprite
       return mLayout;
    }
 
+   public function getId() : String
+   {
+      if (mAttribs==null)
+         return null;
+      return Reflect.field(mAttribs,"id");
+   }
+
    public function getLayout() { return mLayout; }
 
    public function build()

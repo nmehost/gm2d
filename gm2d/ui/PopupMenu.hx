@@ -19,10 +19,10 @@ class PopupMenu extends Window
 
       mItem = inItem;
       mBar = inBar;
-      var layout = new VerticalLayout();
+      var layout = new GridLayout(2);
       mButtons = [];
       var gfx = graphics;
-      var c = inItem.mChildren;
+      var c = inItem.children;
       var w = 10.0;
       var ty = 5.0;
       var me=this;
@@ -32,15 +32,7 @@ class PopupMenu extends Window
          for(item in c)
          {
             var id = mButtons.length;
-
-            /*
-            var but = Button.TextButton(item.gmText,function(){
-               Game.closePopup();
-               if (item.onSelect!=null) item.onSelect(item);
-               }, ["PopupMenuItem","SimpleButton"]);
-               */
-
-            var but = new TextLabel(item.gmText,["PopupMenuItem"]);
+            var but = new TextLabel(item.text,["PopupMenuItem"]);
             but.addEventListener(MouseEvent.CLICK, function(_) {
                Game.closePopup();
                if (item.onSelect!=null) item.onSelect(item);
@@ -48,6 +40,14 @@ class PopupMenu extends Window
             but.addEventListener(MouseEvent.MOUSE_OVER, function(_) me.setItem(id) );
             mButtons.push(but);
             addChild(but);
+            if (item.checkable)
+            {
+               var checkbox = new CheckButtons(item.checked, function(c) trace(c), { overlapped:true } );
+               addChild(checkbox);
+               layout.add( checkbox.getLayout() );
+            }
+            else
+               layout.add( null );
             layout.add(but.getLayout());
          }
       }

@@ -130,6 +130,7 @@ class Layout
       }
       return null;
    }
+   public function getDisplayObject() : DisplayObject { return null; }
 
    public function setName(inName:String):Layout
    {
@@ -334,6 +335,8 @@ class BorderLayout extends Layout
    override public function findTextLayout() : TextLayout  { return mBase.findTextLayout(); }
 
 
+   override public function getDisplayObject() : DisplayObject { return mBase.getDisplayObject(); }
+
    public override function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void
    {
       return mBase.calcSize( inWidth==null  ? null : inWidth-mBLeft-mBRight,
@@ -401,7 +404,7 @@ class DisplayLayout extends Layout
    {
    }
 
-   public function getObject() : DisplayObject
+   override public function getDisplayObject() : DisplayObject
    {
       return mObj;
    }
@@ -678,8 +681,33 @@ class StackLayout extends Layout
       return height;
    }
 
+}
 
+class PagedLayout extends StackLayout
+{
+   public function new()
+   {
+      super();
+   }
 
+   public override function add(inLayout:Layout) : Layout
+   {
+      var result = super.add(inLayout);
+      var display = inLayout.getDisplayObject();
+      if (display!=null)
+         display.visible = mChildren.length == 1;
+      return result;
+   }
+
+   public function setPage(inIndex:Int) : Void
+   {
+      for(c in 0...mChildren.length)
+      {
+         var display = mChildren[c].getDisplayObject();
+         if (display!=null)
+            display.visible = inIndex==c;
+      }
+   }
 }
 
 // In a child stack, the top item owns the others, so the offset

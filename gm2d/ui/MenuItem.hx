@@ -10,28 +10,29 @@ class MenuItem
 {
    public function new(inText:String,inOnSelect:MenuItem->Void=null)
    {
-      gmText = inText;
-      gmCheckable = false;
-      gmChecked = false;
+      text = inText;
+      checkable = false;
+      checked = false;
       onSelect = inOnSelect;
-      gmID = -1;
+      id = null;
    }
    public var onSelect:MenuItem->Void;
 
    public function add(inItem:MenuItem)
    {
-      if (mChildren==null)
-         mChildren = [];
-      mChildren.push(inItem);
+      if (children==null)
+         children = [];
+      children.push(inItem);
    }
 
-   public var gmText:String;
-   public var gmData:Dynamic;
-   public var gmShortcut:String;
-   public var gmIcon:BitmapData;
-   public var gmCheckable:Bool;
-   public var gmChecked:Bool;
-   public var gmID:Int;
+   public var text:String;
+   public var data:Dynamic;
+   public var shortcut:String;
+   public var icon:BitmapData;
+   public var checkable:Bool;
+   public var checked:Bool;
+   public var id:String;
+
    //public var gmPopup:PopupMenu;
-   public var mChildren:Array<MenuItem>;
+   public var children:Array<MenuItem>;
 }

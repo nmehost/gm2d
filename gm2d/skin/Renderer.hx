@@ -86,10 +86,10 @@ class Renderer
             itemAlign = map.get("itemAlign");
          if (map.exists("font"))
             textFormat.font = map.get("font");
-         if (map.exists("fontColor"))
-            textFormat.color = map.get("fontColor");
          if (map.exists("fontSize"))
             textFormat.size = map.get("fontSize");
+         if (map.exists("textColor"))
+            textFormat.color = map.get("textColor");
          if (map.exists("textAlign"))
             textFormat.align = map.get("textAlign");
          if (map.exists("bold"))
