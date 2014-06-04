@@ -191,14 +191,16 @@ class Skin
           fill: FillDark,
           line: LineNone,
           style: StyleRect,
-          minSize: new Size(1,1),
+          minItemSize: new Size(1,1),
           align: Layout.AlignStretch,
         });
       addAttribs("VLine", null, {
-          align: Layout.AlignStretch | Layout.AlignCenterX,
+          align: Layout.AlignStretch,
+          itemAlign: Layout.AlignStretch | Layout.AlignCenterX,
         });
       addAttribs("HLine", null, {
-          align: Layout.AlignStretch | Layout.AlignCenterY,
+          align: Layout.AlignStretch,
+          itemAlign: Layout.AlignStretch | Layout.AlignCenterY,
         });
       addAttribs("TabBar", null, {
           minSize: new Size(tabSize,tabSize),
@@ -221,6 +223,12 @@ class Skin
           filters:null,
           line: LineNone,
         });
+      addAttribs("MenuCheckbox", null, {
+          filters:null,
+          line: LineNone,
+          style: StyleNone,
+          overlapped: true,
+        });
       addAttribs("PopupMenu", null, {
           style: StyleRect,
           fill: FillLight,
@@ -230,6 +238,7 @@ class Skin
           style: StyleRect,
           fill: FillLight,
           textAlign: "left",
+          padding: 3,
           align: Layout.AlignStretch | Layout.AlignCenterY,
         });
       addAttribs("PopupMenuItem", Widget.CURRENT, {
@@ -262,6 +271,35 @@ class Skin
       
       attribs.push( new RenderAttribs(null, inState, inAttribs) );
    }
+
+
+   public static function getIdAttribs(inId:String)
+   {
+      var attribs = idAttribs.get(inId);
+      if (attribs!=null)
+         return attribs;
+      if (resolveAttribs!=null)
+          attribs = resolveAttribs(inId);
+      if (attribs==null)
+          attribs = [];
+      idAttribs.set(inId, attribs);
+      return attribs;
+    }
+  
+
+   public static function getIdAttrib(inId:String, inName:String, ?inState:Null<Int>) : Dynamic
+   {
+      var attribs = getIdAttribs(inId);
+      for(attrib in attribs)
+         if (attrib.matches(null,inState))
+         {
+            var result = attrib.attribs.get(inName);
+            if (result!=null)
+               return result;
+         }
+      return null;
+   }
+
 
    public static function addAttribs(inLine:String, inState:Null<Int>, inAttribs:Dynamic)
    {
@@ -311,18 +349,10 @@ class Skin
        if (inAttribs!=null && Reflect.hasField(inAttribs,"id"))
        {
           var id = Reflect.field(inAttribs,"id");
-          var attribs = idAttribs.get(id);
-          if (attribs==null && resolveAttribs!=null)
-          {
-             attribs = resolveAttribs(id);
-             if (attribs==null)
-                attribs = [];
-             idAttribs.set(id, attribs);
-          }
-          if (attribs!=null)
-             for(attrib in attribs)
-                if (attrib.matches(inLineage,inState))
-                   attrib.merge(map);
+          var attribs = getIdAttribs(id);
+          for(attrib in attribs)
+              if (attrib.matches(inLineage,inState))
+                 attrib.merge(map);
        }
        mergeAttribMap(map,inAttribs);
 
@@ -1091,7 +1121,7 @@ class Skin
             gfx.lineTo(20,8);
             var bmp = new BitmapData(24,24,true,gm2d.RGB.CLEAR );
             bmp.draw(mDrawing);
-            result.push( new RenderAttribs(null, null, { buttonBitmap:bmp } ) );
+            result.push( new RenderAttribs(null, null, { icon:bmp } ) );
 
          case "#unchecked":
             var gfx = mDrawing.graphics;
@@ -1103,7 +1133,7 @@ class Skin
             gfx.lineTo(16,8);
             var bmp = new BitmapData(24,24,true,gm2d.RGB.CLEAR );
             bmp.draw(mDrawing);
-            result.push( new RenderAttribs(null, null, { buttonBitmap:bmp } ) );
+            result.push( new RenderAttribs(null, null, { icon:bmp } ) );
        }
 
        return result;

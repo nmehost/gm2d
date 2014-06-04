@@ -79,7 +79,7 @@ class Renderer
          if (map.exists("minSize"))
             minSize = map.get("minSize");
          if (map.exists("minItemSize"))
-            minSize = map.get("minItemSize");
+            minItemSize = map.get("minItemSize");
          if (map.exists("align"))
             align = map.get("align");
          if (map.exists("itemAlign"))

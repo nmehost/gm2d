@@ -38,7 +38,7 @@ class Button extends Control
       mDisplayObj = inObject;
       if (mDisplayObj==null)
       {
-         var bmp:BitmapData = mRenderer.getDynamic("buttonBitmap");
+         var bmp:BitmapData = mRenderer.getDynamic("icon");
          if (bmp!=null)
             mDisplayObj = new Bitmap(bmp);
       }

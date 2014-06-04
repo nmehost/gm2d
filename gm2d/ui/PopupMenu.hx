@@ -6,6 +6,8 @@ import nme.display.BitmapData;
 import nme.display.Graphics;
 import nme.events.MouseEvent;
 import gm2d.ui.Layout;
+import nme.display.Bitmap;
+import gm2d.skin.Skin;
 
 class PopupMenu extends Window
 {
@@ -20,6 +22,7 @@ class PopupMenu extends Window
       mItem = inItem;
       mBar = inBar;
       var layout = new GridLayout(2);
+      layout.name = "Menu grid";
       mButtons = [];
       var gfx = graphics;
       var c = inItem.children;
@@ -31,24 +34,50 @@ class PopupMenu extends Window
       {
          for(item in c)
          {
-            var id = mButtons.length;
-            var but = new TextLabel(item.text,["PopupMenuItem"]);
-            but.addEventListener(MouseEvent.CLICK, function(_) {
-               Game.closePopup();
-               if (item.onSelect!=null) item.onSelect(item);
-               });
-            but.addEventListener(MouseEvent.MOUSE_OVER, function(_) me.setItem(id) );
-            mButtons.push(but);
-            addChild(but);
-            if (item.checkable)
+            if (item==null)
             {
-               var checkbox = new CheckButtons(item.checked, function(c) trace(c), { overlapped:true } );
-               addChild(checkbox);
-               layout.add( checkbox.getLayout() );
+               layout.add( null );
+               layout.add( Widget.createHLine(this, null, { margin:2 } ).getLayout() );
             }
             else
-               layout.add( null );
-            layout.add(but.getLayout());
+            {
+               var id = mButtons.length;
+               var but = new TextLabel(item.text,["PopupMenuItem"]);
+               but.addEventListener(MouseEvent.CLICK, function(_) {
+                  Game.closePopup();
+                  if (item.checkable)
+                     item.checked = !item.checked;
+                  if (item.onSelect!=null)
+                     item.onSelect(item);
+                  });
+               but.addEventListener(MouseEvent.MOUSE_OVER, function(_) me.setItem(id) );
+               mButtons.push(but);
+               addChild(but);
+               if (item.checkable)
+               {
+                  var checkbox = new CheckButtons(item.checked, item.onSelect==null ? null :
+                        function(c) { item.checked = c; item.onSelect(item); }, ["MenuCheckbox"] );
+                  addChild(checkbox);
+                  layout.add( checkbox.getLayout() );
+               }
+               else if (item.id!=null)
+               {
+                  var icon:BitmapData = Skin.getIdAttrib(item.id,"icon");
+                  if (icon!=null)
+                  {
+                     // TODO widget instead
+                     var bitmap = new Bitmap(icon);
+                     addChild(bitmap);
+                     layout.add( new DisplayLayout(bitmap).setPadding(4,4) );
+                  }
+                  else
+                     layout.add( null );
+               }
+               else
+                  layout.add( null );
+
+               layout.add(but.getLayout());
+            }
          }
       }
       setItemLayout(layout);

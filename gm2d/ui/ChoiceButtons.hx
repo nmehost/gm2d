@@ -12,9 +12,9 @@ class ChoiceButtons extends Control
    var group:RadioGroup<String>;
    var layout:Layout;
 
-   public function new(inOnChoice:String->Void,?inItemsPerRow:Null<Int>,?inAttribs:Dynamic)
+   public function new(inOnChoice:String->Void,?inItemsPerRow:Null<Int>,?inLineage:Array<String>,?inAttribs:Dynamic)
    {
-      super(["ChoiceButtons"], inAttribs);
+      super(Widget.addLine(inLineage,"ChoiceButtons"), inAttribs);
 
       group = new RadioGroup<String>(inOnChoice);
 
@@ -27,7 +27,11 @@ class ChoiceButtons extends Control
       else
       {
          var paged = new PagedLayout();
-         group.onItem = paged.setPage;
+         group.onItem = function(p) {
+            paged.setPage(p);
+            if (inOnChoice!=null)
+               inOnChoice( group.keys[p] );
+         };
          layout = paged;
       }
 

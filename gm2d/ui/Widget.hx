@@ -79,17 +79,21 @@ class Widget extends Sprite
       return result;
    }
  
-   public static function createVLine(?inAttribs:Dynamic)
+   public static function createVLine(?inParent:DisplayObjectContainer,?inLineage:Array<String>,?inAttribs:Dynamic)
    {
-      var result =  new Widget(["VLine","Line"], inAttribs);
+      var result =  new Widget(addLines(inLineage,["VLine","Line"]), inAttribs);
       result.build();
+      if (inParent!=null)
+         inParent.addChild(result);
       return result;
    }
 
-   public static function createHLine(?inAttribs:Dynamic)
+   public static function createHLine(?inParent:DisplayObjectContainer,?inLineage:Array<String>,?inAttribs:Dynamic)
    {
-      var result =  new Widget(["HLine","Line"], inAttribs);
+      var result =  new Widget(addLines(inLineage,["HLine","Line"]), inAttribs);
       result.build();
+      if (inParent!=null)
+         inParent.addChild(result);
       return result;
    }
 

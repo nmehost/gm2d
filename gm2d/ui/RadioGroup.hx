@@ -6,9 +6,8 @@ class RadioGroup<Key>
 {
    public var onButton:Dynamic->Void;
    public var onItem:Int->Void;
-
-   var buttons:Array<Button>;
-   var keys:Array<Key>;
+   public var buttons:Array<Button>;
+   public var keys:Array<Key>;
 
    public function new(inOnButton:Key->Void)
    {

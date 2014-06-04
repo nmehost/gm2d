@@ -18,6 +18,10 @@ class MenuItem
    }
    public var onSelect:MenuItem->Void;
 
+   public function addSeparator()
+   {
+      add(null);
+   }
    public function add(inItem:MenuItem)
    {
       if (children==null)

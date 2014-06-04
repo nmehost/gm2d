@@ -25,7 +25,7 @@ class RenderAttribs
             return false;
       }
 
-      if (line==null)
+      if (line==null || inLineage==null)
          return true;
       for(l in inLineage)
          if (l==line)
