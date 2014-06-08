@@ -55,6 +55,17 @@ class ScrollWidget extends Control
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
       addEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
    }
+
+
+   public static function create(inChild:Widget)
+   {
+      var result = new ScrollWidget( );
+      result.addChild(inChild);
+      result.setItemLayout( inChild.getLayout().stretch() );
+      result.build();
+      return result;
+   }
+
    public function setScrollRange(inControlWidth:Float, inWindowWidth:Float,
                            inControlHeight:Float, inWindowHeight:Float)
    {

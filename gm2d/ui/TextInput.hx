@@ -10,9 +10,9 @@ import gm2d.ui.Layout;
 
 class TextInput extends TextLabel
 {
-   public function new(inVal="", ?onUpdate:String->Void,?inLineage:Array<String>)
+   public function new(inVal="", ?onUpdate:String->Void,?inLineage:Array<String>,?inAttribs:Dynamic)
    {
-       super(inVal,Widget.addLine(inLineage,"TextInput"));
+       super(inVal,Widget.addLine(inLineage,"TextInput"),inAttribs);
        wantFocus = true;
 
        if (onUpdate!=null)

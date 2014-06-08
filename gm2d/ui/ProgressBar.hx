@@ -9,11 +9,10 @@ class ProgressBar extends Widget
 
    public function new(inMax:Float)
    {
-      super();
+      super(["ProgressBar"]);
       mMax = inMax;
       mFraction = 0.0;
       build();
-      getLayout().setBestSize(100,20);
    }
 
    public function update(inValue:Float)

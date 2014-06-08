@@ -170,6 +170,7 @@ class Skin
       addAttribs("TextInput", null, {
           style: StyleRect,
           align: Layout.AlignLeft,
+          minItemSize : new Size(100,1),
           line: LineBorder,
           fill: FillSolid(0xffffff,1),
         });
@@ -193,6 +194,10 @@ class Skin
           style: StyleRect,
           minItemSize: new Size(1,1),
           align: Layout.AlignStretch,
+        });
+      addAttribs("ProgressBar", null, {
+          align: Layout.AlignStretch,
+          minItemSize: new Size(100,20),
         });
       addAttribs("VLine", null, {
           align: Layout.AlignStretch,

@@ -93,7 +93,10 @@ class Panel extends Widget
    public function addButton(inButton:gm2d.ui.Button)
    {
       if (mButtons.length==0)
+      {
+         mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",10) );
          mGridLayout.add(mButtonLayout);
+      }
 
       mLayoutDirty = true;
       addChild(inButton);
