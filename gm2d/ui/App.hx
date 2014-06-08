@@ -133,14 +133,7 @@ class App extends Screen
       var y0 = 0.0;
       var w:Float = stage.stageWidth;
       var h:Float = stage.stageHeight;
- 
-      if (topMenuBar!=null)
-      {
-         var menu_h = topMenuBar.layout(w);
-         y0 += menu_h;
-         h -= menu_h;
-      }
-     
+
       if (_menubar!=null)
       {
          var menu_h = _menubar.layout(w);
@@ -150,18 +143,26 @@ class App extends Screen
 
       var bottomX = x0;
       var bottomW = w;
-      if (leftSlider!=null)
-      {
-         var size = leftSlider.setRect(x0,y0,w-slideBorders,h);
-         x0+=size+slideBorders;
-         w -=size+slideBorders;
-      }
 
       if (rightSlider!=null)
       {
          var size = rightSlider.setRect(x0+slideBorders,y0,w-slideBorders,h);
          w -=size+slideBorders;
          bottomW -=size+slideBorders;
+      }
+ 
+      if (topMenuBar!=null)
+      {
+         var menu_h = topMenuBar.layout(w);
+         y0 += menu_h;
+         h -= menu_h;
+      }
+
+      if (leftSlider!=null)
+      {
+         var size = leftSlider.setRect(x0,y0,w-slideBorders,h);
+         x0+=size+slideBorders;
+         w -=size+slideBorders;
       }
 
       if (bottomSlider!=null)
