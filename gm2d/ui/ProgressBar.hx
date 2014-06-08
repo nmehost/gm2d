@@ -12,6 +12,7 @@ class ProgressBar extends Widget
       super();
       mMax = inMax;
       mFraction = 0.0;
+      build();
       getLayout().setBestSize(100,20);
    }
 
