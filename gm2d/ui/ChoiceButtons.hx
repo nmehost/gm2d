@@ -39,17 +39,17 @@ class ChoiceButtons extends Control
       build();
    }
 
-   public static function create(inOnIndex:Int->Void,inKeys:Array<Dynamic>, inBitmaps:haxe.ds.StringMap<BitmapData>, ?inItemsPerRow:Int )
+   public static function create(inOnIndex:Int->Void,inKeys:Array<Dynamic>, inBitmaps:Map<String,BitmapData>, ?inItemsPerRow:Int, ?inAttribs:Dynamic )
    {
       var keys:Array<String> = inKeys.map( function(x) return Std.string(x) );
 
-      var result = new ChoiceButtons( function(x) inOnIndex(Lambda.indexOf(keys,x)), inItemsPerRow );
+      var result = new ChoiceButtons( function(x) inOnIndex(Lambda.indexOf(keys,x)), inItemsPerRow,null,inAttribs );
 
       for(key in keys)
       {
          if (!inBitmaps.exists(key))
             throw "Missing bitmap " + key;
-         var button = Button.BitmapButton(inBitmaps.get(key),null,["ChoiceButton","SimpleButton"]);
+         var button = Button.BitmapButton(inBitmaps.get(key),null,["ChoiceButton","SimpleButton"],inAttribs);
          result.add( button, key );
       }
       return result;

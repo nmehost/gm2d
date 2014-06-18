@@ -338,7 +338,7 @@ class Talk extends Sprite
          textLayout.setIndent( (inIndent) * 20 * guiScale );
          ioLayout.add( textLayout );
       }
-      return textLayout.getObject();
+      return textLayout.getDisplayObject();
    }
 
 }
