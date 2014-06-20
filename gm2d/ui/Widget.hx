@@ -203,6 +203,11 @@ class Widget extends Sprite
       }
    }
 
+   public function relayout()
+   {
+      getLayout().setRect( mRect.x, mRect.y, mRect.width, mRect.height );
+   }
+
 
    static public function getWidgetsRecurse(inParent:DisplayObjectContainer,outList : Array<Widget>)
    {
