@@ -3,6 +3,7 @@ package gm2d.ui;
 import nme.display.DisplayObject;
 import nme.display.BitmapData;
 import nme.display.Bitmap;
+import nme.display.Sprite;
 import nme.geom.Rectangle;
 import nme.geom.Point;
 import nme.text.TextField;
@@ -35,6 +36,7 @@ class ListControl extends ScrollWidget
    var mOrigItemHeight:Float;
    var mItemHeight:Float;
    var mSelected :Int;
+   var mListContents:Sprite;
    var mWidth:Float;
    var mHeight:Float;
    var mChildrenClean :Int;
@@ -49,7 +51,6 @@ class ListControl extends ScrollWidget
    public var onSelect:Int->Void;
    public var onMultiSelect:Array<Bool>->Void;
    public var mXGap:Float;
-   public var mXStart:Float;
    public var mTextSelectable:Bool;
   
    public var selectColour:Int;
@@ -72,6 +73,9 @@ class ListControl extends ScrollWidget
       evenColour = 0xffffff;
       oddColour = 0xf0f0ff;
 
+      mListContents = new Sprite();
+      addChild(mListContents);
+      scrollTarget = mListContents;
       mOrigItemHeight = inItemHeight;
       mItemHeight = mOrigItemHeight;
       scrollWheelStep = mOrigItemHeight;
@@ -86,13 +90,14 @@ class ListControl extends ScrollWidget
       mChildrenClean = 0;
       mSelected = -1;
       mXGap = 2.0;
-      mXStart = 0.0;
       mTextSelectable = false;
       wantFocus = false;
       onSelect = null;
       mColAlign = [];
       mMultiSelect = null;
-      setItemLayout( new Layout().setMinSize(inWidth,inItemHeight).stretch() );
+      var internalLayout = new Layout().setMinSize(inWidth,inItemHeight).stretch();
+      internalLayout.onLayout = layoutList;
+      setItemLayout(internalLayout);
       setScrollRange(inWidth,inWidth,inItemHeight,inItemHeight);
       build();
    }
@@ -109,8 +114,8 @@ class ListControl extends ScrollWidget
       mItemHeight = mOrigItemHeight;
       scrollWheelStep = mOrigItemHeight;
       graphics.clear();
-      while(numChildren>0)
-         removeChildAt(0);
+      while(mListContents.numChildren>0)
+         mListContents.removeChildAt(0);
       recalcPos();
    }
 
@@ -178,7 +183,7 @@ class ListControl extends ScrollWidget
    public function recalcPos()
    {
       mChildrenClean = 0;
-      var pos = mXStart;
+      var pos = 0.0;
       for(i in 0...mColWidths.length)
       {
          mColPos[i] = pos;
@@ -187,12 +192,12 @@ class ListControl extends ScrollWidget
       }
       if (mStretchCol!=null && mStretchCol<mColWidths.length && mStretchCol>=0)
       {
-         var w = mRect.width;
+         var w = mWidth;
          if (pos!=w)
          {
             //trace("List adjust " + (w-pos) );
             mColWidths[mStretchCol] += w-pos;
-            pos = mXStart;
+            pos = 0;
             for(i in 0...mColWidths.length)
             {
                mColPos[i] = pos;
@@ -278,7 +283,7 @@ class ListControl extends ScrollWidget
                needRecalcPos = true;
             }
             row.push(obj);
-            addChild(obj);
+            mListContents.addChild(obj);
          }
          else
             row.push(null);
@@ -515,7 +520,7 @@ class ListControl extends ScrollWidget
 
    public function drawBG()
    {
-      var gfx = graphics;
+      var gfx = mListContents.graphics;
       gfx.clear();
       for(i in 0...mRows.length)
       {
@@ -543,12 +548,22 @@ class ListControl extends ScrollWidget
       }
    }
 
+   public function layoutList(inX:Float, inY:Float, inW:Float, inH:Float)
+   {
+      mListContents.x = inX;
+      mListContents.y = inY;
+      mWidth = inW;
+      mHeight = inH;
+      recalcPos();
+   }
+
+/*
    override public function onLayout(inX:Float, inY:Float, inW:Float, inH:Float)
    {
       recalcPos();
       super.onLayout(inX,inY,inW,inH);
    }
-
+*/
 
    override public function redraw()
    {
@@ -603,8 +618,6 @@ class ListControl extends ScrollWidget
       mChildrenClean = mRows.length;
 
       mControlHeight = mRowPos[mRows.length];
-      mWidth = mRect.width;
-      mHeight = mRect.height;
       drawBG();
       setScrollRange(mWidth,mWidth,mControlHeight,mHeight);
    }

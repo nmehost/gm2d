@@ -155,6 +155,9 @@ class Skin
       addAttribs("PanelText", null, {
           align: Layout.AlignRight,
         });
+      addAttribs("Panel", null, {
+          margin: 3,
+        });
       addAttribs("GroupBox", null, {
           margin: 10,
           padding: new Rectangle(0,20,0,20),

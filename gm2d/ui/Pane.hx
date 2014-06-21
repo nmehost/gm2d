@@ -69,6 +69,7 @@ class Pane implements IDockable
       gm2dMinimized = false;
       itemLayout = inItemLayout;
    }
+
    static public function allPanes() { return sPanes.copy(); }
 
    public function screenIntersection():Rectangle
@@ -241,7 +242,7 @@ class Pane implements IDockable
       posY = y;
       sizeX = w;
       sizeY = h;
-      if (displayObject!=null)
+      if (displayObject!=null && !Std.is(displayObject,Widget) )
       {
          if (itemLayout!=null)
             itemLayout.setRect(0,0,w,h);

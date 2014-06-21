@@ -3,6 +3,7 @@ package gm2d.ui;
 import nme.events.MouseEvent;
 import nme.events.Event;
 import nme.display.Stage;
+import nme.display.DisplayObject;
 import nme.geom.Point;
 import nme.geom.Rectangle;
 import gm2d.tween.Tween;
@@ -30,6 +31,7 @@ class ScrollWidget extends Control
    var mDownScrollY:Float;
    var mAutoScrollMouseWatch:MouseWatcher;
    var mAutoScrollTime:Float;
+   var scrollTarget:DisplayObject;
    public var autoScrollRate = 500.0;
 
    // This is for a click, rather than mouse down-move-up
@@ -50,6 +52,7 @@ class ScrollWidget extends Control
       scrollWheelStep = 20.0;
       mScrolling = false;
       viscousity = 2500.0;
+      scrollTarget = this;
       speedX = new TimeAverage(0.2);
       speedY = new TimeAverage(0.2);
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
@@ -79,7 +82,7 @@ class ScrollWidget extends Control
          mScrollX = maxScrollX;
        if (mScrollY>maxScrollY)
          mScrollY = maxScrollY;
-       scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
+       scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
    }
 
    function onMouseWheel(event:MouseEvent)
@@ -159,10 +162,10 @@ class ScrollWidget extends Control
 
    public function beginScrollToMouse(ev:MouseEvent)
    {
-      var pos = globalToLocal( new Point(ev.stageX,ev.stageY) );
+      var pos = scrollTarget.globalToLocal( new Point(ev.stageX,ev.stageY) );
       removeAutoScrollCheck(null);
       mAutoScrollTime = haxe.Timer.stamp();
-      mAutoScrollMouseWatch = new MouseWatcher(this,
+      mAutoScrollMouseWatch = new MouseWatcher(scrollTarget,
                 null,
                 null,
                 removeAutoScrollCheck,
@@ -180,7 +183,7 @@ class ScrollWidget extends Control
    {
       if (!mScrolling)
       {
-         var local = globalToLocal(mDownPos);
+         var local = scrollTarget.globalToLocal(mDownPos);
          doClick(local.x,local.y,ev);
       }
       else
@@ -221,7 +224,7 @@ class ScrollWidget extends Control
       mScrollX = val;
       if (mScrollX<0) mScrollX=0;
       if (mScrollX>maxScrollX) mScrollX = maxScrollX;
-      scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
+      scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
       if (onScroll!=null)
          onScroll();
       return mScrollX;
@@ -235,7 +238,7 @@ class ScrollWidget extends Control
       if (s!=mScrollY)
       {
          mScrollY = s;
-         scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
+         scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
          if (onScroll!=null)
             onScroll();
       }
@@ -245,9 +248,9 @@ class ScrollWidget extends Control
    function onStageDrag(ev:MouseEvent)
    {
       var now = Timer.stamp();
-      var p0 = globalToLocal(mDownPos);
+      var p0 = scrollTarget.globalToLocal(mDownPos);
       var pos = new Point(ev.stageX,ev.stageY);
-      var p1 = globalToLocal(pos);
+      var p1 = scrollTarget.globalToLocal(pos);
       var dx = p1.x-p0.x;
       var dy = p1.y-p0.y;
       if (!mScrolling && (Math.abs(dx)>10 || Math.abs(dy)>10))
@@ -262,8 +265,8 @@ class ScrollWidget extends Control
          mScrollY = mDownScrollY - dy;
          if (mScrollY<0) mScrollY = 0;
          if (mScrollY>maxScrollY) mScrollY= maxScrollY;
-         scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
-         var plast = globalToLocal(mLastPos);
+         scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
+         var plast = scrollTarget.globalToLocal(mLastPos);
          var dt = now-mLastT;
          if (dt>0)
          {

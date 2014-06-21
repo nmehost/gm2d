@@ -73,7 +73,7 @@ class Panel extends Widget
          var h = mGridLayout.getBestHeight(w);
          mPane = new Pane(this, mTitle, 0);
          mPane.setMinSize(w,h);
-         mPane.itemLayout = mGridLayout;
+         mPane.itemLayout = getLayout();
          mPane.setFlags( mPane.getFlags() | Dock.RESIZABLE );
       }
       return mPane;

@@ -295,8 +295,10 @@ class Renderer
          if (minItemSize!=null)
             layout.setMinSize( minItemSize.x, minItemSize.y );
          if (padding!=null)
+         {
             layout.setBorders(padding.x, padding.y,
                padding.width-padding.x, padding.height-padding.y);
+         }
          if (itemAlign!=null)
             layout.setAlignment(itemAlign);
       }
