@@ -97,22 +97,30 @@ class Layout
    }
 
 
-   public function setMinSize(inWidth:Float,inHeight:Float) : Layout
+   public function setMinPaddedSize(inWidth:Float,inHeight:Float) : Layout
    {
       minWidth = inWidth;
       minHeight = inHeight;
+      return this;
+   }
+
+
+   public function setMinSize(inWidth:Float,inHeight:Float) : Layout
+   {
+      minWidth = inWidth + mBLeft + mBRight;
+      minHeight = inHeight + mBTop + mBBottom;
       return this;
    }
 
    public function setMinWidth(inWidth:Float) : Layout
    {
-      minWidth = inWidth;
+      minWidth = inWidth + mBLeft + mBRight;
       return this;
    }
 
    public function setMinHeight(inHeight:Float) : Layout
    {
-      minHeight = inHeight;
+      minHeight = inHeight + mBTop + mBBottom;
       return this;
    }
 

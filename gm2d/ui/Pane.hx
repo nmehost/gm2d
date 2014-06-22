@@ -34,8 +34,8 @@ class Pane implements IDockable
    public var icon:BitmapData;
    //public var bestPos:Array<Point>;
    var flags:Int;
-   var posX:Float;
-   var posY:Float;
+   public var posX(default,null):Float;
+   public var posY(default,null):Float;
 
    public function new(inObj:DisplayObject, inTitle:String, inFlags:Int, ?inShortTitle:String,
        ?inItemLayout:Layout)

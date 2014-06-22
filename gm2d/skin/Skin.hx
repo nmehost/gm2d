@@ -246,6 +246,7 @@ class Skin
           style: StyleRect,
           fill: FillNone,
           line: LineBorder,
+          padding: 0,
         });
 
       addAttribs("PopupMenuItem", null, {
