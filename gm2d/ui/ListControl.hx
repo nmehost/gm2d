@@ -46,7 +46,7 @@ class ListControl extends ScrollWidget
    var mColAlign:Array<Int>;
    var mMultiSelect:Array<Bool>;
    var mControlHeight:Float;
-   var mHoldUpdates = false;
+   var mHoldUpdates = 0;
 
    public var onSelect:Int->Void;
    public var onMultiSelect:Array<Bool>->Void;
@@ -312,7 +312,7 @@ class ListControl extends ScrollWidget
       }
 
       mRows.push( new ListControlRow(row,rowHeight,inUserData,inIndent) );
-      if (!mHoldUpdates)
+      if (mHoldUpdates==0)
       {
          if (needRecalcPos)
          {
@@ -327,14 +327,17 @@ class ListControl extends ScrollWidget
       else
          needRecalcPos = true;
 
-      if (!mHoldUpdates)
+      if (mHoldUpdates==0)
          redraw();
    }
 
    public function holdUpdates(inHold:Bool)
    {
-      mHoldUpdates = inHold;
-      if (!mHoldUpdates)
+      if (inHold)
+         mHoldUpdates++;
+      else
+         mHoldUpdates--;
+      if (mHoldUpdates==0)
       {
          recalcPos();
          redraw();
@@ -350,7 +353,12 @@ class ListControl extends ScrollWidget
    {
       holdUpdates(true);
       for(item in inItems)
-         addRow([item]);
+      {
+         if (Std.is(item,Array))
+            addRow(item);
+         else
+            addRow([item]);
+      }
       holdUpdates(false);
    }
 
