@@ -22,7 +22,7 @@ class ComboList extends Window
       super();
       selectOnMove = inSelectOnMove;
       mCombo = inCombo;
-      mList = new ListControl(inW);
+      mList = new ListControl(inW, null, ["PopupComboBox"]);
       mList.variableHeightRows = true;
       mList.addItems(inOptions);
       addChild(mList);
@@ -30,6 +30,7 @@ class ComboList extends Window
       mList.onSelect = onSelect;
       mList.onClick = function(_)  gm2d.Game.closePopup();
       setItemLayout(mList.getLayout().setMinWidth(inW).stretch());
+      build();
    }
 
    public function getControlHeight() { return mList.getControlHeight(); }
@@ -59,6 +60,7 @@ class ComboList extends Window
    }
 
 
+/*
    override public function redraw()
    {
       var gfx = graphics;
@@ -68,7 +70,7 @@ class ComboList extends Window
 
       mList.redraw();
    }
-
+*/
    public function onSelect(idx:Int)
    {
       if (idx>=0)
@@ -93,6 +95,7 @@ class ComboBox extends TextInput
    static var mBMP:BitmapData;
    var onText:String->Void;
    var onItem:Int->Void;
+   var onPopup:Void->Void;
    public var selectOnMove = true;
 
    public function new(inVal="", ?inOptions:Array<String>, ?inDisplay:Array<Dynamic>,
@@ -174,6 +177,8 @@ class ComboBox extends TextInput
 
    function doPopup()
    {
+      if (onPopup!=null)
+         onPopup();
       var w = mRect.width;
       var pop = mDisplay != null ?
             new ComboList(this, w, mDisplay,selectOnMove) :

@@ -242,6 +242,12 @@ class Skin
           fill: FillLight,
           line: LineBorder,
         });
+      addAttribs("PopupComboBox", null, {
+          style: StyleRect,
+          fill: FillNone,
+          line: LineBorder,
+        });
+
       addAttribs("PopupMenuItem", null, {
           style: StyleRect,
           fill: FillLight,
