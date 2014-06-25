@@ -88,6 +88,7 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
          mNormalParent = parent;
          Game.moveToPopupLayer(this);
       }
+      Game.onClosePopup = function() mCurrentItem = -1;
       Game.popup( new PopupMenu(mItems[inPos],this), mButtons[inPos].x, mHeight );
    }
 

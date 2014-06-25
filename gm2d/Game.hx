@@ -36,6 +36,7 @@ class Game
    static public var pixelAccurate:Bool = false;
    static public var toggleFullscreenOnAltEnter:Bool = true;
    static public var mapEscapeToBack:Bool = true;
+   static public var onClosePopup:Void->Void;
 
    static var mCurrentScreen:Screen;
    static var mCurrentDialog:Dialog;
@@ -631,11 +632,18 @@ class Game
 
    public static function closePopup()
    {
-      if (mCurrentPopup!=null)
-      {
-          mPopupParent.removeChild(mCurrentPopup);
-          mCurrentPopup.destroy();
-          mCurrentPopup = null;
+     if (mCurrentPopup!=null)
+     {
+         if (onClosePopup!=null)
+         {
+            var cb = onClosePopup;
+            onClosePopup = null;
+            cb();
+         }
+ 
+         mPopupParent.removeChild(mCurrentPopup);
+         mCurrentPopup.destroy();
+         mCurrentPopup = null;
       }
       mPopupParent.visible = false;
       mDialogParent.mouseEnabled = true;
