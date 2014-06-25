@@ -35,8 +35,9 @@ class TabRenderer
    public static inline var SHOW_ICON     = 0x0004;
    public static inline var SHOW_PIN      = 0x0008;
    public static inline var SHOW_POPUP    = 0x0010;
+   public static inline var SHOW_CLOSE    = 0x0020;
 
-   public static inline var IS_OVERLAPPED = 0x0020;
+   public static inline var IS_OVERLAPPED = 0x0040;
 
    public dynamic function renderBackground(bitmap:BitmapData)
    {
@@ -167,8 +168,11 @@ class TabRenderer
       trans.ty = y0;
 
       var cx = trans.tx;
+      var closeBut = null;
       for(pane in inPanes)
       {
+         var tx0 = trans.tx;
+
          var text = pane.getShortTitle();
          if (text=="") text="Tab";
          tmpText.text = text;
@@ -186,8 +190,13 @@ class TabRenderer
 
          if (pane==inCurrent)
          {
-            cx = trans.tx;
-            trans.tx+=tw+tabGap;
+            cx = tx0;
+            if ((inFlags & IS_OVERLAPPED)==0)
+            {
+               closeBut = createTabButton( MiniButton.CLOSE ) ;
+               outHitBoxes.add(new Rectangle(trans.tx+tw,boxOffset.y,closeBut.width,tabHeight), BUTTON(pane,MiniButton.CLOSE) );
+               tw += closeBut.getLayout().getBestWidth() + bmpPad*2;
+            }
          }
          else
          {
@@ -208,9 +217,10 @@ class TabRenderer
             }
             trans.ty = Std.int( (tabHeight - tmpText.textHeight)*0.5 );
             bitmap.draw(tmpText,trans);
-            trans.tx += tw-borderLeft+tabGap-iconWidth;
          }
+         trans.tx = tx0 + tw+tabGap;
       }
+
       if (inCurrent!=null)
       {
          if (inCurrent!=inPanes[0])
@@ -236,8 +246,12 @@ class TabRenderer
          if (icon!=null)
             iconWidth = icon.width + bmpPad*2;
          tw+=iconWidth;
+
+         if (closeBut!=null)
+            tw += closeBut.getLayout().getBestWidth() + bmpPad*2;
          trans.ty = y0-1;
          trans.tx = 0;
+
 
          gfx.clear();
          gfx.lineStyle(1,0x404040);
@@ -266,6 +280,13 @@ class TabRenderer
          }
          trans.ty = Std.int( (tabHeight - tmpText.textHeight)*0.5 );
          bitmap.draw(tmpText,trans);
+
+         if (closeBut!=null)
+         {
+            trans.ty = (tabHeight - Std.int(closeBut.getLayout().getBestHeight())) >> 1;
+            trans.tx += tmpText.textWidth + bmpPad;
+            bitmap.draw(closeBut,trans);
+         }
       }
 
       if ((inFlags & IS_OVERLAPPED) == 0)

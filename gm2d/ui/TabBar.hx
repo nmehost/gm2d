@@ -52,7 +52,7 @@ class TabBar extends Widget
 
       mHitBoxes.clear();
 
-      var flags =   TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_POPUP;
+      var flags =   TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_POPUP | TabRenderer.SHOW_CLOSE;
       if (isMaximised)
          flags |=  TabRenderer.SHOW_RESTORE;
       tabRenderer.renderTabs(mChrome, new Rectangle(0,0,tabsWidth,tabsHeight),

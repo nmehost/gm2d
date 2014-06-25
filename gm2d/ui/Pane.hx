@@ -242,7 +242,7 @@ class Pane implements IDockable
       posY = y;
       sizeX = w;
       sizeY = h;
-      if (displayObject!=null && !Std.is(displayObject,Widget) )
+      if (displayObject!=null)
       {
          if (itemLayout!=null)
             itemLayout.setRect(0,0,w,h);

@@ -69,8 +69,8 @@ class Panel extends Widget
    {
       if (mPane==null)
       {
-         var w = mGridLayout.getBestWidth();
-         var h = mGridLayout.getBestHeight(w);
+         var w = getLayout().getBestWidth();
+         var h = getLayout().getBestHeight(w);
          mPane = new Pane(this, mTitle, 0);
          mPane.setMinSize(w,h);
          mPane.itemLayout = getLayout();
