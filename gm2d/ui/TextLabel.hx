@@ -18,6 +18,8 @@ class TextLabel extends Control
        super(Widget.addLine(inLineage,"TextLabel"),inAttribs);
        wantFocus = false;
 
+       createUnderlay();
+
 
        mText = new TextField();
        //mText.autoSize = nme.text.TextFieldAutoSize.LEFT;
@@ -62,6 +64,8 @@ class TextLabel extends Control
 
        build();
    }
+
+   public function createUnderlay() { }
 
    override public function getLabel( ) : TextField
    {

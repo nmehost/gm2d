@@ -2,45 +2,80 @@ package gm2d.ui;
 
 import nme.text.TextField;
 import nme.display.Sprite;
+import nme.display.Shape;
 import nme.display.BitmapData;
 import nme.events.MouseEvent;
+import nme.events.FocusEvent;
 import gm2d.ui.Button;
 import gm2d.ui.Layout;
 import nme.geom.Point;
+import nme.text.TextFieldType;
 import gm2d.skin.Skin;
 
 class NumericInput extends TextInput
 {
+   public static inline var INLINE_SLIDE = 0;
+   public static inline var TEXT         = 1;
+   public static inline var CENTRE_DRAG  = 2;
+
    public var onUpdate:Float->Int->Void;
    public var onEnter:Float->Void;
+   public var popupMode:Int;
+   public var quantization:Float;
+   public var maxBar:Float;
+   var underlay:Shape;
    var min:Float;
    var max:Float;
    var step:Float;
    var slider:Sprite;
    var sliderX:Float;
    var sliderWatcher:MouseWatcher;
+   var textWatcher:MouseWatcher;
    var value:Float;
-   var qvalue:Float;
+   var restrictedValue:Float;
    var isInteger:Bool;
+   var newDrag:Bool;
+   var textChanged:Bool;
    static var SLIDER_W = 22;
 
    public function new(inVal:Float,inIsInteger:Bool,inMin:Float, inMax:Float, inStep:Float,
-      ?inOnUpdateFloat:Float->Int->Void)
+      ?inOnUpdateFloat:Float->Int->Void, inMode:Int = 0)
    {
       isInteger = inIsInteger;
       min = inMin;
       max = inMax;
+      maxBar = inMax;
       value = inVal;
+      textChanged = false;
+      quantization = 0.01;
       if (value<min)
          value = min;
       if (value>max)
          value = max;
-      qvalue = isInteger ? Std.int(value) : value;
+      restrictedValue = isInteger ? Std.int(value) : value;
       step = inStep;
+      newDrag = false;
       onUpdate = inOnUpdateFloat;
-      super(Std.string(qvalue),onUpdateText);
+      popupMode = inMode;
+      super(Std.string(restrictedValue),onUpdateText);
+      if (popupMode==INLINE_SLIDE)
+      {
+         mText.type = nme.text.TextFieldType.DYNAMIC;
+         textWatcher = MouseWatcher.create( mText, onTextDown, onTextDrag, onTextUp);
+         textWatcher.minDragDistance = 10.0;
+         mText.addEventListener(FocusEvent.FOCUS_OUT, function(_) setTextEditMode(false) );
+      }
    }
 
+   override public function createUnderlay()
+   {
+      underlay = new Shape();
+      addChild(underlay);
+   }
+
+
+
+   /*
    override public function createExtraWidgetLayout() : Layout
    {
       slider = new Sprite();
@@ -51,31 +86,95 @@ class NumericInput extends TextInput
       renderSlider();
       return new DisplayLayout(slider);
    }
+   */
 
    public function getValue() : Float
    {
-      return qvalue;
+      return restrictedValue;
    }
 
    public function setValue(inValue:Float) : Void
    {
       var v = inValue;
+      if (!Math.isFinite(v))
+         v = min;
       if (v<min) v = min;
       if (v>max) v = max;
       if (isInteger)
          v = Std.int(v);
-      if (v!=qvalue)
+      if (v!=restrictedValue || textChanged)
       {
-         qvalue = value = v;
-         mText.text = Std.string(qvalue);
+         textChanged = false;
+         restrictedValue = value = v;
+         if (quantization>0)
+            restrictedValue = min + (Std.int((restrictedValue+quantization*0.5-min)/quantization)*quantization);
+
+         mText.text = Std.string(restrictedValue);
+         redrawBar();
       }
    }
+ 
+   public function onTextDown(e:MouseEvent)
+   {
+      newDrag = true;
+   }
+
+   public function onTextDrag(e:MouseEvent)
+   {
+      if (textWatcher.wasDragged)
+      {
+         setTextEditMode(false);
+         var range =maxBar-min;
+         if (range>0)
+         {
+            var x = mText.globalToLocal( new Point(e.stageX, e.stageY) ).x;
+            setValue( x*range/mText.width + min );
+         }
+
+         if (onUpdate!=null)
+            onUpdate(restrictedValue,newDrag ? Phase.BEGIN : Phase.UPDATE);
+         newDrag = false;
+      }
+   }
+
+   public function onTextUp(e:MouseEvent)
+   {
+      if (!textWatcher.wasDragged)
+         setTextEditMode(true);
+      if (!newDrag)
+         onUpdate(restrictedValue,Phase.END);
+   }
+
+   public function setTextEditMode(inText:Bool)
+   {
+      var isText = mText.type == TextFieldType.INPUT;
+      if (isText==inText)
+         return;
+ 
+      if (inText)
+      {
+         mText.type = TextFieldType.INPUT;
+         stage.focus = mText;
+         var len = mText.text.length;
+         mText.setSelection(len, len);
+      }
+      else
+      {
+         mText.type = TextFieldType.DYNAMIC;
+         setValue(Std.parseFloat(mText.text));
+      }
+      redrawBar();
+   }
+
+
+
 
    public function setMinimum(inValue:Float)
    {
       min = inValue;
       if (value<min)
          setValue(min);
+      redrawBar();
    }
 
    public function setMaximum(inValue:Float)
@@ -83,6 +182,22 @@ class NumericInput extends TextInput
       max = inValue;
       if (value>max)
          setValue(max);
+      redrawBar();
+   }
+
+   function redrawBar()
+   {
+      underlay.x = mText.x;
+      underlay.y = mText.y;
+      var gfx = underlay.graphics;
+      var range = maxBar-min;
+      if (range>0)
+      {
+         gfx.clear();
+         gfx.beginFill(0xc0c0c0,1);
+         var val = restrictedValue<maxBar ? value : maxBar;
+         gfx.drawRect(0,0,mText.width * (val-min) / range, mText.height);
+      }
    }
 
 
@@ -95,7 +210,7 @@ class NumericInput extends TextInput
       sliderWatcher = new MouseWatcher(slider, null, onSliderDrag, onSliderUp,
           pos.x, pos.y+e.localY, false );
       if (onUpdate!=null)
-         onUpdate(qvalue,Phase.BEGIN);
+         onUpdate(restrictedValue,Phase.BEGIN);
    }
 
    function onSliderDrag(e:MouseEvent)
@@ -106,12 +221,13 @@ class NumericInput extends TextInput
       if (value<min) value = min;
       if (value>max) value = max;
       var v = isInteger ? Std.int(value) : value;
-      if (v!=qvalue)
+      if (v!=restrictedValue)
       {
-         qvalue = v;
-         mText.text = Std.string(qvalue);
+         restrictedValue = v;
+         redrawBar();
+         mText.text = Std.string(restrictedValue);
          if (onUpdate!=null)
-            onUpdate(qvalue,Phase.UPDATE);
+            onUpdate(restrictedValue,Phase.UPDATE);
       }
    }
    function onSliderUp(e:MouseEvent)
@@ -121,9 +237,9 @@ class NumericInput extends TextInput
       slider.y = 0;
       sliderWatcher = null;
       if (onEnter!=null)
-         onEnter(qvalue);
+         onEnter(restrictedValue);
       if (onUpdate!=null)
-         onUpdate(qvalue,Phase.END);
+         onUpdate(restrictedValue,Phase.END);
    }
 
    function renderSlider()
@@ -152,36 +268,40 @@ class NumericInput extends TextInput
 
    function onUpdateText(inText:String)
    {
+      textChanged = true;
       var v = Std.parseFloat(inText);
+      if (!Math.isFinite(v))
+         return;
       if (isInteger)
          v = Std.int(v);
-      if (v!=qvalue)
+
+      if (v!=value)
       {
          value = v;
-         if (value<min)
-         {
-            value = min;
-            mText.text = Std.string(value);
-         }
+         restrictedValue = value;
+         if (restrictedValue<min)
+            restrictedValue = min;
 
-         if (value>max)
-         {
-            value = max;
-            mText.text = Std.string(value);
-         }
-         qvalue = value;
+         if (restrictedValue>max)
+            restrictedValue = max;
+
+         redrawBar();
 
          if (onEnter!=null)
-            onEnter(qvalue);
+            onEnter(restrictedValue);
+
          else if (onUpdate!=null)
-            onUpdate(qvalue,Phase.ALL);
+            onUpdate(restrictedValue,Phase.ALL);
       }
    }
 
    public override function redraw()
    {
       super.redraw();
-      sliderX = slider.x = Std.int(mRect.width-SLIDER_W);
+      sliderX =  Std.int(mRect.width-SLIDER_W);
+      if (slider!=null)
+         slider.x = sliderX;
+      redrawBar();
       //super.layout(inW-SLIDER_W, inH);
       //sliderX = slider.x = Std.int(inW-SLIDER_W);
    }
