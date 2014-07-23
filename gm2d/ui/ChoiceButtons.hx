@@ -48,7 +48,7 @@ class ChoiceButtons extends Control
       for(key in keys)
       {
          if (!inBitmaps.exists(key))
-            throw "Missing bitmap " + key;
+            throw "ChoiceButtons : missing bitmap " + key;
          var button = Button.BitmapButton(inBitmaps.get(key),null,["ChoiceButton","SimpleButton"],inAttribs);
          result.add( button, key );
       }

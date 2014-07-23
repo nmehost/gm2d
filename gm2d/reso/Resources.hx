@@ -1,105 +1,91 @@
 package gm2d.reso;
 
 import nme.utils.IDataInput;
+import nme.Assets;
 import gm2d.svg.Svg;
 import gm2d.svg.SvgRenderer;
-
-#if haxe3
-typedef ResourceMap<T> = haxe.ds.StringMap<T>;
-#else
-typedef ResourceMap<T> = Hash<T>;
-#end
 
 
 class Resources
 {
-   static var mLoaded = new ResourceMap<Dynamic>();
-
-   static public function loadAsset(inAssetName:String, inCache=false) : Dynamic
+   static public function loadAsset(inName:String, ?inCache:Bool) : Dynamic
    {
-      if (mLoaded.exists(inAssetName)) return mLoaded.get(inAssetName);
-      var result = ApplicationMain.getAsset(inAssetName);
-      if (result==null)
-         throw "Missing asset: " + inAssetName;
-      if  (inCache) mLoaded.set(inAssetName,result);
-      return result;
+      var i = Assets.getInfo(inName);
+      if (i==null)
+         throw "Missing asset: " + inName;
+
+      var cached = i.getCache();
+      if (cached!=null)
+         return cached;
+      switch(i.type)
+      {
+         case BINARY, TEXT: return Assets.getBytes(inName,inCache);
+         case FONT: return Assets.getFont(inName,inCache);
+         case IMAGE: return Assets.getBitmapData(inName,inCache);
+         case MUSIC, SOUND: return Assets.getSound(inName,inCache);
+      }
+
+      throw "Unknown asset type: " + i.type;
+      return null;
    }
 
 
-   static public function loadBitmap(inAssetName:String, inCache=false) : nme.display.BitmapData
+   static public function loadBitmap(inAssetName:String, ?inCache:Bool) : nme.display.BitmapData
    {
-      return loadAsset(inAssetName,inCache);
+      return Assets.getBitmapData(inAssetName,inCache);
    }
 
-   static public function loadBytes(inAssetName:String, inCache=false) : nme.utils.ByteArray
+   static public function loadBytes(inAssetName:String, ?inCache:Bool) : nme.utils.ByteArray
    {
-      return loadAsset(inAssetName,inCache);
+      return Assets.getBytes(inAssetName,inCache);
    }
 
 
-   static public function loadString(inAssetName:String, inCache=false) : String
+   static public function loadString(inAssetName:String, ?inCache:Bool) : String
    {
-      var bytes = loadAsset(inAssetName,inCache);
-      var string:String;
-      #if neko
-      if (bytes==null)
-         return null;
-      string = Std.string(bytes);
-      #else
-      string = bytes;
-      #end
-
-      if (inCache)
-         mLoaded.set(inAssetName,string);
-      return string;
+      return Assets.getString(inAssetName,inCache);
    }
 
-   static public function loadXml(inAssetName:String, inCache=false) : Xml
+   static public function loadXml(inAssetName:String, ?inCache:Bool) : Xml
    {
-      var str = loadString(inAssetName,false);
+      var str = loadString(inAssetName,inCache);
       if (str==null)
          return null;
       var xml:Xml = Xml.parse(str);
       if (xml==null)
          return null;
-      if (inCache)
-         mLoaded.set(inAssetName,xml);
+      //if (inCache)
+      //   mLoaded.set(inAssetName,xml);
       return xml;
    }
 
-   static public function loadSvg(inAssetName:String, inCache=false) : Svg
+   static public function loadSvg(inAssetName:String, ?inCache:Bool) : Svg
    {
-      var cached = mLoaded.get(inAssetName);
-      if (cached!=null && Std.is(cached,Svg))
-         return cached;
+      //var cached = mLoaded.get(inAssetName);
+      //if (cached!=null && Std.is(cached,Svg))
+      //   return cached;
 
-      var xml:Xml = loadXml(inAssetName,false);
+      var xml:Xml = loadXml(inAssetName,inCache);
       if (xml==null)
          return null;
       var svg = new Svg(xml);
-      if (inCache)
-         mLoaded.set(inAssetName,svg);
+      //if (inCache)
+      //   mLoaded.set(inAssetName,svg);
       return svg;
    }
 
-   static public function loadSvgRenderer(inAssetName:String, inCache=false) : SvgRenderer
+   static public function loadSvgRenderer(inAssetName:String, ?inCache:Bool) : SvgRenderer
    {
       return new SvgRenderer(loadSvg(inAssetName,inCache));
    }
 
 
 
-   static public function loadSound(inAssetName:String, inCache=false) : nme.media.Sound
+   static public function loadSound(inAssetName:String, ?inCache:Bool) : nme.media.Sound
    {
       return loadAsset(inAssetName,inCache);
    }
 
-
-   static public function free(inResource:String)
-   {
-      if (mLoaded.exists(inResource))
-         mLoaded.remove(inResource);
-   }
 }
 
 
