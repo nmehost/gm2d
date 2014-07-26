@@ -93,6 +93,12 @@ class NumericInput extends TextInput
       return restrictedValue;
    }
 
+   public function getInt() : Int
+   {
+      return Std.int(restrictedValue);
+   }
+
+
    public function setValue(inValue:Float) : Void
    {
       var v = inValue;
@@ -141,7 +147,7 @@ class NumericInput extends TextInput
    {
       if (!textWatcher.wasDragged)
          setTextEditMode(true);
-      if (!newDrag)
+      if (!newDrag && onUpdate!=null)
          onUpdate(restrictedValue,Phase.END);
    }
 

@@ -97,6 +97,11 @@ class Widget extends Sprite
       return result;
    }
 
+   public function align(x:Float, y:Float, w:Float, h:Float)
+   {
+      getLayout().align(x,y,w,h);
+   }
+
 
 
    function setItemLayout(inLayout:Layout,inStretch:Bool=true)
