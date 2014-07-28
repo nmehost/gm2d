@@ -128,7 +128,7 @@ class GradientControl extends Widget
       addChild(colourBox);
       stopControls.add(colourBox.getLayout().setMinSize(64,28));
 
-      position = new NumericInput(0.0, false, 0, 1, 0.004, onPosition);
+      position = new NumericInput(0.0, onPosition, { maxValue:1, step:0.004 } );
       addChild(position);
       position.setTextWidth(64);
       stopControls.add(position.getLayout().setAlignment(Layout.AlignCenterX));
@@ -186,7 +186,7 @@ class GradientControl extends Widget
       properties.add( type.getLayout() );
 
       properties.add( addLabel("Focal") );
-      focal = new NumericInput(0.0, false, 0, 1, 0.004);
+      focal = new NumericInput(0.0, { maxValue:1, step:0.004} );
       focal.setTextWidth(64);
       addChild(focal);
       properties.add( focal.getLayout() );

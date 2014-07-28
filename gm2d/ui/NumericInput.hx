@@ -36,15 +36,20 @@ class NumericInput extends TextInput
    var isInteger:Bool;
    var newDrag:Bool;
    var textChanged:Bool;
+   var init:Bool;
    static var SLIDER_W = 22;
 
-   public function new(inVal:Float,inIsInteger:Bool,inMin:Float, inMax:Float, inStep:Float,
-      ?inOnUpdateFloat:Float->Int->Void, inMode:Int = 0)
+   public function new(inVal:Float,?inOnUpdateFloat:Float->Int->Void, ?inLineage:Array<String>, ?inAttribs:{} )
+   //public function new(inVal:Float,inIsInteger:Bool,inMin:Float, inMax:Float, inStep:Float,
+   //   ?inOnUpdateFloat:Float->Int->Void, inMode:Int = 0)
    {
-      isInteger = inIsInteger;
-      min = inMin;
-      max = inMax;
-      maxBar = inMax;
+      init = false;
+      super(Std.string(inVal),onUpdateText, inLineage, inAttribs);
+
+      isInteger = attribBool("isInteger",false);
+      min = attribFloat("minValue");
+      max = attribFloat("maxValue",100.0);
+      maxBar = max;
       value = inVal;
       textChanged = false;
       quantization = 0.01;
@@ -53,11 +58,10 @@ class NumericInput extends TextInput
       if (value>max)
          value = max;
       restrictedValue = isInteger ? Std.int(value) : value;
-      step = inStep;
-      newDrag = false;
       onUpdate = inOnUpdateFloat;
-      popupMode = inMode;
-      super(Std.string(restrictedValue),onUpdateText);
+      step = attribFloat("step",0.1);
+      newDrag = false;
+      popupMode = INLINE_SLIDE;
       if (popupMode==INLINE_SLIDE)
       {
          mText.type = nme.text.TextFieldType.DYNAMIC;
@@ -65,6 +69,10 @@ class NumericInput extends TextInput
          textWatcher.minDragDistance = 10.0;
          mText.addEventListener(FocusEvent.FOCUS_OUT, function(_) setTextEditMode(false) );
       }
+      init = true;
+      if (restrictedValue!=inVal)
+         setValue(restrictedValue);
+      redrawBar();
    }
 
    override public function createUnderlay()
@@ -193,6 +201,8 @@ class NumericInput extends TextInput
 
    function redrawBar()
    {
+      if (!init)
+         return;
       underlay.x = mText.x;
       underlay.y = mText.y;
       var gfx = underlay.graphics;

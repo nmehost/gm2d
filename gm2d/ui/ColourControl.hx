@@ -709,8 +709,9 @@ class ColourControl extends Widget
    function makeInput(inMode:Int,inMax:Float=255.0)
    {
       var delta = inMax<= 100 ? 0.01 : 1;
-      var result = new NumericInput(inMax*0.5,inMax>100,0,inMax,delta,
-         function(f,phase)  if (updateLockout==0) setComponent(inMode,f,phase) );
+      var result = new NumericInput(inMax*0.5,
+         function(f,phase)  if (updateLockout==0) setComponent(inMode,f,phase),
+         { isInteger:inMax>100,  maxValue:inMax, step:delta } );
       result.setTextWidth(50);
       result.addEventListener( MouseEvent.MOUSE_DOWN, function(_) setInputMode(inMode) );
       return result;

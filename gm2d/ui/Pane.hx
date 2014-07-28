@@ -124,7 +124,8 @@ class Pane implements IDockable
       if ( (flags & Dock.DONT_DESTROY) ==0 )
       {
          sPanes.remove(this);
-         onClose();
+         if (onClose!=null)
+            onClose();
       }
    }
    public function setDock(inDock:IDock,inParent:DisplayObjectContainer):Void

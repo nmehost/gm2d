@@ -121,6 +121,30 @@ class Widget extends Sprite
       return Reflect.field(mAttribs,"id");
    }
 
+   public function hasAttrib(inName:String) : Bool
+   {
+      return Reflect.field(mAttribs,inName)!=null;
+   }
+
+   public function attribBool(inName:String, inDefault=false) : Bool
+   {
+      var val = Reflect.field(mAttribs,inName);
+      return val==null ? inDefault : val;
+   }
+
+   public function attribInt(inName:String, inDefault=0) : Int
+   {
+      var val = Reflect.field(mAttribs,inName);
+      return val==null ? inDefault : val;
+   }
+
+
+   public function attribFloat(inName:String, inDefault=0.0) : Float
+   {
+      var val = Reflect.field(mAttribs,inName);
+      return val==null ? inDefault : val;
+   }
+
    public function getLayout() { return mLayout; }
 
    public function build()
