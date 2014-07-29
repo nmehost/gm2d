@@ -40,8 +40,6 @@ class NumericInput extends TextInput
    static var SLIDER_W = 22;
 
    public function new(inVal:Float,?inOnUpdateFloat:Float->Int->Void, ?inLineage:Array<String>, ?inAttribs:{} )
-   //public function new(inVal:Float,inIsInteger:Bool,inMin:Float, inMax:Float, inStep:Float,
-   //   ?inOnUpdateFloat:Float->Int->Void, inMode:Int = 0)
    {
       init = false;
       super(Std.string(inVal),onUpdateText, inLineage, inAttribs);

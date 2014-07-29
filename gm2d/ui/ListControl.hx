@@ -37,6 +37,8 @@ class ListControl extends ScrollWidget
    var mItemHeight:Float;
    var mSelected :Int;
    var mListContents:Sprite;
+   var mFixedWidth:Bool;
+   var mMinWidth:Float;
    var mWidth:Float;
    var mHeight:Float;
    var mChildrenClean :Int;
@@ -64,14 +66,18 @@ class ListControl extends ScrollWidget
    {
       super(Widget.addLine(inLineage,"List"), inAttribs);
 
-      mWidth = attribFloat("width",100);
+      mFixedWidth = hasAttrib("width");
+      mMinWidth = attribFloat("width",0);
+      mWidth = mMinWidth;
       mOrigItemHeight = mHeight = attribFloat("itemHeight",0);
       mItemHeight = mOrigItemHeight;
 
       var rowLineage = attrib("rowLineage") ? [attrib("rowLineage"),"ListRow"] : ["ListRow"];
       var attribs = attrib("rowAttribs");
       if (hasAttrib("itemHeight"))
-         Widget.addAttribs( attribs, {minSize: new Size(mWidth,mItemHeight) } );
+         Widget.addAttribs( attribs, {minSize: new Size(mMinWidth,mItemHeight) } );
+
+      mXGap = attribFloat("xgap",2.0);
 
       oddRenderer = Skin.renderer(rowLineage,   0, attribs);
       evenRenderer = Skin.renderer(rowLineage, Widget.ALTERNATE, attribs);
@@ -94,13 +100,12 @@ class ListControl extends ScrollWidget
       mRowPos = [0.0];
       mChildrenClean = 0;
       mSelected = -1;
-      mXGap = 2.0;
       mTextSelectable = false;
       wantFocus = false;
       onSelect = null;
       mColAlign = [];
       mMultiSelect = null;
-      var internalLayout = new Layout().setMinSize(mWidth,mOrigItemHeight).stretch();
+      var internalLayout = new Layout().setMinSize(mMinWidth,mOrigItemHeight).stretch();
       internalLayout.onLayout = layoutList;
       setItemLayout(internalLayout);
       setScrollRange(mWidth,mWidth,mOrigItemHeight,mOrigItemHeight);
@@ -117,6 +122,7 @@ class ListControl extends ScrollWidget
       mChildrenClean = 0;
       mSelected = -1;
       mItemHeight = mOrigItemHeight;
+      mWidth = mMinWidth;
       scrollWheelStep = mOrigItemHeight;
       graphics.clear();
       while(mListContents.numChildren>0)
@@ -195,7 +201,12 @@ class ListControl extends ScrollWidget
          #if neko if (mColWidths[i]==null) mColWidths[i] = 0; #end
          pos += mColWidths[i] + mXGap;
       }
-      if (mStretchCol!=null && mStretchCol<mColWidths.length && mStretchCol>=0)
+
+      if (!mFixedWidth)
+      {
+         mWidth = pos;
+      }
+      else if (mStretchCol!=null && mStretchCol<mColWidths.length && mStretchCol>=0)
       {
          var w = mWidth;
          if (pos!=w)
@@ -260,6 +271,7 @@ class ListControl extends ScrollWidget
          if (item!=null)
          {
             var obj:DisplayObject = null;
+            var layout:Layout = null;
             if (Std.is(item,DisplayObject))
                obj = item;
             else if (Std.is(item,String))
@@ -275,6 +287,14 @@ class ListControl extends ScrollWidget
                w = tf.textWidth;
                h = tf.textHeight;
             }
+            else if (Std.is(obj,Widget))
+            {
+               var widget:Widget = cast obj;
+               var size = widget.getLayout().getBestSize();
+               w = size.x;
+               h = size.y;
+            }
+
             h = Std.int(h+0.99);
 
             if (inHeight!=null)
@@ -563,7 +583,7 @@ class ListControl extends ScrollWidget
    {
       mListContents.x = inX;
       mListContents.y = inY;
-      mWidth = inW;
+      mMinWidth = inW;
       mHeight = inH;
       recalcPos();
    }
@@ -588,40 +608,41 @@ class ListControl extends ScrollWidget
             var item = row.objs[i];
             if (item!=null)
             {
-                var h = item.height;
-                var w = item.width;
-                /*
-                if (Std.is(item,TextField))
-                {
-                   var tf:TextField = cast item;
-                   w = tf.textWidth;
-                   h = tf.textHeight;
-                }
-                */
+               var h = item.height;
+               var w = item.width;
 
-               switch(mColAlign[i] & Layout.AlignMaskX)
+               if (Std.is(item,Widget))
                {
-                  case Layout.AlignRight:
-                      item.x = mColPos[i] + (mColWidths[i]-w) + indent;
-
-                  case Layout.AlignCenterX:
-                      item.x = mColPos[i] + (mColWidths[i]-w)*0.5 + indent;
-
-                  default:
-                      item.x = mColPos[i] + indent;
+                  var widget:Widget = cast item;
+                  widget.align(mColPos[i]+indent, mRowPos[row_idx],
+                               mColWidths[i], mRows[row_idx].height );
                }
- 
-
-               switch(mColAlign[i] & Layout.AlignMaskY)
+               else
                {
-                  case Layout.AlignTop:
-                      item.y = mRowPos[row_idx];
+                  switch(mColAlign[i] & Layout.AlignMaskX)
+                  {
+                     case Layout.AlignRight:
+                         item.x = mColPos[i] + (mColWidths[i]-w) + indent;
 
-                  case Layout.AlignBottom:
-                      item.y = mRowPos[row_idx+1] - h;
+                     case Layout.AlignCenterX:
+                         item.x = mColPos[i] + (mColWidths[i]-w)*0.5 + indent;
 
-                  default:
-                      item.y = mRowPos[row_idx] + (mRows[row_idx].height-h)*0.5;
+                     default:
+                         item.x = mColPos[i] + indent;
+                  }
+    
+
+                  switch(mColAlign[i] & Layout.AlignMaskY)
+                  {
+                     case Layout.AlignTop:
+                         item.y = mRowPos[row_idx];
+
+                     case Layout.AlignBottom:
+                         item.y = mRowPos[row_idx+1] - h;
+
+                     default:
+                         item.y = mRowPos[row_idx] + (mRows[row_idx].height-h)*0.5;
+                  }
                }
             }
          }
@@ -630,8 +651,9 @@ class ListControl extends ScrollWidget
 
       mControlHeight = mRowPos[mRows.length];
       getItemLayout().setMinSize( mWidth, mControlHeight );
+      var size = getLayout().getBestSize();
       drawBG();
-      setScrollRange(mWidth,mWidth,mControlHeight,mHeight);
+      setScrollRange(size.x,size.x,mControlHeight,mHeight);
    }
 
    public function getControlHeight()
