@@ -53,35 +53,40 @@ class ListControl extends ScrollWidget
    public var mXGap:Float;
    public var mTextSelectable:Bool;
   
-   public var selectColour:Int;
-   public var selectAlpha:Float;
-   public var evenColour:Int;
-   public var evenAlpha:Float;
-   public var oddColour:Int;
-   public var oddAlpha:Float;
+   var    evenRenderer:Renderer;
+   var    oddRenderer:Renderer;
+   var    selectRenderer:Renderer;
+
    public var variableHeightRows = false;
 
 
-   public function new(inWidth:Float = 100, inItemHeight:Float=0, ?inLineage:Array<String>)
+   public function new(?inOnSelect:Int->Void, ?inLineage:Array<String>,?inAttribs:{})
    {
-      super(Widget.addLine(inLineage,"List"));
-      selectAlpha = 1.0;
-      evenAlpha = 1.0;
+      super(Widget.addLine(inLineage,"List"), inAttribs);
+
+      mWidth = attribFloat("width",100);
+      mOrigItemHeight = mHeight = attribFloat("itemHeight",0);
+      mItemHeight = mOrigItemHeight;
+
+      var rowLineage = attrib("rowLineage") ? [attrib("rowLineage"),"ListRow"] : ["ListRow"];
+      var attribs = attrib("rowAttribs");
+      if (hasAttrib("itemHeight"))
+         Widget.addAttribs( attribs, {minSize: new Size(mWidth,mItemHeight) } );
+
+      oddRenderer = Skin.renderer(rowLineage,   0, attribs);
+      evenRenderer = Skin.renderer(rowLineage, Widget.ALTERNATE, attribs);
+      selectRenderer = Skin.renderer(rowLineage, Widget.CURRENT, attribs);
+
       mStretchCol = null;
-      oddAlpha = 1.0;
-      selectColour = 0xd0d0f0;
-      evenColour = 0xffffff;
-      oddColour = 0xf0f0ff;
+      onSelect = inOnSelect;
 
       mListContents = new Sprite();
       addChild(mListContents);
       scrollTarget = mListContents;
-      mOrigItemHeight = inItemHeight;
-      mItemHeight = mOrigItemHeight;
       scrollWheelStep = mOrigItemHeight;
       mControlHeight = 0.0;
-      mWidth = inWidth;
-      mHeight = inItemHeight;
+
+
       mRows = [];
       mColWidths = [];
       mMinColWidths = [];
@@ -95,10 +100,10 @@ class ListControl extends ScrollWidget
       onSelect = null;
       mColAlign = [];
       mMultiSelect = null;
-      var internalLayout = new Layout().setMinSize(inWidth,inItemHeight).stretch();
+      var internalLayout = new Layout().setMinSize(mWidth,mOrigItemHeight).stretch();
       internalLayout.onLayout = layoutList;
       setItemLayout(internalLayout);
-      setScrollRange(inWidth,inWidth,inItemHeight,inItemHeight);
+      setScrollRange(mWidth,mWidth,mOrigItemHeight,mOrigItemHeight);
       build();
    }
 
@@ -533,15 +538,13 @@ class ListControl extends ScrollWidget
       for(i in 0...mRows.length)
       {
          var selected = mMultiSelect==null ?  i==mSelected : mMultiSelect[i];
-         gfx.beginFill( selected ? selectColour : ( (i & 1) > 0 ? oddColour: evenColour ),
-                        selected ? selectAlpha  : ( (i & 1) > 0 ? oddAlpha : evenAlpha  ) );
-         gfx.drawRect(0,mRowPos[i],mWidth,mRows[i].height);
+         var renderer = selected ? selectRenderer : (i & 1) > 0 ? oddRenderer: evenRenderer;
+         renderer.renderRect(null, gfx, new Rectangle(0,mRowPos[i],mWidth,mRows[i].height) );
       }
 
       if (mControlHeight<mHeight)
       {
-         gfx.beginFill( evenColour, evenAlpha );
-         gfx.drawRect(0,mControlHeight,mWidth,mHeight-mControlHeight);
+         evenRenderer.renderRect(null, gfx, new Rectangle(0,mControlHeight,mWidth,mHeight-mControlHeight));
       }
    }
 

@@ -8,6 +8,6 @@ enum Style
    StyleRect;
    StyleRoundRect;
    StyleRoundRectRad(inRad:Float);
-   StyleCustom( render:Widget->Void );
+   StyleCustom( renderer:Widget->Void );
 }
 

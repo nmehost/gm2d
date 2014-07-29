@@ -41,9 +41,9 @@ class ScrollWidget extends Control
    var speedY:TimeAverage;
    var mLastT:Float;
 
-   public function new(?inLineage:Array<String>)
+   public function new(?inLineage:Array<String>,?inAttribs:{})
    {
-      super(Widget.addLine(inLineage,"Scroll"));
+      super(Widget.addLine(inLineage,"Scroll"), inAttribs);
       mEventStage = null;
       maxScrollX = 0;
       maxScrollY = 0;

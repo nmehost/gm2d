@@ -18,6 +18,7 @@ class Widget extends Sprite
    public static inline var DOWN       = 0x0002;
    public static inline var DISABLED   = 0x0004;
    public static inline var MULTIVALUE = 0x0008;
+   public static inline var ALTERNATE  = 0x0010;
 
    var mLayout:BorderLayout;
    var mItemLayout:Layout;
@@ -119,6 +120,11 @@ class Widget extends Sprite
       if (mAttribs==null)
          return null;
       return Reflect.field(mAttribs,"id");
+   }
+
+   public function attrib(inName:String) : Dynamic
+   {
+      return Reflect.field(mAttribs,inName);
    }
 
    public function hasAttrib(inName:String) : Bool

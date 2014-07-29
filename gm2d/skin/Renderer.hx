@@ -162,6 +162,15 @@ class Renderer
              case FillStyle.FillDisabled:
                 inGraphics.beginFill(Skin.guiDisabled);
 
+             case FillStyle.FillRowOdd:
+                inGraphics.beginFill(Skin.rowOddColour,((Skin.rowOddColour>>24)&0xff)/255.0);
+
+             case FillStyle.FillRowEven:
+                inGraphics.beginFill(Skin.rowEvenColour,((Skin.rowEvenColour>>24)&0xff)/255.0);
+
+             case FillStyle.FillRowSelect:
+                inGraphics.beginFill(Skin.rowSelectColour,((Skin.rowSelectColour>>24)&0xff)/255.0);
+
              case FillStyle.FillSolid(rgb,a):
                 inGraphics.beginFill(rgb,a);
 
@@ -199,7 +208,6 @@ class Renderer
       return lined;
    }
 
-
    public function renderWidget(inWidget:Widget)
    {
       var label = inWidget.getLabel();
@@ -212,6 +220,12 @@ class Renderer
 
       var gfx = inWidget.mChrome.graphics;
       var r = inWidget.mRect;
+      renderRect(inWidget,gfx,r);
+   }
+
+
+   public function renderRect(widget:Widget, gfx:Graphics, r:Rectangle)
+   {
       var lined = setLine(gfx,r);
       var filled = setFill(gfx,r);
 
@@ -234,7 +248,9 @@ class Renderer
                gfx.drawRoundRect(r.x-offset, r.y-offset, r.width+offset*2, r.height+offset*2, rad,rad);
 
          case StyleCustom( render ):
-            render(inWidget);
+            if (widget==null)
+               throw "Invalid custom renderer on non-widget";
+            render(widget);
             filled = true;
       }
 

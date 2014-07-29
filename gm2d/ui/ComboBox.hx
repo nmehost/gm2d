@@ -22,7 +22,7 @@ class ComboList extends Window
       super();
       selectOnMove = inSelectOnMove;
       mCombo = inCombo;
-      mList = new ListControl(inW, 0, ["PopupComboBox"]);
+      mList = new ListControl(["PopupComboBox"], { width:inW } );
       mList.variableHeightRows = true;
       mList.addItems(inOptions);
       addChild(mList);

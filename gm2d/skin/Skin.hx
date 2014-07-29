@@ -71,6 +71,10 @@ class Skin
    public static var menuHeight:Float = 22;
    public static var titleHeight = 26;
 
+   public static var rowSelectColour = 0xffd0d0f0;
+   public static var rowEvenColour   = 0xffffffff;
+   public static var rowOddColour    = 0xfff0f0ff;
+
 
    public static var currentFilters:Array<BitmapFilter>;
    public static var sliderRenderer:SliderRenderer;
@@ -231,6 +235,21 @@ class Skin
           filters:null,
           line: LineNone,
         });
+      addAttribs("ListRow", null, {
+          filters:null,
+          line: LineNone,
+          style: StyleRect,
+          fill: FillRowOdd,
+        });
+      addAttribs("ListRow", Widget.ALTERNATE, {
+          style: StyleRect,
+          fill: FillRowEven,
+        });
+      addAttribs("ListRow", Widget.CURRENT, {
+          style: StyleRect,
+          fill: FillRowSelect,
+        });
+ 
       addAttribs("MenuCheckbox", null, {
           filters:null,
           line: LineNone,
