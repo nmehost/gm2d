@@ -50,7 +50,6 @@ class NumericInput extends TextInput
       maxBar = max;
       value = inVal;
       textChanged = false;
-      quantization = 0.01;
       if (value<min)
          value = min;
       if (value>max)
@@ -58,6 +57,9 @@ class NumericInput extends TextInput
       restrictedValue = isInteger ? Std.int(value) : value;
       onUpdate = inOnUpdateFloat;
       step = attribFloat("step",0.1);
+      quantization = 0.01;
+      if (step<quantization)
+         quantization = step;
       newDrag = false;
       popupMode = INLINE_SLIDE;
       if (popupMode==INLINE_SLIDE)
@@ -119,7 +121,9 @@ class NumericInput extends TextInput
          textChanged = false;
          restrictedValue = value = v;
          if (quantization>0)
+         {
             restrictedValue = min + (Std.int((restrictedValue+quantization*0.5-min)/quantization)*quantization);
+         }
 
          mText.text = Std.string(restrictedValue);
          redrawBar();

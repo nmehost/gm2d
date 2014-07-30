@@ -774,12 +774,10 @@ class ColInfo
 {
    public function new(inStretch:Float)
    {
-      mMaxWidth = 0;
       mWidth = 0;
       mMinWidth = 0;
       mStretch = inStretch;
    }
-   public var mMaxWidth:Float;
    public var mWidth:Float;
    public var mStretch:Float;
    public var mMinWidth:Float;
@@ -791,8 +789,10 @@ class RowInfo
    {
       mCols = [];
       mStretch = inStretch;
+      mShrinkOnly = false;
    }
    public var mCols:LayoutList;
+   public var mShrinkOnly:Bool;
    public var mStretch:Float;
    public var mHeight:Float;
 }
@@ -932,11 +932,12 @@ class GridLayout extends Layout
       mSpaceX = inX; mSpaceY = inY;
       return this;
    }
-   public function setRowStretch(inRow:Int,inStretch:Float)
+   public function setRowStretch(inRow:Int,inStretch:Float,inShrinkOnly=false)
    {
       if (mRowInfo[inRow]==null)
          mRowInfo[inRow] = new RowInfo(inStretch);
       mRowInfo[inRow].mStretch = inStretch;
+      mRowInfo[inRow].mShrinkOnly = inShrinkOnly;
       return this;
    }
 
@@ -1060,10 +1061,14 @@ class GridLayout extends Layout
         {
            var stretch = 0.0;
            for(row in mRowInfo)
-              stretch += row.mStretch;
+           {
+              if (extra<0 || !row.mShrinkOnly)
+                 stretch += row.mStretch;
+           }
            if (stretch!=0)
                  for(row in mRowInfo)
-                    row.mHeight += row.mStretch * extra / stretch;
+                    if (extra<0 || !row.mShrinkOnly)
+                       row.mHeight += row.mStretch * extra / stretch;
         }
 
         height = inHeight;
