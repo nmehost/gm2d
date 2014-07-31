@@ -38,6 +38,7 @@ class Widget extends Sprite
    public var mRenderer : Renderer;
    public var mLineage : Array<String>;
    public var mAttribs : Dynamic;
+   public var combinedAttribs : Map<String,Dynamic>;
 
    //var highlightColour:Int;
 
@@ -52,7 +53,8 @@ class Widget extends Sprite
       else
          name = mLineage[0];
 
-      mRenderer = Skin.renderer(mLineage, state, inAttribs);
+      combinedAttribs = Skin.combineAttribs(mLineage, state, inAttribs);
+      mRenderer = new Renderer(combinedAttribs);
       mChrome = new Sprite();
       addChild(mChrome);
       wantFocus = false;
@@ -117,37 +119,35 @@ class Widget extends Sprite
 
    public function getId() : String
    {
-      if (mAttribs==null)
-         return null;
-      return Reflect.field(mAttribs,"id");
+      return name;
    }
 
    public function attrib(inName:String) : Dynamic
    {
-      return Reflect.field(mAttribs,inName);
+      return combinedAttribs.get(inName);
    }
 
    public function hasAttrib(inName:String) : Bool
    {
-      return Reflect.field(mAttribs,inName)!=null;
+      return combinedAttribs.exists(inName);
    }
 
    public function attribBool(inName:String, inDefault=false) : Bool
    {
-      var val = Reflect.field(mAttribs,inName);
+      var val = combinedAttribs.get(inName);
       return val==null ? inDefault : val;
    }
 
    public function attribInt(inName:String, inDefault=0) : Int
    {
-      var val = Reflect.field(mAttribs,inName);
+      var val = combinedAttribs.get(inName);
       return val==null ? inDefault : val;
    }
 
 
    public function attribFloat(inName:String, inDefault=0.0) : Float
    {
-      var val = Reflect.field(mAttribs,inName);
+      var val = combinedAttribs.get(inName);
       return val==null ? inDefault : val;
    }
 
@@ -199,7 +199,8 @@ class Widget extends Sprite
       if (inState!=state)
       {
          state = inState;
-         mRenderer = Skin.renderer(mLineage, state, mAttribs);
+         combinedAttribs = Skin.combineAttribs(mLineage, state, mAttribs);
+         mRenderer = new Renderer(combinedAttribs);
          redraw();
       }
       return inState;

@@ -23,6 +23,8 @@ class NumericInput extends TextInput
    public var popupMode:Int;
    public var quantization:Float;
    public var maxBar:Float;
+   public var value(get,set):Float;
+
    var underlay:Shape;
    var min:Float;
    var max:Float;
@@ -31,13 +33,14 @@ class NumericInput extends TextInput
    var sliderX:Float;
    var sliderWatcher:MouseWatcher;
    var textWatcher:MouseWatcher;
-   var value:Float;
+   var fullValue:Float;
    var restrictedValue:Float;
    var isInteger:Bool;
    var newDrag:Bool;
    var textChanged:Bool;
    var init:Bool;
    static var SLIDER_W = 22;
+
 
    public function new(inVal:Float,?inOnUpdateFloat:Float->Int->Void, ?inLineage:Array<String>, ?inAttribs:{} )
    {
@@ -48,13 +51,13 @@ class NumericInput extends TextInput
       min = attribFloat("minValue");
       max = attribFloat("maxValue",100.0);
       maxBar = max;
-      value = inVal;
+      fullValue = inVal;
       textChanged = false;
-      if (value<min)
-         value = min;
-      if (value>max)
-         value = max;
-      restrictedValue = isInteger ? Std.int(value) : value;
+      if (fullValue<min)
+         fullValue = min;
+      if (fullValue>max)
+         fullValue = max;
+      restrictedValue = isInteger ? Std.int(fullValue) : fullValue;
       onUpdate = inOnUpdateFloat;
       step = attribFloat("step",0.1);
       quantization = 0.01;
@@ -101,13 +104,24 @@ class NumericInput extends TextInput
       return restrictedValue;
    }
 
+   inline public function get_value() : Float
+   {
+      return getValue();
+   }
+
+   inline public function set_value(inValue:Float) : Float
+   {
+      return setValue(inValue);
+   }
+
+
    public function getInt() : Int
    {
       return Std.int(restrictedValue);
    }
 
 
-   public function setValue(inValue:Float) : Void
+   public function setValue(inValue:Float) : Float
    {
       var v = inValue;
       if (!Math.isFinite(v))
@@ -119,7 +133,7 @@ class NumericInput extends TextInput
       if (v!=restrictedValue || textChanged)
       {
          textChanged = false;
-         restrictedValue = value = v;
+         restrictedValue = fullValue = v;
          if (quantization>0)
          {
             restrictedValue = min + (Std.int((restrictedValue+quantization*0.5-min)/quantization)*quantization);
@@ -128,6 +142,7 @@ class NumericInput extends TextInput
          mText.text = Std.string(restrictedValue);
          redrawBar();
       }
+      return restrictedValue;
    }
  
    public function onTextDown(e:MouseEvent)
@@ -188,7 +203,7 @@ class NumericInput extends TextInput
    public function setMinimum(inValue:Float)
    {
       min = inValue;
-      if (value<min)
+      if (fullValue<min)
          setValue(min);
       redrawBar();
    }
@@ -196,7 +211,7 @@ class NumericInput extends TextInput
    public function setMaximum(inValue:Float)
    {
       max = inValue;
-      if (value>max)
+      if (fullValue>max)
          setValue(max);
       redrawBar();
    }
@@ -213,7 +228,7 @@ class NumericInput extends TextInput
       {
          gfx.clear();
          gfx.beginFill(0xc0c0c0,1);
-         var val = restrictedValue<maxBar ? value : maxBar;
+         var val = restrictedValue<maxBar ? fullValue : maxBar;
          gfx.drawRect(0,0,mText.width * (val-min) / range, mText.height);
       }
    }
@@ -235,10 +250,10 @@ class NumericInput extends TextInput
    {
       var dy = sliderWatcher.pos.y - sliderWatcher.prevPos.y;
       slider.y += dy;
-      value -= dy*step;
-      if (value<min) value = min;
-      if (value>max) value = max;
-      var v = isInteger ? Std.int(value) : value;
+      fullValue -= dy*step;
+      if (fullValue<min) fullValue = min;
+      if (fullValue>max) fullValue = max;
+      var v = isInteger ? Std.int(fullValue) : fullValue;
       if (v!=restrictedValue)
       {
          restrictedValue = v;
@@ -293,10 +308,10 @@ class NumericInput extends TextInput
       if (isInteger)
          v = Std.int(v);
 
-      if (v!=value)
+      if (v!=fullValue)
       {
-         value = v;
-         restrictedValue = value;
+         fullValue = v;
+         restrictedValue = fullValue;
          if (restrictedValue<min)
             restrictedValue = min;
 

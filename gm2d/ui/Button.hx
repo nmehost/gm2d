@@ -21,8 +21,8 @@ class Button extends Control
    public var isToggle:Bool;
    public var noFocus:Bool;
    public var mCallback : Void->Void;
-   var mDownDX:Float;
-   var mDownDY:Float;
+   public var mDownDX:Float;
+   public var mDownDY:Float;
    var mCurrentDX:Float;
    var mCurrentDY:Float;
    //public var onCurrentChangedFunc:Bool->Void;
@@ -46,7 +46,7 @@ class Button extends Control
       mCurrentDX = mCurrentDY = 0;
       noFocus = false;
       mouseChildren = false;
-      isToggle = false;
+      isToggle = attribBool("toggle",false);
       addEventListener(MouseEvent.CLICK, onClick );
       addEventListener(MouseEvent.MOUSE_DOWN, onDown );
       addEventListener(MouseEvent.MOUSE_UP, onUp );
@@ -79,6 +79,8 @@ class Button extends Control
 
       build();
 
+      if (isToggle && attribBool("down",false))
+         down = true;
    }
 
    override public function redraw()

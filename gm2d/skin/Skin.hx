@@ -297,7 +297,7 @@ class Skin
       return null;
    }
 
-   public static function addId(inId:String, inState:Null<Int>, inAttribs:Dynamic)
+   public static function addId(inId:String, inState:Null<Int>, inAttribs:{ })
    {
       var attribs = idAttribs.get(inId);
       if (attribs==null)
@@ -374,7 +374,7 @@ class Skin
       return defaultTabRenderer;
    }
 
-   public static function renderer(inLineage:Array<String>,inState:Int=0, ?inAttribs:Dynamic) : Renderer
+   public static function combineAttribs(inLineage:Array<String>,inState:Int=0, ?inAttribs:{}) : Map<String,Dynamic>
    {
        var map = new Map<String,Dynamic>();
        for(attrib in attribSet)
@@ -390,7 +390,12 @@ class Skin
        }
        mergeAttribMap(map,inAttribs);
 
-       return new Renderer(map);
+       return map;
+   }
+
+   public static function renderer(inLineage:Array<String>,inState:Int=0, ?inAttribs:{}) : Renderer
+   {
+       return new Renderer(combineAttribs(inLineage,inState,inAttribs));
    }
 
 

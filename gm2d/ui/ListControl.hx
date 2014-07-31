@@ -102,7 +102,6 @@ class ListControl extends ScrollWidget
       mSelected = -1;
       mTextSelectable = false;
       wantFocus = false;
-      onSelect = null;
       mColAlign = [];
       mMultiSelect = null;
       var internalLayout = new Layout().setMinSize(mMinWidth,mOrigItemHeight).stretch();

@@ -777,10 +777,12 @@ class ColInfo
       mWidth = 0;
       mMinWidth = 0;
       mStretch = inStretch;
+      mStretchSet = false;
    }
    public var mWidth:Float;
    public var mStretch:Float;
    public var mMinWidth:Float;
+   public var mStretchSet:Bool;
 }
 
 class RowInfo
@@ -789,12 +791,14 @@ class RowInfo
    {
       mCols = [];
       mStretch = inStretch;
+      mStretchSet = false;
       mShrinkOnly = false;
    }
    public var mCols:LayoutList;
    public var mShrinkOnly:Bool;
    public var mStretch:Float;
    public var mHeight:Float;
+   public var mStretchSet:Bool;
 }
 
 
@@ -875,7 +879,7 @@ class GridLayout extends Layout
       mRowInfo[row].mCols.push(inLayout);
       if (inLayout!=null)
       {
-         if ( (inLayout.mAlign & Layout.AlignMaskY) == Layout.AlignStretch)
+         if (!mRowInfo[row].mStretchSet && (inLayout.mAlign & Layout.AlignMaskY) == Layout.AlignStretch)
          {
             if (mRowInfo[row].mStretch<1)
                mRowInfo[row].mStretch = 1;
@@ -883,7 +887,7 @@ class GridLayout extends Layout
                mAlign &= ~Layout.AlignMaskY;
          }
 
-         if ( (inLayout.mAlign & Layout.AlignMaskX) == Layout.AlignStretch)
+         if (!mColInfo[col].mStretchSet &&  (inLayout.mAlign & Layout.AlignMaskX) == Layout.AlignStretch)
          {
             if (mColInfo[col].mStretch<1)
                mColInfo[col].mStretch = 1;
@@ -932,12 +936,30 @@ class GridLayout extends Layout
       mSpaceX = inX; mSpaceY = inY;
       return this;
    }
+
+
+   public function rowStretch(inValues:Array<Float>)
+   {
+      for(i in 0...inValues.length)
+         setRowStretch(i,inValues[i]);
+      return this;
+   }
+
+
    public function setRowStretch(inRow:Int,inStretch:Float,inShrinkOnly=false)
    {
       if (mRowInfo[inRow]==null)
          mRowInfo[inRow] = new RowInfo(inStretch);
       mRowInfo[inRow].mStretch = inStretch;
       mRowInfo[inRow].mShrinkOnly = inShrinkOnly;
+      mRowInfo[inRow].mStretchSet = true;
+      return this;
+   }
+
+   public function colStretch(inValues:Array<Float>)
+   {
+      for(i in 0...inValues.length)
+         setColStretch(i,inValues[i]);
       return this;
    }
 
@@ -946,6 +968,7 @@ class GridLayout extends Layout
       if (mColInfo[inCol]==null)
          mColInfo[inCol] = new ColInfo(inStretch);
       mColInfo[inCol].mStretch = inStretch;
+      mColInfo[inCol].mStretchSet = true;
       return this;
    }
 
@@ -1157,18 +1180,22 @@ class GridLayout extends Layout
 
 class VerticalLayout extends GridLayout
 {
-   public function new()
+   public function new(?inRowStretch:Array<Float>)
    {
       super(1,"VLayout");
+      if (inRowStretch!=null)
+         rowStretch(inRowStretch);
    }
 }
 
 
 class HorizontalLayout extends GridLayout
 {
-   public function new()
+   public function new(?inColStretch:Array<Float>)
    {
       super(null,"HLayout");
+      if (inColStretch!=null)
+         colStretch(inColStretch);
    }
 }
 
