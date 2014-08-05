@@ -37,9 +37,9 @@ class ListControl extends ScrollWidget
    var mItemHeight:Float;
    var mSelected :Int;
    var mListContents:Sprite;
-   var mFixedWidth:Bool;
-   var mMinWidth:Float;
    var mWidth:Float;
+   var mMinWidth:Float;
+   var mMinControlWidth:Float;
    var mHeight:Float;
    var mChildrenClean :Int;
    var mColWidths:Array<Float>;
@@ -66,8 +66,7 @@ class ListControl extends ScrollWidget
    {
       super(Widget.addLine(inLineage,"List"), inAttribs);
 
-      mFixedWidth = hasAttrib("width");
-      mMinWidth = attribFloat("width",0);
+      mMinControlWidth = mMinWidth = attribFloat("width",0);
       mWidth = mMinWidth;
       mOrigItemHeight = mHeight = attribFloat("itemHeight",0);
       mItemHeight = mOrigItemHeight;
@@ -194,31 +193,28 @@ class ListControl extends ScrollWidget
    {
       mChildrenClean = 0;
       var pos = 0.0;
+      mColPos=[];
       for(i in 0...mColWidths.length)
       {
          mColPos[i] = pos;
          #if neko if (mColWidths[i]==null) mColWidths[i] = 0; #end
          pos += mColWidths[i] + mXGap;
       }
+      mMinControlWidth = pos;
+      if (mMinControlWidth<mMinWidth)
+         mMinControlWidth = mMinWidth;
 
-      if (!mFixedWidth)
+      var w = Math.max(mMinControlWidth,mWidth);
+      var col = mStretchCol!=null ? mStretchCol : mColWidths.length-1;
+
+      if (col!=null && col<mColWidths.length && col>=0 && pos!=w)
       {
-         mWidth = pos;
-      }
-      else if (mStretchCol!=null && mStretchCol<mColWidths.length && mStretchCol>=0)
-      {
-         var w = mWidth;
-         if (pos!=w)
-         {
-            //trace("List adjust " + (w-pos) );
-            mColWidths[mStretchCol] += w-pos;
-            pos = 0;
-            for(i in 0...mColWidths.length)
-            {
-               mColPos[i] = pos;
-               pos += mColWidths[i] + mXGap;
-            }
-         }
+         //trace("List adjust " + (w-pos) );
+         var bump = w-pos;
+         pos += bump;
+         mColWidths[col] += bump;
+         for(i in col+1...mColWidths.length)
+            mColPos[i] += bump;
       }
       mColPos.push(pos);
 
@@ -230,6 +226,9 @@ class ListControl extends ScrollWidget
       }
       mRowPos[mRows.length]=pos;
 
+      mControlHeight = mRowPos[mRows.length];
+      getItemLayout().setMinSize( mMinControlWidth, mControlHeight );
+      setScrollRange(mWidth,mWidth,mControlHeight,mHeight);
    }
 
    public function stringToItem(inString:String) : DisplayObject
@@ -582,9 +581,10 @@ class ListControl extends ScrollWidget
    {
       mListContents.x = inX;
       mListContents.y = inY;
-      mMinWidth = inW;
+      mWidth = inW;
       mHeight = inH;
       recalcPos();
+      redraw();
    }
 
 /*
@@ -648,11 +648,7 @@ class ListControl extends ScrollWidget
       }
       mChildrenClean = mRows.length;
 
-      mControlHeight = mRowPos[mRows.length];
-      getItemLayout().setMinSize( mWidth, mControlHeight );
-      var size = getLayout().getBestSize();
       drawBG();
-      setScrollRange(size.x,size.x,mControlHeight,mHeight);
    }
 
    public function getControlHeight()

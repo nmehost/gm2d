@@ -146,7 +146,7 @@ class FileOpen
         {
            var parts = inFilter.split("|");
            var p = 0;
-           while(p>parts.length)
+           while(p+1<parts.length)
            {
               extensions.push( new FileFilter(parts[p],parts[p+1]) );
               p+=2;
