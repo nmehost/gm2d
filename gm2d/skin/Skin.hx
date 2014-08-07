@@ -96,15 +96,27 @@ class Skin
    public static var resolveAttribs: String->AttribSet = defaultResolveAttribs;
 
    public static var tabSize = 32;
-   public static var doInit:Dynamic = init();
+   public static var dpiScale:Float = 0.0;
+   public static var isInit:Bool = false;
 
 
-   public static function init()
+   public static function init(inForce:Bool = false)
    {
+      if (isInit && !inForce)
+         return;
+
+      isInit = true;
+      if (dpiScale==0.0)
+      {
+         dpiScale = nme.system.Capabilities.screenDPI;
+         if (dpiScale>120)
+            dpiScale /= 120;
+      }
+
       if (textFormat==null)
       {
          textFormat = new TextFormat();
-         textFormat.size = 14;
+         textFormat.size = scale(14);
          textFormat.font = "Arial";
          textFormat.color = 0x000000;
       }
@@ -138,7 +150,7 @@ class Skin
           textAlign: "center",
           itemAlign: Layout.AlignCenter,
           padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
-          offset: new Point(1,1),
+          offset: new Point(scale(1),scale(1)),
         });
       addAttribs("ToggleButton", null, {
          offset: new Point(0,0)
@@ -148,7 +160,7 @@ class Skin
           line: LineNone,
           fill: FillNone,
           style: StyleRect,
-          padding: new Rectangle(2,2,4,4),
+          padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
         });
       addAttribs("SimpleButton", Widget.DOWN, {
           line: LineBorder,
@@ -160,11 +172,11 @@ class Skin
           align: Layout.AlignRight,
         });
       addAttribs("Panel", null, {
-          margin: 3,
+          margin: scale(3),
         });
       addAttribs("GroupBox", null, {
           margin: 10,
-          padding: new Rectangle(0,20,0,20),
+          padding: new Rectangle(0,scale(20),0,scale(20)),
           line:LineBorder,
           fill: FillLight,
           style:StyleRoundRect
@@ -177,7 +189,7 @@ class Skin
       addAttribs("TextInput", null, {
           style: StyleRect,
           align: Layout.AlignLeft,
-          minItemSize : new Size(100,1),
+          minItemSize : new Size(scale(100),1),
           line: LineBorder,
           fill: FillSolid(0xffffff,1),
         });
@@ -204,7 +216,7 @@ class Skin
         });
       addAttribs("ProgressBar", null, {
           align: Layout.AlignStretch,
-          minItemSize: new Size(100,20),
+          minItemSize: new Size(scale(100),scale(20)),
         });
       addAttribs("VLine", null, {
           align: Layout.AlignStretch,
@@ -272,7 +284,7 @@ class Skin
           style: StyleRect,
           fill: FillLight,
           textAlign: "left",
-          padding: 3,
+          padding: scale(3),
           align: Layout.AlignStretch | Layout.AlignCenterY,
         });
       addAttribs("PopupMenuItem", Widget.CURRENT, {
@@ -295,6 +307,11 @@ class Skin
 
 
       return null;
+   }
+
+   public static function scale(inVal:Float):Int
+   {
+      return Std.int(inVal*dpiScale);
    }
 
    public static function addId(inId:String, inState:Null<Int>, inAttribs:{ })
@@ -366,16 +383,19 @@ class Skin
 
    public static function dockRenderer(inLineage:Array<String>, ?inAttribs:Dynamic) : DockRenderer
    {
+      init();
       return new DockRenderer(hasLineage(inLineage,"VariableWidth"));
    }
 
    public static function tabRenderer(inLineage:Array<String>, ?inAttribs:Dynamic) : TabRenderer
    {
+      init();
       return defaultTabRenderer;
    }
 
    public static function combineAttribs(inLineage:Array<String>,inState:Int=0, ?inAttribs:{}) : Map<String,Dynamic>
    {
+       init();
        var map = new Map<String,Dynamic>();
        for(attrib in attribSet)
           if (attrib.matches(inLineage,inState))
@@ -395,7 +415,8 @@ class Skin
 
    public static function renderer(inLineage:Array<String>,inState:Int=0, ?inAttribs:{}) : Renderer
    {
-       return new Renderer(combineAttribs(inLineage,inState,inAttribs));
+      init();
+      return new Renderer(combineAttribs(inLineage,inState,inAttribs));
    }
 
 
@@ -451,6 +472,7 @@ class Skin
 
    public static function fromSvg(inSvg:Svg)
    {
+      init();
       if (inSvg.hasGroup("dialog"))
          replaceAttribs("Frame", null, SvgSkin.createFrameRenderer(inSvg,"dialog") );
       if (inSvg.hasGroup("slider"))
@@ -487,6 +509,7 @@ class Skin
 
    public static function styleLabel(label:TextField)
    {
+      init();
       label.defaultTextFormat = textFormat;
       label.textColor = labelColor;
       if (label.type != nme.text.TextFieldType.INPUT)

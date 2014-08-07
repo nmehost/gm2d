@@ -76,7 +76,7 @@ class ListControl extends ScrollWidget
       if (hasAttrib("itemHeight"))
          Widget.addAttribs( attribs, {minSize: new Size(mMinWidth,mItemHeight) } );
 
-      mXGap = attribFloat("xgap",2.0);
+      mXGap = attribFloat("xgap",Skin.scale(2.0));
 
       oddRenderer = Skin.renderer(rowLineage,   0, attribs);
       evenRenderer = Skin.renderer(rowLineage, Widget.ALTERNATE, attribs);

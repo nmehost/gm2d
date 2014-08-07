@@ -83,8 +83,8 @@ class FileOpenScreen extends Screen
 
       onResult = inOnResult;
       returnScreen = inReturnScreen==null ? Game.screen : inReturnScreen;
-      folderIcon = new gm2d.icons.Folder().toBitmap();
-      docIcon = new gm2d.icons.Document().toBitmap();
+      folderIcon = new gm2d.icons.Folder().toBitmap(Skin.dpiScale);
+      docIcon = new gm2d.icons.Document().toBitmap(Skin.dpiScale);
 
 
       var top = new VerticalLayout();

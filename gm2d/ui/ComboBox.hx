@@ -114,23 +114,23 @@ class ComboBox extends TextInput
  
        if (mBMP==null)
        {
-          mBMP = new BitmapData(22,22);
+          mBMP = new BitmapData(Skin.scale(22),Skin.scale(22));
           var shape = new nme.display.Shape();
           var gfx = shape.graphics;
           gfx.beginFill(0xffffff);
-          gfx.drawRect(-2,-2,28,28);
+          gfx.drawRect(Skin.scale(-2),Skin.scale(-2),Skin.scale(28),Skin.scale(28));
 
           gfx.beginFill(0xf0f0f0);
           gfx.lineStyle(1,0x808080);
-          gfx.drawRoundRect(0.5,0.5,21,21,3);
+          gfx.drawRoundRect(0.5,0.5,Skin.scale(22)-1,Skin.scale(22)-1,3);
           gfx.lineStyle();
 
           gfx.beginFill(0x000000);
-          gfx.moveTo(8,8);
-          gfx.lineTo(8,8);
-          gfx.lineTo(16,8);
-          gfx.lineTo(12,14);
-          gfx.lineTo(8,8);
+          gfx.moveTo(Skin.scale(8),Skin.scale(8));
+          gfx.lineTo(Skin.scale(8),Skin.scale(8));
+          gfx.lineTo(Skin.scale(16),Skin.scale(8));
+          gfx.lineTo(Skin.scale(12),Skin.scale(14));
+          gfx.lineTo(Skin.scale(8),Skin.scale(8));
           mBMP.draw(shape);
        }
 
@@ -187,18 +187,19 @@ class ComboBox extends TextInput
       var pos = this.localToGlobal( new nme.geom.Point(0,0) );
       var h = pop.getControlHeight();
       var w = pop.getControlWidth();
+      var offset = Skin.scale(22);
       var max = Std.int(stage.stageHeight/2);
-      var below = Math.min(max,stage.stageHeight - (pos.y+22));
+      var below = Math.min(max,stage.stageHeight - (pos.y+offset));
       var above = Math.min(max,pos.y);
       if (h+pos.y+22 < stage.stageHeight)
       {
          pop.getLayout().setRect(pop.x,pop.y,w,h);
-         gm2d.Game.popup(pop,pos.x,pos.y+22);
+         gm2d.Game.popup(pop,pos.x,pos.y+offset);
       }
       else if (below>=above)
       {
          pop.getLayout().setRect(pop.x,pop.y,w,below);
-         gm2d.Game.popup(pop,pos.x,pos.y+22);
+         gm2d.Game.popup(pop,pos.x,pos.y+offset);
       }
       else
       {
