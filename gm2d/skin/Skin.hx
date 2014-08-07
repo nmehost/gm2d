@@ -111,6 +111,8 @@ class Skin
          dpiScale = nme.system.Capabilities.screenDPI;
          if (dpiScale>120)
             dpiScale /= 120;
+         else
+            dpiScale = 1.0;
       }
 
       if (textFormat==null)
