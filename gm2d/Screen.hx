@@ -56,7 +56,11 @@ class Screen extends gm2d.ui.Window
    function isDown(inCode:Int) { return Game.isDown(inCode); }
 
 
-   public function scaleScreen(inScale:Float) { }
+   public function scaleScreen(inScale:Float)
+   {
+      if (mLayout!=null)
+         mLayout.setRect(0,0, Game.screenWidth, Game.screenHeight );
+   }
 
 }
 

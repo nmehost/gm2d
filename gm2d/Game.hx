@@ -23,6 +23,8 @@ class Game
 {
    static public var initWidth = 320;
    static public var initHeight = 240;
+   static public var screenWidth = 320;
+   static public var screenHeight = 240;
    static public var useHardware = true;
    static public var isResizable = true;
    static public var frameRate = 30.0;
@@ -69,12 +71,15 @@ class Game
          return;
       created = true;
 
+      screenWidth = flash.Lib.current.stage.stageWidth;
+      screenHeight = flash.Lib.current.stage.stageHeight;
+
       #if !flash
       initWidth = nme.Lib.initWidth;
       initHeight = nme.Lib.initHeight;
       #else
-      initWidth = flash.Lib.current.stage.stageWidth;
-      initHeight = flash.Lib.current.stage.stageHeight;
+      initWidth = screenWidth;
+      initHeight = screenHeight;
       #end
 
       mScreenParent = new Sprite();
@@ -360,6 +365,9 @@ class Game
 
          mScreenParent.x = px;
          mScreenParent.y = py;
+
+         screenWidth = Std.int(stage_width * scale);
+         screenHeight = Std.int(stage_height * scale);
 
          mScreenParent.scaleX = scale;
          mScreenParent.scaleY = scale;

@@ -307,7 +307,9 @@ class SvgRenderer
 
     public function renderBitmap(?inRect:Rectangle,inScale:Float = 1.0)
     {
-       mMatrix = new Matrix(inScale,0,0,inScale, -inRect.x*inScale, -inRect.y*inScale);
+       mMatrix = new Matrix(inScale,0,0,inScale,
+              inRect==null ? 0 : -inRect.x*inScale,
+              inRect==null ? 0 : -inRect.y*inScale);
 
        var w = Std.int(Math.ceil( inRect==null ? width : inRect.width*inScale ));
        var h = Std.int(Math.ceil( inRect==null ? width : inRect.height*inScale ));
