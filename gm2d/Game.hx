@@ -123,6 +123,47 @@ class Game
       setStageTransform();
    }
 
+   public static function destroy()
+   {
+      var parent = nme.Lib.current;
+      if (mScreenParent!=null)
+         parent.removeChild(mScreenParent);
+      if (mDialogParent!=null)
+         parent.removeChild(mDialogParent);
+      if (mPopupParent!=null)
+         parent.removeChild(mPopupParent);
+      if (mDebugOverlay!=null)
+         parent.removeChild(mDebugOverlay);
+      if (mFPSControl!=null)
+         parent.removeChild(mFPSControl);
+      var stage = parent.stage;
+
+      stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown );
+      stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp );
+      stage.removeEventListener(Event.RESIZE, onSize);
+      stage.removeEventListener(Event.ENTER_FRAME, onEnter);
+
+      stage.removeEventListener(MouseEvent.MOUSE_MOVE, onPreMouseMove, true);
+      stage.removeEventListener(MouseEvent.MOUSE_DOWN, onPreMouseDown, true);
+
+      stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+      stage.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+      stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+   
+      parent.rotation = 0;
+      parent.x = 0;
+      parent.y = 0;
+      
+      mScreenParent = null;
+      mDialogParent = null;
+      mPopupParent = null;
+      mDebugOverlay = null;
+      mFPSControl = null;
+      mCurrentPopup = null;
+      mCurrentScreen = null;
+      mCurrentDialog = null;
+   }
+
    static function setStageTransform()
    {
       var parent = nme.Lib.current;
