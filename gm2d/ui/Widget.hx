@@ -232,6 +232,9 @@ class Widget extends Sprite
 
    public function redraw()
    {
+      var s = stage;
+      if (s!=null)
+         s.invalidate();
       clearChrome();
       if (mRenderer!=null)
       {

@@ -102,6 +102,8 @@ class ColourSlider extends Widget
       mPos = val;
       updateMarker();
 
+      stage.invalidate();
+
       if (onChange!=null)
          onChange(getValue());
    }
@@ -174,6 +176,10 @@ class ColourSlider extends Widget
       gfx.lineStyle(1,0x000000);
       gfx.drawRect(-0.5,-0.5,mRect.width+1,mRect.height+1);
       updateMarker();
+
+
+      if (stage!=null)
+         stage.invalidate();
    }
 }
 

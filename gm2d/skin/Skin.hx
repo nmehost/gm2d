@@ -438,6 +438,7 @@ class Skin
 
    public static function onCreateSlider(inSlider:Slider):Void
    {
+      init();
       var layout = inSlider.getItemLayout();
       layout.setMinSize(120,20);
 
