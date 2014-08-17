@@ -83,6 +83,7 @@ class ScrollWidget extends Control
        if (mScrollY>maxScrollY)
          mScrollY = maxScrollY;
        scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
+       invalidate();
    }
 
    function onMouseWheel(event:MouseEvent)
@@ -227,6 +228,7 @@ class ScrollWidget extends Control
       scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
       if (onScroll!=null)
          onScroll();
+      invalidate();
       return mScrollX;
    }
    public function get_scrollY() { return mScrollY; }
@@ -242,6 +244,7 @@ class ScrollWidget extends Control
          if (onScroll!=null)
             onScroll();
       }
+      invalidate();
       return mScrollY;
    }
 

@@ -168,8 +168,13 @@ class ListControl extends ScrollWidget
 
 
 
-   public function getColPos(inIdx:Int)
+   public function getColPos(inIdx:Int) : Float
    {
+      if (mColPos.length==0)
+         return 0.0;
+      if (inIdx>=mColPos.length)
+         return mColPos[ mColPos.length-1 ];
+
       return mColPos[inIdx];
    }
 
@@ -553,6 +558,7 @@ class ListControl extends ScrollWidget
    {
       var gfx = mListContents.graphics;
       gfx.clear();
+
       for(i in 0...mRows.length)
       {
          var selected = mMultiSelect==null ?  i==mSelected : mMultiSelect[i];
@@ -564,6 +570,7 @@ class ListControl extends ScrollWidget
       {
          evenRenderer.renderRect(null, gfx, new Rectangle(0,mControlHeight,mWidth,mHeight-mControlHeight));
       }
+      invalidate();
    }
 
    public function setMultiSelect(inSelection:Array<Bool>, inClearCurrent:Bool)
