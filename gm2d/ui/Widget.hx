@@ -107,7 +107,7 @@ class Widget extends Sprite
 
 
 
-   function setItemLayout(inLayout:Layout,inStretch:Bool=true)
+   public function setItemLayout(inLayout:Layout,inStretch:Bool=true)
    {
       mItemLayout = inLayout;
       if (inStretch)
