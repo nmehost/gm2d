@@ -297,6 +297,8 @@ class ListControl extends ScrollWidget
                w = size.x;
                h = size.y;
             }
+            if (i==0)
+               w += inIndent;
 
             h = Std.int(h+0.99);
 
@@ -614,27 +616,28 @@ class ListControl extends ScrollWidget
             var item = row.objs[i];
             if (item!=null)
             {
-               var h = item.height;
                var w = item.width;
+               var h = item.height;
+               var x = mColPos[i] + indent;
 
                if (Std.is(item,Widget))
                {
                   var widget:Widget = cast item;
-                  widget.align(mColPos[i]+indent, mRowPos[row_idx],
-                               mColWidths[i], mRows[row_idx].height );
+                  widget.align(x, mRowPos[row_idx],
+                               mColWidths[i]-indent, mRows[row_idx].height );
                }
                else
                {
                   switch(mColAlign[i] & Layout.AlignMaskX)
                   {
                      case Layout.AlignRight:
-                         item.x = mColPos[i] + (mColWidths[i]-w) + indent;
+                         item.x = mColPos[i] + (mColWidths[i]-w-indent) + indent;
 
                      case Layout.AlignCenterX:
-                         item.x = mColPos[i] + (mColWidths[i]-w)*0.5 + indent;
+                         item.x = mColPos[i] + (mColWidths[i]-w-indent)*0.5 + indent;
 
                      default:
-                         item.x = mColPos[i] + indent;
+                         item.x = x;
                   }
     
 
@@ -651,6 +654,7 @@ class ListControl extends ScrollWidget
                   }
                }
             }
+            indent = 0;
          }
       }
       mChildrenClean = mRows.length;
