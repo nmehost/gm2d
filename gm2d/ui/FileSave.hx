@@ -21,7 +21,6 @@ import wx.FileDialog;
 class FileSave
 {
    public static function saveAs(inMessage:String,
-            inData:ByteArray,
             onResult:String->Void,
             onError:String->Void,
             ?inExtension:String,

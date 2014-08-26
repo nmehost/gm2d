@@ -42,7 +42,7 @@ class Widget extends Sprite
 
    //var highlightColour:Int;
 
-   public function new(?inLineage:Array<String>, ?inAttribs:Dynamic)
+   public function new(?inLineage:Array<String>, ?inAttribs:{})
    {
       super();
       mAttribs = inAttribs;
@@ -210,7 +210,10 @@ class Widget extends Sprite
    {
       var label = getLabel();
       if (label!=null)
+      {
          label.text = inText;
+         invalidate();
+      }
       return inText;
    }
 

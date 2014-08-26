@@ -123,6 +123,13 @@ class Game
       setStageTransform();
    }
 
+   public static function invalidate()
+   {
+      var stage = nme.Lib.current.stage;
+      if (stage!=null)
+         stage.invalidate();
+   }
+
    public static function destroy()
    {
       var parent = nme.Lib.current;
@@ -638,6 +645,15 @@ class Game
       mDialogParent.visible = mCurrentDialog!=null;
    }
 
+   public static function messageBox(inText:String,inTitle:String,?inAttribs:{} )
+   {
+      var panel = new gm2d.ui.Panel(inTitle);
+      panel.addLabel(inText);
+      panel.addTextButton("Ok", function() Game.closeDialog() );
+      var dialog = new Dialog(panel.getPane(),inAttribs);
+      doShowDialog(dialog,true);
+   }
+
    public static function popup(inPopup:Window,inX:Float,inY:Float,inShadow:Bool=true)
    {
        closePopup();
@@ -672,6 +688,7 @@ class Game
        mPopupParent.visible = true;
        mDialogParent.mouseEnabled = false;
        mScreenParent.mouseEnabled = false;
+       invalidate();
    }
 
    public static function moveToPopupLayer(inObject:DisplayObject)
@@ -697,6 +714,7 @@ class Game
       mPopupParent.visible = false;
       mDialogParent.mouseEnabled = true;
       mScreenParent.mouseEnabled = true;
+      invalidate();
    }
 
 

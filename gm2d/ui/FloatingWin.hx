@@ -112,6 +112,8 @@ class FloatingWin extends Sprite implements IDock
       alpha = solid ? 1.0 : 0.5;
       var rect = pane.getDockRect();
       Skin.renderMiniWin(chrome,pane,rect,mHitBoxes,solid);
+      if (stage!=null)
+         stage.invalidate();
    }
 
    function onDrag(inEvent:MouseEvent)

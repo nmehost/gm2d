@@ -231,6 +231,7 @@ class NumericInput extends TextInput
          var val = restrictedValue<maxBar ? fullValue : maxBar;
          gfx.drawRect(0,0,mText.width * (val-min) / range, mText.height);
       }
+      invalidate();
    }
 
 

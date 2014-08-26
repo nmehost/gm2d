@@ -133,7 +133,10 @@ class ScrollWidget extends Control
    function removeAutoScrollCheck(_)
    {
       if (mAutoScrollMouseWatch!=null)
-          removeEventListener(Event.ENTER_FRAME,onAutoScrollMouseCheck);
+      {
+         removeEventListener(Event.ENTER_FRAME,onAutoScrollMouseCheck);
+         removeEventListener(Event.RENDER,onAutoScrollMouseCheck);
+      }
       mAutoScrollMouseWatch = null;
    }
    function onAutoScrollMouseCheck(e)
@@ -172,6 +175,7 @@ class ScrollWidget extends Control
                 removeAutoScrollCheck,
                 pos.x, pos.y, false);
       addEventListener(Event.ENTER_FRAME,onAutoScrollMouseCheck);
+      addEventListener(Event.RENDER,onAutoScrollMouseCheck);
    }
 
    function doClick(inX:Float, inY:Float,ev:MouseEvent)
@@ -277,6 +281,7 @@ class ScrollWidget extends Control
             speedY.add( (p1.y - plast.y)/dt, dt );
             mLastPos = pos;
          }
+         invalidate();
          if (onScroll!=null)
             onScroll();
       }
