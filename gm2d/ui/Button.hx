@@ -27,7 +27,7 @@ class Button extends Control
    var mCurrentDY:Float;
    //public var onCurrentChangedFunc:Bool->Void;
 
-   public function new(inObject:DisplayObject,?inOnClick:Void->Void, ?inLineage:Array<String>, ?inAttribs:Dynamic)
+   public function new(inObject:DisplayObject,?inOnClick:Void->Void, ?inLineage:Array<String>, ?inAttribs:{})
    {
       super( Widget.addLine(inLineage,"Button"), inAttribs);
       var offset = mRenderer.offset;

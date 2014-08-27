@@ -201,6 +201,9 @@ class Skin
           filters: null,
           padding: null,
         });
+      addAttribs("BitmapFromId", null, {
+          bitmap: BitmapFactory(DefaultBitmaps.factory),
+        });
       addAttribs("UiButton", null, {
           style: StyleNone,
           bitmap: BitmapFactory(DefaultBitmaps.factory),

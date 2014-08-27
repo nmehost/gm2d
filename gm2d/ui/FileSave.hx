@@ -36,7 +36,6 @@ class FileSave
          null, inExtension, inFlags | FileOpen.SAVE, saveName );
       openScreen.onSaveResult = onResult;
       openScreen.onError = onError;
-      openScreen.extension = inExtension;
 
       #end
    }

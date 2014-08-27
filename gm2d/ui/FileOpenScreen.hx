@@ -4,6 +4,7 @@ import gm2d.Screen;
 import gm2d.ui.Layout;
 import nme.text.TextField;
 import gm2d.ScreenScaleMode;
+import gm2d.ui.HitBoxes;
 import nme.display.Sprite;
 import gm2d.skin.Skin;
 
@@ -47,14 +48,20 @@ class FileOpenScreen extends Screen
    var onResult:String->ByteArray->Void;
    public var onSaveResult:String->Void;
    public var onError:String->Void;
-   public var extension:String;
    public var saveName:String;
    var returnScreen:Screen;
    var flags:Int;
    var isSave:Bool;
    var saveTextInput:TextInput;
 
-   public function new(inMessage:String,inDir:String,inOnResult:String->ByteArray->Void,inFilter:String,?inReturnScreen:Screen,inFlags:Int = 0, inSaveName="", filterIndex:Int = 0)
+   public function new(inMessage:String,
+         inDir:String,
+         inOnResult:String->ByteArray->Void,
+         inFilter:String,
+         ?inReturnScreen:Screen,
+         inFlags:Int = 0,
+         inSaveName="",
+         filterIndex:Int = 0)
    {
       super();
 
@@ -87,10 +94,24 @@ class FileOpenScreen extends Screen
       docIcon = new gm2d.icons.Document().toBitmap(Skin.dpiScale);
 
 
-      var top = new VerticalLayout();
+      var top = new VerticalLayout([0,0,1,0,0]);
+
+
+      var topRow = new HorizontalLayout();
+      topRow.setSpacing(5,0);
 
       var title = new TextLabel(message);
       addChild(title);
+      topRow.add(title.getLayout());
+
+      isSave =  (flags&FileOpen.SAVE)!=0;
+      if (isSave)
+      {
+         saveTextInput = new TextInput(saveName, function(s) saveName=s );
+         addChild(saveTextInput);
+         topRow.add(saveTextInput.getLayout().stretch());
+         topRow.setColStretch(1,1);
+      }
 
       if (filterList.length>0)
       {
@@ -104,13 +125,11 @@ class FileOpenScreen extends Screen
             });
          addChild(filterWidget);
 
-         var hlayout = new HorizontalLayout().setSpacing(5,0);
-         hlayout.add(title.getLayout());
-         hlayout.add(filterWidget.getLayout());
-         top.add(hlayout);
+         topRow.add(filterWidget.getLayout());
       }
-      else
-         top.add(title.getLayout().setAlignment(Layout.AlignCenter));
+
+      top.add(topRow);
+
 
       top.setRowStretch(1,0);
       top.setColStretch(0,1);
@@ -122,18 +141,6 @@ class FileOpenScreen extends Screen
 
       top.add(dirButtons);
 
-
-      isSave =  (flags&FileOpen.SAVE)!=0;
-      if (isSave)
-      {
-         var panel = new Panel("NameBox");
-         addChild(panel);
-         saveTextInput = new TextInput(saveName, function(s) saveName=s );
-         panel.addLabelObj("Save Name", saveTextInput);
-         top.add(panel.setStretchX(0).getLayout().setBorders(10,0,10,0) );
-      }
-
-
       setDir(inDir,false);
 
       addChild(list);
@@ -142,12 +149,6 @@ class FileOpenScreen extends Screen
       
       var layout = list.getLayout().stretch();
       top.add(layout);
-
-      top.setRowStretch(0,0);
-      top.setRowStretch(1,0);
-      top.setRowStretch(2,0);
-      var last = isSave ? 3 : 2;
-      top.setRowStretch(last,1);
 
       var buttons = new HorizontalLayout();
       buttons.setSpacing(10,0);
@@ -206,8 +207,10 @@ class FileOpenScreen extends Screen
       }
 
       var name = saveName;
-      if (extension!="" && name.indexOf(".")<0)
-         name = name + "." + extension;
+      if (name.indexOf(".")<0 && currentFilter!=null)
+      {
+         name += currentFilter.getBestExtension();
+      }
       var start = name.substr(0,1);
       var isAbsolute = start=='/' || start=='\\' || name.substr(1,1)==':';
       if (!isAbsolute)
@@ -338,6 +341,8 @@ class FileOpenScreen extends Screen
                addButton(button);
             }
          }
+         var add = Button.create(["BitmapFromId"], { margin:5, id:MiniButton.ADD }, onNewDir);
+         addButton(add);
       }
 
       list.clear();
@@ -398,6 +403,11 @@ class FileOpenScreen extends Screen
       }
       if (inRelayout)
          screenLayout.setRect(0,0, stage.stageWidth, stage.stageHeight);
+   }
+
+   public function onNewDir()
+   {
+      //trace("New Dir");
    }
 
    override public function scaleScreen(inScale:Float)
