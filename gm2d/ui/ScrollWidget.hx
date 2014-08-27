@@ -83,7 +83,6 @@ class ScrollWidget extends Control
        if (mScrollY>maxScrollY)
          mScrollY = maxScrollY;
        scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
-       invalidate();
    }
 
    function onMouseWheel(event:MouseEvent)

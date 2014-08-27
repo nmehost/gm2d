@@ -572,7 +572,6 @@ class ListControl extends ScrollWidget
       {
          evenRenderer.renderRect(null, gfx, new Rectangle(0,mControlHeight,mWidth,mHeight-mControlHeight));
       }
-      invalidate();
    }
 
    public function setMultiSelect(inSelection:Array<Bool>, inClearCurrent:Bool)

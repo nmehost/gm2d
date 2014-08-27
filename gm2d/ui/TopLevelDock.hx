@@ -297,8 +297,6 @@ class TopLevelDock implements IDock
    public function setLayoutDirty():Void
    {
       layoutDirty = true;
-      if (container.stage!=null)
-         container.stage.invalidate();
    }
    public function setDirty(inLayout:Bool, inChrome:Bool):Void
    {
@@ -306,9 +304,6 @@ class TopLevelDock implements IDock
          layoutDirty = true;
       if (inChrome)
          chromeDirty = true;
-
-      if (container.stage!=null)
-         container.stage.invalidate();
    }
    public function addDockZones(outZones:DockZones):Void
    {

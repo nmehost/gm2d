@@ -212,7 +212,6 @@ class Widget extends Sprite
       if (label!=null)
       {
          label.text = inText;
-         invalidate();
       }
       return inText;
    }
@@ -242,7 +241,6 @@ class Widget extends Sprite
 
    public function redraw()
    {
-      invalidate();
       clearChrome();
       if (mRenderer!=null)
       {
