@@ -12,6 +12,7 @@ import nme.text.TextField;
 import gm2d.ui.Dialog;
 import nme.geom.Point;
 import gm2d.ui.Window;
+import gm2d.ui.TextInput;
 import nme.filters.BitmapFilter;
 import nme.filters.DropShadowFilter;
 import nme.display.DisplayObject;
@@ -62,6 +63,7 @@ class Game
    static var mKeyDown = new Array<Bool>();
    static var mPopupFilters:Array<BitmapFilter>;
 
+   static var screenStack = new Array<Screen>();
    static public var screen(get_screen,null):Screen;
 
 
@@ -316,6 +318,19 @@ class Game
    }
  
 
+   static public function pushScreen(inScreen:Screen)
+   {
+      screenStack.push(mCurrentScreen);
+      setCurrentScreen(inScreen);
+   }
+
+   static public function popScreen():Bool
+   {
+      if (screenStack.length==0)
+         return false;
+      setCurrentScreen(screenStack.pop());
+      return true;
+   }
 
 
    static public function setCurrentScreen(inScreen:Screen)
@@ -538,7 +553,10 @@ class Game
       if (mapEscapeToBack && event.keyCode==27 )
       {
          if (mCurrentDialog!=null)
+         {
             mCurrentDialog.goBack();
+            return;
+         }
          else if (mCurrentScreen!=null)
          {
             if (mCurrentScreen.goBack())
@@ -645,14 +663,27 @@ class Game
       mDialogParent.visible = mCurrentDialog!=null;
    }
 
-   public static function messageBox(inText:String,inTitle:String,?inAttribs:{} )
+   public static function messageBox( inData:{title:String,label:String }, ?inAttribs:{} )
    {
-      var panel = new gm2d.ui.Panel(inTitle);
-      panel.addLabel(inText);
-      panel.addTextButton("Ok", function() Game.closeDialog() );
+      var panel = new gm2d.ui.Panel(inData.title);
+      panel.addLabel(inData.label);
+      panel.addTextButton("Ok", Game.closeDialog );
       var dialog = new Dialog(panel.getPane(),inAttribs);
       doShowDialog(dialog,true);
    }
+
+
+   public static function inputBox(inData:{ title:String, label:String, ?value:String, onOk:String->Void }, ?inAttribs:{} )
+   {
+      var panel = new gm2d.ui.Panel(inData.title);
+      var input = new TextInput( inData.value );
+      panel.addLabelUI(inData.label, input);
+      panel.addTextButton("Ok", function() { Game.closeDialog(); inData.onOk(input.text); } );
+      panel.addTextButton("Cancel", Game.closeDialog );
+      var dialog = new Dialog(panel.getPane(),inAttribs);
+      doShowDialog(dialog,true);
+   }
+
 
    public static function popup(inPopup:Window,inX:Float,inY:Float,inShadow:Bool=true)
    {

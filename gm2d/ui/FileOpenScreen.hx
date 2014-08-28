@@ -49,7 +49,6 @@ class FileOpenScreen extends Screen
    public var onSaveResult:String->Void;
    public var onError:String->Void;
    public var saveName:String;
-   var returnScreen:Screen;
    var flags:Int;
    var isSave:Bool;
    var saveTextInput:TextInput;
@@ -58,7 +57,6 @@ class FileOpenScreen extends Screen
          inDir:String,
          inOnResult:String->ByteArray->Void,
          inFilter:String,
-         ?inReturnScreen:Screen,
          inFlags:Int = 0,
          inSaveName="",
          filterIndex:Int = 0)
@@ -89,7 +87,6 @@ class FileOpenScreen extends Screen
       }
 
       onResult = inOnResult;
-      returnScreen = inReturnScreen==null ? Game.screen : inReturnScreen;
       folderIcon = new gm2d.icons.Folder().toBitmap(Skin.dpiScale);
       docIcon = new gm2d.icons.Document().toBitmap(Skin.dpiScale);
 
@@ -108,6 +105,7 @@ class FileOpenScreen extends Screen
       if (isSave)
       {
          saveTextInput = new TextInput(saveName, function(s) saveName=s );
+         saveTextInput.setOnEnter(function(s) { saveName=s; onSave(); } );
          addChild(saveTextInput);
          topRow.add(saveTextInput.getLayout().stretch());
          topRow.setColStretch(1,1);
@@ -169,7 +167,7 @@ class FileOpenScreen extends Screen
 
       screenLayout = top;
 
-      Game.setCurrentScreen(this);
+      Game.pushScreen(this);
       #end
    }
 
@@ -223,12 +221,8 @@ class FileOpenScreen extends Screen
          panel.addTextButton( "Ok", function()
             {
                Game.closeDialog();
-               if (returnScreen!=null)
-               {
-                  Game.setCurrentScreen(returnScreen);
-                  returnScreen = null;
-               }
                onSaveResult(name);
+               Game.popScreen();
             } );
          panel.addTextButton( "Cancel", Game.closeDialog );
          var dialog = new Dialog(panel.getPane());
@@ -236,25 +230,17 @@ class FileOpenScreen extends Screen
       }
       else
       {
-         if (returnScreen!=null)
-         {
-            Game.setCurrentScreen(returnScreen);
-            returnScreen = null;
-         }
          onSaveResult(name);
+         Game.popScreen();
       }
       #end
    }
 
    function onCancel()
    {
-     if (returnScreen!=null)
-     {
-        Game.setCurrentScreen(returnScreen);
-        returnScreen = null;
-     }
      if (onResult!=null)
         onResult(null,null);
+     Game.popScreen();
    }
 
    function setResult(inFile:String)
@@ -283,9 +269,9 @@ class FileOpenScreen extends Screen
             }
             catch(e:Dynamic) { }
          }
-         Game.setCurrentScreen(returnScreen);
          onResult(baseDir + "/" + inFile,result);
       }
+      Game.popScreen();
       #end
    }
 
@@ -341,8 +327,10 @@ class FileOpenScreen extends Screen
                addButton(button);
             }
          }
+         #if !flash
          var add = Button.create(["BitmapFromId"], { margin:5, id:MiniButton.ADD }, onNewDir);
          addButton(add);
+         #end
       }
 
       list.clear();
@@ -407,7 +395,19 @@ class FileOpenScreen extends Screen
 
    public function onNewDir()
    {
-      //trace("New Dir");
+      #if !flash
+      Game.inputBox( {title:"Create new directory", label:"Directory Name", value:"", onOk:function(name) {
+          try
+          {
+            sys.FileSystem.createDirectory(baseDir+"/"+name);
+            setDir(baseDir);
+          }
+          catch(e:Dynamic)
+          {
+             Game.messageBox({title:"Error Creating Directory", label:""+e});
+          }
+      } } );
+      #end
    }
 
    override public function scaleScreen(inScale:Float)

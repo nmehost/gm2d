@@ -3,6 +3,7 @@ package gm2d.ui;
 import nme.text.TextField;
 import nme.display.BitmapData;
 import nme.events.MouseEvent;
+import nme.events.KeyboardEvent;
 import nme.ui.Keyboard;
 import gm2d.ui.Button;
 import gm2d.skin.Skin;
@@ -20,6 +21,11 @@ class TextInput extends TextLabel
           var t= mText;
           mText.addEventListener(nme.events.Event.CHANGE, function(_) onUpdate(t.text) );
        }
+   }
+
+   public function setOnEnter(onEnter:String->Void)
+   {
+      mText.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent) if (e.charCode==13) onEnter(mText.text) );
    }
 
    override public function isInput() : Bool { return true;  }
