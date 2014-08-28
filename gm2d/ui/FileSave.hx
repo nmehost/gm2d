@@ -32,6 +32,17 @@ class FileSave
       #elseif flash
       #else
 
+      if (saveName!=null)
+      {
+         var parts = saveName.split("\\").join("/").split("/");
+         if (parts.length>1)
+         {
+            saveName = parts.pop();
+            if (inDefaultPath==null)
+               inDefaultPath = parts.join("/");
+         }
+      }
+
       var openScreen = new gm2d.ui.FileOpenScreen(inMessage, inDefaultPath==null?"":inDefaultPath,
          null, inExtension, inFlags | FileOpen.SAVE, saveName );
       openScreen.onSaveResult = onResult;
