@@ -21,6 +21,7 @@ class Button extends Control
    public var isToggle:Bool;
    public var noFocus:Bool;
    public var mCallback : Void->Void;
+   public var mouseHandler : String->MouseEvent->Bool;
    public var mDownDX:Float;
    public var mDownDY:Float;
    var mCurrentDX:Float;
@@ -97,11 +98,15 @@ class Button extends Control
 
    function onClick(e:MouseEvent)
    {
+      if (mouseHandler!=null && !mouseHandler(name,e))
+         return;
       if (mCallback!=null && !isToggle)
          mCallback();
    }
    function onDown(e:MouseEvent)
    {
+      if (mouseHandler!=null && !mouseHandler(name,e))
+         return;
       if (isToggle)
       {
          set_down(!get_down());
@@ -110,9 +115,13 @@ class Button extends Control
       }
       else
          set_down(true);
+
+     e.stopImmediatePropagation();
    }
    function onUp(e:MouseEvent)
    {
+      if (mouseHandler!=null && !mouseHandler(name,e))
+         return;
       if (!isToggle)
          set_down(false);
    }
@@ -221,7 +230,15 @@ class Button extends Control
         if (isToggle)
            set_down(!get_down());
         if (mCallback!=null)
+        {
            mCallback();
+        }
+        if (mouseHandler!=null)
+        {
+           var fakeEvent = new MouseEvent(MouseEvent.CLICK);
+           fakeEvent.target = this;
+           mouseHandler(name,fakeEvent);
+        }
       }
    }
 }

@@ -5,6 +5,7 @@ import nme.display.DisplayObjectContainer;
 import nme.text.TextField;
 import nme.geom.Point;
 import nme.geom.Rectangle;
+import nme.events.MouseEvent;
 import gm2d.ui.Layout;
 import gm2d.ui.HitBoxes;
 import gm2d.skin.Skin;
@@ -278,6 +279,23 @@ class Widget extends Sprite
 
    public function getItemLayout() : Layout { return mItemLayout; }
  
+   public function onChromeMouse(inId:String,inEvent:MouseEvent) : Bool
+   {
+      var p = parent;
+      while(p!=null)
+      {
+         if (Std.is(p,Widget))
+         {
+            var widget : Widget = cast p;
+            return widget.onChromeMouse(inId,inEvent);
+         }
+         p = p.parent;
+      }
+      return true;
+   }
+
+
+
    public function getHitBoxes() : HitBoxes
    {
       var p = parent;
@@ -309,10 +327,10 @@ class Widget extends Sprite
 
    public function activate(inDirection:Int) { }
 
-   public function popup(inPopup:Window,inX:Float,inY:Float,inShadow:Bool=true)
+   public function popup(inPopup:Window,inX:Float,inY:Float)
    {
-	   var pos = localToGlobal( new Point(inX,inY) );
-		gm2d.Game.popup(inPopup,pos.x,pos.y,inShadow);
+      var pos = localToGlobal( new Point(inX,inY) );
+      gm2d.Game.popup(inPopup,pos.x,pos.y);
    }
 
    public function get_enabled() return (state & DISABLED) == 0;

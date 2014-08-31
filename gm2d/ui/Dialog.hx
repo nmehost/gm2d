@@ -17,7 +17,6 @@ import gm2d.skin.Renderer;
 class Dialog extends Window
 {
    var mPane:Pane;
-   var mHitBoxes:HitBoxes;
    var mSize:Size;
    var mouseWatcher:MouseWatcher;
    public var shouldConsumeEvent : MouseEvent -> Bool;
@@ -28,8 +27,6 @@ class Dialog extends Window
       super(Widget.addLines(inLineage,["Dialog","Frame"]), inAttribs);
 
       mPane = inPane;
-
-      mHitBoxes = new HitBoxes(this,onHitBox);
 
       var vlayout = new VerticalLayout([0,1]);
 
@@ -44,14 +41,29 @@ class Dialog extends Window
 
       build();
 
-      // TODO - use hit boxes/MouseWatcher
+      title.addEventListener(nme.events.MouseEvent.MOUSE_DOWN, doDrag);
       mChrome.addEventListener(nme.events.MouseEvent.MOUSE_DOWN, doDrag);
 
-      if (gm2d.Lib.isOpenGL)
-         cacheAsBitmap = true;
+      //if (gm2d.Lib.isOpenGL)
+      //   cacheAsBitmap = true;
    }
 
-   override public function getHitBoxes() : HitBoxes { return mHitBoxes; }
+   override public function onChromeMouse(inId:String,inEvent:MouseEvent) : Bool
+   {
+      if (inId==Skin.Resize)
+      {
+         //trace("Resize");
+         return false;
+      }
+      if (inEvent.type == MouseEvent.CLICK)
+      {
+         if (inId==Skin.Close)
+            goBack();
+         else
+            trace(inId);
+      }
+      return true;
+   }
 
    override public function getPane() : Pane { return mPane; }
 
@@ -68,17 +80,10 @@ class Dialog extends Window
       stage.addEventListener(nme.events.MouseEvent.MOUSE_UP, doneDrag);
    }
 
-   public function goBack() { Game.closeDialog(); }
-
-   function onHitBox(inAction:HitAction,inEvent:MouseEvent)
+   public function goBack()
    {
-      switch(inAction)
-      {
-         case BUTTON(_,id):
-            if (id==MiniButton.CLOSE)
-               goBack();
-         default:
-      }
+      onClose();
+      Game.closeDialog();
    }
 
    public function center(inWidth:Float,inHeight:Float)

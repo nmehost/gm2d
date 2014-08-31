@@ -1,6 +1,5 @@
 package gm2d.skin;
 
-import gm2d.ui.HitBoxes;
 import gm2d.ui.Widget;
 import gm2d.ui.Button;
 import gm2d.ui.IDockable;
@@ -76,6 +75,7 @@ class Skin
    public static var rowOddColour    = 0xfff0f0ff;
 
 
+   public static var shadowFilters:Array<BitmapFilter>;
    public static var currentFilters:Array<BitmapFilter>;
    public static var sliderRenderer:SliderRenderer;
    public static var defaultTabRenderer:TabRenderer;
@@ -98,6 +98,20 @@ class Skin
    public static var tabSize = 32;
    public static var dpiScale:Float = 0.0;
    public static var isInit:Bool = false;
+
+
+   // Chrome Buttons
+   public static inline var Close    = "#close";
+   public static inline var Minimize = "#minimize";
+   public static inline var Maximize = "#maximize";
+   public static inline var Restore  = "#restore";
+   public static inline var Popup    = "#popup";
+   public static inline var Expand   = "#expand";
+   public static inline var Pin      = "#pin";
+   public static inline var Add      = "#add";
+   public static inline var Remove   = "#remove";
+   public static inline var Resize   = "#resize";
+ 
 
 
    public static function init(inForce:Bool = false)
@@ -123,6 +137,10 @@ class Skin
          textFormat.color = 0x000000;
       }
 
+      if (shadowFilters==null)
+      {
+         shadowFilters = [ new DropShadowFilter(3,45,0,0.8,3,3,1) ];
+      }
       if (currentFilters==null)
       {
          var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, 3, 3, 3, 3, false, false);
@@ -167,7 +185,7 @@ class Skin
       addAttribs("SimpleButton", Widget.DOWN, {
           line: LineBorder,
         });
-      addAttribs("HitBox", null, {
+      addAttribs("ChromeButton", null, {
           offset: new Point(1,1),
           line: LineSolid(1,guiMedium,1),
           fill: FillLight,
@@ -185,15 +203,15 @@ class Skin
           align: Layout.AlignStretch | Layout.AlignCenterY,
           textAlign: "center",
           fontSize: scale(24),
-          //style: StyleUnderlineRect,
-          //fill: FillSolid(0xffffff,1),
-          //line: LineSolid(4,0x8080ff,1),
+          style: StyleUnderlineRect,
+          fill: FillSolid(0xffffff,1),
+          line: LineSolid(4,0x8080ff,1),
           //hitBoxId: HitBoxes.Title,
-          //hitBoxes: [ {id:HitBoxes.Close,
-          //             align:Layout.AlignRight|Layout.AlignCenterY,
-          //             margin:new Rectangle(5,0,10,0),
-          //             itemAlign:Layout.AlignCenter,
-          //             lineage:["DialogButton"] } ],
+          chromeButtons: [ {id:Close,
+                       align:Layout.AlignRight|Layout.AlignCenterY,
+                       margin:new Rectangle(5,0,10,0),
+                       itemAlign:Layout.AlignCenter,
+                       lineage:["DialogButton"] } ],
         });
       addAttribs("Panel", null, {
           margin: scale(3),
@@ -229,11 +247,25 @@ class Skin
       addAttribs("UiButton", null, {
           style: StyleNone,
           bitmap: BitmapFactory(DefaultBitmaps.factory),
+          padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
         });
       addAttribs("Frame", null, {
-          style: Style.StyleCustom(renderDialog),
+          style: StyleRect,
+          fill: FillMedium,
+          line: LineBorder,
           padding: new Rectangle(borders, borders, borders*2, borders*2),
         });
+
+      addAttribs("Dialog", null, {
+          chromeFilters: shadowFilters,
+          fill: FillSolid(0xffffff,1),
+          chromeButtons: [ {id:Resize,
+              align:Layout.AlignRight|Layout.AlignBottom|Layout.AlignOverlap,
+              margin:new Rectangle(0,0,0,0),
+              wantsFocus:false,
+              lineage:["NoChrome"] } ],
+        });
+
       addAttribs("Line", null, {
           fill: FillDark,
           line: LineNone,
@@ -294,11 +326,13 @@ class Skin
           overlapped: true,
         });
       addAttribs("PopupMenu", null, {
+          chromeFilters: shadowFilters,
           style: StyleRect,
           fill: FillLight,
           line: LineBorder,
         });
       addAttribs("PopupComboBox", null, {
+          chromeFilters: shadowFilters,
           style: StyleRect,
           fill: FillNone,
           line: LineBorder,
@@ -321,10 +355,12 @@ class Skin
 
       addAttribs("NoFilters", null, {
           filters: null,
+          chromeFilters: null,
         });
 
       addAttribs("NoChrome", null, {
           filters: null,
+          chromeFilters: null,
           fill: FillNone,
           line: LineNone,
           style: StyleNone,
@@ -779,88 +815,6 @@ class Skin
       inGfx.beginFill(0x2020ff);
       inGfx.drawRoundRect(0.5,0.5,inWidth*inFraction,inHeight,6,6);
    }
-
-   public static function renderDialog(widget:Widget)
-   {
-      var outHitBoxes = widget.getHitBoxes();
-      var rect = widget.mRect;
-      var pane = widget.getPane();
-      outHitBoxes.clear();
-      clearSprite(widget.mChrome);
-
-      var ox = rect.x+0.5;
-      var oy = rect.y+0.5;
-      var w = rect.width;
-      var h = rect.height;
-
-      var titleWidth = rect.width;
-
-      var gfx = widget.mChrome.graphics;
-      gfx.clear();
-      gfx.beginFill(panelColor);
-      gfx.lineStyle(1,guiDark);
-
-      gfx.drawRoundRect(ox,ox,w, h, 7,7 );
-
-      if ( Dock.isResizeable(pane) )
-      {
-         gfx.endFill();
-         for(o in 0...4)
-         {
-            var dx = (o+2)*3;
-            gfx.moveTo(w-dx,h);
-            gfx.lineTo(w,h-dx);
-         }
-         outHitBoxes.add( new Rectangle(w-12,h-12,12,12), HitAction.RESIZE(pane, ResizeFlag.S|ResizeFlag.E) );
-      }
-
-      /*
-      if (false)
-      {
-         var but = MiniButton.CLOSE;
-         var state =  getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
-         var button =  new SimpleButton( state,
-                                        getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
-                                        getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
-         widget.mChrome.addChild(button);
-         button.y = Std.int( (title_h - button.height)/2 );
-         titleWidth -= button.width + 2;
-         button.x = titleWidth;
-
-         if (outHitBoxes.mCallback!=null)
-            button.addEventListener( MouseEvent.CLICK,
-               function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
-      }
-
-      var title = pane==null ? "" : pane.title;
-      if (title!="")
-      {
-         var titleField = new TextField();
-         titleField.defaultTextFormat = textFormat;
-         var f = titleField.defaultTextFormat;
-         f.size = 16;
-         titleField.defaultTextFormat = f;
-         titleField.mouseEnabled = false;
-         titleField.textColor = 0x000000;
-         titleField.selectable = false;
-         titleField.text = title;
-         titleField.autoSize = nme.text.TextFieldAutoSize.LEFT;
-         titleField.y = 2;
-
-         //var f:Array<BitmapFilter> = [];
-         //f.push( new DropShadowFilter(2,45,0xffffff,1,0,0,1) );
-         //titleField.filters = f;
-
-         widget.mChrome.addChild(titleField);
-
-         if (centerTitle)
-            titleField.x = ox + Std.int((titleWidth-titleField.textWidth)/2);
-      }
-      */
-
-      outHitBoxes.add( new Rectangle(ox,ox,w,title_h), TITLE(pane) );
-   }
-
 
    public static function renderMDI(inMDI:Sprite)
    {

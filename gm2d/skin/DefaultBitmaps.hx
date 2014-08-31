@@ -30,32 +30,32 @@ class DefaultBitmaps
       gfx.lineStyle(1,0xffffff);
       var matrix = new Matrix();
 
-      if (inButton==MiniButton.CLOSE)
+      if (inButton==Skin.Close)
       {
          gfx.moveTo(3,3);
          gfx.lineTo(12,12);
          gfx.moveTo(12,3);
          gfx.lineTo(3,12);
       }
-      if (inButton==MiniButton.MINIMIZE)
+      if (inButton==Skin.Minimize)
       {
          gfx.moveTo(3,12);
          gfx.lineTo(12,12);
       }
-      else if (inButton==MiniButton.MAXIMIZE)
+      else if (inButton==Skin.Maximize)
       {
          gfx.drawRect(3,3,11,11);
       }
-      else if (inButton==MiniButton.RESTORE)
+      else if (inButton==Skin.Restore)
       {
          gfx.drawRect(3,3,6,6);
          gfx.drawRect(8,8,6,6);
       }
-      else if (inButton==MiniButton.EXPAND)
+      else if (inButton==Skin.Expand)
       {
          gfx.drawRect(4,2,8,12);
       }
-      else if (inButton==MiniButton.POPUP)
+      else if (inButton==Skin.Popup)
       {
          gfx.beginFill(0xffffff);
          gfx.moveTo(5,7);
@@ -64,7 +64,7 @@ class DefaultBitmaps
          gfx.lineTo(5,7);
       }
 
-      else if (inButton==MiniButton.PIN)
+      else if (inButton==Skin.Pin)
       {
          gfx.moveTo(1,7);
          gfx.lineTo(5,7);
@@ -72,7 +72,7 @@ class DefaultBitmaps
          gfx.drawRect(7,5,6,5);
       }
 
-      else if (inButton==MiniButton.ADD)
+      else if (inButton==Skin.Add)
       {
          gfx.lineStyle(1,0x000000);
          gfx.beginFill(0x00ff00);
@@ -90,7 +90,7 @@ class DefaultBitmaps
          gfx.lineTo(3,9);
          gfx.lineTo(3,5);
       }
-      else if (inButton==MiniButton.REMOVE)
+      else if (inButton==Skin.Remove)
       {
          gfx.lineStyle(1,0x000000);
          gfx.beginFill(0xff0000);
@@ -99,6 +99,18 @@ class DefaultBitmaps
          gfx.lineTo(11,9);
          gfx.lineTo(3,9);
          gfx.lineTo(3,5);
+      }
+      else if (inButton==Skin.Resize)
+      {
+         var w = 16;
+         var h = 16;
+         gfx.lineStyle(1,Skin.guiDark);
+         for(o in 0...4)
+         {
+            var dx = (o+2)*3;
+            gfx.moveTo(w-dx,h);
+            gfx.lineTo(w,h-dx);
+         }
       }
 
 
@@ -110,6 +122,7 @@ class DefaultBitmaps
       if (inState!=HitBoxes.BUT_STATE_UP)
       {
          // todo: why does this not work in flash
+         // - flash ignores transforms in top-level object in draw - need to nest?
          var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, 3, 3, 2, 2, false, false);
          shape.filters = [ glow ];
       }

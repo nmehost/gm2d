@@ -29,6 +29,7 @@ class Layout
    public static inline var AlignHalfPixel= 0x0200;
 
    public static inline var AlignKeepAspect= 0x0400;
+   public static inline var AlignOverlap   = 0x0800;
 
    public var mBLeft:Float;
    public var mBTop:Float;

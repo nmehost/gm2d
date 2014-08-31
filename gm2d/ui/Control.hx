@@ -11,18 +11,8 @@ class Control extends Widget
    public function new(?inLineage:Array<String>, ?inAttribs:Dynamic)
    {
       super(Widget.addLine(inLineage,"Control"),inAttribs);
-		wantFocus = true;
+      wantFocus = attribBool("wantsFocus",true);
    }
-
-/*
-   override public function onCurrentChanged(inCurrent:Bool)
-   {
-	   if (inCurrent)
-		   Skin.renderCurrent(this);
-		else
-		   Skin.clearCurrent(this);
-   }
-*/
 }
 
 

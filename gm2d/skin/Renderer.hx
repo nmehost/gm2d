@@ -39,7 +39,7 @@ class Renderer
    public var filters:Array<BitmapFilter>;
    public var bitmapStyle:BitmapStyle;
    public var map:Map<String,Dynamic>;
-   public var hitBoxes:Array<Button>;
+   public var chromeButtons:Array<Button>;
 
 
    public function new(?inMap:Map<String,Dynamic>)
@@ -120,30 +120,33 @@ class Renderer
             }
          }
 
-         if (map.exists("hitBoxes"))
+         if (map.exists("chromeButtons"))
          {
-            var data:Array<Dynamic> = map.get("hitBoxes");
+            var data:Array<Dynamic> = map.get("chromeButtons");
             if (data!=null && data.length>0)
             {
                var pad = padding==null ? new Rectangle(0,0,0,0) : padding.clone();
-               hitBoxes = new Array<Button>();
+               chromeButtons = new Array<Button>();
                for(box in data)
                {
                   var lineage = box.lineage;
                   var lines:Array<String> = null;
                   if (Std.is(lineage,String))
-                     lines = [Std.string(lineage),"HitBox","BitmapFromId"];
+                     lines = [Std.string(lineage),"ChromeButton","BitmapFromId"];
                   else
-                     lines = Widget.addLines(lineage,["HitBox","BitmapFromId"]);
-                   
+                     lines = Widget.addLines(lineage,["ChromeButton","BitmapFromId"]);
+
                   var button = new Button(null, null, lines, box );
                   button.build();
-                  hitBoxes.push(button);
+                  chromeButtons.push(button);
                   var l = button.getLayout();
                   var s = l.getBestSize();
-                  pad.width += s.x;
-                  if ( (l.mAlign & Layout.AlignMaskX)==Layout.AlignLeft )
-                     pad.x += s.x;
+                  if ( (l.mAlign & Layout.AlignOverlap) == 0)
+                  {
+                     pad.width += s.x;
+                     if ( (l.mAlign & Layout.AlignMaskX)==Layout.AlignLeft )
+                        pad.x += s.x;
+                  }
                }
                padding = pad;
             }
@@ -242,25 +245,28 @@ class Renderer
 
    public function renderWidget(inWidget:Widget)
    {
-      if (hitBoxes!=null)
+      if (chromeButtons!=null)
       {
          var x0 = inWidget.mRect.x;
          var y0 = inWidget.mRect.y;
          var x1 = x0 + inWidget.mRect.width;
          var y1 = y0 + inWidget.mRect.height;
-         var hitBoxOwner = inWidget.getHitBoxes();
-         for(box in hitBoxes)
+         for(box in chromeButtons)
          {
             var layout = box.getLayout();
-            var s = layout.getBestSize();
             inWidget.mChrome.addChild(box);
-            //box.mCallback = 
+            var id = box.name;
+            box.mouseHandler = inWidget.onChromeMouse;
             var xPos = layout.mAlign & Layout.AlignMaskX;
             box.align(x0,y0,x1-x0,y1-y0);
-            if (xPos==Layout.AlignLeft)
-               x0+=s.x;
-            else
-               x1 -= s.x;
+            if ( (layout.mAlign & Layout.AlignOverlap) == 0)
+            {
+               var s = layout.getBestSize();
+               if (xPos==Layout.AlignLeft)
+                  x0+=s.x;
+               else
+                  x1 -= s.x;
+            }
          }
       }
 
@@ -268,6 +274,11 @@ class Renderer
       if (label!=null)
          renderLabel(label);
       inWidget.filters = filters;
+      if (map.exists("chromeFilters"))
+          inWidget.mChrome.filters = map.get("chromeFilters");
+      else
+          inWidget.mChrome.filters = null;
+
 
       if (style==StyleNone)
          return;

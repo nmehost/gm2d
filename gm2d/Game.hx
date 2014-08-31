@@ -61,7 +61,6 @@ class Game
    static var mScreenMap:Hash<Screen> = new Hash<Screen>();
    static var mDialogMap:Hash<Dialog> = new Hash<Dialog>();
    static var mKeyDown = new Array<Bool>();
-   static var mPopupFilters:Array<BitmapFilter>;
 
    static var screenStack = new Array<Screen>();
    static public var screen(get_screen,null):Screen;
@@ -632,10 +631,14 @@ class Game
       return dialog;
    }
 
-   static public function closeDialog() { doShowDialog(null,false); }
+   static public function closeDialog()
+   {
+      doShowDialog(null,false);
+   }
 
    static public function doShowDialog(inDialog:Dialog,inCenter:Bool)
    {
+      closePopup();
       if (mCurrentDialog!=null)
       {
          mCurrentDialog.onClose();
@@ -685,18 +688,9 @@ class Game
    }
 
 
-   public static function popup(inPopup:Window,inX:Float,inY:Float,inShadow:Bool=true)
+   public static function popup(inPopup:Window,inX:Float,inY:Float)
    {
        closePopup();
-       if (inShadow)
-       {
-          if (mPopupFilters==null)
-          {
-             mPopupFilters = [];
-             mPopupFilters.push( new DropShadowFilter(3,45,0,0.5,3,3,1) );
-          }
-          inPopup.filters = mPopupFilters;
-       }
        mCurrentPopup = inPopup;
        mPopupParent.addChild(inPopup);
        var rect = inPopup.scrollRect;
