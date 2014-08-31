@@ -6,6 +6,7 @@ enum Style
 {
    StyleNone;
    StyleRect;
+   StyleUnderlineRect;
    StyleRoundRect;
    StyleRoundRectRad(inRad:Float);
    StyleCustom( renderer:Widget->Void );

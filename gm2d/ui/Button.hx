@@ -36,13 +36,6 @@ class Button extends Control
 
       mCallback = inOnClick;
       mDisplayObj = inObject;
-      if (mDisplayObj==null)
-      {
-         var bmp:BitmapData = mRenderer.getDynamic("icon");
-         if (bmp!=null)
-            mDisplayObj = new Bitmap(bmp);
-      }
-
       mCurrentDX = mCurrentDY = 0;
       noFocus = false;
       mouseChildren = false;
@@ -51,6 +44,12 @@ class Button extends Control
       addEventListener(MouseEvent.MOUSE_DOWN, onDown );
       addEventListener(MouseEvent.MOUSE_UP, onUp );
 
+      if (mDisplayObj==null)
+      {
+         var bmp:BitmapData = mRenderer.getDynamic("icon");
+         if (bmp!=null)
+            mDisplayObj = new Bitmap(bmp);
+      }
       if (mDisplayObj==null)
       {
          var bmp = mRenderer.getBitmap(name,0);

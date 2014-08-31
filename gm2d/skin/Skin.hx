@@ -31,6 +31,7 @@ import nme.geom.Matrix;
 import gm2d.ui.Layout;
 import gm2d.ui.Slider;
 import gm2d.ui.Widget;
+import gm2d.ui.HitBoxes;
 
 import gm2d.skin.FillStyle;
 import gm2d.skin.LineStyle;
@@ -69,7 +70,6 @@ class Skin
    public static var disableColor = 0x808080;
    public static var tabGradientColor = 0x909080;
    public static var menuHeight:Float = 22;
-   public static var titleHeight = 26;
 
    public static var rowSelectColour = 0xffd0d0f0;
    public static var rowEvenColour   = 0xffffffff;
@@ -167,11 +167,33 @@ class Skin
       addAttribs("SimpleButton", Widget.DOWN, {
           line: LineBorder,
         });
+      addAttribs("HitBox", null, {
+          offset: new Point(1,1),
+          line: LineSolid(1,guiMedium,1),
+          fill: FillLight,
+          minItemSize: new Size(scale(10),scale(10)),
+          padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+        });
+ 
       addAttribs("TextLabel", null, {
           align: Layout.AlignLeft,
         });
       addAttribs("PanelText", null, {
           align: Layout.AlignRight,
+        });
+      addAttribs("DialogTitle", null, {
+          align: Layout.AlignStretch | Layout.AlignCenterY,
+          textAlign: "center",
+          fontSize: scale(24),
+          //style: StyleUnderlineRect,
+          //fill: FillSolid(0xffffff,1),
+          //line: LineSolid(4,0x8080ff,1),
+          //hitBoxId: HitBoxes.Title,
+          //hitBoxes: [ {id:HitBoxes.Close,
+          //             align:Layout.AlignRight|Layout.AlignCenterY,
+          //             margin:new Rectangle(5,0,10,0),
+          //             itemAlign:Layout.AlignCenter,
+          //             lineage:["DialogButton"] } ],
         });
       addAttribs("Panel", null, {
           margin: scale(3),
@@ -210,7 +232,7 @@ class Skin
         });
       addAttribs("Frame", null, {
           style: Style.StyleCustom(renderDialog),
-          padding: new Rectangle(borders, borders+titleHeight, borders*2, borders*2+titleHeight),
+          padding: new Rectangle(borders, borders, borders*2, borders*2),
         });
       addAttribs("Line", null, {
           fill: FillDark,
@@ -255,15 +277,13 @@ class Skin
       addAttribs("ListRow", null, {
           filters:null,
           line: LineNone,
-          style: StyleRect,
+          style: StyleUnderlineRect,
           fill: FillRowOdd,
         });
       addAttribs("ListRow", Widget.ALTERNATE, {
-          style: StyleRect,
           fill: FillRowEven,
         });
       addAttribs("ListRow", Widget.CURRENT, {
-          style: StyleRect,
           fill: FillRowSelect,
         });
  
@@ -811,7 +831,6 @@ class Skin
             button.addEventListener( MouseEvent.CLICK,
                function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
       }
-      */
 
       var title = pane==null ? "" : pane.title;
       if (title!="")
@@ -837,6 +856,7 @@ class Skin
          if (centerTitle)
             titleField.x = ox + Std.int((titleWidth-titleField.textWidth)/2);
       }
+      */
 
       outHitBoxes.add( new Rectangle(ox,ox,w,title_h), TITLE(pane) );
    }

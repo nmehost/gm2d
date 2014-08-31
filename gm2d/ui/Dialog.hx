@@ -17,7 +17,6 @@ import gm2d.skin.Renderer;
 class Dialog extends Window
 {
    var mPane:Pane;
-   var mContent:Sprite;
    var mHitBoxes:HitBoxes;
    var mSize:Size;
    var mouseWatcher:MouseWatcher;
@@ -27,18 +26,21 @@ class Dialog extends Window
    public function new(inPane:Pane, ?inAttribs:Dynamic, ?inLineage:Array<String>)
    {
       super(Widget.addLines(inLineage,["Dialog","Frame"]), inAttribs);
-      mPane = inPane;
-      mContent = new Sprite();
-      inPane.setDock(null,this);
 
-      //var dbgObject = new nme.display.Shape();
-      //addChild(dbgObject);
-      //Layout.setDebug(dbgObject);
+      mPane = inPane;
 
       mHitBoxes = new HitBoxes(this,onHitBox);
 
-      // todo - make title box
-      setItemLayout(inPane.itemLayout);
+      var vlayout = new VerticalLayout([0,1]);
+
+      var title = new TextLabel(inPane.title, ["DialogTitle"]);
+      addChild(title);
+      vlayout.add(title.getLayout());
+
+      inPane.setDock(null,this);
+      vlayout.add(inPane.itemLayout);
+      setItemLayout(vlayout);
+ 
 
       build();
 
@@ -82,8 +84,8 @@ class Dialog extends Window
    public function center(inWidth:Float,inHeight:Float)
    {
       var p = (parent==null) ? this : parent;
-      x = ( (inWidth - mRect.width)/2 )/p.scaleX;
-      y = ( (inHeight - mRect.height)/2 )/p.scaleY;
+      x = Std.int( (inWidth - mRect.width)/2 )/p.scaleX;
+      y = Std.int( (inHeight - mRect.height)/2 )/p.scaleY;
    }
 
    public dynamic function onClose() { }

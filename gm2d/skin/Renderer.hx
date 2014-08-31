@@ -4,6 +4,7 @@ import nme.display.Bitmap;
 import nme.display.Sprite;
 import nme.display.Graphics;
 import nme.display.BitmapData;
+import nme.display.CapsStyle;
 import nme.filters.BitmapFilter;
 import nme.text.TextField;
 import nme.text.TextFieldAutoSize;
@@ -16,6 +17,8 @@ import nme.geom.Matrix;
 import gm2d.ui.Widget;
 import gm2d.ui.WidgetState;
 import gm2d.ui.Size;
+import gm2d.ui.Button;
+import gm2d.ui.Layout;
 import gm2d.skin.Style;
 import gm2d.skin.BitmapStyle;
 
@@ -36,6 +39,7 @@ class Renderer
    public var filters:Array<BitmapFilter>;
    public var bitmapStyle:BitmapStyle;
    public var map:Map<String,Dynamic>;
+   public var hitBoxes:Array<Button>;
 
 
    public function new(?inMap:Map<String,Dynamic>)
@@ -115,6 +119,35 @@ class Renderer
                default:
             }
          }
+
+         if (map.exists("hitBoxes"))
+         {
+            var data:Array<Dynamic> = map.get("hitBoxes");
+            if (data!=null && data.length>0)
+            {
+               var pad = padding==null ? new Rectangle(0,0,0,0) : padding.clone();
+               hitBoxes = new Array<Button>();
+               for(box in data)
+               {
+                  var lineage = box.lineage;
+                  var lines:Array<String> = null;
+                  if (Std.is(lineage,String))
+                     lines = [Std.string(lineage),"HitBox","BitmapFromId"];
+                  else
+                     lines = Widget.addLines(lineage,["HitBox","BitmapFromId"]);
+                   
+                  var button = new Button(null, null, lines, box );
+                  button.build();
+                  hitBoxes.push(button);
+                  var l = button.getLayout();
+                  var s = l.getBestSize();
+                  pad.width += s.x;
+                  if ( (l.mAlign & Layout.AlignMaskX)==Layout.AlignLeft )
+                     pad.x += s.x;
+               }
+               padding = pad;
+            }
+         }
       }
    }
 
@@ -187,29 +220,50 @@ class Renderer
       return filled;
    }
 
-   function setLine(inGraphics:Graphics,rect:Rectangle):Bool
+   function setLine(inGraphics:Graphics,rect:Rectangle):Float
    {
-      var lined = false;
       if (lineStyle!=null)
       {
-         lined = true;
          switch(lineStyle)
          {
             case LineBorder:
                inGraphics.lineStyle(0, Skin.guiBorder);
+               return 0.5;
 
             case LineSolid( width, rgb, a ):
-               inGraphics.lineStyle(width, rgb,a);
+               inGraphics.lineStyle(width, rgb,a, CapsStyle.SQUARE);
+               return width*0.5;
 
             default:
-               lined=false;
          }
       }
-      return lined;
+      return 0.0;
    }
 
    public function renderWidget(inWidget:Widget)
    {
+      if (hitBoxes!=null)
+      {
+         var x0 = inWidget.mRect.x;
+         var y0 = inWidget.mRect.y;
+         var x1 = x0 + inWidget.mRect.width;
+         var y1 = y0 + inWidget.mRect.height;
+         var hitBoxOwner = inWidget.getHitBoxes();
+         for(box in hitBoxes)
+         {
+            var layout = box.getLayout();
+            var s = layout.getBestSize();
+            inWidget.mChrome.addChild(box);
+            //box.mCallback = 
+            var xPos = layout.mAlign & Layout.AlignMaskX;
+            box.align(x0,y0,x1-x0,y1-y0);
+            if (xPos==Layout.AlignLeft)
+               x0+=s.x;
+            else
+               x1 -= s.x;
+         }
+      }
+
       var label = inWidget.getLabel();
       if (label!=null)
          renderLabel(label);
@@ -226,35 +280,54 @@ class Renderer
 
    public function renderRect(widget:Widget, gfx:Graphics, r:Rectangle)
    {
-      var lined = setLine(gfx,r);
-      var filled = setFill(gfx,r);
-
-      var offset = lined ? 0.5 : 0;
+      var lineOffset = 0.0;
+      var filled = false;
 
       switch(style)
       {
          case StyleNone:
          case StyleRect:
-            if (lined || filled)
-               gfx.drawRect(r.x-offset, r.y-offset, r.width+offset*2, r.height+offset*2);
+            lineOffset = setLine(gfx,r);
+            filled = setFill(gfx,r);
+            if (lineOffset>0 || filled)
+               gfx.drawRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2);
 
          case StyleRoundRect:
-            if (lined || filled)
-               gfx.drawRoundRect(r.x-offset, r.y-offset, r.width+offset*2, r.height+offset*2,
+            lineOffset = setLine(gfx,r);
+            filled = setFill(gfx,r);
+            if (lineOffset>0 || filled)
+               gfx.drawRoundRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2,
                    Skin.roundRectRad,Skin.roundRectRad);
 
+         case StyleUnderlineRect:
+            if (setFill(gfx,r))
+            {
+               gfx.drawRect(r.x, r.y, r.width, r.height);
+               gfx.endFill();
+            }
+            lineOffset = setLine(gfx,r);
+            if (lineOffset>0)
+            {
+               gfx.moveTo(r.x+lineOffset, r.y+r.height-lineOffset);
+               gfx.lineTo(r.x+r.width-lineOffset, r.y+r.height-lineOffset);
+            }
+
          case StyleRoundRectRad(rad):
-            if (lined || filled)
-               gfx.drawRoundRect(r.x-offset, r.y-offset, r.width+offset*2, r.height+offset*2, rad,rad);
+            lineOffset = setLine(gfx,r);
+            filled = setFill(gfx,r);
+            if (lineOffset>0 || filled)
+               gfx.drawRoundRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2, rad,rad);
 
          case StyleCustom( render ):
+            lineOffset = setLine(gfx,r);
+            filled = setFill(gfx,r);
             if (widget==null)
                throw "Invalid custom renderer on non-widget";
             render(widget);
             filled = true;
       }
 
-      if (lined || filled)
+      if (lineOffset>0.0 || filled)
       {
          gfx.endFill();
          gfx.lineStyle();
@@ -263,7 +336,7 @@ class Renderer
 
    public function getBitmap(inId:String, inState:Int) : BitmapData
    {
-      if (bitmapStyle==null)
+      if (bitmapStyle==null || inId=="" || inId==null)
       {
          return null;
       }

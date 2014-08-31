@@ -278,7 +278,21 @@ class Widget extends Sprite
 
    public function getItemLayout() : Layout { return mItemLayout; }
  
-   public function getHitBoxes() : HitBoxes { return null; }
+   public function getHitBoxes() : HitBoxes
+   {
+      var p = parent;
+      while(p!=null)
+      {
+         if (Std.is(p,Widget))
+         {
+            var widget : Widget = cast p;
+            return widget.getHitBoxes();
+         }
+         p = p.parent;
+      }
+ 
+      return null;
+   }
 
    public function getPane() : Pane { return null; }
 

@@ -53,6 +53,18 @@ class HitBox
 
 class HitBoxes
 {
+   public static inline var Close    = "#close";
+   public static inline var Minimize = "#minimize";
+   public static inline var Maximize = "#maximize";
+   public static inline var Restore  = "#restore";
+   public static inline var Popup    = "#popup";
+   public static inline var Expand   = "#expand";
+   public static inline var Pin      = "#pin";
+   public static inline var Add      = "#add";
+   public static inline var Remove   = "#remove";
+ 
+
+
    public static var BUT_STATE_UP = 0;
    public static var BUT_STATE_OVER = 1;
    public static var BUT_STATE_DOWN = 2;

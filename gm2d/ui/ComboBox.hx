@@ -99,7 +99,7 @@ class ComboBox extends TextInput
    public var selectOnMove = true;
 
    public function new(inVal="", ?inOptions:Array<String>, ?inDisplay:Array<Dynamic>,
-       ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void, ?inLineage:Array<String>)
+       ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void, ?inLineage:Array<String>, ?inAttribs:{})
    {
        onItem = inOnSelectIndex;
        onText = inOnSelectString;
@@ -134,7 +134,7 @@ class ComboBox extends TextInput
           mBMP.draw(shape);
        }
 
-       super(inVal, inOnSelectString, Widget.addLine(inLineage,"ComboBox"));
+       super(inVal, inOnSelectString, Widget.addLine(inLineage,"ComboBox"), inAttribs);
 
        mOptions = inOptions==null ? null : inOptions.copy();
        mDisplay = inDisplay==null ? null : inDisplay.copy();
