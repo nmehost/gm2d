@@ -149,6 +149,10 @@ class Layout
 
 
    public function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void { }
+   public function setBorderRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
+   {
+      setRect(inX-mBLeft, inY-mBTop, inW+mBLeft+mBRight, inH+mBTop+mBBottom);
+   }
    public function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
       fireLayout(inX, inY, inW, inH);

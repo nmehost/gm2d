@@ -251,7 +251,7 @@ class Widget extends Sprite
 
    public function relayout()
    {
-      getLayout().setRect( mRect.x, mRect.y, mRect.width, mRect.height );
+      getLayout().setBorderRect( mRect.x, mRect.y, mRect.width, mRect.height );
    }
 
 

@@ -161,10 +161,10 @@ class Ado
    }
 
 
-   public function undo() : Bool
+   public function undo() : String
    {
       if (held)
-         return false;
+         return null;
       finishEdit();
       if (edits.length>0)
       {
@@ -173,24 +173,24 @@ class Ado
          if (undone==null)
             undone = new Array<Edit>();
          undone.push(e);
-         return true;
+         return e.name;
       }
-      return false;
+      return null;
    }
 
-   public function redo() : Bool
+   public function redo() : String
    {
       if (held)
-         return false;
+         return null;
       finishEdit();
       if (undone!=null && undone.length>0)
       {
          var e = undone.pop();
          e.redo();
          edits.push(e);
-         return true;
+         return e.name;
       }
-      return false;
+      return null;
    }
 
 }
