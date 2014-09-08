@@ -28,8 +28,6 @@ class TextInput extends TextLabel
       mText.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent) if (e.charCode==13) onEnter(mText.text) );
    }
 
-   override public function isInput() : Bool { return true;  }
-
    public function parseInt() : Int
    {
       return Std.parseInt( mText.text );

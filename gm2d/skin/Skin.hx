@@ -231,6 +231,7 @@ class Skin
       addAttribs("TextInput", null, {
           style: StyleRect,
           align: Layout.AlignLeft,
+          isInput: true,
           minItemSize : new Size(scale(100),1),
           line: LineBorder,
           fill: FillSolid(0xffffff,1),

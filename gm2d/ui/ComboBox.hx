@@ -95,23 +95,17 @@ class ComboBox extends TextInput
    static var mBMP:BitmapData;
    var onText:String->Void;
    var onItem:Int->Void;
-   var onPopup:Void->Void;
+   public var index(default,null):Int;
+   public var onPopup:ComboBox->Void;
    public var selectOnMove = true;
 
    public function new(inVal="", ?inOptions:Array<String>, ?inDisplay:Array<Dynamic>,
        ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void, ?inLineage:Array<String>, ?inAttribs:{})
    {
+       index = -1;
        onItem = inOnSelectIndex;
        onText = inOnSelectString;
 
-       //mRenderer.renderLabel(mText);
-       //mText.text = inVal;
-       //mText.x = 0.5;
-       //mText.y = 0.5;
-       //mText.height = 21;
-       ////mText.autoSize = nme.text.TextFieldAutoSize.NONE;
-       //mText.type = nme.text.TextFieldType.INPUT;
- 
        if (mBMP==null)
        {
           mBMP = new BitmapData(Skin.scale(22),Skin.scale(22));
@@ -136,10 +130,13 @@ class ComboBox extends TextInput
 
        super(inVal, inOnSelectString, Widget.addLine(inLineage,"ComboBox"), inAttribs);
 
+       selectOnMove = attribBool("selectOnMove",true);
+
        mOptions = inOptions==null ? null : inOptions.copy();
        mDisplay = inDisplay==null ? null : inDisplay.copy();
        //addChild(mText);
        addEventListener(MouseEvent.CLICK, onClick );
+       updateIndex();
    }
 
    function onClick(event:MouseEvent)
@@ -165,6 +162,7 @@ class ComboBox extends TextInput
 
    public function onListSelect(inIndex:Int)
    {
+      index = inIndex;
       if (mOptions!=null)
       {
          setText(mOptions[inIndex]);
@@ -178,7 +176,7 @@ class ComboBox extends TextInput
    function doPopup()
    {
       if (onPopup!=null)
-         onPopup();
+         onPopup(this);
       var w = mRect.width;
       var pop = mDisplay != null ?
             new ComboList(this, w, mDisplay,selectOnMove) :
@@ -208,32 +206,26 @@ class ComboBox extends TextInput
       }
    }
 
+   public function setIndex(inIndex:Int)
+   {
+      index = inIndex;
+      mText.text = mOptions[index];
+   }
+
 
    public function setText(inText:String)
    {
        mText.text = inText;
+       updateIndex();
    }
 
-   /*
-   public override function redraw()
+   function updateIndex()
    {
-       var gfx = graphics;
-       gfx.clear();
-       gfx.lineStyle(1,0x808080);
-       gfx.beginFill(0xf0f0ff);
-       gfx.drawRect(0.5,0.5,mRect.width-1,23);
-       gfx.lineStyle();
-       var mtx = new nme.geom.Matrix();
-       mtx.tx = mRect.width-mBMP.width-1;
-       mtx.ty = 1;
-       gfx.beginBitmapFill(mBMP,mtx);
-       mButtonX = mRect.width-mBMP.width-1+0.5;
-       gfx.drawRect(mButtonX,1.5,mBMP.width,mBMP.height);
-       mText.width = mRect.width - mBMP.width - 2;
-       mText.y =  (mBMP.height - 2 - mText.textHeight)/2;
-       mText.height =  mBMP.height-mText.y;
+      if (mOptions==null)
+         index = -1;
+      else if (index<0 || mText.text != mOptions[index])
+         index = mOptions.indexOf(mText.text);
    }
-   */
 
 }
 

@@ -12,14 +12,14 @@ class TextLabel extends Control
 {
    var mText:TextField;
    var mTextLayout:Layout;
+   public var isInput(default,null):Bool;
 
-   public function new(inVal="",?inLineage:Array<String>, ?inAttribs:Dynamic )
+   public function new(inVal="",?inLineage:Array<String>, ?inAttribs:{} )
    {
        super(Widget.addLine(inLineage,"TextLabel"),inAttribs);
        wantFocus = false;
 
        createUnderlay();
-
 
        mText = new TextField();
        //mText.autoSize = nme.text.TextFieldAutoSize.LEFT;
@@ -27,7 +27,9 @@ class TextLabel extends Control
        //mText.backgroundColor = 0xffffff;
        addChild(mText);
 
-       if (isInput())
+       isInput = attribBool("isInput",false);
+
+       if (isInput)
           mText.type = nme.text.TextFieldType.INPUT;
        if (mRenderer.getDefaultBool("multiline",false))
           mText.multiline = true;
@@ -72,8 +74,6 @@ class TextLabel extends Control
       return mText;
    }
 
-   public function isInput() : Bool { return false; }
-
    public function createExtraWidgetLayout() : Layout { return null; }
 
    public function setTextWidth(inW:Float)
@@ -86,7 +86,7 @@ class TextLabel extends Control
    override public function set_isCurrent(inVal:Bool) : Bool
    {
       super.set_isCurrent(inVal);
-      if (isInput())
+      if (isInput)
       {
          if (stage!=null)
             stage.focus = inVal ? mText : null;

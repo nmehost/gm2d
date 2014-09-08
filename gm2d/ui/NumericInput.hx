@@ -45,7 +45,7 @@ class NumericInput extends TextInput
    public function new(inVal:Float,?inOnUpdateFloat:Float->Int->Void, ?inLineage:Array<String>, ?inAttribs:{} )
    {
       init = false;
-      super(Std.string(inVal),onUpdateText, inLineage, inAttribs);
+      super(Std.string(inVal),onUpdateText, Widget.addLine(inLineage,"NumericInput"), inAttribs);
 
       isInteger = attribBool("isInteger",false);
       min = attribFloat("minValue");
@@ -170,7 +170,7 @@ class NumericInput extends TextInput
 
    public function onTextUp(e:MouseEvent)
    {
-      if (!textWatcher.wasDragged)
+      if (!textWatcher.wasDragged && isInput)
          setTextEditMode(true);
       if (!newDrag && onUpdate!=null)
          onUpdate(restrictedValue,Phase.END);
