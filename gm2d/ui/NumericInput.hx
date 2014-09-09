@@ -24,6 +24,7 @@ class NumericInput extends TextInput
    public var quantization:Float;
    public var maxBar:Float;
    public var value(get,set):Float;
+   public var handler(default,set):AdoHandler<Float>;
 
    var underlay:Shape;
    var min:Float;
@@ -84,6 +85,13 @@ class NumericInput extends TextInput
       addChild(underlay);
    }
 
+   public function set_handler(inHandler:AdoHandler<Float>)
+   {
+      handler = inHandler;
+      onUpdate = handler.onValue;
+      handler.updateGui = setValue;
+      return handler;
+   }
 
 
    /*
@@ -109,9 +117,10 @@ class NumericInput extends TextInput
       return getValue();
    }
 
-   inline public function set_value(inValue:Float) : Float
+   public function set_value(inValue:Float) : Float
    {
-      return setValue(inValue);
+      setValue(inValue);
+      return restrictedValue;
    }
 
 
@@ -121,7 +130,7 @@ class NumericInput extends TextInput
    }
 
 
-   public function setValue(inValue:Float) : Float
+   public function setValue(inValue:Float) : Void
    {
       var v = inValue;
       if (!Math.isFinite(v))
@@ -142,7 +151,6 @@ class NumericInput extends TextInput
          mText.text = Std.string(restrictedValue);
          redrawBar();
       }
-      return restrictedValue;
    }
  
    public function onTextDown(e:MouseEvent)

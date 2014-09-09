@@ -98,6 +98,7 @@ class ComboBox extends TextInput
    public var index(default,null):Int;
    public var onPopup:ComboBox->Void;
    public var selectOnMove = true;
+   public var indexHandler(default,set):AdoHandler<Int>;
 
    public function new(inVal="", ?inOptions:Array<String>, ?inDisplay:Array<Dynamic>,
        ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void, ?inLineage:Array<String>, ?inAttribs:{})
@@ -144,6 +145,14 @@ class ComboBox extends TextInput
       // TODO - position
       if (event.target==this || event.target==mChrome)
           doPopup();
+   }
+
+   public function set_indexHandler(inHandler:AdoHandler<Int>)
+   {
+      indexHandler = inHandler;
+      onItem = function(value:Int) indexHandler.onValue(value,Phase.ALL);
+      indexHandler.updateGui = setIndex;
+      return indexHandler;
    }
 
    override public function createExtraWidgetLayout() : Layout
@@ -206,7 +215,7 @@ class ComboBox extends TextInput
       }
    }
 
-   public function setIndex(inIndex:Int)
+   public function setIndex(inIndex:Int) : Void
    {
       index = inIndex;
       mText.text = mOptions[index];
