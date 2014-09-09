@@ -222,7 +222,7 @@ class ComboBox extends TextInput
    }
 
 
-   public function setText(inText:String)
+   override public function setText(inText:String)
    {
        mText.text = inText;
        updateIndex();

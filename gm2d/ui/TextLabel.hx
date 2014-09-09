@@ -67,6 +67,11 @@ class TextLabel extends Control
        build();
    }
 
+   public function setText(inText:String) : Void
+   {
+      mText.text = inText;
+   }
+
    public function createUnderlay() { }
 
    override public function getLabel( ) : TextField

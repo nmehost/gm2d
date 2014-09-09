@@ -11,21 +11,76 @@ import gm2d.ui.Layout;
 
 class TextInput extends TextLabel
 {
-   public function new(inVal="", ?onUpdate:String->Void,?inLineage:Array<String>,?inAttribs:Dynamic)
+   public var onTextUpdate:String->Void;
+   public var onTextEnter:String->Void;
+   public var textHandler(default,set):AdoHandler<String>;
+
+   var isEditing:Bool;
+
+   public function new(inVal="", ?inOnText:String->Void,?inLineage:Array<String>,?inAttribs:Dynamic)
    {
        super(inVal,Widget.addLine(inLineage,"TextInput"),inAttribs);
        wantFocus = true;
+       onTextUpdate = inOnText;
+       isEditing = false;
 
-       if (onUpdate!=null)
-       {
-          var t= mText;
-          mText.addEventListener(nme.events.Event.CHANGE, function(_) onUpdate(t.text) );
-       }
+       mText.addEventListener(nme.events.Event.CHANGE, function(_) textUpdate(mText.text) );
+       mText.addEventListener(KeyboardEvent.KEY_DOWN, keyDown );
    }
 
-   public function setOnEnter(onEnter:String->Void)
+   function set_textHandler(inHandler:AdoHandler<String>)
    {
-      mText.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent) if (e.charCode==13) onEnter(mText.text) );
+      textHandler = inHandler;
+      textHandler.updateGui = setText;
+      return textHandler;
+   }
+
+   function textUpdate(inValue:String)
+   {
+      if (onTextUpdate!=null)
+         onTextUpdate(inValue);
+      if (textHandler!=null)
+      {
+         var phase = Phase.UPDATE;
+         if (!isEditing)
+            phase |= Phase.BEGIN;
+         isEditing = true;
+         textHandler.onValue(mText.text, phase);
+      }
+   }
+
+   function keyDown(e:KeyboardEvent)
+   {
+      if (e.charCode==13)
+      {
+         if (onTextEnter!=null)
+            onTextEnter(mText.text);
+
+         if (textHandler!=null)
+         {
+            var phase = Phase.END | Phase.UPDATE;
+            if (!isEditing)
+               phase |= Phase.BEGIN;
+            isEditing = false;
+            textHandler.onValue(mText.text, phase);
+         }
+      }
+   }
+
+   override public function set_isCurrent(inVal:Bool) : Bool
+   {
+      if (isEditing && !inVal)
+      {
+         isEditing = false;
+         textHandler.finishEdit();
+      }
+      return super.set_isCurrent(inVal);
+   }
+
+
+   public function setOnEnter(inOnEnter:String->Void)
+   {
+      onTextEnter = inOnEnter;
    }
 
    public function parseInt() : Int

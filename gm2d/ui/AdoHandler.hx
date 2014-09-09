@@ -39,7 +39,11 @@ class AdoHandler<T>
             updateGui(value);
       }
    }
-   
+
+   public function finishEdit()
+   {
+      ado.finishEdit();
+   }
 
    public function onValue(value:T, phase:Int) : Void
    {
