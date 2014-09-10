@@ -21,6 +21,7 @@ class TextInput extends TextLabel
 
    public function new(inVal="", ?inOnText:String->Void,?inLineage:Array<String>,?inAttribs:Dynamic)
    {
+       placeholder = null;
        super(inVal,Widget.addLine(inLineage,"TextInput"),inAttribs);
        placeholder = attribString("placeholder",null);
        wantFocus = true;
@@ -37,7 +38,7 @@ class TextInput extends TextLabel
    function checkPlaceholder()
    {
       var want = false;
-      if (placeholder!="" && mText.text=="")
+      if (placeholder!="" && placeholder!=null && mText.text=="")
       {
          want = true;
          if (placeholderField==null)
