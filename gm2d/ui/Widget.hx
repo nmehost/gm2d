@@ -146,6 +146,13 @@ class Widget extends Sprite
    }
 
 
+   public function attribString(inName:String, inDefault="") : String
+   {
+      var val = combinedAttribs.get(inName);
+      return val==null ? inDefault : val;
+   }
+
+
    public function attribFloat(inName:String, inDefault=0.0) : Float
    {
       var val = combinedAttribs.get(inName);
@@ -167,6 +174,8 @@ class Widget extends Sprite
          if (tf!=null)
          {
             var alternate = mRenderer.getDynamic("alternateText");
+            if (alternate==null)
+               alternate =  mRenderer.getDynamic("placeholder");
             var textLayout = alternate==null ? null : mItemLayout.findTextLayout();
             if (textLayout!=null)
             {
@@ -207,22 +216,30 @@ class Widget extends Sprite
       return inState;
    }
 
-   public function set_text(inText:String) : String
+   
+
+   public function setText(inText:String) : Void
    {
       var label = getLabel();
       if (label!=null)
-      {
          label.text = inText;
-      }
+   }
+   function set_text(inText:String) : String
+   {
+      setText(inText);
       return inText;
    }
 
-   public function get_text() : String
+   public function getText() : String
    {
       var label = getLabel();
       if (label!=null)
          return label.text;
       return null;
+   }
+   inline function get_text() : String
+   {
+      return getText();
    }
 
    public function onLayout(inX:Float, inY:Float, inW:Float, inH:Float)

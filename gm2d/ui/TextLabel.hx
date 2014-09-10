@@ -67,7 +67,7 @@ class TextLabel extends Control
        build();
    }
 
-   public function setText(inText:String) : Void
+   override public function setText(inText:String) : Void
    {
       mText.text = inText;
    }

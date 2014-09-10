@@ -196,6 +196,9 @@ class Skin
       addAttribs("TextLabel", null, {
           align: Layout.AlignLeft,
         });
+      addAttribs("TextPlaceholder", null, {
+          textColor: 0xa0a0a0,
+        });
       addAttribs("PanelText", null, {
           align: Layout.AlignRight,
         });

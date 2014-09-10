@@ -14,19 +14,74 @@ class TextInput extends TextLabel
    public var onTextUpdate:String->Void;
    public var onTextEnter:String->Void;
    public var textHandler(default,set):AdoHandler<String>;
+   public var placeholder:String;
+   public var placeholderField:TextField;
 
    var isEditing:Bool;
 
    public function new(inVal="", ?inOnText:String->Void,?inLineage:Array<String>,?inAttribs:Dynamic)
    {
        super(inVal,Widget.addLine(inLineage,"TextInput"),inAttribs);
+       placeholder = attribString("placeholder",null);
        wantFocus = true;
        onTextUpdate = inOnText;
        isEditing = false;
 
+       if (placeholder!=null && mText.text=="")
+          setText(inVal);
+
        mText.addEventListener(nme.events.Event.CHANGE, function(_) textUpdate(mText.text) );
        mText.addEventListener(KeyboardEvent.KEY_DOWN, keyDown );
    }
+
+   function checkPlaceholder()
+   {
+      var want = false;
+      if (placeholder!="" && mText.text=="")
+      {
+         want = true;
+         if (placeholderField==null)
+         {
+            placeholderField = new TextField();
+            mChrome.addChild(placeholderField);
+            var attribs = mAttribs==null ? mAttribs : mAttribs.placeholderAttribs;
+            if (attribs==null)
+               attribs = mAttribs;
+            var renderer = Skin.renderer(["TextPlaceholder", "TextLabel"],0,attribs);
+            renderer.renderLabel(placeholderField);
+         }
+         placeholderField.text = placeholder;
+         placeholderField.x = mText.x;
+         placeholderField.y = mText.y;
+         placeholderField.width = mText.width;
+         placeholderField.height = mText.height;
+      }
+
+      if (!want && placeholderField!=null)
+      {
+         if (placeholderField.parent!=null)
+         {
+            mChrome.removeChild(placeholderField);
+         }
+         placeholderField = null;
+      }
+   }
+
+   override public function setText(inText:String) : Void
+   {
+      mText.text = inText;
+      checkPlaceholder();
+   }
+
+   override public function redraw()
+   {
+      super.redraw();
+      if (placeholderField!=null && placeholderField.parent!=null)
+         placeholderField.parent.removeChild(placeholderField);
+      placeholderField = null;
+      checkPlaceholder();
+   }
+
 
    function set_textHandler(inHandler:AdoHandler<String>)
    {
@@ -37,6 +92,7 @@ class TextInput extends TextLabel
 
    function textUpdate(inValue:String)
    {
+      checkPlaceholder();
       if (onTextUpdate!=null)
          onTextUpdate(inValue);
       if (textHandler!=null)
@@ -51,6 +107,7 @@ class TextInput extends TextLabel
 
    function keyDown(e:KeyboardEvent)
    {
+      checkPlaceholder();
       if (e.charCode==13)
       {
          if (onTextEnter!=null)
