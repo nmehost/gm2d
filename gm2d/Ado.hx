@@ -29,7 +29,11 @@ class Edit
          jobs[jobs.length-1].doFunc = inDo;
       }
       else
+      {
+         if (inUndo==null)
+             throw "Can't continue without undo";
          add(inDo,inUndo);
+      }
    }
    public function add(inDo:Void->Void, inUndo:Void->Void)
    {
@@ -143,7 +147,11 @@ class Ado
          return;
       if (edit==null)
          throw "add without begin";
-      edit.add(inDo,inUndo);
+
+      if (inUndo==null )
+         edit.continueDo(inDo,inUndo);
+      else
+         edit.add(inDo,inUndo);
    }
 
    public function setDo( inName:String, inDo:Void->Void, inUndo:Void->Void)
