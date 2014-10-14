@@ -235,8 +235,10 @@ class Button extends Control
         }
         if (mouseHandler!=null)
         {
-           var fakeEvent = new MouseEvent(MouseEvent.CLICK);
+           var fakeEvent = new MouseEvent(MouseEvent.CLICK,true,false,0,0,this);
+           #if !flash
            fakeEvent.target = this;
+           #end
            mouseHandler(name,fakeEvent);
         }
       }

@@ -234,7 +234,7 @@ class Renderer
                return 0.5;
 
             case LineSolid( width, rgb, a ):
-               inGraphics.lineStyle(width, rgb,a, CapsStyle.SQUARE);
+               inGraphics.lineStyle(width, rgb,a, false, CapsStyle.SQUARE);
                return width*0.5;
 
             default:
