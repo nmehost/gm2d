@@ -1,14 +1,22 @@
 package gm2d.ui;
 
 import nme.events.MouseEvent;
+import nme.events.Event;
 import nme.display.Stage;
 import nme.display.DisplayObject;
 import nme.geom.Point;
+import haxe.Timer;
 
 class MouseWatcher
 {
    var mWatch:DisplayObject;
    var mEventStage:Stage;
+
+   var mCombineTime:Float;
+   var mLastCombineRenderTime:Float;
+   var mPendingDrag:MouseEvent;
+   var mPendingDragTimer:Timer;
+   var mDragsSinceRender:Int;
 
    public var onDown:MouseEvent->Void;
    public var onDrag:MouseEvent->Void;
@@ -33,6 +41,13 @@ class MouseWatcher
       onDown = inOnDown;
       onDrag = inOnDrag;
       onUp = inOnUp;
+
+      mCombineTime = 0.0;
+      mLastCombineRenderTime = 0.0;
+      mPendingDrag = null;
+      mPendingDragTimer = null;
+      mDragsSinceRender = 0;
+
       wasDragged = false;
       minDragDistance = 0.0;
 
@@ -74,6 +89,29 @@ class MouseWatcher
 
    public function ignoreDown() { isDown = false; }
 
+   public function combineDragEvents(inAfterSeconds:Float):Void
+   {
+      var wasCombining = mCombineTime>0.0;
+      mCombineTime = inAfterSeconds;
+      var isCombining = mCombineTime>0.0;
+
+      if (mEventStage!=null && isCombining!=wasCombining && isDown)
+      {
+         if (isCombining)
+         {
+            mEventStage.addEventListener(Event.ENTER_FRAME, onRender);
+            mEventStage.addEventListener(Event.RENDER, onRender);
+         }
+         else
+         {
+            mEventStage.removeEventListener(Event.ENTER_FRAME, onRender);
+            mEventStage.removeEventListener(Event.RENDER, onRender);
+         }
+      }
+      mLastCombineRenderTime = Timer.stamp();
+      mDragsSinceRender = 0;
+   }
+
    function onMouseDown(ev:MouseEvent)
    {
        mEventStage = mWatch.stage;
@@ -88,6 +126,12 @@ class MouseWatcher
        {
           mEventStage.addEventListener(MouseEvent.MOUSE_MOVE, onStageDrag);
           mEventStage.addEventListener(MouseEvent.MOUSE_UP, onStageUp);
+          if (mCombineTime>0.0)
+          {
+             mEventStage.addEventListener(Event.ENTER_FRAME, onRender);
+             mEventStage.addEventListener(Event.RENDER, onRender);
+          }
+          mLastCombineRenderTime = Timer.stamp();
        }
    }
    function removeStageListeners()
@@ -96,12 +140,45 @@ class MouseWatcher
       {
          mEventStage.removeEventListener(MouseEvent.MOUSE_MOVE, onStageDrag);
          mEventStage.removeEventListener(MouseEvent.MOUSE_UP, onStageUp);
+         if (mCombineTime>0.0)
+         {
+            mEventStage.removeEventListener(Event.ENTER_FRAME, onRender);
+            mEventStage.removeEventListener(Event.RENDER, onRender);
+         }
          mEventStage = null;
       }
    }
 
+   function onPendingDrag()
+   {
+      if (mPendingDragTimer!=null)
+      {
+         mPendingDragTimer.stop();
+         mPendingDragTimer = null;
+      }
+      if (mPendingDrag!=null)
+      {
+         processDrag(mPendingDrag);
+         mPendingDrag = null;
+      }
+   }
+
+   function onRender(_)
+   {
+      mLastCombineRenderTime = Timer.stamp();
+      if (mPendingDrag!=null && mPendingDragTimer==null)
+      {
+         mPendingDragTimer = new Timer(0);
+         mPendingDragTimer.run = onPendingDrag;
+      }
+      mDragsSinceRender = 0;
+   }
+
    function onStageUp(ev:MouseEvent)
    {
+      // Flush
+      onPendingDrag();
+
       removeStageListeners();
       if (onUp!=null)
          onUp(ev);
@@ -109,6 +186,18 @@ class MouseWatcher
 
    function onStageDrag(ev:MouseEvent)
    {
+      if (mCombineTime>0 && (mPendingDrag!=null ||
+           (mDragsSinceRender>0 && Timer.stamp()>mLastCombineRenderTime+mCombineTime) ) )
+      {
+         mPendingDrag = ev;
+      }
+      else
+         processDrag(ev);
+   }
+
+   function processDrag(ev:MouseEvent)
+   {
+      mDragsSinceRender++;
       prevPos.x = pos.x;
       prevPos.y = pos.y;
       pos.x = ev.stageX;
