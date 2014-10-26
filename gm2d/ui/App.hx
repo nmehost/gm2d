@@ -7,6 +7,8 @@ import gm2d.ui.Layout;
 import gm2d.ui.Dock;
 import gm2d.ui.IDockable;
 import gm2d.ui.Menubar;
+import nme.events.KeyboardEvent;
+import nme.text.TextField;
 
 import nme.net.SharedObject;
 
@@ -202,6 +204,17 @@ class App extends Screen
       }
       return _menubar;
    }
+
+   override public function onKeyDown(event:KeyboardEvent ) : Bool
+   {
+      var focusElem = stage.focus;
+      if (focusElem==null && !Std.is(focusElem,TextField))
+      {
+         //trace("Unused key " + event.charCode);
+      }
+      return false;
+   }
+
 }
 
 

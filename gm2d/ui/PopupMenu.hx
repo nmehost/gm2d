@@ -21,7 +21,7 @@ class PopupMenu extends Window
 
       mItem = inItem;
       mBar = inBar;
-      var layout = new GridLayout(2);
+      var layout = new GridLayout(3);
       layout.name = "Menu grid";
       mButtons = [];
       var gfx = graphics;
@@ -77,6 +77,15 @@ class PopupMenu extends Window
                   layout.add( null );
 
                layout.add(but.getLayout());
+
+               if (item.shortcut==null)
+                  layout.add(null);
+               else
+               {
+                  var text = new TextLabel(item.shortcut,["Shortcut","PopupMenuItem"]);
+                  addChild(text);
+                  layout.add(text.getLayout());
+               }
             }
          }
       }

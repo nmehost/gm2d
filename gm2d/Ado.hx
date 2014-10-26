@@ -63,6 +63,9 @@ class Ado
    public var edits:Array<Edit>;
    public var undone:Array<Edit>;
    public var edit:Edit;
+   public var undoText:String;
+   public var redoText:String;
+   public var onUndoText:Void->Void;
    var held = false;
 
    public function new()
@@ -82,6 +85,19 @@ class Ado
       edits = [];
       undone = [];
       edit = null;
+   }
+
+   public function updateText()
+   {
+      var uText:String = edits!=null && edits.length>0 ? edits[edits.length-1].name : null;
+      var rText:String = undone!=null && undone.length>0 ? undone[undone.length-1].name : null;
+      if (uText!=undoText || rText!=redoText)
+      {
+         undoText = uText;
+         redoText = rText;
+         if (onUndoText!=null)
+             onUndoText();
+      }
    }
 
    public function continueEdit(inName:String)
@@ -112,6 +128,7 @@ class Ado
          edits.push(edit);
       }
       edit = null;
+      updateText();
    }
 
    public function editPhase(inName:String,
@@ -152,6 +169,7 @@ class Ado
          edit.continueDo(inDo,inUndo);
       else
          edit.add(inDo,inUndo);
+      updateText();
    }
 
    public function setDo( inName:String, inDo:Void->Void, inUndo:Void->Void)
@@ -181,6 +199,7 @@ class Ado
          if (undone==null)
             undone = new Array<Edit>();
          undone.push(e);
+         updateText();
          return e.name;
       }
       return null;
@@ -196,6 +215,7 @@ class Ado
          var e = undone.pop();
          e.redo();
          edits.push(e);
+         updateText();
          return e.name;
       }
       return null;

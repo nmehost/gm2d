@@ -14,6 +14,7 @@ class MenuItem
       checkable = false;
       checked = false;
       onSelect = inOnSelect;
+      enabled = true;
       id = null;
    }
    public var onSelect:MenuItem->Void;
@@ -35,6 +36,7 @@ class MenuItem
    public var icon:BitmapData;
    public var checkable:Bool;
    public var checked:Bool;
+   public var enabled:Bool;
    public var id:String;
 
    //public var gmPopup:PopupMenu;
