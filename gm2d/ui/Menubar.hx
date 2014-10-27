@@ -9,6 +9,7 @@ import nme.display.Graphics;
 import nme.display.Sprite;
 import nme.text.TextField;
 import nme.events.MouseEvent;
+import nme.events.KeyboardEvent;
 import nme.text.TextFieldAutoSize;
 import gm2d.skin.Skin;
 import gm2d.ui.IDock;
@@ -69,6 +70,15 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
       mNextX += but.width + 10;
       addChild(but);
    }
+
+   override public function onKeyDown(event:KeyboardEvent ) : Bool
+   {
+      for(item in mItems)
+         if (item.onKey(event))
+            return true;
+      return false;
+   }
+
 
    function onMouseItem(inPos:Int)
    {

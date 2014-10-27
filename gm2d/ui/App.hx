@@ -210,7 +210,8 @@ class App extends Screen
       var focusElem = stage.focus;
       if (focusElem==null && !Std.is(focusElem,TextField))
       {
-         //trace("Unused key " + event.charCode);
+         if (topMenuBar!=null)
+            return topMenuBar.onKeyDown(event);
       }
       return false;
    }
