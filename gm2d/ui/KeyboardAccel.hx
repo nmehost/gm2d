@@ -18,21 +18,21 @@ class KeyboardAccel
  
       for(part in inShortcut.split("+"))
       {
-         var upper= part.toUpperCase();
-         var f =  Reflect.field(Keyboard,upper);
-         if (Std.is(f,Int))
-            code = f;
-         else
-            switch(part)
-            {
-               case "Ctrl" : ctrl = true;
-               case "Alt" : alt = true;
-               case "Shift" : shift = true;
-               case "Del" : code = Keyboard.DELETE;
-               default:
+         switch(part)
+         {
+            case "Ctrl" : ctrl = true;
+            case "Alt" : alt = true;
+            case "Shift" : shift = true;
+            case "Del" : code = Keyboard.DELETE;
+            default:
+               var upper= part.toUpperCase();
+               var f =  Reflect.field(Keyboard,upper);
+               if (Std.is(f,Int))
+                  code = f;
+               else
                   throw "Unknown key : " + part;
-            }
          }
+      }
       if (code<0)
          throw "No key code specified";
    }

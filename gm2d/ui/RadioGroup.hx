@@ -8,15 +8,20 @@ class RadioGroup<Key>
    public var onItem:Int->Void;
    public var buttons:Array<Button>;
    public var keys:Array<Key>;
+   public var current:Null<Key>;
 
    public function new(inOnButton:Key->Void)
    {
       onButton = inOnButton;
       buttons = new Array<Button>();
       keys = new Array<Key>();
+      current = null;
    }
    public function setState(inKey:Key)
    {
+      if (inKey==current)
+         return;
+      current = inKey;
       for(i in 0...keys.length)
       {
          buttons[i].down = keys[i]==inKey;

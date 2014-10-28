@@ -38,6 +38,7 @@ class PopupMenu extends Window
             {
                layout.add( null );
                layout.add( Widget.createHLine(this, null, { margin:2 } ).getLayout() );
+               layout.add( null );
             }
             else
             {
@@ -59,6 +60,12 @@ class PopupMenu extends Window
                         function(c) { item.checked = c; item.onSelect(item); }, ["MenuCheckbox"] );
                   addChild(checkbox);
                   layout.add( checkbox.getLayout() );
+               }
+               else if (item.icon!=null)
+               {
+                  var bitmap = new Bitmap(item.icon);
+                  addChild(bitmap);
+                  layout.add( new DisplayLayout(bitmap).setPadding(4,4) );
                }
                else if (item.id!=null)
                {
