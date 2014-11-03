@@ -53,6 +53,7 @@ class Layout
    static var mDebugObject:Shape;
 
 
+
    public function new()
    {
       width = height = 0.0;
@@ -73,6 +74,18 @@ class Layout
       mAlign = inAlign;
       return this;
    }
+   public function setVerticalAlignment(inAlign:Int)
+   {
+      mAlign = (mAlign & ~AlignMaskY) | (inAlign & AlignMaskY);
+      return this;
+   }
+   public function setHorizontalAlignment(inAlign:Int)
+   {
+      mAlign = (mAlign & ~AlignMaskX) | (inAlign & AlignMaskX);
+      return this;
+   }
+
+
    public function stretch()
    {
       mAlign = Layout.AlignStretch;
@@ -84,6 +97,32 @@ class Layout
       mAlign &= ~(Layout.AlignSubPixel | Layout.AlignHalfPixel);
       return this;
    }
+
+   public function visitChildren(onChild:Layout->Dynamic,inRecurse=true) : Dynamic
+   {
+      return null;
+   }
+   static function visitChildList(inChildren:Array<Layout>, onChild:Layout->Dynamic,inRecurse:Bool)
+   {
+      for(child in inChildren)
+      {
+         if (child!=null)
+         {
+            var result = onChild(child);
+            if (result!=null)
+               return result;
+            if (inRecurse)
+            {
+               var result = child.visitChildren(onChild,true);
+               if (result!=null)
+                  return result;
+            }
+         }
+      }
+      return null;
+   }
+
+
 
    public function subPixelAlign()
    {
@@ -620,6 +659,9 @@ class StackLayout extends Layout
    {
       return Layout.findTextLayoutInList(mChildren);
    }
+   override public function visitChildren(onChild:Layout->Dynamic,inRecurse=true)
+      return Layout.visitChildList(mChildren, onChild,inRecurse);
+
 
 
    public override function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void
@@ -1116,6 +1158,18 @@ class GridLayout extends Layout
       }
       return null;
    }
+   override public function visitChildren(onChild:Layout->Dynamic,inRecurse=true)
+   {
+      for(row in mRowInfo)
+      {
+         if (row==null)
+             continue;
+         var result = Layout.visitChildList(row.mCols,onChild,inRecurse);
+         if (result!=null)
+            return result;
+      }
+      return null;
+   }
 
 
    public override function getBestWidth(?inHeight:Null<Float>) : Float
@@ -1229,6 +1283,7 @@ class FlowLayout extends Layout
    {
       return Layout.findTextLayoutInList(mChildren);
    }
+
 
 
    public function setRowAlign(inAlign:Int)
