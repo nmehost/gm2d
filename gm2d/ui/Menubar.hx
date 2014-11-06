@@ -200,15 +200,15 @@ class WxMenubar implements Menubar
 
    public function addItems(inMenu:Menu,inItem:MenuItem) : Void
    {
-      for(child in inItem.mChildren)
+      for(child in inItem.children)
       {
          if (child.onSelect!=null)
          {
-            if (child.gmID<0)
-               child.gmID = wx.Lib.nextID();
-            ApplicationMain.frame.handle(child.gmID, child.onSelect);
+            if (child.wxId<0)
+               child.wxId = wx.Lib.nextID();
+            ApplicationMain.frame.handle(child.wxId, child.onSelect);
          }
-         inMenu.append(child.gmID, child.gmText);
+         inMenu.append(child.wxId, child.text);
       }
    }
    public function closeMenu(inItem:MenuItem):Void { }
@@ -218,7 +218,7 @@ class WxMenubar implements Menubar
       //var menu = new Menu(inItem.gmText);
       var menu = new Menu();
       addItems(menu,inItem);
-      mWxMenuBar.append(menu,inItem.gmText);
+      mWxMenuBar.append(menu,inItem.text);
    }
 
 }

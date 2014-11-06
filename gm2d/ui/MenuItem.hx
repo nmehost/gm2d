@@ -17,6 +17,7 @@ class MenuItem
    public var checked:Bool;
    public var enabled:Bool;
    public var id:String;
+   public var wxId:Int;
    public var onSelect:MenuItem->Void;
    var keyboardAccel:KeyboardAccel;
 
@@ -32,6 +33,7 @@ class MenuItem
       onSelect = inOnSelect;
       enabled = true;
       id = null;
+      wxId = -1;
    }
 
    public function set_shortcut(inShortcut:String) : String

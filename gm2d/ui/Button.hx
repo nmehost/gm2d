@@ -164,6 +164,15 @@ class Button extends Control
       return inDown;
    }
 
+   public function setIcon(inBmp:BitmapData)
+   {
+      if (Std.is(mDisplayObj,Bitmap))
+      {
+         var bitmap : Bitmap = cast mDisplayObj;
+         bitmap.bitmapData = inBmp;
+      }
+   }
+
 
    public static function BMPButton(inBitmapData:BitmapData,?inOnClick:Void->Void, ?inLineage:Array<String>, ?inAttribs:Dynamic)
    {
