@@ -202,13 +202,20 @@ class WxMenubar implements Menubar
    {
       for(child in inItem.children)
       {
-         if (child.onSelect!=null)
+         if (child==null)
          {
-            if (child.wxId<0)
-               child.wxId = wx.Lib.nextID();
-            ApplicationMain.frame.handle(child.wxId, child.onSelect);
+            inMenu.appendSeparator();
          }
-         inMenu.append(child.wxId, child.text);
+         else
+         {
+            if (child.onSelect!=null)
+            {
+               if (child.wxId<0)
+                  child.wxId = wx.Lib.nextID();
+               ApplicationMain.frame.handle(child.wxId, function(_) child.onSelect(child) );
+            }
+            inMenu.append(child.wxId, child.text);
+         }
       }
    }
    public function closeMenu(inItem:MenuItem):Void { }

@@ -44,10 +44,15 @@ class App extends Screen
 
    public function createMenubar()
    {
+      #if (waxe && !nme_menu)
+      if (_menubar==null)
+         _menubar = new WxMenubar(this);
+      #else
       if (topMenuBar==null)
       {
           topMenuBar = new SpriteMenubar(this,Layout.AlignTop);
       }
+      #end
    }
 
    override public function getScaleMode():ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
