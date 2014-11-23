@@ -28,10 +28,6 @@ class FileSave
             ?saveName:String,
             inFlags:Int = 0)
    {
-      #if waxe
-      #elseif flash
-      #else
-
       if (saveName!=null)
       {
          var parts = saveName.split("\\").join("/").split("/");
@@ -42,6 +38,28 @@ class FileSave
                inDefaultPath = parts.join("/");
          }
       }
+
+
+      #if waxe
+        var flags = inFlags | FileDialog.SAVE | FileDialog.OVERWRITE_PROMPT;
+        
+        var dialog = new wx.FileDialog(
+               null,
+               inMessage,
+               inDefaultPath,
+               saveName,
+               inExtension==null ? null : "*." + inExtension,
+               flags);
+        if (dialog.showModal())
+        {
+           var dir = dialog.directory;
+           var name = dir + "/" + dialog.file;
+           onResult(name);
+        }
+        else
+           onResult(null);
+      #elseif flash
+      #else
 
       var openScreen = new gm2d.ui.FileOpenScreen(inMessage, inDefaultPath==null?"":inDefaultPath,
          null, inExtension, inFlags | FileOpen.SAVE, saveName );
