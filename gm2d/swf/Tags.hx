@@ -6,16 +6,16 @@ package gm2d.swf;
 
 class Tags
 {
-   public static var End : Int = 00;
-   public static var ShowFrame : Int = 01;
-   public static var DefineShape : Int = 02;
-   public static var FreeCharacter : Int = 03;
-   public static var PlaceObject : Int = 04;
-   public static var RemoveObject : Int = 05;
-   public static var DefineBits : Int = 06;
-   public static var DefineButton : Int = 07;
-   public static var JPEGTables : Int = 08;
-   public static var SetBackgroundColor : Int = 09;
+   public static var End : Int = 0;
+   public static var ShowFrame : Int = 1;
+   public static var DefineShape : Int = 2;
+   public static var FreeCharacter : Int = 3;
+   public static var PlaceObject : Int = 4;
+   public static var RemoveObject : Int = 5;
+   public static var DefineBits : Int = 6;
+   public static var DefineButton : Int = 7;
+   public static var JPEGTables : Int = 8;
+   public static var SetBackgroundColor : Int = 9;
 
    public static var DefineFont : Int = 10;
    public static var DefineText : Int = 11;
