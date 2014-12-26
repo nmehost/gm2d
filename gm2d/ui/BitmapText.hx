@@ -34,11 +34,9 @@ class BitmapText extends Control
    var mSelectionOverlay:Shape;
    var mCharPos:Array<Float>;
    var mScrollPos:Float;
-   var mCurrent:Bool;
    var mTimer:Timer;
 
    // TextField-like API
-   public var text(get_text,set_text):String;
    public var type(get_type,set_type) : TextFieldType;
    public var selectable:Bool;
 
@@ -62,18 +60,18 @@ class BitmapText extends Control
 
       set_text(inVal);
       mCharPos = [];
-      mCurrent = false;
       #if !flash
       needsSoftKeyboard = true;
       #end
    }
 
-   override function onCurrentChanged(inCurrent:Bool)
+   override public function set_state(inState:Int) : Int
    {
-      super.onCurrentChanged(inCurrent);
-      mCurrent = inCurrent;
-      setCaretState(inCurrent);
-      if (inCurrent && mInput)
+      var result = super.set_state(inState);
+      var c = isCurrent;
+      setCaretState(c);
+
+      if (c && mInput)
       {
          if (mTimer==null)
          {
@@ -88,11 +86,12 @@ class BitmapText extends Control
             mTimer.stop();
          mTimer = null;
       }
+      return result;
    }
 
    function onTimer()
    {
-      if (mCurrent && mInput)
+      if (isCurrent && mInput)
       {
          if (mCaretLayer!=null)
             mCaretLayer.visible = !mCaretLayer.visible;
@@ -312,8 +311,8 @@ class BitmapText extends Control
    }
 
 
-   public function get_text() { return mText; }
-   public function set_text(inText:String)
+   override public function getText() { return mText; }
+   override public function set_text(inText:String)
    {
       mText = inText;
       ClearSelection();
@@ -382,7 +381,7 @@ class BitmapText extends Control
       mLayer.offsetX = -mScrollPos;
 
 
-      if (mCaretLayer!=null && mCurrent && mInsertPos>=0)
+      if (mCaretLayer!=null && isCurrent && mInsertPos>=0)
          mCaretLayer.offsetX = mCharPos[mInsertPos] - mScrollPos;
 
       var want_selection = false;

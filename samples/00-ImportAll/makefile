@@ -6,7 +6,7 @@ endif
 
 create-file:
 	echo "" > All.hx
-	cd ../.. && $(FIND_EXE) gm2d -name "*.hx" | awk -F '.hx$$' '{  x=$$1; gsub("\/",".",x);  print "import " x ";" }' >> samples/0-ImportAll/All.hx
+	cd ../.. && $(FIND_EXE) gm2d -name "*.hx" | awk -F '.hx$$' '{  x=$$1; gsub("\/",".",x);  print "import " x ";" }' >> samples/00-ImportAll/All.hx
 	echo "class All { public static function main(){} }" >> All.hx
 
 

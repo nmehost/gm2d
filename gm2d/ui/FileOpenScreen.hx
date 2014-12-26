@@ -301,8 +301,10 @@ class FileOpenScreen extends Screen
          var def = SharedObject.getLocal("fileOpen");
          if (def!=null && Reflect.hasField(def.data,message))
             inDir = Reflect.field(def.data,message);
+         #if !flash
          else
             inDir = File.documentsDirectory.nativePath;
+         #end
       }
 
       if (inDir!=null)
@@ -338,6 +340,7 @@ class FileOpenScreen extends Screen
       files = new Array<String>();
       dirs = new Array<String>();
 
+      #if !flash
       if (inDir==null)
       {
          baseDir = "";
@@ -389,6 +392,7 @@ class FileOpenScreen extends Screen
             list.addRow( [docIcon,f] );
          }
       }
+      #end
       if (inRelayout)
          screenLayout.setRect(0,0, stage.stageWidth, stage.stageHeight);
    }

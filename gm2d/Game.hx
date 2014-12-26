@@ -72,8 +72,8 @@ class Game
          return;
       created = true;
 
-      screenWidth = flash.Lib.current.stage.stageWidth;
-      screenHeight = flash.Lib.current.stage.stageHeight;
+      screenWidth = nme.Lib.current.stage.stageWidth;
+      screenHeight = nme.Lib.current.stage.stageHeight;
 
       #if !flash
       initWidth = nme.Lib.initWidth;

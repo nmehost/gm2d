@@ -41,6 +41,7 @@ class SampleApp extends App
 
       addPane(side, DockPosition.DOCK_LEFT,0);
 
+      doLayout();
 
       //var dlg = new gm2d.ui.Dialog(pane);
       //Game.doShowDialog(dlg,true);
