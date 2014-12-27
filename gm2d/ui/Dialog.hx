@@ -38,7 +38,6 @@ class Dialog extends Window
       vlayout.add(inPane.itemLayout);
       setItemLayout(vlayout);
  
-
       build();
 
       title.addEventListener(nme.events.MouseEvent.MOUSE_DOWN, doDrag);

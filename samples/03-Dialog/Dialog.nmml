@@ -15,7 +15,7 @@
 		height="320"
 		orientation="landscape"
 		fps="60"
-		background="0x202040"
+		background="0xffffff"
       resizeable="true"
 		hardware="true"
 	/>

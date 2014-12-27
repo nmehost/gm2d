@@ -424,6 +424,15 @@ class Skin
 
    public static function replaceAttribs(inLine:String, inState:Null<Int>, inAttribs:Dynamic)
    {
+      #if flash9
+      if (Std.is(inAttribs,Renderer))
+      {
+         var o = {};
+         for(field in Type.getInstanceFields(Renderer))
+            Reflect.setField(o, field, Reflect.field(inAttribs,field));
+         inAttribs = o;
+      }
+      #end
       var idx = 0;
       for(idx in 0...attribSet.length)
       {
@@ -464,7 +473,9 @@ class Skin
        var map = new Map<String,Dynamic>();
        for(attrib in attribSet)
           if (attrib.matches(inLineage,inState))
+          {
              attrib.merge(map);
+          }
        if (inAttribs!=null && Reflect.hasField(inAttribs,"id"))
        {
           var id = Reflect.field(inAttribs,"id");

@@ -62,8 +62,8 @@ class Dialog extends Screen
    static public function main()
    {
       //gm2d.Lib.debug = false;
-      Game.showFPS = true;
-      Game.fpsColor = 0x000000;
+      //Game.showFPS = true;
+      //Game.fpsColor = 0x000000;
       new Dialog();
    }
 }
