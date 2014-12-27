@@ -48,7 +48,6 @@ class SvgSkin
       var bounds = renderer.getMatchingRect(svgBounds);
       if (bounds==null)
          bounds = renderer.getExtent(null, null,false);
-         trace(bounds);
       if (interior==null)
          interior = bounds;
       var scaleRect = getScaleRect(renderer,bounds);
