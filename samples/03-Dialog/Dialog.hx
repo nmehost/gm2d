@@ -13,7 +13,6 @@ import gm2d.ui.BitmapFont;
 import gm2d.ui.BitmapText;
 import gm2d.ui.Slider;
 import gm2d.skin.Skin;
-import gm2d.skin.FrameRenderer;
 import gm2d.svg.Svg;
 
 

@@ -540,7 +540,13 @@ class Skin
    {
       init();
       if (inSvg.hasGroup("dialog"))
-         replaceAttribs("Frame", null, SvgSkin.createFrameRenderer(inSvg,"dialog") );
+      {
+         var frameRenderer = SvgSkin.createFrameRenderer(inSvg,"dialog");
+         replaceAttribs("Frame", null, frameRenderer);
+         var title = inSvg.findGroup("dialog").findGroup(".title");
+         if (title!=null)
+            replaceAttribs("DialogTitle", null, SvgSkin.createButtonRenderer(title));
+      }
       if (inSvg.hasGroup("slider"))
          sliderRenderer = SvgSkin.createSliderRenderer(inSvg,"slider");
       if (inSvg.hasGroup("button"))

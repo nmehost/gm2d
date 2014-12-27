@@ -43,16 +43,27 @@ class SvgRenderer
     var mFilter : ObjectFilter;
     var mGroupPath : GroupPath;
 
-    public function new(inSvg:Svg,?inLayer:String)
+    public function new(inSvg:Group,?inLayer:String)
     {
-       mSvg = inSvg;
+       mRoot = inSvg;
 
-       width = mSvg.width;
-       height = mSvg.height;
-       mRoot = mSvg;
+       if (Std.is(inSvg,Svg))
+       {
+          mSvg = cast inSvg;
+          width = mSvg.width;
+          height = mSvg.height;
+          mRoot = mSvg;
+       }
+       else
+       {
+          mSvg = null;
+          width = 100;
+          height = 100;
+       }
+
        if (inLayer!=null)
        {
-          mRoot = mSvg.findGroup(inLayer);
+          mRoot = mRoot.findGroup(inLayer);
           if (mRoot==null)
              throw "Could not find SVG group: " + inLayer;
        }
