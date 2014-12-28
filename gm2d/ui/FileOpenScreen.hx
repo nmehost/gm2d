@@ -78,11 +78,18 @@ class FileOpenScreen extends Screen
       if (inFilter!=null)
       {
          var parts = inFilter.split("|");
-         var p = 0;
-         while(p+1<parts.length)
+         if (parts.length==1)
          {
-            filterList.push( new FileFilter(parts[p],parts[p+1]) );
-            p+=2;
+            filterList.push( new FileFilter(inFilter + " files", "*." + inFilter) );
+         }
+         else
+         {
+            var p = 0;
+            while(p+1<parts.length)
+            {
+               filterList.push( new FileFilter(parts[p],parts[p+1]) );
+               p+=2;
+            }
          }
       }
 
