@@ -190,6 +190,8 @@ class MouseWatcher
            (mDragsSinceRender>0 && Timer.stamp()>mLastCombineRenderTime+mCombineTime) ) )
       {
          mPendingDrag = ev;
+         if (mEventStage!=null)
+            mEventStage.invalidate();
       }
       else
          processDrag(ev);
