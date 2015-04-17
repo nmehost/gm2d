@@ -35,7 +35,7 @@ class Svg extends Group
     static var mStyleValue = ~/\s*(.*)\s*:\s*(.*)\s*/;
     static var mTranslateMatch = ~/translate\((.*),(.*)\)/;
     static var mScaleMatch = ~/scale\((.*)\)/;
-    static var mMatrixMatch = ~/matrix\((.*),(.*),(.*),(.*),(.*),(.*)\)/;
+    static var mMatrixMatch = ~/matrix\((.*)[,\s]+(.*)[,\s]+(.*)[,\s]+(.*)[,\s]+(.*)[,\s]+(.*)\)/;
     static var mURLMatch = ~/url\(#(.*)\)/;
     static var defaultFill = FillSolid(0x000000);
 
@@ -329,8 +329,9 @@ class Svg extends Group
 
        var path = new Path();
        path.fill=GetFillStyle("fill",inPath,styles);
-       path.fill_alpha= getFloatStyle("fill-opacity",inPath,styles,1.0);
-       path.stroke_alpha= getFloatStyle("stroke-opacity",inPath,styles,1.0);
+       var opacity = getFloatStyle("opacity",inPath,styles,1.0);
+       path.fill_alpha= getFloatStyle("fill-opacity",inPath,styles,opacity);
+       path.stroke_alpha= getFloatStyle("stroke-opacity",inPath,styles,opacity);
        path.stroke_colour=getStrokeStyle("stroke",inPath,styles,null);
        path.stroke_width= getFloatStyle("stroke-width",inPath,styles,1.0);
        path.stroke_caps=CapsStyle.ROUND;
@@ -428,9 +429,10 @@ class Svg extends Group
        text.x=getFloat(inText,"x",0.0);
        text.y=getFloat(inText,"y",0.0);
 
+       var opacity = getFloatStyle("opacity",inText,styles,1.0);
        text.fill=GetFillStyle("fill",inText,styles);
-       text.fill_alpha= getFloatStyle("fill-opacity",inText,styles,1.0);
-       text.stroke_alpha= getFloatStyle("stroke-opacity",inText,styles,1.0);
+       text.fill_alpha= getFloatStyle("fill-opacity",inText,styles,opacity);
+       text.stroke_alpha= getFloatStyle("stroke-opacity",inText,styles,opacity);
        text.stroke_colour=getStrokeStyle("stroke",inText,styles,null);
        text.stroke_width= getFloatStyle("stroke-width",inText,styles,1.0);
        text.font_family= getStyle("font-family",inText,styles,"");
