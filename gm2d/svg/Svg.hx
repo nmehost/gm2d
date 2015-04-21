@@ -33,7 +33,7 @@ class Svg extends Group
 
     static var mStyleSplit = ~/;/g;
     static var mStyleValue = ~/\s*(.*)\s*:\s*(.*)\s*/;
-    static var mTranslateMatch = ~/translate\((.*),(.*)\)/;
+    static var mTranslateMatch = ~/translate\((.*)[,\s]+(.*)\)/;
     static var mScaleMatch = ~/scale\((.*)\)/;
     static var mMatrixMatch = ~/matrix\((.*)[,\s]+(.*)[,\s]+(.*)[,\s]+(.*)[,\s]+(.*)[,\s]+(.*)\)/;
     static var mURLMatch = ~/url\(#(.*)\)/;
@@ -284,6 +284,10 @@ class Svg extends Group
       if (s.charAt(0)=='#')
          return Std.parseInt( "0x" + s.substr(1) );
 
+      var col = gm2d.RGB.resolve(s);
+      if (col!=null)
+         return col;
+
       return Std.parseInt(s);
    }
 
@@ -307,6 +311,10 @@ class Svg extends Group
          
          throw("Unknown url:" + url);
       }
+
+      var col = gm2d.RGB.resolve(s);
+      if (col!=null)
+         return FillSolid(col);
 
       throw("Unknown fill string:" + s);
 
