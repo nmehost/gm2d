@@ -33,11 +33,19 @@ class Svg extends Group
 
     static var mStyleSplit = ~/;/g;
     static var mStyleValue = ~/\s*(.*)\s*:\s*(.*)\s*/;
-    static var mTranslateMatch = ~/translate\((.*)[,\s]+(.*)\)/;
+    static var mTranslateMatch = ~/translate\((.+)[,\s]+(.+)\)/;
+    static var mRotateMatch = ~/rotate\((.+)[,\s]+(.+)[,\s]+(.+)\)/;
     static var mScaleMatch = ~/scale\((.*)\)/;
-    static var mMatrixMatch = ~/matrix\((.*)[,\s]+(.*)[,\s]+(.*)[,\s]+(.*)[,\s]+(.*)[,\s]+(.*)\)/;
+    static var mMatrixMatch = ~/matrix\((.+)[,\s]+(.+)[,\s]+(.+)[,\s]+(.+)[,\s]+(.+)[,\s]+(.+)\)/;
     static var mURLMatch = ~/url\(#(.*)\)/;
+    static var mRGBMatch = ~/rgb\((\d+)[,\s](\d+)[,\s](\d+)\)/;
     static var defaultFill = FillSolid(0x000000);
+
+    inline static var PATH   = 0;
+    inline static var CIRCLE = 1;
+    inline static var RECT   = 2;
+    inline static var LINE   = 3;
+    inline static var OPEN_PATH = 4;
 
     public function new(inXML:Xml,inConvertCubics:Bool=false)
     {
@@ -186,6 +194,15 @@ class Svg extends Group
           ioMatrix.scale(s,s);
           scale = s;
        }
+       else if (mRotateMatch.match(inTrans))
+       {
+          // TODO: Pre-scale
+          var angle = Std.parseFloat( mRotateMatch.matched(1) );
+          var x = Std.parseFloat( mRotateMatch.matched(2) );
+          var y = Std.parseFloat( mRotateMatch.matched(3) );
+          trace('TODO - rotate $angle $x $y');
+          //ioMatrix.rotate();
+       }
        else if (mMatrixMatch.match(inTrans))
        {
           var m = new Matrix(
@@ -284,6 +301,13 @@ class Svg extends Group
       if (s.charAt(0)=='#')
          return Std.parseInt( "0x" + s.substr(1) );
 
+      if (mRGBMatch.match(s))
+      {
+         return (Std.parseInt(mRGBMatch.matched(1))<<16 ) |
+                (Std.parseInt(mRGBMatch.matched(2))<<8 ) |
+                (Std.parseInt(mRGBMatch.matched(3))<<8 );
+      }
+
       var col = gm2d.RGB.resolve(s);
       if (col!=null)
          return col;
@@ -302,6 +326,13 @@ class Svg extends Group
  
       if (s=="none")
          return FillNone;
+
+      if (mRGBMatch.match(s))
+      {
+         return FillSolid( (Std.parseInt(mRGBMatch.matched(1))<<16 ) |
+                           (Std.parseInt(mRGBMatch.matched(2))<<8 ) |
+                           (Std.parseInt(mRGBMatch.matched(3))<<8 ) );
+      }
 
       if (mURLMatch.match(s))
       {
@@ -323,7 +354,7 @@ class Svg extends Group
 
 
 
-    public function loadPath(inPath:Xml, matrix:Matrix,inStyles:Styles,inIsRect:Bool,inIsEllipse:Bool) : Path
+    public function loadPath(inPath:Xml, matrix:Matrix,inStyles:Styles,inMode:Int) : Path
     {
        if (inPath.exists("transform"))
        {
@@ -338,8 +369,8 @@ class Svg extends Group
        var path = new Path();
        path.fill=GetFillStyle("fill",inPath,styles);
        var opacity = getFloatStyle("opacity",inPath,styles,1.0);
-       path.fill_alpha= getFloatStyle("fill-opacity",inPath,styles,opacity);
-       path.stroke_alpha= getFloatStyle("stroke-opacity",inPath,styles,opacity);
+       path.fill_alpha= getFloatStyle("fill-opacity",inPath,styles,1)*opacity;
+       path.stroke_alpha= getFloatStyle("stroke-opacity",inPath,styles,1)*opacity;
        path.stroke_colour=getStrokeStyle("stroke",inPath,styles,null);
        path.stroke_width= getFloatStyle("stroke-width",inPath,styles,1.0);
        path.stroke_caps=CapsStyle.ROUND;
@@ -349,7 +380,17 @@ class Svg extends Group
        path.matrix=matrix;
        path.name=name;
 
-       if (inIsRect)
+       if (inMode==LINE)
+       {
+          var x1 = inPath.exists("x1") ? Std.parseFloat(inPath.get("x1")) : 0;
+          var y1 = inPath.exists("y1") ? Std.parseFloat(inPath.get("y1")) : 0;
+          var x2 = inPath.exists("x2") ? Std.parseFloat(inPath.get("x2")) : 0;
+          var y2 = inPath.exists("y2") ? Std.parseFloat(inPath.get("y2")) : 0;
+
+          path.segments.push( new MoveSegment(x1,y1) );
+          path.segments.push( new DrawSegment(x2,y2) );
+       }
+       else if (inMode==RECT)
        {
           var x = inPath.exists("x") ? Std.parseFloat(inPath.get("x")) : 0;
           var y = inPath.exists("y") ? Std.parseFloat(inPath.get("y")) : 0;
@@ -388,7 +429,7 @@ class Svg extends Group
              path.segments.push( new DrawSegment(x,y+ry) );
            }
        }
-       else if (inIsEllipse)
+       else if (inMode==CIRCLE)
        {
           var x = inPath.exists("cx") ? Std.parseFloat(inPath.get("cx")) : 0;
           var y = inPath.exists("cy") ? Std.parseFloat(inPath.get("cy")) : 0;
@@ -413,7 +454,8 @@ class Svg extends Group
        }
        else
        {
-          var d = inPath.exists("points") ? ("M" + inPath.get("points") + "z" ) : inPath.get("d");
+          var close = inMode==OPEN_PATH ? "" : "z";
+          var d = inPath.exists("points") ? ("M" + inPath.get("points") + close ) : inPath.get("d");
           for(segment in mPathParser.parse(d,mConvertCubics) )
              path.segments.push(segment);
        }
@@ -486,19 +528,27 @@ class Svg extends Group
           }
           else if (name=="path")
           {
-             g.children.push( DisplayPath( loadPath(el,matrix, styles, false, false) ) );
+             g.children.push( DisplayPath( loadPath(el,matrix, styles, PATH) ) );
           }
           else if (name=="rect")
           {
-             g.children.push( DisplayPath( loadPath(el,matrix, styles, true, false) ) );
+             g.children.push( DisplayPath( loadPath(el,matrix, styles, RECT) ) );
           }
           else if (name=="polygon")
           {
-             g.children.push( DisplayPath( loadPath(el,matrix, styles, false, false) ) );
+             g.children.push( DisplayPath( loadPath(el,matrix, styles, PATH) ) );
+          }
+          else if (name=="polyline")
+          {
+             g.children.push( DisplayPath( loadPath(el,matrix, styles, OPEN_PATH) ) );
+          }
+          else if (name=="line")
+          {
+             g.children.push( DisplayPath( loadPath(el,matrix, styles, LINE) ) );
           }
           else if (name=="ellipse" || name=="circle")
           {
-             g.children.push( DisplayPath( loadPath(el,matrix, styles, false, true) ) );
+             g.children.push( DisplayPath( loadPath(el,matrix, styles, CIRCLE) ) );
           }
           else if (name=="text")
           {
@@ -506,7 +556,7 @@ class Svg extends Group
           }
           else
           {
-             // throw("Unknown child : " + el.nodeName );
+              throw("Unknown child : " + el.nodeName );
           }
        }
        return g;

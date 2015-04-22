@@ -159,7 +159,9 @@ class SvgRenderer
 
 
        for(segment in inPath.segments)
+       {
           segment.toGfx(mGfx, context);
+       }
 
        mGfx.endFill();
        mGfx.endLineStyle();
