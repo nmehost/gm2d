@@ -42,7 +42,7 @@ class App extends Screen
       doLayout();
    }
 
-   public function createMenubar()
+   public function createMenubar(useSpriteBar = false)
    {
       #if (waxe && !nme_menu)
       if (_menubar==null)
@@ -50,9 +50,13 @@ class App extends Screen
       #else
       if (topMenuBar==null)
       {
-          topMenuBar = new SpriteMenubar(this,Layout.AlignTop);
+         topMenuBar = new SpriteMenubar(this,Layout.AlignTop);
+         _menubar = topMenuBar;
       }
       #end
+
+      if (useSpriteBar && topMenuBar==null)
+         topMenuBar = new SpriteMenubar(this,Layout.AlignTop);
    }
 
    override public function getScaleMode():ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
@@ -141,7 +145,7 @@ class App extends Screen
       var w:Float = stage.stageWidth;
       var h:Float = stage.stageHeight;
 
-      if (_menubar!=null)
+      if (_menubar!=null && _menubar!=topMenuBar)
       {
          var menu_h = _menubar.layout(w);
          y0 += menu_h;
@@ -195,9 +199,6 @@ class App extends Screen
 
    public function get_menubar() : Menubar
    {
-      if (topMenuBar!=null)
-         return topMenuBar;
-
       if (_menubar==null)
       {
          #if (waxe && !nme_menu)
@@ -215,7 +216,7 @@ class App extends Screen
       var focusElem = stage.focus;
       if (focusElem==null && !Std.is(focusElem,TextField))
       {
-         if (topMenuBar!=null)
+         if (topMenuBar!=null && topMenuBar==_menubar)
             return topMenuBar.onKeyDown(event);
       }
       return false;
