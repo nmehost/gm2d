@@ -556,7 +556,7 @@ class Svg extends Group
           }
           else
           {
-              throw("Unknown child : " + el.nodeName );
+              //throw("Unknown child : " + el.nodeName );
           }
        }
        return g;

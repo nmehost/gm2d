@@ -40,6 +40,8 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
    var mItems:Array<MenuItem>;
    var mButtons:Array<Button>;
 
+   var extraWidgets:Array<Widget>;
+
    public function new(inParent:DisplayObjectContainer,?dummy:Int)
    {
       super(["Menubar"]);
@@ -50,6 +52,7 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
       mNextX = 2;
       mCurrentItem = -1;
       mNormalParent = null;
+      extraWidgets = [];
       build();
    }
 
@@ -113,20 +116,52 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
          mButtons[b].down = false;
    }
 
+   public function getLayoutWidth() return mNextX;
+
    public function layout(inWidth:Float) : Float
    {
       var size = mLayout.getBestSize();
-      mWidth = inWidth;
       mHeight = size.y;
+      for(w in extraWidgets)
+      {
+         var th = w.getLayout().getBestHeight();
+         if (th>mHeight)
+             mHeight = th;
+      }
+      mWidth = inWidth;
       mLayout.setRect(0,0,mWidth,mHeight);
 
        //Skin.renderMenubar(this,mWidth,mHeight);
        for(but in mButtons)
-          but.y = (mHeight-but.height)/2;
+       {
+          var butHeight = but.getLayout().getBestHeight();
+          but.y = Std.int( (mHeight-butHeight)/2 );
+       }
+
+       var x = mNextX;
+       for(w in extraWidgets)
+       {
+          var tw = w.getLayout().getBestWidth(mHeight);
+          w.align( x, 0, tw, mHeight);
+          x+= tw+2;
+       }
        return mHeight;
    }
 
+   public function setWidgets(inWidgets:Array<Widget>)
+   {
+      for(w in extraWidgets)
+         removeChild(w);
 
+      extraWidgets = [];
+
+      if (inWidgets!=null)
+         for(w in inWidgets)
+         {
+            addChild(w);
+            extraWidgets.push(w);
+         }
+   }
 
 
    // IDock....

@@ -59,6 +59,13 @@ class App extends Screen
          topMenuBar = new SpriteMenubar(this,Layout.AlignTop);
    }
 
+   public function setMenuWidgets(inWidgets:Array<Widget>)
+   {
+      if (topMenuBar!=null)
+         topMenuBar.setWidgets(inWidgets);
+      doLayout();
+   }
+
    override public function getScaleMode():ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
 
    public function createSlider(inPos:DockPosition,
@@ -164,9 +171,9 @@ class App extends Screen
  
       if (topMenuBar!=null)
       {
-         var menu_h = topMenuBar.layout(w);
-         y0 += menu_h;
-         h -= menu_h;
+         var topMenuHeight = topMenuBar.layout(w);
+         y0 += topMenuHeight;
+         h -= topMenuHeight;
       }
 
       if (leftSlider!=null)
