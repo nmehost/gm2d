@@ -100,7 +100,12 @@ class SvgRenderer
     {
        if (mFilter!=null && !mFilter(inText.name,mGroupPath))
           return;
-       mGfx.renderText(inText);
+
+       var m:Matrix  = inText.matrix.clone();
+       m.concat(mMatrix);
+       var context = new RenderContext(m,mScaleRect,mScaleW,mScaleH);
+
+       mGfx.renderText(inText,m);
     }
 
     public function iteratePath(inPath:Path)

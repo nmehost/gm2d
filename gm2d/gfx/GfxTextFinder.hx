@@ -9,6 +9,10 @@ class GfxTextFinder extends Gfx
    public function new() { super(); }
 
    override public function geometryOnly() { return true; }
-   override public function renderText(inText:Text) { if (text==null) text = inText; }
+   override public function renderText(inText:Text, m:nme.geom.Matrix)
+   {
+      if (text==null)
+         text = inText;
+   }
 }
 

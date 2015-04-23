@@ -200,8 +200,11 @@ class Svg extends Group
           var angle = Std.parseFloat( mRotateMatch.matched(1) );
           var x = Std.parseFloat( mRotateMatch.matched(2) );
           var y = Std.parseFloat( mRotateMatch.matched(3) );
-          trace('TODO - rotate $angle $x $y');
-          //ioMatrix.rotate();
+          ioMatrix.tx -= x;
+          ioMatrix.ty -= y;
+          ioMatrix.rotate( angle*Math.PI/180.0 );
+          ioMatrix.tx += x;
+          ioMatrix.ty += y;
        }
        else if (mMatrixMatch.match(inTrans))
        {
@@ -490,7 +493,8 @@ class Svg extends Group
        text.letter_spacing= getFloatStyle("letter-spacing",inText,styles,0);
        text.kerning= getFloatStyle("kerning",inText,styles,0);
 
-       var string="";
+       var textChild = inText.firstChild();
+       var string= textChild==null ? "" : textChild.toString();
        for(el in inText.elements())
           string += el.toString();
        //trace(string);
