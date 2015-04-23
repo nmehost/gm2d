@@ -1,6 +1,7 @@
 package gm2d.ui;
 
 import nme.text.TextField;
+import nme.text.TextFormatAlign;
 import nme.display.BitmapData;
 import nme.events.MouseEvent;
 import nme.events.KeyboardEvent;
@@ -35,34 +36,47 @@ class TextInput extends TextLabel
        mText.addEventListener(KeyboardEvent.KEY_DOWN, keyDown );
    }
 
+   function alwaysPlaceholder() return mText.text=="";
+
    function checkPlaceholder()
    {
       var want = false;
-      if (placeholder!="" && placeholder!=null && mText.text=="")
+      var always = alwaysPlaceholder();
+      if (placeholder!="" && placeholder!=null && (always || mText.text==""))
       {
          want = true;
          if (placeholderField==null)
          {
             placeholderField = new TextField();
-            mChrome.addChild(placeholderField);
+            addChild(placeholderField);
             var attribs = mAttribs==null ? mAttribs : mAttribs.placeholderAttribs;
             if (attribs==null)
                attribs = mAttribs;
-            var renderer = Skin.renderer(["TextPlaceholder", "TextLabel"],0,attribs);
+            var renderer = Skin.renderer( always ? ["TextPlaceholderAlways","TextPlaceholder", "TextLabel" ] :
+                                            ["TextPlaceholder", "TextLabel"],0,attribs);
             renderer.renderLabel(placeholderField);
          }
+/*
+         if (always)
+         {
+            var fmt = placeholderField.defaultTextFormat;
+            fmt.align = TextFormatAlign.RIGHT;
+            placeholderField.defaultTextFormat = fmt;
+         }
+*/
          placeholderField.text = placeholder;
          placeholderField.x = mText.x;
          placeholderField.y = mText.y;
          placeholderField.width = mText.width;
          placeholderField.height = mText.height;
+         placeholderField.mouseEnabled = false;
       }
 
       if (!want && placeholderField!=null)
       {
          if (placeholderField.parent!=null)
          {
-            mChrome.removeChild(placeholderField);
+            removeChild(placeholderField);
          }
          placeholderField = null;
       }

@@ -79,6 +79,9 @@ class NumericInput extends TextInput
       redrawBar();
    }
 
+   override function alwaysPlaceholder() return true;
+
+
    override public function createUnderlay()
    {
       underlay = new Shape();
