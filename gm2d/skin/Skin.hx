@@ -175,6 +175,9 @@ class Skin
       addAttribs("ToggleButton", null, {
          offset: new Point(0,0)
         });
+      addAttribs("Control", null, {
+         wantsFocus: true
+        });
       addAttribs("SimpleButton", null, {
           offset: new Point(0,0),
           line: LineNone,

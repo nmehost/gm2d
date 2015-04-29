@@ -58,7 +58,7 @@ class Widget extends Sprite
       mRenderer = new Renderer(combinedAttribs);
       mChrome = new Sprite();
       addChild(mChrome);
-      wantFocus = false;
+      wantFocus = attribBool("wantsFocus",false);
       mRect = new Rectangle(0,0,0,0);
    }
 
@@ -342,7 +342,15 @@ class Widget extends Sprite
 
    // public function layout(inW:Float,inH:Float):Void { }
 
-   public function activate(inDirection:Int) { }
+   public function activate(inDirection:Int)
+   {
+      if (inDirection==0)
+      {
+         var callback : Void->Void = attrib("onEnter");
+         if (callback!=null)
+            callback();
+      }
+   }
 
    public function popup(inPopup:Window,inX:Float,inY:Float)
    {
