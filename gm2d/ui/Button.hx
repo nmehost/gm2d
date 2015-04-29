@@ -57,6 +57,17 @@ class Button extends Control
          if (bmp!=null)
             mDisplayObj = mStateBitmap = new Bitmap(bmp);
       }
+      if (mDisplayObj==null)
+      {
+         var text = attribString("text");
+         if (text!="")
+         {
+            var textField = new TextField();
+            textField.text = text;
+            mDisplayObj = textField;
+         }
+      }
+
 
       var tf:TextField = null;
       var layout:Layout = null;

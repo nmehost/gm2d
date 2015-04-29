@@ -35,7 +35,7 @@ class Panel extends Widget
 
       mGridLayout = new GridLayout(1,"vertical");
       mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",0) );
-      mGridLayout.setAlignment(Layout.AlignStretch);
+      mGridLayout.stretch();
       mItemGrid = new GridLayout(2,"items");
       mItemGrid.setColStretch(1,1);
       mItemGrid.setAlignment(Layout.AlignTop);
@@ -45,6 +45,7 @@ class Panel extends Widget
       mButtonLayout.setSpacing(10,0);
       //mButtonLayout.setBorders(0,10,0,10);
       mGridLayout.add(mItemGrid);
+      mGridLayout.setRowStretch(0,1);
       mGridLayout.setRowStretch(1,0);
       setItemLayout( mGridLayout );
       build();
@@ -54,6 +55,14 @@ class Panel extends Widget
    {
        mItemGrid.setMinColWidth(1,inSize);
    }
+
+   public function showDialog(inCentre=true)
+   {
+      var dlg = new gm2d.ui.Dialog(getPane());
+      dlg.show(inCentre);
+      return dlg;
+   }
+
 
    public function setStretchX(inItemStretch:Int=33)
    {
@@ -104,12 +113,13 @@ class Panel extends Widget
       mButtonLayout.add( inButton.getLayout() );
    }
 
-   public function addTextButton(inText:String, inOnClick:Void->Void)
+   public function addTextButton(inText:String, ?inOnClick:Void->Void)
    {
-      var button = Button.TextButton(inText,inOnClick);
+      var button = Button.TextButton(inText,inOnClick==null ? gm2d.Game.closeDialog : inOnClick);
       addButton(button);
       return this;
    }
+
 
 
    public function addObj(inObj:nme.display.DisplayObject,?inAlign:Null<Int>)

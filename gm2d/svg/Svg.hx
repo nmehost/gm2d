@@ -489,7 +489,7 @@ class Svg extends Group
        text.stroke_colour=getStrokeStyle("stroke",inText,styles,null);
        text.stroke_width= getFloatStyle("stroke-width",inText,styles,1.0);
        text.font_family= getStyle("font-family",inText,styles,"");
-       text.font_size= getFloatStyle("font-size",inText,styles,12);
+       text.font_size= getFloatStyle("font-size",inText,styles,14);
        text.letter_spacing= getFloatStyle("letter-spacing",inText,styles,0);
        text.kerning= getFloatStyle("kerning",inText,styles,0);
 

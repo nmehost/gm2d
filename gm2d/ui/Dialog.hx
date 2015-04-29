@@ -32,11 +32,11 @@ class Dialog extends Window
 
       var title = new TextLabel(inPane.title, ["DialogTitle"]);
       addChild(title);
-      vlayout.add(title.getLayout());
+      vlayout.add(title.getLayout().stretch());
 
       inPane.setDock(null,this);
-      vlayout.add(inPane.itemLayout);
-      setItemLayout(vlayout);
+      vlayout.add(inPane.itemLayout.stretch());
+      setItemLayout(vlayout.stretch());
  
       build();
 
@@ -45,6 +45,11 @@ class Dialog extends Window
 
       //if (gm2d.Lib.isOpenGL)
       //   cacheAsBitmap = true;
+   }
+
+   public function show(inCentre = true)
+   {
+      gm2d.Game.doShowDialog(this, inCentre);
    }
 
    override public function onChromeMouse(inId:String,inEvent:MouseEvent) : Bool

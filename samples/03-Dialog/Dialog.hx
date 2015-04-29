@@ -24,47 +24,21 @@ class Dialog extends Screen
 
       Game.setCurrentScreen(this);
 
-      var skin = Resources.loadSvg("skin.svg");
-      Skin.fromSvg(skin);
+      Skin.fromSvg(Resources.loadSvg("skin.svg"));
 
       var panel = new gm2d.ui.Panel("Settings");
-     
+      panel.addLabelUI("Music Volume", new Slider(0,100,50,OnMusic) );
+      panel.addTextButton("Ok", function() { Game.closeDialog(); } );
+      panel.addTextButton("Cancel");
+      var dlg = panel.showDialog();
 
-      panel.addLabel("Music Volume");
-      panel.addUI(new Slider(0,100,50,OnMusic) );
-
-      panel.addButton(Button.TextButton("Ok", function() { Game.closeDialog(); } ) );
-      panel.addButton(Button.TextButton("Cancel", function() { Game.closeDialog(); } ) );
-
-      var pane = panel.getPane();
-      var settings = new gm2d.ui.Dialog(pane);
-      Game.addDialog("Settings",settings);
-      var dlg = Game.showDialog("Settings");
-
-
-      var s = stage;
-      s.addEventListener( MouseEvent.CLICK, function (e:MouseEvent)
-      {
-         var t : nme.display.DisplayObject = e.target;
-         if (t==s)
-            Game.showDialog("Settings");
+      stage.addEventListener( MouseEvent.MOUSE_UP, function (e:MouseEvent) {
+         if (e.target == stage)
+            dlg.show();
       } );
-
    }
 
-   function OnMusic(inVal) { trace(inVal); }
-
-   override public function updateDelta(inDT:Float)
-   {
-   }
-
-
-   static public function main()
-   {
-      //gm2d.Lib.debug = false;
-      //Game.showFPS = true;
-      //Game.fpsColor = 0x000000;
-      new Dialog();
-   }
+   function OnMusic(inVal) trace(inVal);
 }
+
 

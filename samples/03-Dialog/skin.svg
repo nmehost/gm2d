@@ -105,12 +105,12 @@
      inkscape:cx="174.46179"
      inkscape:cy="90.20111"
      inkscape:document-units="px"
-     inkscape:current-layer="layer9"
+     inkscape:current-layer="PO"
      showgrid="true"
      inkscape:window-width="1440"
      inkscape:window-height="856"
-     inkscape:window-x="10"
-     inkscape:window-y="0"
+     inkscape:window-x="1897"
+     inkscape:window-y="69"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
@@ -286,9 +286,9 @@
          style="fill:#07070e;fill-opacity:0.0625;fill-rule:evenodd;stroke:none;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          id="rect3287"
          width="180"
-         height="100"
+         height="135"
          x="10"
-         y="40" />
+         y="5" />
     </g>
     <g
        inkscape:groupmode="layer"

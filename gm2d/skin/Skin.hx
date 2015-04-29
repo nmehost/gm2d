@@ -556,10 +556,13 @@ class Skin
       if (inSvg.hasGroup("dialog"))
       {
          var frameRenderer = SvgSkin.createFrameRenderer(inSvg,"dialog");
-         replaceAttribs("Frame", null, frameRenderer);
+         addAttribs("Dialog", null, frameRenderer);
+
          var title = inSvg.findGroup("dialog").findGroup(".title");
          if (title!=null)
             replaceAttribs("DialogTitle", null, SvgSkin.createButtonRenderer(title));
+            // Inherit chrome buttons?
+            //addAttribs("DialogTitle", null, SvgSkin.createButtonRenderer(title));
       }
       if (inSvg.hasGroup("slider"))
          sliderRenderer = SvgSkin.createSliderRenderer(inSvg,"slider");

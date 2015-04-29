@@ -119,13 +119,12 @@ class SvgSkin
             }
             else
                renderer.render(gfx,matrix);
-
             if (gm2d.Lib.isOpenGL)
                widget.mChrome.cacheAsBitmap = true;
          }),
          minItemSize: new Size(bounds.width, bounds.height),
-         padding: new Rectangle(interior.x-bounds.x, interior.y-bounds.y,
-                             bounds.width-interior.width, bounds.height-interior.height )
+         //padding: new Rectangle(interior.x-bounds.x, interior.y-bounds.y,
+         //                    bounds.width-interior.width, bounds.height-interior.height )
       } );
 
       return result;
