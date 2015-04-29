@@ -121,13 +121,7 @@ class Skin
 
       isInit = true;
       if (dpiScale==0.0)
-      {
-         dpiScale = nme.system.Capabilities.screenDPI;
-         if (dpiScale>120)
-            dpiScale /= 120;
-         else
-            dpiScale = 1.0;
-      }
+         dpiScale = nme.ui.Scale.getFontScale();
 
       if (textFormat==null)
       {
