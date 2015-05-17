@@ -163,6 +163,13 @@ class PathParser {
                      for(q in quads)
                         segments.push(q);
                   }
+                  else if(inConvertCubics && prev.getType()==PathSegment.ARC)
+                  {
+                     var arc:ArcSegment = cast prev;
+                     var quads = arc.toQuadratics(px,py);
+                     for(q in quads)
+                        segments.push(q);
+                  }
                   else
                      segments.push(prev);
 

@@ -257,6 +257,110 @@ class ArcSegment extends PathSegment
       fS = inSweep;
    }
 
+   public function toQuadratics(tx0:Float,ty0:Float) : Array<PathSegment>
+   {
+      var result = new Array<PathSegment>();
+      if (rx==0 || ry==0)
+         result.push( new DrawSegment(x,y) );
+      else
+      {
+         var rx = this.rx<0 ? -this.rx : this.rx;
+         var ry = this.ry<0 ? -this.ry : this.ry;
+  
+         if (rx<0) rx = -rx;
+         if (ry<0) ry = -ry;
+  
+         // See:  http://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
+         var p = phi*Math.PI/180.0;
+         var cos = Math.cos(p);
+         var sin = Math.sin(p);
+  
+         // Step 1, compute x', y'
+         var dx = (x1-x)*0.5;
+         var dy = (y1-y)*0.5;
+         var x1_ = cos*dx + sin*dy;
+         var y1_ = -sin*dx + cos*dy;
+  
+         // Step 2, compute cx', cy'
+         var rx2 = rx*rx;
+         var ry2 = ry*ry;
+         var x1_2 = x1_*x1_;
+         var y1_2 = y1_*y1_;
+         var s = (rx2*ry2 - rx2*y1_2 - ry2*x1_2) /
+                   (rx2*y1_2 + ry2*x1_2 );
+         if (s<0)
+            s=0;
+         else if (fA==fS)
+            s = -Math.sqrt(s);
+         else
+            s = Math.sqrt(s);
+  
+         var cx_ = s*rx*y1_/ry;
+         var cy_ = -s*ry*x1_/rx;
+  
+         // Step 3, compute cx,cy from cx',cy'
+         // Something not quite right here.
+  
+         var xm = (x1+x)*0.5;
+         var ym = (y1+y)*0.5;
+  
+         var cx = cos*cx_ - sin*cy_ + xm;
+         var cy = sin*cx_ + cos*cy_ + ym;
+  
+         var theta = Math.atan2( (y1_-cy_)/ry, (x1_-cx_)/rx );
+         var dtheta = Math.atan2( (-y1_-cy_)/ry, (-x1_-cx_)/rx ) - theta;
+  
+         if (fS && dtheta<0)
+            dtheta+=2.0*Math.PI;
+         else if (!fS && dtheta>0)
+            dtheta-=2.0*Math.PI;
+  
+         var quartics = Std.int( Math.abs(dtheta) * 4/Math.PI + 0.99 );
+         if (quartics<1)
+         { 
+            result.push( new DrawSegment(x,y) );
+         }
+         else
+         {
+            var Txc = rx;
+            var Tx0 = cx;
+            var Tys = ry;
+            var Ty0 = cy;
+ 
+            dtheta /= quartics;
+            var p0x = tx0;
+            var p0y = ty0;
+
+            var dDx0 = Math.sin(theta)*Txc;
+            var dDy0 = -Math.cos(theta)*Tys;
+            for(q in 0...quartics)
+            {
+               theta+=dtheta;
+
+               var p1x = Txc*Math.cos(theta) + Tx0;
+               var p1y = Tys*Math.sin(theta) + Ty0;
+               var dDx1 = Math.sin(theta)*Txc;
+               var dDy1 = -Math.cos(theta)*Tys;
+
+               // Intersection of (p0 + a*dD0 = p1 + b*dD1 )
+               //   (p0x-p1x) + a.dDx0 = b.dDx1
+               //   (p0y-p1y) + a.dDy0 = b.dDy1
+               //  (p0x-p1x)*dDy0 - (p0y-p1y)*dDx0 = b*(dDx1*dDy0-dDy1*dDx0)
+               var b = ( (p0x-p1x)*dDy0 - (p0y-p1y)*dDx0 ) / (dDx1*dDy0 - dDy1*dDx0);
+
+               result.push( new QuadraticSegment( p1x+b*dDx1, p1y+b*dDy1, p1x,p1y) );
+
+               p0x = p1x;
+               p0y = p1y;
+               dDx0 = dDx1;
+               dDy0 = dDy1;
+            }
+         }
+      }
+
+      return result;
+   }
+
    override public function toGfx(inGfx:Gfx,ioContext:SvgRenderer)
    {
        if (x1==x && y1==y)
@@ -267,6 +371,10 @@ class ArcSegment extends PathSegment
           inGfx.lineTo(ioContext.lastX, ioContext.lastY);
           return;
        }
+
+       var rx = this.rx<0 ? -this.rx : this.rx;
+       var ry = this.ry<0 ? -this.ry : this.ry;
+
        if (rx<0) rx = -rx;
        if (ry<0) ry = -ry;
 
