@@ -1,11 +1,13 @@
 package gm2d.svg;
 
 
-class Group
+class Group extends DisplayElement
 {
+   public var children:Array<DisplayElement>;
+
    public function new()
    {
-      name = "";
+      super();
       children = [];
    }
 
@@ -13,26 +15,12 @@ class Group
    public function findGroup(inName:String) : Group
    {
       for(child in children)
-         switch(child)
-         {
-            case DisplayGroup(group):
-               if (group.name==inName)
-                  return group;
-            default:
-         }
+         if (child.name==inName)
+            return child.asGroup();
       return null;
-    }
+   }
 
+   override public function asGroup() : Group return this;
 
-   public var name:String;
-   public var children:Array<DisplayElement>;
 }
 
-enum DisplayElement
-{
-   DisplayPath(path:Path);
-   DisplayGroup(group:Group);
-   DisplayText(text:Text);
-}
-
-typedef DisplayElements = Array<DisplayElement>;

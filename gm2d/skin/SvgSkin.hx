@@ -71,9 +71,9 @@ class SvgSkin
       if (text!=null)
       {
          var fmt = Skin.getTextFormat();
-         fmt.size = Skin.scale(text.font_size);
+         fmt.size = Skin.scale(text.style.size);
          //fmt.font = text.font_family;
-         switch(text.fill)
+         switch(text.style.fill)
          {
             case FillSolid(c) : fmt.color = c;
             default:
@@ -202,9 +202,9 @@ class SvgSkin
                {
                trace("FOund font");
                   var fmt = new TextFormat();
-                  fmt.size = text.font_size;
-                  fmt.font = text.font_family;
-                  switch(text.fill)
+                  fmt.size = text.style.size;
+                  fmt.font = text.style.family;
+                  switch(text.style.fill)
                   {
                      case FillSolid(c) : fmt.color = c;
                      default:

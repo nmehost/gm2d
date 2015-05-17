@@ -28,7 +28,7 @@ class PathSegment
    public function prevCX() { return x; }
    public function prevCY() { return y; }
 
-   public function toGfx(inGfx:Gfx,ioContext:RenderContext)
+   public function toGfx(inGfx:Gfx,ioContext:SvgRenderer)
    {
       ioContext.setLast(x,y);
       ioContext.firstX = ioContext.lastX;
@@ -48,7 +48,7 @@ class MoveSegment extends PathSegment
 class DrawSegment extends PathSegment
 {
    public function new(inX:Float, inY:Float) { super(inX,inY); }
-   override public function toGfx(inGfx:Gfx,ioContext:RenderContext)
+   override public function toGfx(inGfx:Gfx,ioContext:SvgRenderer)
    {
       ioContext.setLast(x,y);
       inGfx.lineTo(ioContext.lastX,ioContext.lastY);
@@ -72,7 +72,7 @@ class QuadraticSegment extends PathSegment
    override public function prevCX() { return cx; }
    override public function prevCY() { return cy; }
 
-   override public function toGfx(inGfx:Gfx,ioContext:RenderContext)
+   override public function toGfx(inGfx:Gfx,ioContext:SvgRenderer)
    {
       ioContext.setLast(x,y);
       inGfx.curveTo(ioContext.transX(cx,cy) , ioContext.transY(cx,cy),
@@ -106,7 +106,7 @@ class CubicSegment extends PathSegment
       return a + (b-a)*frac;
    }
 
-   override public function toGfx(inGfx:Gfx,ioContext:RenderContext)
+   override public function toGfx(inGfx:Gfx,ioContext:SvgRenderer)
    {
       // Transformed endpoints/controlpoints
       var tx0 = ioContext.lastX;
@@ -257,7 +257,7 @@ class ArcSegment extends PathSegment
       fS = inSweep;
    }
 
-   override public function toGfx(inGfx:Gfx,ioContext:RenderContext)
+   override public function toGfx(inGfx:Gfx,ioContext:SvgRenderer)
    {
        if (x1==x && y1==y)
           return;
@@ -316,7 +316,7 @@ class ArcSegment extends PathSegment
           dtheta-=2.0*Math.PI;
 
 
-       var m = ioContext.matrix;
+       var m = ioContext.getMatrix();
        //    var px = cx+cos*rx;
        //    var py = cy+sin*ry;
        //    m.a*px+m.c*py+m.tx    m.b*px+m.d*py+m.ty
@@ -348,10 +348,10 @@ class ArcSegment extends PathSegment
        {
           Txc = rx;
           Txs = 0;
-          Tx0 = cx+m.tx;
+          Tx0 = cx;
           Tyc = 0;
           Tys = ry;
-          Ty0 = cy+m.ty;
+          Ty0 = cy;
        }
 
        var len = Math.abs(dtheta)*Math.sqrt(Txc*Txc + Txs*Txs + Tyc*Tyc + Tys*Tys);

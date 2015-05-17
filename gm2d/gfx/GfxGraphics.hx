@@ -9,6 +9,7 @@ import nme.display.LineScaleMode;
 import nme.display.Graphics;
 import nme.display.BitmapData;
 import gm2d.svg.Text;
+import gm2d.svg.TextStyle;
 
 import nme.text.TextField;
 import nme.text.TextFieldAutoSize;
@@ -44,16 +45,16 @@ class GfxGraphics extends Gfx
    override public function lineTo(inX:Float, inY:Float) { graphics.lineTo(inX,inY); }
    override public function curveTo(inCX:Float, inCY:Float,inX:Float,inY:Float)
      { graphics.curveTo(inCX,inCY,inX,inY); }
-   override public function renderText(text:Text, m:Matrix)
+   override public function renderText(text:Text, m:Matrix, style:TextStyle)
    {
-      switch(text.fill)
+      switch(style.fill)
       {
          case  FillSolid(colour):
-            var scale = Math.sqrt(m.a*m.a + m.c*m.c);
+            var scale = m==null ? 1.0 : Math.sqrt(m.a*m.a + m.c*m.c);
             var textField = new TextField();
             textField.autoSize = TextFieldAutoSize.LEFT;
             var fmt = new TextFormat();
-            fmt.size = text.font_size * scale;
+            fmt.size = style.size * scale;
             fmt.color = colour;
             textField.defaultTextFormat = fmt;
             textField.text=text.text;
@@ -72,8 +73,8 @@ class GfxGraphics extends Gfx
                {
                   var x = text.x + ( (c==1 || c==2) ? tw/scale : 0);
                   var y = text.y - th/scale + ( (c==2 || c==3) ? th/scale : 0);
-                  var tx =  x*m.a + y*m.c + m.tx;
-                  var ty =  x*m.b + y*m.d + m.ty;
+                  var tx =  m==null ? x : x*m.a + y*m.c + m.tx;
+                  var ty =  m==null ? y : x*m.b + y*m.d + m.ty;
                   if (c==0)
                      graphics.moveTo(tx,ty);
                   else

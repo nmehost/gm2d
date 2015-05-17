@@ -7,6 +7,7 @@ import nme.display.CapsStyle;
 import nme.display.JointStyle;
 import nme.display.LineScaleMode;
 import gm2d.svg.Text;
+import gm2d.svg.TextStyle;
 
 import nme.geom.Matrix;
 
@@ -27,7 +28,7 @@ class Gfx
    public function lineTo(inX:Float, inY:Float) { }
    public function curveTo(inCX:Float, inCY:Float,inX:Float,inY:Float) { }
 
-   public function renderText(text:Text,matrix:Matrix) { }
+   public function renderText(text:Text,matrix:Matrix,style:TextStyle) { }
 
    public function eof() {}
 }

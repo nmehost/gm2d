@@ -21,6 +21,7 @@ import nme.display.LineScaleMode;
 import gm2d.svg.Grad;
 import gm2d.svg.Group;
 import gm2d.svg.FillType;
+import gm2d.svg.DisplayElement;
 import gm2d.gfx.Gfx;
 import nme.geom.Rectangle;
 
@@ -30,21 +31,34 @@ typedef ObjectFilter = String->GroupPath->Bool;
 
 class SvgRenderer
 {
-    public var width(default,null):Float;
-    public var height(default,null):Float;
+   public var width(default,null):Float;
+   public var height(default,null):Float;
 
-    var mSvg:Svg;
-    var mRoot:Group;
-    var mGfx : Gfx;
-    var mMatrix : Matrix;
-    var mScaleRect:Rectangle;
-    var mScaleW:Null<Float>;
-    var mScaleH:Null<Float>;
-    var mFilter : ObjectFilter;
-    var mGroupPath : GroupPath;
+   var mSvg:Svg;
+   var mRoot:Group;
 
-    public function new(inSvg:Group,?inLayer:String)
-    {
+   var mScaleRect:Rectangle;
+   var mScaleW:Null<Float>;
+   var mScaleH:Null<Float>;
+
+   // RenderContext
+   public var lastX(default,null):Float;
+   public var lastY(default,null):Float;
+   public var firstX:Float;
+   public var firstY:Float;
+   var rectW:Float;
+   var rectH:Float;
+
+   // For iterating
+   var mIgnoreDot:Bool;
+   var mFilter : ObjectFilter;
+   var mGroupPath : GroupPath;
+   var styles : SvgStyles;
+   var mGfx : Gfx;
+   var mMatrix : Matrix;
+
+   public function new(inSvg:Group,?inLayer:String)
+   {
        mRoot = inSvg;
 
        if (Std.is(inSvg,Svg))
@@ -61,6 +75,8 @@ class SvgRenderer
           height = 100;
        }
 
+       styles = new SvgStyles(mSvg==null ? null : mSvg.getGradients());
+
        if (inLayer!=null)
        {
           mRoot = mRoot.findGroup(inLayer);
@@ -68,6 +84,72 @@ class SvgRenderer
              throw "Could not find SVG group: " + inLayer;
        }
     }
+
+   // Render context
+   public function resetRenderContext()
+   {
+      firstX = 0;
+      firstY = 0;
+      lastX = 0;
+      lastY = 0;
+   }
+   inline public function getMatrix() return mMatrix;
+   public function  transX(inX:Float, inY:Float)
+   {
+      if (mScaleRect!=null && inX>mScaleRect.x)
+      {
+         if (inX>mScaleRect.right)
+            inX += rectW - mScaleRect.width;
+         else
+            inX = mScaleRect.x + rectW * (inX-mScaleRect.x)/mScaleRect.width;
+      }
+      if (mMatrix==null)
+         return inX;
+      return inX*mMatrix.a + inY*mMatrix.c + mMatrix.tx;
+   }
+   public function  transY(inX:Float, inY:Float)
+   {
+      if (mScaleRect!=null && inY>mScaleRect.y)
+      {
+         if (inY>mScaleRect.right)
+            inY += rectH - mScaleRect.height;
+         else
+            inY = mScaleRect.y + rectH * (inY-mScaleRect.y)/mScaleRect.height;
+      }
+      if (mMatrix==null)
+         return inY;
+      return inX*mMatrix.b + inY*mMatrix.d + mMatrix.ty;
+   }
+
+
+   public function setLast(inX:Float, inY:Float)
+   {
+      lastX = transX(inX,inY);
+      lastY = transY(inX,inY);
+   }
+
+
+    public function pushStyle(style:Style) return styles.push(style);
+    public function popStyle() styles.pop();
+
+
+    public function pushMatrix(inMatrix:Matrix) : Matrix
+    {
+       var result = mMatrix;
+       if (inMatrix!=null)
+       {
+          if (mMatrix==null)
+             mMatrix = inMatrix;
+          else
+          {
+             var old = mMatrix;
+             mMatrix = inMatrix.clone();
+             mMatrix.concat(old);
+          }
+       }
+       return result;
+    }
+
 
     public static function toHaxe(inXML:Xml,?inFilter:ObjectFilter) : Array<String>
     {
@@ -80,47 +162,32 @@ class SvgRenderer
     }
 
 
-    public function iterate<T>(inGfx:T, ?inFilter:ObjectFilter) : T
-    {
-       mGfx = cast inGfx;
-       mMatrix = new Matrix();
-       mFilter = inFilter;
-       mGroupPath = [];
-       mGfx.size(width,height);
-       iterateGroup(mRoot,true);
-       mGfx.eof();
-       return inGfx;
-    }
     public function hasGroup(inName:String)
     {
         return mRoot.hasGroup(inName);
     }
 
-    public function iterateText(inText:Text)
+    public function renderText(inText:Text)
     {
        if (mFilter!=null && !mFilter(inText.name,mGroupPath))
           return;
 
-       var m:Matrix  = inText.matrix.clone();
-       m.concat(mMatrix);
-       var context = new RenderContext(m,mScaleRect,mScaleW,mScaleH);
-
-       mGfx.renderText(inText,m);
+       var textStyle = new TextStyle();
+       textStyle.fill = styles.getFill("fill");
+       textStyle.size = styles.getFloat("font-size",14);
+       textStyle.family = styles.get("font-family","");
+       mGfx.renderText(inText,mMatrix,textStyle);
     }
 
-    public function iteratePath(inPath:Path)
+    public function renderPath(inPath:Path)
     {
        if (mFilter!=null && !mFilter(inPath.name,mGroupPath))
           return;
 
        if (inPath.segments.length==0 || mGfx==null)
            return;
-       var px = 0.0;
-       var py = 0.0;
 
-       var m:Matrix  = inPath.matrix.clone();
-       m.concat(mMatrix);
-       var context = new RenderContext(m,mScaleRect,mScaleW,mScaleH);
+       resetRenderContext();
 
        var geomOnly = mGfx.geometryOnly();
        if (!geomOnly)
@@ -130,96 +197,146 @@ class SvgRenderer
           //  2. set fill=something
           //  3. move (this draws in the fill)
           //  4. continue with "real" drawing
-          inPath.segments[0].toGfx(mGfx, context);
-
-          switch(inPath.fill)
+          inPath.segments[0].toGfx(mGfx, this);
+          var opacity = styles.getFloat("opacity",1.0);
+          switch(styles.getFill("fill"))
           {
              case FillGrad(grad):
-                grad.updateMatrix(m);
+                grad.updateMatrix(mMatrix);
                 mGfx.beginGradientFill(grad);
              case FillSolid(colour):
-                mGfx.beginFill(colour,inPath.fill_alpha);
+                mGfx.beginFill(colour,styles.getFloat("fill-opacity",1.0)*opacity);
+
              case FillNone:
                 //mGfx.endFill();
           }
 
 
-          if (inPath.stroke_colour==null)
-          {
-             //mGfx.lineStyle();
-          }
-          else
+          var stroke_colour=styles.getStroke("stroke");
+          if (stroke_colour!=null)
           {
              var style = new gm2d.gfx.LineStyle();
-             var scale = Math.sqrt(m.a*m.a + m.c*m.c);
-             style.thickness = inPath.stroke_width*scale;
-             style.alpha = inPath.stroke_alpha;
-             style.color = inPath.stroke_colour;
-             style.capsStyle = inPath.stroke_caps;
-             style.jointStyle = inPath.joint_style;
-             style.miterLimit = inPath.miter_limit;
+             var scale = mMatrix==null ? 1.0 : Math.sqrt(mMatrix.a*mMatrix.a + mMatrix.c*mMatrix.c);
+             style.thickness = styles.getFloat("stroke-width",1)*scale;
+             style.alpha = styles.getFloat("stroke-opacity",1)*opacity;
+             style.color = stroke_colour;
+             style.capsStyle = CapsStyle.ROUND;
+             style.jointStyle = JointStyle.ROUND;
+             style.miterLimit = styles.getFloat("stroke-miterlimit",3.0);
              mGfx.lineStyle(style);
           }
        }
 
-
        for(segment in inPath.segments)
        {
-          segment.toGfx(mGfx, context);
+          segment.toGfx(mGfx, this);
        }
 
        mGfx.endFill();
        mGfx.endLineStyle();
     }
 
+    public function iterateChild(child:DisplayElement)
+    {
+       if (child.asGroup()!=null)
+          iterateGroup(child.asGroup());
+       else
+       {
+          var matrix = pushMatrix(child.matrix);
+          var doPop = pushStyle(child.style);
+
+          if (child.asPath()!=null)
+             renderPath(child.asPath());
+          else if (child.asText()!=null)
+             renderText(child.asText());
+          else if (child.asLink()!=null)
+             renderLink(child.asLink());
+
+          mMatrix = matrix;
+          if (doPop)
+             popStyle();
+       }
+    }
 
 
-    public function iterateGroup(inGroup:Group,inIgnoreDot:Bool)
+    public function renderLink(link:Link)
+    {
+       if (link.link==null)
+          return;
+
+       var linked = mSvg.findLink(link.link);
+       if (linked==null)
+       {
+          trace("Could not find " +link.link);
+          return;
+       }
+
+       iterateChild(linked);
+    }
+
+
+    public function iterateGroup(inGroup:Group)
     {
        // Convention for hidden layers ...
-       if (inIgnoreDot && inGroup.name!=null && inGroup.name.substr(0,1)==".")
+       if (mIgnoreDot && inGroup.name!=null && inGroup.name.substr(0,1)==".")
           return;
 
        mGroupPath.push(inGroup.name);
+       var matrix = pushMatrix(inGroup.matrix);
+       var doPop = pushStyle(inGroup.style);
 
        // if (mFilter!=null && !mFilter(inGroup.name)) return;
 
        for(child in inGroup.children)
-       {
-          switch(child)
-          {
-             case DisplayGroup(group):
-                iterateGroup(group,inIgnoreDot);
-             case DisplayPath(path):
-                iteratePath(path);
-             case DisplayText(text):
-                iterateText(text);
-          }
-       }
+          iterateChild(child);
 
        mGroupPath.pop();
+       mMatrix = matrix;
+       if (doPop)
+          popStyle();
     }
 
 
 
+    public function iterateRoot(inGfx:Gfx,inMatrix:Matrix, inFilter:ObjectFilter, inScaleRect:Rectangle,inScaleW:Null<Float>, inScaleH:Null<Float>, inIgnoreDot:Bool ) : Gfx
+    {
+       mGfx = inGfx;
+       mMatrix = inMatrix;
+       mFilter = inFilter;
+       mScaleRect = inScaleRect;
+       mScaleW = inScaleW;
+       mScaleH = inScaleH;
+       mIgnoreDot = inIgnoreDot;
+
+       mGroupPath = [];
+       mGroupPath = [];
+       styles.reset();
+       rectW = mScaleW!=null ? mScaleW : mScaleRect!=null? mScaleRect.width : 1;
+       rectH = mScaleH!=null ? mScaleH : mScaleRect!=null? mScaleRect.height : 1;
+
+
+       mGfx.size(width,height);
+       iterateGroup(mRoot);
+       mGfx.eof();
+
+       return inGfx;
+    }
+
+
+
+    public function iterate<T>(inGfx:T, ?inFilter:ObjectFilter):T
+    {
+       iterateRoot(cast inGfx, null, inFilter, null, null, null, true);
+       return inGfx;
+    }
 
 
     public function render(inGfx:Graphics,?inMatrix:Matrix, ?inFilter:ObjectFilter, ?inScaleRect:Rectangle,?inScaleW:Float, ?inScaleH:Float )
     {
-       mGfx = new gm2d.gfx.GfxGraphics(inGfx);
-       if (inMatrix==null)
-          mMatrix = new Matrix();
-       else
-          mMatrix = inMatrix.clone();
-
-       mScaleRect = inScaleRect;
-       mScaleW = inScaleW;
-       mScaleH = inScaleH;
-       mFilter = inFilter;
-       mGroupPath = [];
-
-       iterateGroup(mRoot,inFilter==null);
+       return iterateRoot( new gm2d.gfx.GfxGraphics(inGfx), inMatrix, inFilter, inScaleRect, inScaleW, inScaleH, inFilter==null);
     }
+
+
     public function renderRect(inGfx:Graphics,inFilter:ObjectFilter,scaleRect:Rectangle,inBounds:Rectangle,inRect:Rectangle) : Void
     {
        var matrix = new Matrix();
@@ -251,36 +368,27 @@ class SvgRenderer
     }
 
 
-
-
-    public function getExtent(?inMatrix:Matrix, ?inFilter:ObjectFilter, ?inIgnoreDot:Bool ) :
-        Rectangle
+    public function getExtent(?inMatrix:Matrix, ?inFilter:ObjectFilter, ?inIgnoreDot:Bool ) : Rectangle
     {
        if (inIgnoreDot==null)
-          inIgnoreDot = inFilter==null;
-       var gfx = new gm2d.gfx.GfxExtent();
-       mGfx = gfx;
-       if (inMatrix==null)
-          mMatrix = new Matrix();
+          mIgnoreDot = inFilter==null;
        else
-          mMatrix = inMatrix.clone();
+          mIgnoreDot = inIgnoreDot;
 
-       mFilter = inFilter;
-       mGroupPath = [];
+       var gfx = new gm2d.gfx.GfxExtent();
 
-       iterateGroup(mRoot,inIgnoreDot);
+       iterateRoot(gfx, inMatrix, inFilter, null, null, null, inIgnoreDot==null ? inFilter==null : inIgnoreDot);
 
        return gfx.extent;
     }
 
     public function findText(?inFilter:ObjectFilter)
     {
-       mFilter = inFilter;
-       mGroupPath = [];
        var finder = new gm2d.gfx.GfxTextFinder();
-       mGfx = finder;
-       iterateGroup(mRoot,false);
-       return finder.text;
+       iterateRoot(finder, null, inFilter, null, null, null, false );
+       if (finder.text==null)
+           return null;
+       return finder;
     }
 
     public function getMatchingRect(inMatch:EReg) : Rectangle
@@ -325,7 +433,7 @@ class SvgRenderer
 
     public function renderBitmap(?inRect:Rectangle,inScale:Float = 1.0)
     {
-       mMatrix = new Matrix(inScale,0,0,inScale,
+       var matrix = new Matrix(inScale,0,0,inScale,
               inRect==null ? 0 : -inRect.x*inScale,
               inRect==null ? 0 : -inRect.y*inScale);
 
@@ -335,14 +443,8 @@ class SvgRenderer
        var bmp = new nme.display.BitmapData(w,h,true,gm2d.RGB.CLEAR );
 
        var shape = new nme.display.Shape();
-       mGfx = new gm2d.gfx.GfxGraphics(shape.graphics);
-
-       mGroupPath = [];
-       iterateGroup(mRoot,true);
-
+       render(shape.graphics,matrix);
        bmp.draw(shape);
-       mGfx = null;
-
        return bmp;
     }
 }

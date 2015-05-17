@@ -58,7 +58,8 @@ class Grad extends gm2d.gfx.Gradient
       mtx.rotate(theta);
       mtx.translate(x1,y1);
       mtx.concat(gradMatrix);
-      mtx.concat(inMatrix);
+      if (inMatrix!=null)
+         mtx.concat(inMatrix);
       matrix = mtx;
    }
 

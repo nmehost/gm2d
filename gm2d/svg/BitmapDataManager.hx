@@ -33,7 +33,7 @@ class BitmapDataManager
 
       var w = Std.int(svg.width*inScale +  0.99);
       var h = Std.int(svg.height*inScale +  0.99);
-      var bmp = new BitmapData(w,h,true,RGB.ZERO);
+      var bmp = new BitmapData(w,h,true,RGB.CLEAR);
       var q = gm2d.Lib.current.stage.quality;
       gm2d.Lib.current.stage.quality = nme.display.StageQuality.BEST;
       bmp.draw(shape,matrix);

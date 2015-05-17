@@ -13,10 +13,11 @@ import nme.display.JointStyle;
 import gm2d.svg.Grad;
 import gm2d.svg.Group;
 import gm2d.svg.FillType;
+import gm2d.svg.DisplayElement;
 
 
 
-typedef Styles = haxe.ds.StringMap<String>;
+
 
 
 class Svg extends Group
@@ -27,6 +28,7 @@ class Svg extends Group
     var mConvertCubics:Bool;
     var mGrads : GradHash;
     var mPathParser: PathParser;
+    var mLinks:Map<String, DisplayElement>;
 
     static var SIN45:Float = 0.70710678118654752440084436210485;
     static var TAN22:Float = 0.4142135623730950488016887242097;
@@ -37,9 +39,7 @@ class Svg extends Group
     static var mRotateMatch = ~/rotate\((.+)[,\s]+(.+)[,\s]+(.+)\)/;
     static var mScaleMatch = ~/scale\((.*)\)/;
     static var mMatrixMatch = ~/matrix\((.+)[,\s]+(.+)[,\s]+(.+)[,\s]+(.+)[,\s]+(.+)[,\s]+(.+)\)/;
-    static var mURLMatch = ~/url\(#(.*)\)/;
-    static var mRGBMatch = ~/rgb\((\d+)[,\s](\d+)[,\s](\d+)\)/;
-    static var defaultFill = FillSolid(0x000000);
+
 
     inline static var PATH   = 0;
     inline static var CIRCLE = 1;
@@ -60,8 +60,10 @@ class Svg extends Group
 
        mConvertCubics = inConvertCubics;
 
-       width = getFloatStyle("width",svg,null,0.0);
-       height = getFloatStyle("height",svg,null,0.0);
+       mLinks = new Map<String, DisplayElement>();
+
+       width = loadFloatStyle("width",null,0.0, svg);
+       height = loadFloatStyle("height",null,0.0, svg);
        if (width==0 && height==0)
           width = height = 400;
        else if (width==0)
@@ -69,7 +71,7 @@ class Svg extends Group
        else if (height==0)
           height = width;
 
-       loadGroup(this,svg,new Matrix(), null);
+       loadGroup(this,svg);
 
        //trace("SVG:");
        //for(g in roots)
@@ -82,14 +84,10 @@ class Svg extends Group
        trace(indent + "Group:" + g.name);
        indent += "  ";
        for(e in g.children)
-       {
-          switch(e)
-          {
-             case DisplayPath(path): trace(indent + "Path" + "  " + path.matrix);
-             case DisplayGroup(group): dumpGroup(group,indent+"   ");
-             case DisplayText(text): trace(indent+"Text " + text.text);
-          }
-       }
+          if (e.asGroup()!=null)
+             dumpGroup(e.asGroup(),indent+"   ");
+          else
+             trace(indent + e);
     }
 
     function getFloat(inXML:Xml,inName:String,inDef:Float=0.0) : Float
@@ -142,17 +140,17 @@ class Svg extends Group
 
 
        if (inGrad.exists("gradientTransform"))
-          applyTransform(grad.gradMatrix,inGrad.get("gradientTransform"));
+          grad.gradMatrix = createTransform(inGrad.get("gradientTransform"));
 
 
        // todo - grad.spread = base.spread;
 
        for(stop in inGrad.elements())
        {
-          var styles = getStyles(stop,null);
+          var style = loadStyle(stop);
 
-          grad.colors.push( getColourStyle("stop-color",stop,styles,0x000000) );
-          grad.alphas.push( getFloatStyle("stop-opacity",stop,styles,1.0) );
+          grad.colors.push( loadColourStyle("stop-color",style,0x000000) );
+          grad.alphas.push( loadFloatStyle("stop-opacity",style,1.0) );
           grad.ratios.push(
              Std.int( Std.parseFloat(stop.get("offset") ) * 255.0) );
        }
@@ -160,6 +158,11 @@ class Svg extends Group
 
        mGrads.set(name,grad);
     }
+
+    public function getGrad(inName:String) return mGrads.get(inName);
+
+    public function getGradients() return mGrads;
+
 
     function loadDefs(inXML:Xml)
     {
@@ -177,13 +180,15 @@ class Svg extends Group
           }
     }
 
-    function applyTransform(ioMatrix:Matrix, inTrans:String) : Float
+    function createTransform(inTrans:String) : Matrix
     {
        var scale = 1.0;
+       var result:Matrix = null;
+
        if (mTranslateMatch.match(inTrans))
        {
           // TODO: Pre-translate
-          ioMatrix.translate(
+          (result = new Matrix()).translate(
                   Std.parseFloat( mTranslateMatch.matched(1) ),
                   Std.parseFloat( mTranslateMatch.matched(2) ));
        }
@@ -191,8 +196,7 @@ class Svg extends Group
        {
           // TODO: Pre-scale
           var s = Std.parseFloat( mScaleMatch.matched(1) );
-          ioMatrix.scale(s,s);
-          scale = s;
+          (result = new Matrix()).scale(s,s);
        }
        else if (mRotateMatch.match(inTrans))
        {
@@ -200,188 +204,102 @@ class Svg extends Group
           var angle = Std.parseFloat( mRotateMatch.matched(1) );
           var x = Std.parseFloat( mRotateMatch.matched(2) );
           var y = Std.parseFloat( mRotateMatch.matched(3) );
-          ioMatrix.tx -= x;
-          ioMatrix.ty -= y;
-          ioMatrix.rotate( angle*Math.PI/180.0 );
-          ioMatrix.tx += x;
-          ioMatrix.ty += y;
+          result = new Matrix();
+          result.tx -= x;
+          result.ty -= y;
+          result.rotate( angle*Math.PI/180.0 );
+          result.tx += x;
+          result.ty += y;
        }
        else if (mMatrixMatch.match(inTrans))
        {
-          var m = new Matrix(
+          result = new Matrix(
                   Std.parseFloat( mMatrixMatch.matched(1) ),
                   Std.parseFloat( mMatrixMatch.matched(2) ),
                   Std.parseFloat( mMatrixMatch.matched(3) ),
                   Std.parseFloat( mMatrixMatch.matched(4) ),
                   Std.parseFloat( mMatrixMatch.matched(5) ),
                   Std.parseFloat( mMatrixMatch.matched(6) ) );
-          m.concat(ioMatrix);
-          ioMatrix.a = m.a;
-          ioMatrix.b = m.b;
-          ioMatrix.c = m.c;
-          ioMatrix.d = m.d;
-          ioMatrix.tx = m.tx;
-          ioMatrix.ty = m.ty;
-          scale = Math.sqrt( ioMatrix.a*ioMatrix.a + ioMatrix.c*ioMatrix.c );
+          //scale = Math.sqrt( ioMatrix.a*ioMatrix.a + ioMatrix.c*ioMatrix.c );
        }
        else 
           trace("Warning, unknown transform:" + inTrans);
-       return scale;
+
+       return result;
     }
 
 
-   function getStyles(inNode:Xml,inPrevStyles:Styles) : Styles
-   {
-      if (!inNode.exists("style"))
-         return inPrevStyles;
+   static var attribStyles = [
+"alignment-baseline", "baseline-shift", "clip", "clip-path", "clip-rule", "color", "color-interpolation", "color-interpolation-filters", "color-profile", "color-rendering", "cursor", "direction", "display", "dominant-baseline", "enable-background", "fill", "fill-opacity", "fill-rule", "filter", "flood-color", "flood-opacity", "font-family", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-variant", "font-weight", "glyph-orientation-horizontal", "glyph-orientation-vertical", "image-rendering", "kerning", "letter-spacing", "lighting-color", "marker-end", "marker-mid", "marker-start", "mask", "opacity", "overflow", "pointer-events", "shape-rendering", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "text-anchor", "text-decoration", "text-rendering", "unicode-bidi", "visibility", "word-spacing", "writing-mode" ];
 
-      var styles = new Styles();
-      if (inPrevStyles!=null)
-         for(s in inPrevStyles.keys())
+   function loadStyle(inNode:Xml) : Style
+   {
+      var style:Style = null;
+
+      if (inNode.exists("style"))
+      {
+         var strings = mStyleSplit.split( inNode.get("style"));
+         for(s in strings)
          {
-            styles.set(s,inPrevStyles.get(s));
+            if (mStyleValue.match(s))
+            {
+               if (style==null)
+                   style = new Style();
+               style.set(mStyleValue.matched(1),mStyleValue.matched(2));
+            }
+         }
+      }
+
+      for(a in attribStyles)
+         if (inNode.exists(a))
+         {
+            if (style==null)
+               style = new Style();
+            style.set(a, inNode.get(a));
          }
 
-      var style = inNode.get("style");
-      var strings = mStyleSplit.split(style);
-      for(s in strings)
-      {
-         if (mStyleValue.match(s))
-            styles.set(mStyleValue.matched(1),mStyleValue.matched(2));
-      }
-
-      return styles;
+      return style;
    }
 
-   function getStyle(inKey:String,inNode:Xml,inStyles:Styles,inDefault:String)
+
+   function loadFloatStyle(inKey:String, inStyle:Style, inDefault:Float, ?inXml:Xml)
    {
-      if (inNode!=null && inNode.exists(inKey))
-      {
-         return inNode.get(inKey);
-      }
+      var s = inStyle!=null && inStyle.exists(inKey) ? inStyle.get(inKey) : "";
 
-      if (inStyles!=null && inStyles.exists(inKey))
-         return inStyles.get(inKey);
- 
-      //trace("Key not found : " + inKey);
-      //trace(inStyles);
-      //throw("not found");
+      if (inXml!=null && inXml.exists(inKey))
+         s = inXml.get(inKey);
 
-      return inDefault;
-   }
-
-   function getFloatStyle(inKey:String,inNode:Xml,inStyles:Styles,
-               inDefault:Float)
-   {
-      var s = getStyle(inKey,inNode,inStyles,"");
       if (s=="")
          return inDefault;
       return Std.parseFloat(s);
    }
 
-   function getColourStyle(inKey:String,inNode:Xml,inStyles:Styles,
-               inDefault:Int)
+   function loadColourStyle(inKey:String,inStyle:Style, inDefault:Int)
    {
-      var s = getStyle(inKey,inNode,inStyles,"");
+      var s = inStyle.exists(inKey) ? inStyle.get(inKey) : "";
+      
       if (s=="")
          return inDefault;
       if (s.charAt(0)=='#')
          return Std.parseInt( "0x" + s.substr(1) );
-         
       return Std.parseInt(s);
    }
 
-   function getStrokeStyle(inKey:String,inNode:Xml,inStyles:Styles,
-               inDefault:Null<Int>)
-   {
-      var s = getStyle(inKey,inNode,inStyles,"");
-      if (s=="")
-         return inDefault;
-
-      if (s=="none")
-         return null;
-
-      if (s.charAt(0)=='#')
-         return Std.parseInt( "0x" + s.substr(1) );
-
-      if (mRGBMatch.match(s))
-      {
-         return (Std.parseInt(mRGBMatch.matched(1))<<16 ) |
-                (Std.parseInt(mRGBMatch.matched(2))<<8 ) |
-                (Std.parseInt(mRGBMatch.matched(3))<<8 );
-      }
-
-      var col = gm2d.RGB.resolve(s);
-      if (col!=null)
-         return col;
-
-      return Std.parseInt(s);
-   }
-
-   function GetFillStyle(inKey:String,inNode:Xml,inStyles:Styles)
-   {
-      var s = getStyle(inKey,inNode,inStyles,"");
-      if (s=="")
-         return defaultFill;
-
-      if (s.charAt(0)=='#')
-         return FillSolid( Std.parseInt( "0x" + s.substr(1) ) );
- 
-      if (s=="none")
-         return FillNone;
-
-      if (mRGBMatch.match(s))
-      {
-         return FillSolid( (Std.parseInt(mRGBMatch.matched(1))<<16 ) |
-                           (Std.parseInt(mRGBMatch.matched(2))<<8 ) |
-                           (Std.parseInt(mRGBMatch.matched(3))<<8 ) );
-      }
-
-      if (mURLMatch.match(s))
-      {
-         var url = mURLMatch.matched(1);
-         if (mGrads.exists(url))
-            return FillGrad(mGrads.get(url));
-         
-         throw("Unknown url:" + url);
-      }
-
-      var col = gm2d.RGB.resolve(s);
-      if (col!=null)
-         return FillSolid(col);
-
-      throw("Unknown fill string:" + s);
-
-      return FillNone;
-   }
-
-
-
-    public function loadPath(inPath:Xml, matrix:Matrix,inStyles:Styles,inMode:Int) : Path
+    public function loadLink(inElem:Xml) : Link
     {
-       if (inPath.exists("transform"))
-       {
-          matrix = matrix.clone();
-          applyTransform(matrix,inPath.get("transform"));
-       }
+       var link = new Link();
+       loadElement(link, inElem);
 
-       var styles = getStyles(inPath,inStyles);
+       if (inElem.exists("xlink:href"))
+          link.link = inElem.get("xlink:href");
 
-       var name = inPath.exists("id") ? inPath.get("id") : "";
+       return link;
+    }
 
+    public function loadPath(inPath:Xml, inMode:Int) : Path
+    {
        var path = new Path();
-       path.fill=GetFillStyle("fill",inPath,styles);
-       var opacity = getFloatStyle("opacity",inPath,styles,1.0);
-       path.fill_alpha= getFloatStyle("fill-opacity",inPath,styles,1)*opacity;
-       path.stroke_alpha= getFloatStyle("stroke-opacity",inPath,styles,1)*opacity;
-       path.stroke_colour=getStrokeStyle("stroke",inPath,styles,null);
-       path.stroke_width= getFloatStyle("stroke-width",inPath,styles,1.0);
-       path.stroke_caps=CapsStyle.ROUND;
-       path.joint_style=JointStyle.ROUND;
-       path.miter_limit= getFloatStyle("stroke-miterlimit",inPath,styles,3.0);
-       path.segments=[];
-       path.matrix=matrix;
-       path.name=name;
+       loadElement(path,inPath);
 
        if (inMode==LINE)
        {
@@ -459,6 +377,7 @@ class Svg extends Group
        {
           var close = inMode==OPEN_PATH ? "" : "z";
           var d = inPath.exists("points") ? ("M" + inPath.get("points") + close ) : inPath.get("d");
+
           for(segment in mPathParser.parse(d,mConvertCubics) )
              path.segments.push(segment);
        }
@@ -466,32 +385,13 @@ class Svg extends Group
        return path;
     }
 
-    public function loadText(inText:Xml, matrix:Matrix,inStyles:Styles) : Text
+    public function loadText(inText:Xml) : Text
     {
-       if (inText.exists("transform"))
-       {
-          matrix = matrix.clone();
-          applyTransform(matrix,inText.get("transform"));
-       }
-
-       var styles = getStyles(inText,inStyles);
-
        var text = new Text();
-       text.matrix=matrix;
-       text.name=inText.exists("id") ? inText.get("id") : "";
-       text.x=getFloat(inText,"x",0.0);
-       text.y=getFloat(inText,"y",0.0);
+       loadElement(text, inText);
 
-       var opacity = getFloatStyle("opacity",inText,styles,1.0);
-       text.fill=GetFillStyle("fill",inText,styles);
-       text.fill_alpha= getFloatStyle("fill-opacity",inText,styles,opacity);
-       text.stroke_alpha= getFloatStyle("stroke-opacity",inText,styles,opacity);
-       text.stroke_colour=getStrokeStyle("stroke",inText,styles,null);
-       text.stroke_width= getFloatStyle("stroke-width",inText,styles,1.0);
-       text.font_family= getStyle("font-family",inText,styles,"");
-       text.font_size= getFloatStyle("font-size",inText,styles,14);
-       text.letter_spacing= getFloatStyle("letter-spacing",inText,styles,0);
-       text.kerning= getFloatStyle("kerning",inText,styles,0);
+       /*
+       */
 
        var textChild = inText.firstChild();
        var string= textChild==null ? "" : textChild.toString();
@@ -503,20 +403,36 @@ class Svg extends Group
        return text;
     }
 
-    public function loadGroup(g:Group, inG:Xml, matrix:Matrix,inStyles:Styles) : Group
+    public function findLink(inId:String):DisplayElement
     {
-       if (inG.exists("transform"))
+       if (inId.substr(0,1)=="#")
+          return mLinks.get(inId.substr(1));
+       return mLinks.get(inId);
+    }
+
+
+    public function loadElement(e:DisplayElement, xml:Xml )
+    {
+       if (xml.exists("transform"))
+          e.matrix = createTransform(xml.get("transform"));
+
+       if (xml.exists("id"))
        {
-          matrix = matrix.clone();
-          applyTransform(matrix,inG.get("transform"));
+          e.id = xml.get("id");
+          mLinks.set(e.id, e);
+          e.name = e.id;
        }
-       if (inG.exists("inkscape:label"))
-          g.name = inG.get("inkscape:label");
-       else if (inG.exists("id"))
-          g.name = inG.get("id");
 
-       var styles = getStyles(inG,inStyles);
+       if (xml.exists("inkscape:label"))
+          e.name = xml.get("inkscape:label");
 
+       e.style = loadStyle(xml);
+   }
+
+
+    public function loadGroup(g:Group, inG:Xml) : Group
+    {
+       loadElement(g, inG);
 
        for(el in inG.elements())
        {
@@ -528,41 +444,46 @@ class Svg extends Group
              loadDefs(el);
           else if (name=="g")
           {
-             g.children.push( DisplayGroup(loadGroup(new Group(),el,matrix, styles)) );
+             g.children.push( loadGroup(new Group(),el) );
           }
           else if (name=="path")
           {
-             g.children.push( DisplayPath( loadPath(el,matrix, styles, PATH) ) );
+             g.children.push( loadPath(el,PATH) );
           }
           else if (name=="rect")
           {
-             g.children.push( DisplayPath( loadPath(el,matrix, styles, RECT) ) );
+             g.children.push( loadPath(el,RECT) );
           }
           else if (name=="polygon")
           {
-             g.children.push( DisplayPath( loadPath(el,matrix, styles, PATH) ) );
+             g.children.push( loadPath(el,PATH) );
           }
           else if (name=="polyline")
           {
-             g.children.push( DisplayPath( loadPath(el,matrix, styles, OPEN_PATH) ) );
+             g.children.push( loadPath(el,OPEN_PATH) );
           }
           else if (name=="line")
           {
-             g.children.push( DisplayPath( loadPath(el,matrix, styles, LINE) ) );
+             g.children.push( loadPath(el,LINE) );
           }
           else if (name=="ellipse" || name=="circle")
           {
-             g.children.push( DisplayPath( loadPath(el,matrix, styles, CIRCLE) ) );
+             g.children.push( loadPath(el,CIRCLE) );
           }
           else if (name=="text")
           {
-             g.children.push( DisplayText( loadText(el,matrix, styles) ) );
+             g.children.push( loadText(el) );
+          }
+          else if (name=="use")
+          {
+             g.children.push( loadLink(el) );
           }
           else
           {
               //throw("Unknown child : " + el.nodeName );
           }
        }
+
        return g;
     }
 }
