@@ -174,13 +174,18 @@ class CubicSegment extends PathSegment
       // Are all points co-linear?
       var dx1 = cx1-tx0;
       var dy1 = cy1-ty0;
+      if (Math.abs(dx1)<0.00001 && Math.abs(dy1)<0.00001)
+      {
+         result.push( new QuadraticSegment(cx2,cy2,x,y) );
+         return result;
+      }
       var dx2 = cx2-tx0;
       var dy2 = cy2-ty0;
-      if (Math.abs(dx1*dy2-dx2*dy1)<0.001)
+      if (Math.abs(dx1*dy2-dx2*dy1)<0.00001)
       {
          var dx3 = x-tx0;
          var dy3 = y-ty0;
-         if (Math.abs(dx1*dy3-dx3*dy1)<0.001)
+         if (Math.abs(dx1*dy3-dx3*dy1)<0.00001)
          {
             result.push( new DrawSegment(x,y) );
             return result;
