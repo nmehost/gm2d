@@ -36,6 +36,7 @@ class FileOpenScreen extends Screen
    var dirButtons:Layout;
    var screenLayout:Layout;
    var list:ListControl;
+   //var list:TileControl;
    var message:String;
    var filter:String;
    var baseDir:String;
@@ -140,6 +141,7 @@ class FileOpenScreen extends Screen
       top.setColStretch(0,1);
 
       list = new ListControl();
+      //list = new TileControl();
 
 
       dirButtons = new FlowLayout().setSpacing(2,5).setName("dir button").setAlignment(Layout.AlignLeft|Layout.AlignTop).setBorders(5,0,5,0);
@@ -288,10 +290,20 @@ class FileOpenScreen extends Screen
       addChild(button);
       dirButtons.add(button.getLayout());
    }
+   
+   function addItem(icon:BitmapData, name:String)
+   {
+      /*
+      var widget =  Button.BMPTextButton(icon,name);
+      list.add(widget);
+      */
+      list.addRow([icon,name]);
+   }
 
 
    public function setDir(inDir:String,inRelayout=true)
    {
+      list.holdUpdates(true);
       if (allButtons!=null)
       {
          for(but in allButtons)
@@ -353,18 +365,18 @@ class FileOpenScreen extends Screen
          baseDir = "";
          //list.addRow( [folderIcon,"Application Base"] );
          //dir.push(File.applicationDirectory);
-         list.addRow( [folderIcon,"Documents"] );
+         addItem( folderIcon,"Documents" );
          dirs.push(File.documentsDirectory.nativePath);
-         list.addRow( [folderIcon,"Home"] );
+         addItem( folderIcon,"Home" );
          dirs.push(File.userDirectory.nativePath);
-         list.addRow( [folderIcon,"Desktop"] );
+         addItem( folderIcon,"Desktop" );
          dirs.push(File.desktopDirectory.nativePath);
-         list.addRow( [folderIcon,"Application Files"] );
+         addItem( folderIcon,"Application Files" );
          dirs.push(File.applicationStorageDirectory.nativePath);
 
          for(v in nme.filesystem.StorageVolumeInfo.getInstance().getStorageVolumes())
          {
-            list.addRow( [folderIcon,v.name] );
+            addItem( folderIcon,v.name );
             dirs.push(v.rootDirectory.nativePath);
          }
       }
@@ -392,14 +404,15 @@ class FileOpenScreen extends Screen
          files.sort(function(a,b) { return a<b ? -1 : 1; } );
          for(d in dirs)
          {
-            list.addRow( [folderIcon,d] );
+            addItem( folderIcon,d );
          }
          for(f in files)
          {
-            list.addRow( [docIcon,f] );
+            addItem( docIcon,f );
          }
       }
       #end
+      list.holdUpdates(false);
       if (inRelayout)
          screenLayout.setRect(0,0, stage.stageWidth, stage.stageHeight);
    }

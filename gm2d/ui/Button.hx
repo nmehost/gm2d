@@ -200,8 +200,7 @@ class Button extends Control
    }
 
 
-   public static function TextButton(inText:String,inOnClick:Void->Void,?inLineage:Array<String>,
-       ?inArrtibs:Dynamic)
+   public static function TextButton(inText:String,inOnClick:Void->Void,?inLineage:Array<String>, ?inArrtibs:Dynamic)
    {
       var renderer = Skin.renderer(Widget.addLines(inLineage,["ButtonText","Button","StaticText","Text"]));
       var label = new TextField();
@@ -214,7 +213,7 @@ class Button extends Control
       return result;
    }
 
-   public static function BMPTextButton(inBitmapData:BitmapData,inText:String, ?inOnClick:Void->Void,?inLineage:Array<String>)
+   public static function BMPTextButton(inBitmapData:BitmapData,inText:String, ?inOnClick:Void->Void,?inLineage:Array<String>,?attribs:{})
    {
       var sprite = new Sprite();
       var bmp = new Bitmap(inBitmapData);
@@ -227,7 +226,7 @@ class Button extends Control
       label.autoSize = TextFieldAutoSize.LEFT;
       label.x = bmp.width;
       label.y = (bmp.height - label.height)/2;
-      var result = new Button(sprite,inOnClick,Widget.addLine(inLineage,"BitmapButton"));
+      var result = new Button(sprite,inOnClick,Widget.addLine(inLineage,"BitmapButton"),attribs);
       var layout = result.getItemLayout();
       layout.setBestSize(label.x + label.width, bmp.height);
       return result;
