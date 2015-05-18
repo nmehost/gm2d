@@ -322,7 +322,12 @@ class Skin
       addAttribs("ListRow", Widget.CURRENT, {
           fill: FillRowSelect,
         });
- 
+       addAttribs("TileControl", null, {
+          fill: FillSolid(0xffffff,1),
+          style: StyleRect,
+          wantsFocus:false,
+        });
+
       addAttribs("MenuCheckbox", null, {
           filters:null,
           line: LineNone,

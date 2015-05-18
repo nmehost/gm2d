@@ -15,7 +15,7 @@ class TileControl extends ScrollWidget
 
    public function new(?inOnSelect:Int->Void,?inLineage:Array<String>,?inAttribs:{})
    {
-      super(inLineage, inAttribs);
+      super(Widget.addLine(inLineage,"TileControl"), inAttribs);
       onSelect = inOnSelect;
       columns = attribInt("columns",0);
 

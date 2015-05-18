@@ -208,10 +208,13 @@ class Widget extends Sprite
    {
       if (inState!=state)
       {
+         var wasCurrent = isCurrent;
          state = inState;
          combinedAttribs = Skin.combineAttribs(mLineage, state, mAttribs);
          mRenderer = new Renderer(combinedAttribs);
          redraw();
+         if (isCurrent && !wasCurrent && attribBool("raiseCurrent",true) && parent!=null)
+            parent.setChildIndex(this, parent.numChildren-1 );
       }
       return inState;
    }

@@ -223,6 +223,20 @@ class Renderer
       return filled;
    }
 
+   function getLineWidth():Float
+   {
+      if (lineStyle!=null)
+      {
+         switch(lineStyle)
+         {
+            case LineBorder: return 1;
+            case LineSolid( width, rgb, a ): return width;
+            default:
+         }
+      }
+      return 0.0;
+   }
+
    function setLine(inGraphics:Graphics,rect:Rectangle):Float
    {
       if (lineStyle!=null)
@@ -307,8 +321,10 @@ class Renderer
             lineOffset = setLine(gfx,r);
             filled = setFill(gfx,r);
             if (lineOffset>0 || filled)
+            {
                gfx.drawRoundRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2,
                    Skin.roundRectRad,Skin.roundRectRad);
+            }
 
          case StyleUnderlineRect:
             if (setFill(gfx,r))
@@ -382,9 +398,17 @@ class Renderer
       {
          if (minSize!=null)
             layout.setMinSize( minSize.x, minSize.y );
+         var lineWidth = Std.int(getLineWidth());
          if (margin!=null)
-            layout.setBorders(margin.x, margin.y,
-               margin.width-margin.x, margin.height-margin.y);
+         {
+            layout.setBorders(margin.x+lineWidth, margin.y+lineWidth,
+               margin.width-margin.x + lineWidth, margin.height-margin.y + lineWidth);
+         }
+         else if (lineWidth>0)
+         {
+            layout.setBorders(lineWidth, lineWidth, lineWidth, lineWidth);
+         }
+
          if (align!=null)
             layout.setAlignment(align);
       }

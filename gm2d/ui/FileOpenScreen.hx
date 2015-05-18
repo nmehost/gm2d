@@ -35,8 +35,8 @@ class FileOpenScreen extends Screen
    var dirButtonContainer:Sprite;
    var dirButtons:Layout;
    var screenLayout:Layout;
-   var list:ListControl;
-   //var list:TileControl;
+   //var list:ListControl;
+   var list:TileControl;
    var message:String;
    var filter:String;
    var baseDir:String;
@@ -140,8 +140,8 @@ class FileOpenScreen extends Screen
       top.setRowStretch(1,0);
       top.setColStretch(0,1);
 
-      list = new ListControl();
-      //list = new TileControl();
+      //list = new ListControl();
+      list = new TileControl();
 
 
       dirButtons = new FlowLayout().setSpacing(2,5).setName("dir button").setAlignment(Layout.AlignLeft|Layout.AlignTop).setBorders(5,0,5,0);
@@ -183,24 +183,30 @@ class FileOpenScreen extends Screen
    override public function getScaleMode() : ScreenScaleMode
       { return ScreenScaleMode.TOPLEFT_UNSCALED; }
 
+   function onDir(dir:String)
+   {
+      if (baseDir=="")
+         setDir(dir);
+      else
+         setDir(baseDir + "/" + dir);
+   }
+
    public function onListSelect(inRow:Int)
    {
       if (inRow<dirs.length)
       {
-         if (baseDir=="")
-            setDir(dirs[inRow]);
-         else
-            setDir(baseDir + "/" + dirs[inRow]);
+         onDir(dirs[inRow]);
          return;
       }
-      inRow -= dirs.length;
+      onFile(files[inRow-dirs.length]);
+   }
 
+   function onFile(file:String)
+   {
       if (saveTextInput!=null)
-      {
-         saveTextInput.text = saveName = files[inRow];
-      }
+         saveTextInput.text = saveName = file;
       else
-         setResult(files[inRow]);
+         setResult(file);
    }
 
    public function onSave( )
@@ -291,13 +297,13 @@ class FileOpenScreen extends Screen
       dirButtons.add(button.getLayout());
    }
    
-   function addItem(icon:BitmapData, name:String)
+   function addItem(icon:BitmapData, name:String, dir:String, ?file:String)
    {
-      /*
-      var widget =  Button.BMPTextButton(icon,name);
+      var widget =  Button.BMPTextButton(icon,name,dir!=null ? function() onDir(dir) : function() onFile(file) );
+      widget.getItemLayout().setAlignment( Layout.AlignLeft | Layout.AlignCenterY );
+      widget.getLayout().stretch();
       list.add(widget);
-      */
-      list.addRow([icon,name]);
+      //list.addRow([icon,name]);
    }
 
 
@@ -365,18 +371,18 @@ class FileOpenScreen extends Screen
          baseDir = "";
          //list.addRow( [folderIcon,"Application Base"] );
          //dir.push(File.applicationDirectory);
-         addItem( folderIcon,"Documents" );
+         addItem( folderIcon,"Documents", File.documentsDirectory.nativePath );
          dirs.push(File.documentsDirectory.nativePath);
-         addItem( folderIcon,"Home" );
+         addItem( folderIcon,"Home",File.userDirectory.nativePath );
          dirs.push(File.userDirectory.nativePath);
-         addItem( folderIcon,"Desktop" );
+         addItem( folderIcon,"Desktop", File.desktopDirectory.nativePath );
          dirs.push(File.desktopDirectory.nativePath);
-         addItem( folderIcon,"Application Files" );
+         addItem( folderIcon,"Application Files", File.applicationStorageDirectory.nativePath );
          dirs.push(File.applicationStorageDirectory.nativePath);
 
          for(v in nme.filesystem.StorageVolumeInfo.getInstance().getStorageVolumes())
          {
-            addItem( folderIcon,v.name );
+            addItem( folderIcon,v.name,v.rootDirectory.nativePath );
             dirs.push(v.rootDirectory.nativePath);
          }
       }
@@ -404,11 +410,11 @@ class FileOpenScreen extends Screen
          files.sort(function(a,b) { return a<b ? -1 : 1; } );
          for(d in dirs)
          {
-            addItem( folderIcon,d );
+            addItem( folderIcon,d,d );
          }
          for(f in files)
          {
-            addItem( docIcon,f );
+            addItem( docIcon,f,null,f );
          }
       }
       #end
