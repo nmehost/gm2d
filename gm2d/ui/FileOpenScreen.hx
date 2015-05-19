@@ -299,7 +299,7 @@ class FileOpenScreen extends Screen
    
    function addItem(icon:BitmapData, name:String, dir:String, ?file:String)
    {
-      var widget =  Button.BMPTextButton(icon,name,dir!=null ? function() onDir(dir) : function() onFile(file) );
+      var widget =  Button.BMPTextButton(icon,name, dir!=null ? function() onDir(dir) : function() onFile(file), ["SimpleTile"] );
       widget.getItemLayout().setAlignment( Layout.AlignLeft | Layout.AlignCenterY );
       widget.getLayout().stretch();
       list.add(widget);

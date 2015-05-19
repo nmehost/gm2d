@@ -327,7 +327,17 @@ class Skin
           style: StyleRect,
           wantsFocus:false,
         });
-
+       addAttribs("SimpleTile", null, {
+          filters: null,
+          fill: FillSolid(0xffffff,1),
+          line: LineSolid(0,0xffffff,0),
+          style: StyleRect,
+          wantsFocus:true,
+        });
+       addAttribs("SimpleTile", Widget.CURRENT, {
+          fill: FillSolid(0xeeeeff,1),
+          line: LineSolid(0,0x8080ff,1),
+        });
       addAttribs("MenuCheckbox", null, {
           filters:null,
           line: LineNone,

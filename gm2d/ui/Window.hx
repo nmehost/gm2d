@@ -20,10 +20,10 @@ class Window extends Widget
       removeEventListener(MouseEvent.MOUSE_MOVE, windowMouseMove);
    }
 
-   public function getWidgetList() : Array<Widget>
+   public function getWidgetList(?base:Widget) : Array<Widget>
    {
       var result = new Array<Widget>();
-      Widget.getWidgetsRecurse(this,result);
+      Widget.getWidgetsRecurse(base==null ? this : base,result);
       return result;
    }
 
@@ -86,24 +86,73 @@ class Window extends Widget
 
 
       var code = event.keyCode;
-      var dir = 0;
-      if (code == Keyboard.DOWN || code==Keyboard.RIGHT || (code==Keyboard.TAB && !event.shiftKey) )
-         dir = 1;
-      else if (code==Keyboard.UP || code==Keyboard.LEFT || code==Keyboard.TAB)
-         dir = -1;
+      var dx = 0;
+      var dy = 0;
 
-      if (dir!=0)
+      if (code == Keyboard.DOWN)
+         dy = 1;
+      else if (code == Keyboard.UP)
+         dy = -1;
+      else if (code == Keyboard.LEFT)
+         dx = -1;
+      else if (code == Keyboard.RIGHT)
+         dx = 1;
+
+      if (dx!=0 || dy!=0)
       {
-         var items = getWidgetList();
-         var l = items.length;
-         if (l>0)
+         if (mCurrent==null || mCurrent.stage==null)
          {
-            var index = 0;
-            for(i in 0...l)
-               if (mCurrent==items[i])
-                  index = i;
-            setCurrentItem( items[ (index+dir+l ) % l ] );
+            var items = getWidgetList();
+            if (items.length>0)
+               setCurrentItem( items[0] );
          }
+         else
+         {
+            var p00 = new nme.geom.Point(0,0);
+            var pos = mCurrent.localToGlobal(p00);
+
+            var bestSibling:Widget = null;
+            var scoreSibling = 0.0;
+            var best:Widget = null;
+            var score = 0.0;
+
+            for(widget in getWidgetList())
+            {
+               if (widget==mCurrent)
+                  continue;
+               var p = widget.localToGlobal(p00);
+               var dpx = p.x-pos.x;
+               var dpy = p.y-pos.y;
+             
+               if (dpx*dx>=0 && dpy*dy>=0 && ( dpx*dx>0 || dpy*dy>0 ) )
+               {
+                  // TODO - better sibling logic...
+                  var dist = Math.sqrt(dpx*dpx*(Math.abs(dx)+0.01) + dpy*dpy*(Math.abs(dy)+0.1));
+                  if (best==null || dist<score)
+                  {
+                     best = widget;
+                     score = dist;
+                  }
+                  var sharesParent = false;
+                  var p = widget.parent;
+                  while(p!=this && p!=null && !sharesParent)
+                  {
+                     sharesParent = p==mCurrent.parent;
+                     p = p.parent;
+                  }
+                  if (sharesParent && (bestSibling==null || dist<scoreSibling))
+                  {
+                     bestSibling = widget;
+                     scoreSibling = dist;
+                  }
+               }
+            }
+            if (bestSibling!=null)
+               setCurrentItem(bestSibling);
+            else if (best!=null)
+               setCurrentItem(best);
+         }
+
       }
 
       if (mCurrent!=null)
