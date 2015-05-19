@@ -41,7 +41,6 @@ class Button extends Control
       noFocus = false;
       mouseChildren = false;
       isToggle = attribBool("toggle",false);
-      addEventListener(MouseEvent.CLICK, onClick );
       addEventListener(MouseEvent.MOUSE_DOWN, onDown );
       addEventListener(MouseEvent.MOUSE_UP, onUp );
 
@@ -107,13 +106,15 @@ class Button extends Control
       return new Button(null,inOnClick,inLineage,inAttribs);
    }
 
-   function onClick(e:MouseEvent)
+   override function widgetClick(e:MouseEvent)
    {
       if (mouseHandler!=null && !mouseHandler(name,e))
          return;
       if (mCallback!=null && !isToggle)
          mCallback();
    }
+
+
    function onDown(e:MouseEvent)
    {
       if (mouseHandler!=null && !mouseHandler(name,e))
@@ -242,24 +243,21 @@ class Button extends Control
    }
 */
 
-   override public function activate(inDirection:Int)
+   override public function activate()
    {
-      if (inDirection>=0)
+      if (isToggle)
+         set_down(!get_down());
+      if (mCallback!=null)
       {
-        if (isToggle)
-           set_down(!get_down());
-        if (mCallback!=null)
-        {
-           mCallback();
-        }
-        if (mouseHandler!=null)
-        {
-           var fakeEvent = new MouseEvent(MouseEvent.CLICK,true,false,0,0,this);
-           #if !flash
-           fakeEvent.target = this;
-           #end
-           mouseHandler(name,fakeEvent);
-        }
+         mCallback();
+      }
+      if (mouseHandler!=null)
+      {
+         var fakeEvent = new MouseEvent(MouseEvent.CLICK,true,false,0,0,this);
+         #if !flash
+         fakeEvent.target = this;
+         #end
+         mouseHandler(name,fakeEvent);
       }
    }
 }

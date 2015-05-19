@@ -15,6 +15,7 @@ import nme.net.FileFilter;
 
 import nme.display.BitmapData;
 import nme.display.Bitmap;
+import nme.display.DisplayObjectContainer;
 
 import haxe.io.Path;
 
@@ -32,7 +33,7 @@ class FileOpenScreen extends Screen
 {
    var folderIcon:BitmapData;
    var docIcon:BitmapData;
-   var dirButtonContainer:Sprite;
+   var dirButtonContainer:DisplayObjectContainer;
    var dirButtons:Layout;
    var screenLayout:Layout;
    //var list:ListControl;
@@ -99,6 +100,8 @@ class FileOpenScreen extends Screen
       docIcon = new gm2d.icons.Document().toBitmap(Skin.dpiScale);
 
 
+
+
       var top = new VerticalLayout([0,0,1,0,0]);
 
 
@@ -118,6 +121,12 @@ class FileOpenScreen extends Screen
          topRow.add(saveTextInput.getLayout().stretch());
          topRow.setColStretch(1,1);
       }
+
+      var dirButtonBox = new Widget();
+      addChild(dirButtonBox);
+      dirButtonContainer = dirButtonBox;
+
+
 
       if (filterList.length>0)
       {
@@ -146,14 +155,15 @@ class FileOpenScreen extends Screen
 
       dirButtons = new FlowLayout().setSpacing(2,5).setName("dir button").setAlignment(Layout.AlignLeft|Layout.AlignTop).setBorders(5,0,5,0);
 
-      top.add(dirButtons);
+      dirButtonBox.setItemLayout(dirButtons);
+      dirButtonBox.getLayout().setAlignment(Layout.AlignLeft|Layout.AlignTop);
+
+      top.add(dirButtonBox.getLayout());
 
       setDir(inDir,false);
 
       addChild(list);
 
-      list.onSelect = onListSelect;
-      
       var layout = list.getLayout().stretch();
       top.add(layout);
 
@@ -189,16 +199,6 @@ class FileOpenScreen extends Screen
          setDir(dir);
       else
          setDir(baseDir + "/" + dir);
-   }
-
-   public function onListSelect(inRow:Int)
-   {
-      if (inRow<dirs.length)
-      {
-         onDir(dirs[inRow]);
-         return;
-      }
-      onFile(files[inRow-dirs.length]);
    }
 
    function onFile(file:String)
@@ -293,7 +293,7 @@ class FileOpenScreen extends Screen
    function addButton(button:Widget)
    {
       allButtons.push(button);
-      addChild(button);
+      dirButtonContainer.addChild(button);
       dirButtons.add(button.getLayout());
    }
    
@@ -313,7 +313,7 @@ class FileOpenScreen extends Screen
       if (allButtons!=null)
       {
          for(but in allButtons)
-            removeChild(but);
+            but.parent.removeChild(but);
       }
       allButtons = [];
       dirButtons.clear();

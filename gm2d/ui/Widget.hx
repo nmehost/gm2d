@@ -2,6 +2,7 @@ package gm2d.ui;
 
 import nme.display.Sprite;
 import nme.display.DisplayObjectContainer;
+import nme.display.DisplayObject;
 import nme.text.TextField;
 import nme.geom.Point;
 import nme.geom.Rectangle;
@@ -60,6 +61,14 @@ class Widget extends Sprite
       addChild(mChrome);
       wantFocus = attribBool("wantsFocus",false);
       mRect = new Rectangle(0,0,0,0);
+      addEventListener( MouseEvent.CLICK, widgetClick );
+   }
+
+   function widgetClick(e:MouseEvent)
+   {
+      var target:DisplayObject = e.target;
+      if (target==this || target==mChrome)
+         activate();
    }
 
    public static function addLine(inLineage:Array<String>,inClass:String)
@@ -345,14 +354,11 @@ class Widget extends Sprite
 
    // public function layout(inW:Float,inH:Float):Void { }
 
-   public function activate(inDirection:Int)
+   public function activate()
    {
-      if (inDirection==0)
-      {
-         var callback : Void->Void = attrib("onEnter");
-         if (callback!=null)
-            callback();
-      }
+      var callback : Void->Void = attrib("onEnter");
+      if (callback!=null)
+         callback();
    }
 
    public function popup(inPopup:Window,inX:Float,inY:Float)
@@ -394,15 +400,26 @@ class Widget extends Sprite
       {
          state = state ^ CURRENT;
 
+         var lastChild:Widget = this;
          var p = parent;
          while(p!=null)
          {
+            if (Std.is(p,ScrollWidget))
+            {
+               var scroll : ScrollWidget = cast p;
+               scroll.showChild( lastChild );
+            }
+
             if (Std.is(p,Window))
             {
                var window : Window = cast p;
                window.setCurrentItem( inVal ? this : null );
                return inVal;
             }
+
+            if (Std.is(p,Widget))
+               lastChild = cast p;
+
             p = p.parent;
          }
       }

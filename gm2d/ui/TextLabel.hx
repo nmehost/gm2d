@@ -13,6 +13,7 @@ class TextLabel extends Control
    var mText:TextField;
    var mTextLayout:Layout;
    public var isInput(default,null):Bool;
+   public var processSpecial:Bool;
 
    public function new(inVal="",?inLineage:Array<String>, ?inAttribs:{} )
    {
@@ -28,9 +29,12 @@ class TextLabel extends Control
        addChild(mText);
 
        isInput = attribBool("isInput",false);
+       processSpecial = attribBool("processSpecial",false);
 
        if (isInput)
           mText.type = nme.text.TextFieldType.INPUT;
+       else
+          mText.mouseEnabled = false;
        if (mRenderer.getDefaultBool("multiline",false))
           mText.multiline = true;
        mText.text = inVal;
@@ -91,13 +95,19 @@ class TextLabel extends Control
    override public function set_isCurrent(inVal:Bool) : Bool
    {
       super.set_isCurrent(inVal);
-      if (isInput)
-      {
-         if (stage!=null)
-            stage.focus = inVal ? mText : null;
-      }
+      if (!inVal && stage!=null && stage.focus==mText)
+         stage.focus = null;
       return inVal;
    }
+
+   override public function activate()
+   {
+      super.activate();
+
+      if (isInput && stage!=null)
+         stage.focus = mText;
+   }
+
 
    public override function onKeyDown(event:nme.events.KeyboardEvent ) : Bool
    {
@@ -108,9 +118,19 @@ class TextLabel extends Control
       #end
 
       // Let these ones thought to the keeper...
-      if (code==Keyboard.DOWN || code==Keyboard.UP || code==Keyboard.TAB)
-         return false;
-      return true;
+      if (!processSpecial)
+      {
+         if (code==Keyboard.DOWN || code==Keyboard.UP || code==Keyboard.TAB)
+            return false;
+         // Esc/back
+         if ( (code==27 || code==Keyboard.ENTER) && stage!=null && mText!=null && stage.focus==mText)
+         {
+            stage.focus = null;
+            return true;
+         }
+      }
+
+      return stage!=null && stage.focus == mText;
    }
 
 

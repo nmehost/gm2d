@@ -85,6 +85,31 @@ class ScrollWidget extends Control
        scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
    }
 
+   public function showChild(child:DisplayObject)
+   {
+      var targetX = mScrollX;
+      var targetY = mScrollY;
+
+      var x = child.x;
+      var y = child.y;
+      var w = child.width;
+      var h = child.height;
+
+      if (targetX>x)
+         targetX = x;
+      else if ( x+w > targetX+windowWidth )
+         targetX = x+w-windowWidth;
+
+      if (targetY>y)
+         targetY = y;
+      else if ( y+h > targetY+windowHeight )
+         targetX = y+h-windowHeight;
+
+      scrollX = targetX;
+      scrollY = targetY;
+   }
+
+
    function onMouseWheel(event:MouseEvent)
    {
       if (maxScrollY>0 && scrollWheelStep>0)

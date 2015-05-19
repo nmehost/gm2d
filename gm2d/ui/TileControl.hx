@@ -4,8 +4,6 @@ import nme.display.Sprite;
 
 class TileControl extends ScrollWidget
 {
-   public var onSelect:Int->Void;
-
    var columns:Int;
    var inner:Sprite;
    var controlWidth:Float;
@@ -13,10 +11,9 @@ class TileControl extends ScrollWidget
    var holdUpdateCount:Int;
    var items:Array<Widget>;
 
-   public function new(?inOnSelect:Int->Void,?inLineage:Array<String>,?inAttribs:{})
+   public function new(?inLineage:Array<String>,?inAttribs:{})
    {
       super(Widget.addLine(inLineage,"TileControl"), inAttribs);
-      onSelect = inOnSelect;
       columns = attribInt("columns",0);
 
 

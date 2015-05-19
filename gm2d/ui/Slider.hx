@@ -4,6 +4,7 @@ import nme.display.DisplayObject;
 import nme.display.Sprite;
 import nme.events.MouseEvent;
 import nme.text.TextField;
+import nme.ui.Keyboard;
 import nme.geom.Rectangle;
 import gm2d.ui.Layout;
 import gm2d.svg.Svg;
@@ -24,6 +25,7 @@ class Slider extends Control
    public var mX1:Float;
    public var mValue:Float;
    public var mSliderRenderer:gm2d.skin.SliderRenderer;
+   public var isActive:Bool;
 
    public function new(inMin:Float,inMax:Float,inPos:Float,inOnChange:Float->Void )
    {
@@ -38,6 +40,8 @@ class Slider extends Control
 
       mTrack = new Sprite();
       addChild(mTrack);
+
+      isActive = false;
 
       setItemLayout( new Layout() );
 
@@ -59,6 +63,42 @@ class Slider extends Control
       build();
    }
 
+   override public function activate()
+   {
+      isActive = true;
+   }
+
+
+   public override function onKeyDown(event:nme.events.KeyboardEvent ) : Bool
+   {
+      var code: #if flash UInt #else Int #end = event.keyCode;
+
+      if (!isActive)
+         return false;
+
+      if (code==Keyboard.ENTER || code==27)
+      {
+         isActive = false;
+         return true;
+      }
+
+      if (code==Keyboard.LEFT || code==Keyboard.RIGHT)
+      {
+         addDelta(code==Keyboard.LEFT ? -1 : 1);
+         return true;
+      }
+
+      return false;
+   }
+
+
+   override public function set_isCurrent(inVal:Bool) : Bool
+   {
+      if (!inVal)
+         isActive = false;
+      return super.set_isCurrent(inVal);
+   }
+
    function setThumbX(inX:Float)
    {
       inX -= mTrack.x + mX0;
@@ -71,15 +111,21 @@ class Slider extends Control
          setValue( mMin + (mMax-mMin)*inX/len );
    }
 
+   public function addDelta(inDelta:Float)
+   {
+      setValue( mValue + (mMax-mMin) * 0.05 * inDelta );
+   }
+
    function EndMoveSlider()
    {
       mSliding = false;
       stage.removeEventListener(MouseEvent.MOUSE_MOVE, OnMoveSlider);
    }
-   function OnClick(inEvent:MouseEvent) { setThumbX(mouseX); }
+   function OnClick(inEvent:MouseEvent) { setThumbX(mouseX); isActive = true; }
 
    function OnMoveSlider(inEvent:MouseEvent)
    {
+      isActive = true;
       if (!inEvent.buttonDown && mSliding)
          EndMoveSlider();
       else
@@ -107,6 +153,11 @@ class Slider extends Control
 
    function setValue(inPos:Float)
    {
+      if (inPos<mMin)
+         inPos = mMin;
+      else if (inPos>mMax)
+         inPos  =  mMax;
+
       setValueQuiet(inPos);
       if (mCallback!=null)
          mCallback(inPos);

@@ -1,6 +1,7 @@
 package gm2d.ui;
 
 import nme.events.MouseEvent;
+import nme.display.DisplayObjectContainer;
 import nme.ui.Keyboard;
 
 class Window extends Widget
@@ -20,7 +21,7 @@ class Window extends Widget
       removeEventListener(MouseEvent.MOUSE_MOVE, windowMouseMove);
    }
 
-   public function getWidgetList(?base:Widget) : Array<Widget>
+   public function getWidgetList(?base:DisplayObjectContainer) : Array<Widget>
    {
       var result = new Array<Widget>();
       Widget.getWidgetsRecurse(base==null ? this : base,result);
@@ -111,46 +112,42 @@ class Window extends Widget
             var p00 = new nme.geom.Point(0,0);
             var pos = mCurrent.localToGlobal(p00);
 
-            var bestSibling:Widget = null;
-            var scoreSibling = 0.0;
-            var best:Widget = null;
-            var score = 0.0;
+            var nextCurrent:Widget = null;
 
-            for(widget in getWidgetList())
+            var commonParent = mCurrent.parent;
+            var closest = 0.0;
+
+            while(commonParent != null)
             {
-               if (widget==mCurrent)
-                  continue;
-               var p = widget.localToGlobal(p00);
-               var dpx = p.x-pos.x;
-               var dpy = p.y-pos.y;
-             
-               if (dpx*dx>=0 && dpy*dy>=0 && ( dpx*dx>0 || dpy*dy>0 ) )
+               for(widget in getWidgetList(commonParent))
                {
-                  // TODO - better sibling logic...
-                  var dist = Math.sqrt(dpx*dpx*(Math.abs(dx)+0.01) + dpy*dpy*(Math.abs(dy)+0.1));
-                  if (best==null || dist<score)
+                  if (widget==mCurrent)
+                     continue;
+                  var p = widget.localToGlobal(p00);
+                  var dpx = p.x-pos.x;
+                  var dpy = p.y-pos.y;
+
+                  if (dpx*dx>=0 && dpy*dy>=0 && ( dpx*dx>0 || dpy*dy>0 ) )
                   {
-                     best = widget;
-                     score = dist;
-                  }
-                  var sharesParent = false;
-                  var p = widget.parent;
-                  while(p!=this && p!=null && !sharesParent)
-                  {
-                     sharesParent = p==mCurrent.parent;
-                     p = p.parent;
-                  }
-                  if (sharesParent && (bestSibling==null || dist<scoreSibling))
-                  {
-                     bestSibling = widget;
-                     scoreSibling = dist;
+                     var dist = Math.sqrt(dpx*dpx*(Math.abs(dx)+0.001) +
+                                          dpy*dpy*(Math.abs(dy)+0.001));
+                     if (nextCurrent==null || dist<closest)
+                     {
+                        nextCurrent = widget;
+                        closest = dist;
+                     }
                   }
                }
+
+               if (nextCurrent!=null)
+                  break;
+               if (commonParent==this)
+                  break;
+               commonParent = commonParent.parent;
             }
-            if (bestSibling!=null)
-               setCurrentItem(bestSibling);
-            else if (best!=null)
-               setCurrentItem(best);
+
+            if (nextCurrent!=null)
+               setCurrentItem(nextCurrent);
          }
 
       }
@@ -159,7 +156,7 @@ class Window extends Widget
       {
           if (code==Keyboard.ENTER)
           {
-             mCurrent.activate(0);
+             mCurrent.activate();
              return true;
           }
       }

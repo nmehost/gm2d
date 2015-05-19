@@ -549,7 +549,15 @@ class Game
       if (toggleFullscreenOnAltEnter && event.keyCode==13 && event.altKey)
          toggleFullscreen();
 
-      if (mapEscapeToBack && event.keyCode==27 )
+      var used = false;
+      if (mCurrentDialog!=null)
+          used = mCurrentDialog.onKeyDown(event);
+
+      if (!used && mCurrentScreen!=null)
+         used = mCurrentScreen.onKeyDown(event);
+
+
+      if (!used && mapEscapeToBack && event.keyCode==27 )
       {
          if (mCurrentDialog!=null)
          {
@@ -563,12 +571,6 @@ class Game
          }
       }
 
-      var used = false;
-      if (mCurrentDialog!=null)
-          used = mCurrentDialog.onKeyDown(event);
-
-      if (!used && mCurrentScreen!=null)
-         mCurrentScreen.onKeyDown(event);
 
       mKeyDown[event.keyCode] = true;
    }
