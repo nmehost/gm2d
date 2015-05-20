@@ -26,6 +26,7 @@ class Slider extends Control
    public var mValue:Float;
    public var mSliderRenderer:gm2d.skin.SliderRenderer;
    public var isActive:Bool;
+   var removeStage:DisplayObject;
 
    public function new(inMin:Float,inMax:Float,inPos:Float,inOnChange:Float->Void )
    {
@@ -119,7 +120,11 @@ class Slider extends Control
    function EndMoveSlider()
    {
       mSliding = false;
-      stage.removeEventListener(MouseEvent.MOUSE_MOVE, OnMoveSlider);
+      if (removeStage!=null)
+      {
+         removeStage.removeEventListener(MouseEvent.MOUSE_MOVE, OnMoveSlider);
+         removeStage = null;
+      }
    }
    function OnClick(inEvent:MouseEvent) { setThumbX(mouseX); isActive = true; }
 
@@ -138,7 +143,11 @@ class Slider extends Control
       if (!mSliding)
       {
          mSliding = true;
-         stage.addEventListener(MouseEvent.MOUSE_MOVE, OnMoveSlider);
+         if (stage!=null)
+         {
+            removeStage = stage;
+            removeStage.addEventListener(MouseEvent.MOUSE_MOVE, OnMoveSlider);
+         }
       }
    }
 

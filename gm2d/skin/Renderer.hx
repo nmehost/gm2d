@@ -13,6 +13,7 @@ import nme.text.TextFormat;
 import nme.geom.Point;
 import nme.geom.Rectangle;
 import nme.geom.Matrix;
+import nme.Vector;
 
 import gm2d.ui.Widget;
 import gm2d.ui.WidgetState;
@@ -177,14 +178,14 @@ class Renderer
    }
 
 
-   function setFill(inGraphics:Graphics,rect:Rectangle):Bool
+   public static function setFill(inGraphics:Graphics,inFillStyle:FillStyle):Bool
    {
       var filled = false;
 
-      if (fillStyle!=null)
+      if (inFillStyle!=null)
       {
           filled = true;
-          switch(fillStyle)
+          switch(inFillStyle)
           {
              case FillStyle.FillLight:
                 inGraphics.beginFill(Skin.guiLight);
@@ -223,11 +224,11 @@ class Renderer
       return filled;
    }
 
-   function getLineWidth():Float
+   public static function getLineWidth(inLineStyle:LineStyle):Float
    {
-      if (lineStyle!=null)
+      if (inLineStyle!=null)
       {
-         switch(lineStyle)
+         switch(inLineStyle)
          {
             case LineBorder: return 1;
             case LineSolid( width, rgb, a ): return width;
@@ -237,11 +238,11 @@ class Renderer
       return 0.0;
    }
 
-   function setLine(inGraphics:Graphics,rect:Rectangle):Float
+   public static function setLine(inGraphics:Graphics,inLineStyle:LineStyle):Float
    {
-      if (lineStyle!=null)
+      if (inLineStyle!=null)
       {
-         switch(lineStyle)
+         switch(inLineStyle)
          {
             case LineBorder:
                inGraphics.lineStyle(0, Skin.guiBorder);
@@ -302,6 +303,65 @@ class Renderer
       renderRect(inWidget,gfx,r);
    }
 
+   static var sIndices:Vector<Int>;
+   static function getIndices()
+   {
+      if (sIndices==null)
+      {
+         sIndices = new Vector<Int>(9*2*3);
+         var idx = 0;
+         for(y in 0...3)
+            for(x in 0...3)
+            {
+               sIndices[idx++] = y*4+x;
+               sIndices[idx++] = y*4+x+1;
+               sIndices[idx++] = y*4+x+4;
+
+               sIndices[idx++] = y*4+x+1;
+               sIndices[idx++] = y*4+x+5;
+               sIndices[idx++] = y*4+x+4;
+            }
+      }
+      return sIndices;
+   }
+
+   static function renderScale9(gfx:Graphics, r:Rectangle, bmp:BitmapData, inner:Rectangle, scale:Float)
+   {
+      var w = r.width;
+      var h = r.height;
+      var bmpW = bmp.width;
+      var bmpH = bmp.height;
+
+      if (w<(bmpW-inner.width)*scale && (bmpW>inner.width) )
+         scale = w/(bmpW-inner.width);
+      if (h<(bmpH-inner.height)*scale && (bmpH>inner.height) )
+         scale = h/(bmpH-inner.height);
+
+      var vertices = new Vector<Float>(32);
+      var uvtData = new Vector<Float>(32);
+      var xVals = [ 0.0, inner.left*scale, w-(bmpW-inner.right)*scale, w];
+      var yVals = [ 0.0, inner.top*scale, h-(bmpH-inner.bottom)*scale, h];
+      var uVals = [ 0.0, inner.left/bmpW, inner.right/bmpW, 1.0];
+      var vVals = [ 0.0, inner.top/bmpH, inner.bottom/bmpH, 1.0];
+
+      var vid = 0;
+      for(y in yVals)
+         for(x in xVals)
+         {
+            vertices[vid++] = x + r.left;
+            vertices[vid++] = y + r.top;
+         }
+      var vid = 0;
+      for(v in vVals)
+         for(u in uVals)
+         {
+            uvtData[vid++] = u;
+            uvtData[vid++] = v;
+         }
+      gfx.beginBitmapFill(bmp);
+      gfx.drawTriangles(vertices, getIndices(), uvtData);
+   }
+
 
    public function renderRect(widget:Widget, gfx:Graphics, r:Rectangle)
    {
@@ -312,14 +372,14 @@ class Renderer
       {
          case StyleNone:
          case StyleRect:
-            lineOffset = setLine(gfx,r);
-            filled = setFill(gfx,r);
+            lineOffset = setLine(gfx,lineStyle);
+            filled = setFill(gfx,fillStyle);
             if (lineOffset>0 || filled)
                gfx.drawRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2);
 
          case StyleRoundRect:
-            lineOffset = setLine(gfx,r);
-            filled = setFill(gfx,r);
+            lineOffset = setLine(gfx,lineStyle);
+            filled = setFill(gfx,fillStyle);
             if (lineOffset>0 || filled)
             {
                gfx.drawRoundRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2,
@@ -327,12 +387,12 @@ class Renderer
             }
 
          case StyleUnderlineRect:
-            if (setFill(gfx,r))
+            if (setFill(gfx,fillStyle))
             {
                gfx.drawRect(r.x, r.y, r.width, r.height);
                gfx.endFill();
             }
-            lineOffset = setLine(gfx,r);
+            lineOffset = setLine(gfx,lineStyle);
             if (lineOffset>0)
             {
                gfx.moveTo(r.x+lineOffset, r.y+r.height-lineOffset);
@@ -340,18 +400,30 @@ class Renderer
             }
 
          case StyleRoundRectRad(rad):
-            lineOffset = setLine(gfx,r);
-            filled = setFill(gfx,r);
+            lineOffset = setLine(gfx,lineStyle);
+            filled = setFill(gfx,fillStyle);
             if (lineOffset>0 || filled)
                gfx.drawRoundRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2, rad,rad);
 
          case StyleCustom( render ):
-            lineOffset = setLine(gfx,r);
-            filled = setFill(gfx,r);
+            lineOffset = setLine(gfx,lineStyle);
+            filled = setFill(gfx,fillStyle);
             if (widget==null)
                throw "Invalid custom renderer on non-widget";
             render(widget);
             filled = true;
+
+         case StyleScale9(bmp, inner, scale ):
+            renderScale9(gfx, r, bmp, inner, scale);
+            filled = true;
+
+         case StyleShadowRect(depth):
+            var shadow = ShadowCache.create( lineStyle, fillStyle, depth );
+            if (shadow!=null)
+            {
+               renderScale9(gfx, r, shadow.bmp, shadow.inner, 1.0);
+               filled = true;
+            }
       }
 
       if (lineOffset>0.0 || filled)
@@ -398,7 +470,7 @@ class Renderer
       {
          if (minSize!=null)
             layout.setMinSize( minSize.x, minSize.y );
-         var lineWidth = Std.int(getLineWidth());
+         var lineWidth = Std.int(getLineWidth(lineStyle));
          if (margin!=null)
          {
             layout.setBorders(margin.x+lineWidth, margin.y+lineWidth,

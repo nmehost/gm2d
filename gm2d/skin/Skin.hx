@@ -84,7 +84,7 @@ class Skin
    public static var title_h:Int = 22;
    public static var borders:Int = 3;
 
-   public static var mDrawing:Shape;
+   public static var mDrawing:Sprite;
    public static var mText:TextField;
 
    public static inline var TOOLBAR_GRIP_TOP = 0x0001;
@@ -194,7 +194,7 @@ class Skin
           align: Layout.AlignLeft,
         });
       addAttribs("TextPlaceholder", null, {
-          textColor: 0xa0a0a0,
+         textColor: 0xa0a0a0,
         });
       addAttribs("TextPlaceholderAlways", null, {
           textAlign: "right",
@@ -331,11 +331,12 @@ class Skin
           filters: null,
           fill: FillSolid(0xffffff,1),
           line: LineSolid(0,0xffffff,0),
-          style: StyleRect,
+          style: StyleShadowRect(1),
+          padding: new Rectangle(10,10,20,20),
           wantsFocus:true,
         });
        addAttribs("SimpleTile", Widget.CURRENT, {
-          fill: FillSolid(0xeeeeff,1),
+          style: StyleShadowRect(3),
           line: LineSolid(0,0x8080ff,1),
         });
       addAttribs("MenuCheckbox", null, {
@@ -402,6 +403,8 @@ class Skin
       
       attribs.push( new RenderAttribs(null, inState, inAttribs) );
    }
+
+
 
 
    public static function getIdAttribs(inId:String)
@@ -1088,13 +1091,21 @@ class Skin
 
    static function initGfx()
    {
-      if (mDrawing==null)
-         mDrawing = new Shape();
       if (mText==null)
       {
          mText = new TextField();
          styleLabel(mText);
       }
+
+      if (mDrawing==null)
+         mDrawing = new Sprite();
+      else
+      {
+         mDrawing.graphics.clear();
+         while(mDrawing.numChildren>0)
+            mDrawing.removeChildAt( mDrawing.numChildren-1 );
+      }
+      return mDrawing.graphics;
    }
 
    public static function getMDIClientChrome() { return new Rectangle(0,tabHeight, 0, tabHeight); }
@@ -1194,8 +1205,7 @@ class Skin
       switch(inId)
       {
          case "#checked":
-            var gfx = mDrawing.graphics;
-            gfx.clear();
+            var gfx = initGfx();
             gfx.lineStyle(4,0x00ff00);
             gfx.moveTo(4,16);
             gfx.lineTo(8,20);
@@ -1205,8 +1215,7 @@ class Skin
             result.push( new RenderAttribs(null, null, { icon:bmp } ) );
 
          case "#unchecked":
-            var gfx = mDrawing.graphics;
-            gfx.clear();
+            var gfx = initGfx();
             gfx.lineStyle(4,0xff0000);
             gfx.moveTo(8,8);
             gfx.lineTo(16,16);
