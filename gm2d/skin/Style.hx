@@ -13,7 +13,7 @@ enum Style
    StyleRoundRect;
    StyleRoundRectRad(inRad:Float);
    StyleScale9(bmp:BitmapData, inner:Rectangle, edgeScale:Float);
-   StyleShadowRect(depth:Float);
+   StyleShadowRect(depth:Float,flags:Int);
    StyleCustom( renderer:Widget->Void );
 }
 

@@ -231,7 +231,7 @@ class Renderer
          switch(inLineStyle)
          {
             case LineBorder: return 1;
-            case LineSolid( width, rgb, a ): return width;
+            case LineSolid( width, rgb, a ): return width==0 ? 1 : width;
             default:
          }
       }
@@ -417,8 +417,8 @@ class Renderer
             renderScale9(gfx, r, bmp, inner, scale);
             filled = true;
 
-         case StyleShadowRect(depth):
-            var shadow = ShadowCache.create( lineStyle, fillStyle, depth );
+         case StyleShadowRect(depth,flags):
+            var shadow = ShadowCache.create( lineStyle, fillStyle, depth, flags );
             if (shadow!=null)
             {
                renderScale9(gfx, r, shadow.bmp, shadow.inner, 1.0);

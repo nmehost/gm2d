@@ -331,14 +331,24 @@ class Skin
           filters: null,
           fill: FillSolid(0xffffff,1),
           line: LineSolid(0,0xffffff,0),
-          style: StyleShadowRect(1),
+          style: StyleShadowRect(1,0),
           padding: new Rectangle(10,10,20,20),
           wantsFocus:true,
         });
        addAttribs("SimpleTile", Widget.CURRENT, {
-          style: StyleShadowRect(3),
+          style: StyleShadowRect(3,0),
           line: LineSolid(0,0x8080ff,1),
         });
+       addAttribs("AppBar", null, {
+          filters: null,
+          fill: FillSolid(0xffffff,1),
+          line: LineNone,
+          style: StyleShadowRect(2, ShadowFlags.BottomOnly),
+          padding: new Rectangle(0,0,0,6),
+          align:Layout.AlignTop,
+          wantsFocus:false,
+        });
+ 
       addAttribs("MenuCheckbox", null, {
           filters:null,
           line: LineNone,

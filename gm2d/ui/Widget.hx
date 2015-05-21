@@ -71,6 +71,15 @@ class Widget extends Sprite
          activate();
    }
 
+   public function addWidget(inWidget:Widget) : Widget
+   {
+      addChild(inWidget);
+      var layout = getItemLayout();
+      if (layout!=null)
+         layout.add(inWidget.getLayout());
+      return this;
+   }
+
    public static function addLine(inLineage:Array<String>,inClass:String)
    {
       return inLineage==null ? [inClass] : inLineage.concat([inClass]);
