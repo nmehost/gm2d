@@ -168,7 +168,12 @@ class Widget extends Sprite
       return val==null ? inDefault : val;
    }
 
-   public function getLayout() { return mLayout; }
+   public function getLayout() : Layout
+   {
+      if (mLayout==null)
+         build();
+      return mLayout;
+   }
 
    public function build()
    {
