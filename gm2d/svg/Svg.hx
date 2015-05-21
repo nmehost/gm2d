@@ -276,7 +276,7 @@ class Svg extends Group
 
    function loadColourStyle(inKey:String,inStyle:Style, inDefault:Int)
    {
-      var s = inStyle.exists(inKey) ? inStyle.get(inKey) : "";
+      var s = inStyle!=null && inStyle.exists(inKey) ? inStyle.get(inKey) : "";
       
       if (s=="")
          return inDefault;
