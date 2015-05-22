@@ -3,6 +3,7 @@ package gm2d;
 import gm2d.Game;
 import gm2d.ui.Dialog;
 import gm2d.ui.Widget;
+import gm2d.ui.Layout;
 import nme.events.MouseEvent;
 import nme.events.KeyboardEvent;
 import nme.ui.Keyboard;
@@ -17,7 +18,6 @@ class Screen extends gm2d.ui.Window
    {
 	   Game.create();
       mPaused = false;
-      name = "Screen";
       timeline = new Timeline();
       super(Widget.addLine(inLineage,"Screen"),inAttribs);
    }
@@ -25,6 +25,12 @@ class Screen extends gm2d.ui.Window
    public function makeCurrent()
    {
       Game.setCurrentScreen(this);
+   }
+
+   override public function build()
+   {
+      super.build();
+      makeCurrent();
    }
 
 
@@ -60,11 +66,21 @@ class Screen extends gm2d.ui.Window
 
    function isDown(inCode:Int) { return Game.isDown(inCode); }
 
+   override public function setItemLayout(inLayout:Layout,inStretch:Bool=true)
+   {
+      var layout = super.setItemLayout(inLayout, inStretch);
+      mLayout.setMinSize(Game.screenWidth, Game.screenHeight);
+      return layout;
+   }
+
 
    public function scaleScreen(inScale:Float)
    {
       if (mLayout!=null)
+      {
+         mLayout.setMinSize(Game.screenWidth, Game.screenHeight);
          mLayout.setRect(0,0, Game.screenWidth, Game.screenHeight );
+      }
    }
 
 }

@@ -281,6 +281,10 @@ class Skin
           align: Layout.AlignStretch,
           minItemSize: new Size(scale(100),scale(20)),
         });
+      addAttribs("Stretch", null, {
+          align: Layout.AlignStretch,
+          itemAlign: Layout.AlignStretch,
+        });
       addAttribs("VLine", null, {
           align: Layout.AlignStretch,
           itemAlign: Layout.AlignStretch | Layout.AlignCenterX,

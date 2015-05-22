@@ -77,6 +77,8 @@ class Widget extends Sprite
       var layout = getItemLayout();
       if (layout!=null)
          layout.add(inWidget.getLayout());
+      else
+         setItemLayout(inWidget.getLayout(),true);
       return this;
    }
 

@@ -303,6 +303,33 @@ class Game
       }
    }
 
+
+   public static function removeTween(inName:String)
+   {
+      if (mCurrentScreen!=null)
+         mCurrentScreen.timeline.remove(inName);
+   }
+
+   public static function tween(inName:String,inVal0:Float,inVal1:Float,
+                     inSeconds:Float,
+                     inOnUpdate:Float->Void,
+                     ?inOnComplete:Void->Void,
+                     ?inEasing:Float->Float )
+   {
+      if (mCurrentScreen!=null)
+      {
+         mCurrentScreen.timeline.createTween(inName, inVal0, inVal1,
+             inSeconds, inOnUpdate, inOnComplete, inEasing );
+      }
+      else
+      {
+         inOnUpdate(inVal1);
+         if (inOnComplete!=null)
+            inOnComplete();
+      }
+   }
+
+
    public static function layoutScreen()
    {
       if (mCurrentScreen!=null)

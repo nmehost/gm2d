@@ -87,8 +87,8 @@ class ScrollWidget extends Control
 
    public function showChild(child:DisplayObject)
    {
-      var targetX = mScrollX;
-      var targetY = mScrollY;
+      var targetX = scrollX;
+      var targetY = scrollY;
 
       var x = child.x;
       var y = child.y;
@@ -105,8 +105,7 @@ class ScrollWidget extends Control
       else if ( y+h > targetY+windowHeight )
          targetX = y+h-windowHeight;
 
-      scrollX = targetX;
-      scrollY = targetY;
+      scrollTo(targetX, targetY, 0.5);
    }
 
 
@@ -142,7 +141,7 @@ class ScrollWidget extends Control
        mDownScrollY= mScrollY;
        speedX.clear();
        speedY.clear();
-       gm2d.Game.screen.timeline.remove(name);
+       gm2d.Game.removeTween(name);
    }
    function removeStageListeners()
    {
@@ -208,6 +207,29 @@ class ScrollWidget extends Control
          onClick(ev);
    }
 
+   public function scrollTo(inX:Float, inY:Float, inSeconds:Float = 0)
+   {
+      Game.removeTween(name);
+      var x0:Float = get_scrollX();
+      var y0:Float = get_scrollY();
+
+
+      if (inSeconds==0)
+      {
+         scrollX = inX;
+         scrollY = inY;
+      }
+      else
+      {
+         Game.tween(name,0,1, inSeconds,
+           function(t) {
+              scrollX = x0+(inX-x0)*t;
+              scrollY = x0+(inY-y0)*t;
+           },  Tween.DECELERATE );
+       }
+   }
+
+
    function onStageUp(ev:MouseEvent)
    {
       if (!mScrolling)
@@ -217,6 +239,7 @@ class ScrollWidget extends Control
       }
       else
       {
+         Game.removeTween(name);
          if (speedX.isValid)
          {
             var pixels_per_second = speedX.mean;
@@ -224,7 +247,7 @@ class ScrollWidget extends Control
             var time = Math.abs(pixels_per_second/viscousity);
             var dest = 0.5*pixels_per_second*time;
     
-            gm2d.Game.screen.timeline.createTween(name,mScrollX,mScrollX-dest, time,
+            gm2d.Game.tween(name,mScrollX,mScrollX-dest, time,
                 function(x) scrollX = x, finishScroll, Tween.DECELERATE );
          }
          if (speedY.isValid)
@@ -234,7 +257,7 @@ class ScrollWidget extends Control
             var time = Math.abs(pixels_per_second/viscousity);
             var dest = 0.5*pixels_per_second*time;
     
-            gm2d.Game.screen.timeline.createTween(name,mScrollY,mScrollY-dest, time,
+            gm2d.Game.tween(name,mScrollY,mScrollY-dest, time,
                 function(y) scrollY = y, finishScroll, Tween.DECELERATE );
          }
          if (!speedX.isValid && !speedY.isValid)
@@ -247,7 +270,7 @@ class ScrollWidget extends Control
       //if (mScrolling) trace("Scrolling done");
       mScrolling = false;
    }
-   public function get_scrollX() { return mScrollX; }
+   public function get_scrollX() : Float{ return mScrollX; }
    public function set_scrollX(val:Float) : Float
    {
       mScrollX = val;
