@@ -14,11 +14,13 @@ class Window extends Widget
       super(Widget.addLine(inLineage,"Window"), inAttribs);
       mCurrent = null;
       addEventListener(MouseEvent.MOUSE_MOVE, windowMouseMove);
+      addEventListener(MouseEvent.MOUSE_DOWN, currentFromMouse);
    }
 
    public function destroy()
    {
       removeEventListener(MouseEvent.MOUSE_MOVE, windowMouseMove);
+      removeEventListener(MouseEvent.MOUSE_DOWN, currentFromMouse);
    }
 
    public function getWidgetList(?base:DisplayObjectContainer) : Array<Widget>
@@ -43,23 +45,26 @@ class Window extends Widget
        }
    }
 
+   function currentFromMouse(inEvent:MouseEvent)
+   {
+      var target:nme.display.DisplayObject = inEvent.target;
+      while(target!=null && target!=this)
+      {
+         if (Std.is(target,Widget))
+         {
+             var widget:Widget = cast target;
+             if (widget.wantsFocus())
+                setCurrentItem(widget);
+             return;
+         }
+         target = target.parent;
+      }
+   }
+
    function windowMouseMove(inEvent:MouseEvent)
    {
       if (!inEvent.buttonDown)
-      {
-         var target:nme.display.DisplayObject = inEvent.target;
-         while(target!=null && target!=this)
-         {
-            if (Std.is(target,Widget))
-            {
-                var widget:Widget = cast target;
-                if (widget.wantsFocus())
-                   setCurrentItem(widget);
-                return;
-            }
-            target = target.parent;
-         }
-      }
+         currentFromMouse(inEvent);
    }
 
 

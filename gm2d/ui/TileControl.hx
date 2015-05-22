@@ -37,6 +37,18 @@ class TileControl extends ScrollWidget
 
    public function layoutControl(inX:Float, inY:Float, inW:Float, inH:Float)
    {
+      var columnWidth = attribFloat("columnWidth",0);
+      if (columnWidth>0)
+      {
+         columns = Std.int( controlWidth/gm2d.skin.Skin.scale(columnWidth) );
+         if (columns<1)
+            columns = 1;
+      }
+      else
+      {
+         columns = attribInt("columns",0);
+      }
+
       inner.x = inX;
       inner.y = inY;
       controlWidth = inW;
@@ -135,12 +147,35 @@ class TileControl extends ScrollWidget
       }
       else
       {
+         var colSize = Std.int(controlWidth/columns);
+
+         var rows = Std.int( (items.length+columns-1)/columns );
+         var y = 0.0;
+         for(r in 0...rows)
+         {
+            var rowHeight = 0.0;
+            for(col in 0...columns)
+            {
+               var idx = r*columns + col;
+               var item = items[idx];
+               if (item!=null)
+                  rowHeight = Math.max(rowHeight,item.getLayout().getBestHeight(colSize));
+            }
+
+            for(col in 0...columns)
+            {
+               var idx = r*columns + col;
+               var item = items[idx];
+               if (item!=null)
+               {
+                  item.align( col*colSize, y, colSize, rowHeight );
+               }
+            }
+            y+=rowHeight;
+         }
+         setScrollRange(controlWidth, controlWidth, y,controlHeight);
       }
-
    }
-
-   
-
 
 }
 

@@ -57,6 +57,7 @@ class ScrollWidget extends Control
       speedY = new TimeAverage(0.2);
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
       addEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
+      addEventListener(MouseEvent.CLICK,onScrollClick,true);
    }
 
 
@@ -68,6 +69,16 @@ class ScrollWidget extends Control
       result.build();
       return result;
    }
+
+   function onScrollClick(e:MouseEvent)
+   { 
+      if (mScrolling)
+      {
+         // Absorb the click
+         e.stopPropagation();
+      }
+   }
+
 
    public function setScrollRange(inControlWidth:Float, inWindowWidth:Float,
                            inControlHeight:Float, inWindowHeight:Float)
@@ -103,7 +114,7 @@ class ScrollWidget extends Control
       if (targetY>y)
          targetY = y;
       else if ( y+h > targetY+windowHeight )
-         targetX = y+h-windowHeight;
+         targetY = y+h-windowHeight;
 
       scrollTo(targetX, targetY, 0.5);
    }
@@ -223,8 +234,8 @@ class ScrollWidget extends Control
       {
          Game.tween(name,0,1, inSeconds,
            function(t) {
-              scrollX = x0+(inX-x0)*t;
-              scrollY = x0+(inY-y0)*t;
+              scrollX = Std.int(x0+(inX-x0)*t);
+              scrollY = Std.int(y0+(inY-y0)*t);
            },  Tween.DECELERATE );
        }
    }
@@ -307,7 +318,8 @@ class ScrollWidget extends Control
       var p1 = scrollTarget.globalToLocal(pos);
       var dx = p1.x-p0.x;
       var dy = p1.y-p0.y;
-      if (!mScrolling && (Math.abs(dx)>10 || Math.abs(dy)>10))
+      var close = gm2d.skin.Skin.scale(10.0);
+      if (!mScrolling && (Math.abs(dx)>close || Math.abs(dy)>close))
       {
          mScrolling = true;
       }

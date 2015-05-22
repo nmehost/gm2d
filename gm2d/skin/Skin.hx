@@ -406,6 +406,8 @@ class Skin
 
    public static function scale(inVal:Float):Int
    {
+      if (dpiScale==0)
+         dpiScale = nme.ui.Scale.getFontScale();
       return Std.int(inVal*dpiScale);
    }
 
