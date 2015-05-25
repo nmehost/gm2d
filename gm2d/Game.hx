@@ -573,6 +573,8 @@ class Game
 
    static function onKeyDown(event:KeyboardEvent )
    {
+      mKeyDown[event.keyCode] = true;
+
       if (toggleFullscreenOnAltEnter && event.keyCode==13 && event.altKey)
          toggleFullscreen();
 
@@ -587,36 +589,43 @@ class Game
          used = mCurrentScreen.onKeyDown(event);
 
 
-      if (!used && mapEscapeToBack && event.keyCode==27 )
+   }
+
+   static function onKeyUp(event:KeyboardEvent )
+   {
+      mKeyDown[event.keyCode] = false;
+
+      var used = false;
+      //if (mCurrentDialog!=null) mCurrentDialog.onKeyUp(event); else
+
+
+      if (mapEscapeToBack && event.keyCode==27 )
       {
          if (mCurrentPopup!=null)
          {
             closePopup();
+            event.stopPropagation();
             return;
          }
          else if (mCurrentDialog!=null)
          {
             mCurrentDialog.goBack();
+            event.stopPropagation();
             return;
          }
          else if (mCurrentScreen!=null)
          {
             if (mCurrentScreen.goBack())
+            {
+               event.stopPropagation();
                return;
+            }
          }
       }
-
-
-      mKeyDown[event.keyCode] = true;
-   }
-
-   static function onKeyUp(event:KeyboardEvent )
-   {
-      //if (mCurrentDialog!=null) mCurrentDialog.onKeyUp(event); else
-      if (mCurrentScreen!=null)
+      else if (mCurrentScreen!=null)
          mCurrentScreen.onKeyUp(event);
 
-      mKeyDown[event.keyCode] = false;
+
    }
 
 
