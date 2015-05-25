@@ -577,7 +577,10 @@ class Game
          toggleFullscreen();
 
       var used = false;
-      if (mCurrentDialog!=null)
+      if (mCurrentPopup!=null)
+          used = mCurrentPopup.onKeyDown(event);
+
+      if (!used && mCurrentDialog!=null)
           used = mCurrentDialog.onKeyDown(event);
 
       if (!used && mCurrentScreen!=null)
@@ -586,7 +589,12 @@ class Game
 
       if (!used && mapEscapeToBack && event.keyCode==27 )
       {
-         if (mCurrentDialog!=null)
+         if (mCurrentPopup!=null)
+         {
+            closePopup();
+            return;
+         }
+         else if (mCurrentDialog!=null)
          {
             mCurrentDialog.goBack();
             return;
@@ -717,14 +725,21 @@ class Game
    }
 
 
-   public static function popup(inPopup:Window,inX:Float,inY:Float)
+   public static function popup(inPopup:Window,?inX:Float,?inY:Float, ?inOnClosePopup:Void->Void)
    {
        closePopup();
+
+       onClosePopup = inOnClosePopup;
        mCurrentPopup = inPopup;
        mPopupParent.addChild(inPopup);
        var rect = inPopup.scrollRect;
        var w = inPopup.getWindowWidth();
        var h = inPopup.getWindowHeight();
+       if (inX==null)
+          inX = Std.int( (stageWidth()-w) * 0.5 );
+       if (inY==null)
+          inY = Std.int( (stageHeight()-h) * 0.5 );
+
        var pos = mPopupParent.localToGlobal( new Point(inX+w,inY+h) );
        if (pos.x>mPopupParent.stage.stageWidth)
           inX -= (pos.x-stageWidth()) / mPopupParent.scaleX;
@@ -736,6 +751,7 @@ class Game
           inX += -pos.x/mPopupParent.scaleX;
        if (pos.y<0)
           inY += -pos.y/mPopupParent.scaleY;
+
        inPopup.x = inX;
        inPopup.y = inY;
 
