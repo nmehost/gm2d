@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+  
+  <meta
+     title="WWX 2015"
+     package="com.gamehaxe.wwx2015"
+     version="1.0.0"
+     company="Hugh Sanderson" 
+  />
+  
+  <app
+     file="Wwx2015" 
+     main="Wwx2015"
+  />
+  
+  <window
+     width="640" 
+     height="480" 
+     orientation="landscape" 
+     fps="60"
+     background="0x000000"
+     require_shaders="true"
+     resizable="true"
+     hardware="true"
+  />
+
+  <staticlink value="true" />
+  
+  <icon name="icon.svg" />
+
+  <assets embed="true">
+     <image name="Blobs.png"/>
+     <image name="Bullet.png"/>
+     <image name="VmVmVm.jpg"/>
+     <image name="TestScreen.png"/>
+  </assets>
+  <lib name="gm2d" />
+  <haxelib name="nme" />
+  
+</project>
