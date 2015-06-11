@@ -387,6 +387,11 @@ class BorderLayout extends Layout
 
    override public function findTextLayout() : TextLayout  { return mBase.findTextLayout(); }
 
+   public function setItemLayout(inItemLayout:Layout)
+   {
+      mBase = inItemLayout;
+      return this;
+   }
 
    override public function getDisplayObject() : DisplayObject { return mBase.getDisplayObject(); }
 

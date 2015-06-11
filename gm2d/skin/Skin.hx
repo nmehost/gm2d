@@ -387,6 +387,14 @@ class Skin
           filters: null,
         });
 
+      addAttribs("WidgetDrawer", null, {
+          filters: null,
+          fill: FillSolid(0xffffff,1),
+          line: LineSolid(0,0x0000ff,0),
+          style: StyleShadowRect(3,0),
+         } );
+
+
       addAttribs("NoFilters", null, {
           filters: null,
           chromeFilters: null,

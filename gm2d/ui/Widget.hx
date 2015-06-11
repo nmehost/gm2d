@@ -133,8 +133,15 @@ class Widget extends Sprite
       mItemLayout = inLayout;
       if (inStretch)
          mItemLayout.stretch();
-      mLayout = new BorderLayout(mItemLayout,true);
-      mLayout.onLayout = onLayout;
+      if (mLayout==null)
+      {
+         mLayout = new BorderLayout(mItemLayout,true);
+         mLayout.onLayout = onLayout;
+      }
+      else
+      {
+         mLayout.setItemLayout(mItemLayout);
+      }
       return mLayout;
    }
 
@@ -227,6 +234,11 @@ class Widget extends Sprite
 
       var size = mLayout.getBestSize();
       mLayout.setRect(0,0,size.x,size.y);
+   }
+
+   public function setRect(inX:Float, inY:Float, inW:Float, inH:Float)
+   {
+      getLayout().setRect(inX,inY,inW,inH);
    }
 
    public function set_state(inState:Int) : Int
