@@ -1,4 +1,6 @@
 
+* Added wwx2015 sample
+
 3.4
 -------------
 * Added scaling and end condition to Tilemap example

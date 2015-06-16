@@ -2,6 +2,7 @@ import nme.display.Sprite;
 import nme.display.DisplayObject;
 import nme.display.Bitmap;
 import nme.display.BitmapData;
+import nme.display.PixelSnapping;
 import nme.geom.Point;
 import nme.geom.Rectangle;
 import nme.text.TextField;
@@ -393,7 +394,7 @@ class Wwx2015 extends Talk
       var sh = stage.stageHeight;
 
       var bmp = Assets.getBitmapData("TestScreen.png");
-      var bitmap = new Bitmap(bmp,true);
+      var bitmap = new Bitmap(bmp,PixelSnapping.AUTO,true);
       bitmap.scaleX = bitmap.scaleY = sw*0.8/bmp.width;
       addChild(bitmap);
       var bmpLayout = new DisplayLayout(bitmap);
