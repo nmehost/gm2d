@@ -1,0 +1,36 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# compiled haxe code
+*.swf
+*.n
+
+# vi temp
+*.swp
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.ndll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# Untracked directories
+obj/
+Export/
+bin/
+lib/*/
+
+
+# Created files
+
+# Miscellaneous
+all_objs
+*.pdb
+out.txt
+

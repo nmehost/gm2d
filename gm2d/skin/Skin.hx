@@ -253,14 +253,43 @@ class Skin
           bitmap: BitmapFactory(DefaultBitmaps.factory),
           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
         });
+      addAttribs("DockItem", null, {
+          align: Layout.AlignStretch,
+          titleLineage:[ "FrameTitle" ],
+        });
+
       addAttribs("Frame", null, {
           style: StyleRect,
-          fill: FillMedium,
+          //line: LineBorder,
+        });
+
+      addAttribs("FrameTitle", null, {
+          align: Layout.AlignStretch | Layout.AlignCenterY,
+          textAlign: "center",
+          fontSize: scale(14),
+          style: StyleRect,
+          fill: FillSolid(0xf0f0f0,1),
+          padding: new Rectangle(0,scale(4),0,scale(8)),
+          //style: StyleUnderlineRect,
+          //line: LineSolid(2,0x8080ff,1),
+        });
+
+      addAttribs("Tabs", null, {
+          style: StyleRect,
           line: LineBorder,
-          padding: new Rectangle(borders, borders, borders*2, borders*2),
+        });
+
+      addAttribs("TabBox", null, {
+          style: StyleRect,
+          fill: FillDark,
+          align: Layout.AlignStretch | Layout.AlignTop,
+          minItemSize: new Size(20,20),
         });
 
       addAttribs("Dialog", null, {
+          style: StyleRect,
+          line: LineBorder,
+          padding: new Rectangle(borders, borders, borders*2, borders*2),
           chromeFilters: shadowFilters,
           fill: FillSolid(0xffffff,1),
           chromeButtons: [ {id:Resize,
