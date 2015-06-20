@@ -82,6 +82,22 @@ class Widget extends Sprite
       return this;
    }
 
+   public function onChildLayoutChanged()
+   {
+      var obj:DisplayObject = parent;
+      while(obj!=null)
+      {
+         if (Std.is(obj,Widget))
+         {
+            cast(obj,Widget).onChildLayoutChanged();
+            return;
+         }
+         obj = obj.parent;
+      }
+      trace(this);
+      relayout();
+   }
+
    public static function addLine(inLineage:Array<String>,inClass:String)
    {
       return inLineage==null ? [inClass] : inLineage.concat([inClass]);

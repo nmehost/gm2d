@@ -12,26 +12,58 @@ import gm2d.skin.Renderer;
 
 class TabWidget extends Widget
 {
-   var child:Widget;
+   var currentWidget:Widget;
    var widgets:Array<Widget>;
+   var tabBar:Widget;
 
    public function new(inWidgets:Array<Widget>, inCurrent:Widget, ?inLineage:Array<String>, ?inAttribs:{})
    {
       widgets = inWidgets.copy();
-      child = inCurrent;
 
       super(Widget.addLines(inLineage,["Tabs"]), inAttribs);
-      var vlayout = new VerticalLayout();
-      var tabBar = new Widget(["TabBox"]);
+
+      doSetCurrent(inCurrent);
+      build();
+   }
+
+   public function setCurrent(inWidget:Widget)
+   {
+      if (inWidget!=currentWidget)
+      {
+         // TODO - just need to update button states
+         doSetCurrent(inWidget);
+      }
+   }
+
+   override public function addWidget(inWidget:Widget)
+   {
+      widgets.push(inWidget);
+      doSetCurrent(inWidget);
+      onChildLayoutChanged();
+      return this;
+   }
+
+   function doSetCurrent(inWidget:Widget)
+   {
+      if (currentWidget!=null)
+         removeChild(currentWidget);
+
+      if (tabBar!=null)
+         removeChild(tabBar);
+      tabBar = new Widget(["TabBox"]);
       addChild(tabBar);
+
+      currentWidget = inWidget;
+      if (currentWidget!=null)
+          addChild(currentWidget);
 
       var hlayout = new HorizontalLayout();
       var childButton:Widget = null;
+      var allWidgets = new StackLayout();
       for(w in widgets)
       {
-         var button = Button.TextButton(w.name,function() trace("Click") );
-         trace(w.name);
-         if (w==child)
+         var button = Button.TextButton(w.name,function() setCurrent(w) );
+         if (w==currentWidget)
          {
             childButton = button;
             button.down = true;
@@ -39,18 +71,21 @@ class TabWidget extends Widget
          else
             addChild(button);
          hlayout.add( button.getLayout() );
+         allWidgets.add( w.getLayout() );
       }
       if (childButton!=null)
          addChild(childButton);
       tabBar.setItemLayout(hlayout);
       tabBar.build();
 
+      var vlayout = new VerticalLayout();
       vlayout.add(tabBar.getLayout());
 
-      addChild(child);
-      vlayout.add( child.getLayout() );
+      if (currentWidget!=null)
+         addChild(currentWidget);
+
+      vlayout.add(allWidgets);
       setItemLayout(vlayout);
-      build();
    }
 }
 
