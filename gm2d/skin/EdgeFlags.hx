@@ -1,10 +1,12 @@
 package gm2d.skin;
 
-class ShadowFlags
+class EdgeFlags
 {
     public static inline var All  = 0x0000;
 
     public static inline var None  = 0x00ff;
+
+    public static inline var Rect  = 0x0100;
 
     public static inline var TopSolid  = 0x0001;
     public static inline var TopLine   = 0x0002;
@@ -29,6 +31,8 @@ class ShadowFlags
     public static inline var LeftLineOnly   = 0x0059;
     public static inline var RighLinetOnly  = 0x0065;
     public static inline var BottomLineOnly = 0x0095;
+
+    public static inline var AllLines  = 0x00aa;
 }
 
 

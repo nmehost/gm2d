@@ -15,7 +15,7 @@ class RenderAttribs
          attribs.set(key, Reflect.field(inAttribs,key));
    }
 
-   public function matches(inLineage:Array<String>, inState:Int)
+   public function matches(inLine:String, inState:Int)
    {
       if (state!=null)
       {
@@ -25,13 +25,9 @@ class RenderAttribs
             return false;
       }
 
-      if (line==null || inLineage==null)
-         return true;
-      for(l in inLineage)
-         if (l==line)
-             return true;
-      return false;
+      return line==inLine;
    }
+ 
 
    public function merge(map: Map<String, Dynamic>)
    {

@@ -3,6 +3,7 @@ package gm2d.ui;
 import nme.display.Sprite;
 import nme.display.DisplayObjectContainer;
 import nme.display.DisplayObject;
+import nme.display.BitmapData;
 import nme.text.TextField;
 import nme.geom.Point;
 import nme.geom.Rectangle;
@@ -11,6 +12,7 @@ import gm2d.ui.Layout;
 import gm2d.ui.HitBoxes;
 import gm2d.skin.Skin;
 import gm2d.skin.Renderer;
+import gm2d.skin.BitmapStyle;
 
 
 class Widget extends Sprite
@@ -94,7 +96,6 @@ class Widget extends Sprite
          }
          obj = obj.parent;
       }
-      trace(this);
       relayout();
    }
 
@@ -171,6 +172,16 @@ class Widget extends Sprite
       return combinedAttribs.get(inName);
    }
 
+
+   public function attribDynamic(inName:String,inDefault:Dynamic) : Dynamic
+   {
+      var result = combinedAttribs.get(inName);
+      if (result!=null)
+         return result;
+      return inDefault;
+   }
+
+
    public function hasAttrib(inName:String) : Bool
    {
       return combinedAttribs.exists(inName);
@@ -202,6 +213,36 @@ class Widget extends Sprite
       return val==null ? inDefault : val;
    }
 
+   public function getBitmap(inState:Int=0) : BitmapData
+   {
+      var bitmapData:BitmapData = attrib("bitmapData");
+      if (bitmapData!=null)
+         return bitmapData;
+
+      var resourceName:String = attrib("resource");
+      if (resourceName!=null)
+         return nme.Assets.getBitmapData(attrib("resource"));
+
+
+      var bitmapStyle : BitmapStyle = attrib("bitmap");
+      if (bitmapStyle==null)
+         return null;
+
+      switch(bitmapStyle)
+      {
+         case BitmapBitmap(bmBitmapData):
+            // TODO - disable
+            return bmBitmapData;
+         case BitmapFactory(factory):
+            return factory(name,inState);
+         case BitmapAndDisable(bmp,bmpDisabled):
+            return ( (inState&Widget.DISABLED>0) ? bmpDisabled : bmp );
+      }
+ 
+      return null;
+   }
+
+
    public function getLayout() : Layout
    {
       if (mLayout==null)
@@ -221,7 +262,7 @@ class Widget extends Sprite
          var tf = getLabel();
          if (tf!=null)
          {
-            var alternate = mRenderer.getDynamic("alternateText");
+            var alternate:Dynamic = mRenderer.getDynamic("alternateText");
             if (alternate==null)
                alternate =  mRenderer.getDynamic("placeholder");
             var textLayout = alternate==null ? null : mItemLayout.findTextLayout();

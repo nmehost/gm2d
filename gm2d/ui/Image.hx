@@ -13,15 +13,10 @@ class Image extends Control
    public function new(?inBmp:BitmapData, ?inLineage:Array<String>, ?inAttribs:{})
    {
       super(inLineage,inAttribs);
-      var bmp = inBmp;
-      if (bmp==null && hasAttrib("bitmap") )
-         bmp = attrib("bitmap");
-      if (bmp==null && hasAttrib("resource") )
-         bmp = nme.Assets.getBitmapData(attrib("resource"));
-
+      var bmp = inBmp != null ? inBmp : getBitmap();
       if (bmp!=null)
       {
-         var bitmap = new Bitmap(bmp, attribBool("smooth", true));
+         var bitmap = new Bitmap(bmp, nme.display.PixelSnapping.AUTO, attribBool("smooth", true));
          addChild(bitmap);
          setItemLayout( new DisplayLayout(bitmap) );
       }

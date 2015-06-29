@@ -67,7 +67,7 @@ class TabRenderer
 
    public function createTabButton(inId:String)
    {
-      return Button.create(["TabButton", "UiButton"], { id:inId });
+      return Button.create(["UiButton"], { id:inId });
    }
 
    public function renderTabs(inTabContainer:Sprite,

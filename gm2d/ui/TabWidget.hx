@@ -30,8 +30,11 @@ class TabWidget extends Widget
    {
       if (inWidget!=currentWidget)
       {
-         // TODO - just need to update button states
-         doSetCurrent(inWidget);
+         if (currentWidget!=null)
+            removeChild(currentWidget);
+         currentWidget = inWidget;
+         if (currentWidget!=null)
+            addChild(currentWidget);
       }
    }
 
@@ -50,7 +53,8 @@ class TabWidget extends Widget
 
       if (tabBar!=null)
          removeChild(tabBar);
-      tabBar = new Widget(["TabBox"]);
+      var lineage:Array<String> = attribDynamic("tabBoxLineage", ["TabBox"]);
+      tabBar = new Widget(lineage);
       addChild(tabBar);
 
       currentWidget = inWidget;
@@ -58,31 +62,25 @@ class TabWidget extends Widget
           addChild(currentWidget);
 
       var hlayout = new HorizontalLayout();
-      var childButton:Widget = null;
       var allWidgets = new StackLayout();
+      var buttonLineage:Array<String> = attribDynamic("tabButtonLineage",["TabButton"]);
+      var group = new RadioGroup<Widget>(setCurrent);
       for(w in widgets)
       {
-         var button = Button.TextButton(w.name,function() setCurrent(w) );
-         if (w==currentWidget)
-         {
-            childButton = button;
-            button.down = true;
-         }
-         else
-            addChild(button);
+         var ico = nme.Assets.getBitmapData ("hand.png");
+         var button = new Button(buttonLineage, { text:w.name, bitmapData:ico, toggle:true } );
+         group.add(button, w);
+         addChild(button);
          hlayout.add( button.getLayout() );
          allWidgets.add( w.getLayout() );
       }
-      if (childButton!=null)
-         addChild(childButton);
       tabBar.setItemLayout(hlayout);
       tabBar.build();
 
       var vlayout = new VerticalLayout();
       vlayout.add(tabBar.getLayout());
 
-      if (currentWidget!=null)
-         addChild(currentWidget);
+      group.setState(currentWidget);
 
       vlayout.add(allWidgets);
       setItemLayout(vlayout);

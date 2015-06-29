@@ -19,8 +19,6 @@ class RadioGroup<Key>
    }
    public function setState(inKey:Key)
    {
-      if (inKey==current)
-         return;
       current = inKey;
       for(i in 0...keys.length)
       {

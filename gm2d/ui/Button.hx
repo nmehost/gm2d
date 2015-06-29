@@ -28,7 +28,7 @@ class Button extends Control
    var mCurrentDY:Float;
    //public var onCurrentChangedFunc:Bool->Void;
 
-   public function new(inObject:DisplayObject,?inOnClick:Void->Void, ?inLineage:Array<String>, ?inAttribs:{})
+   public function new(?inObject:DisplayObject,?inOnClick:Void->Void, ?inLineage:Array<String>, ?inAttribs:{})
    {
       super( Widget.addLine(inLineage,"Button"), inAttribs);
       var offset = mRenderer.offset;
@@ -44,34 +44,9 @@ class Button extends Control
       addEventListener(MouseEvent.MOUSE_DOWN, onDown );
       addEventListener(MouseEvent.MOUSE_UP, onUp );
 
-      if (mDisplayObj==null)
-      {
-         var bmp:BitmapData = mRenderer.getDynamic("icon");
-         if (bmp!=null)
-            mDisplayObj = new Bitmap(bmp);
-      }
-      if (mDisplayObj==null)
-      {
-         var bmp = mRenderer.getBitmap(name,0);
-         if (bmp!=null)
-            mDisplayObj = mStateBitmap = new Bitmap(bmp);
-      }
-      if (mDisplayObj==null)
-      {
-         var text = attribString("text");
-         if (text!="")
-         {
-            var textField = new TextField();
-            textField.text = text;
-            mDisplayObj = textField;
-         }
-      }
-
-
-      var tf:TextField = null;
-      var layout:Layout = null;
       if (mDisplayObj!=null)
       {
+         var layout:Layout = null;
          addChild(mDisplayObj);
          if ( Std.is(mDisplayObj,TextField))
          {
@@ -85,6 +60,41 @@ class Button extends Control
          }
          layout.mDebugCol = 0x00ff00;
          setItemLayout(layout);
+ 
+      }
+      else
+      {
+         var contents:String = attribString("contents","icon-text");
+         var icon:BitmapData = contents.indexOf("icon")>=0 ? getBitmap(0) : null;
+         var text:String = contents.indexOf("text")>=0 ? attrib("text") : null;
+         var items = (icon!=null ? 1:0) + (text!=null ? 1:0);
+         if (items>0)
+         {
+            var textWidget = (text==null) ? null : new TextLabel(text);
+            var iconWidget = (icon==null) ? null : new Image(icon);
+            if (items==1)
+            {
+               addChild(textWidget!=null ? textWidget : iconWidget);
+               setItemLayout((textWidget!=null ? textWidget : iconWidget).getLayout());
+            }
+            else
+            {
+               addChild(iconWidget);
+               addChild(textWidget);
+               var layout = contents.indexOf("-") >= 0 ? new HorizontalLayout() : new VerticalLayout();
+               if (contents.indexOf("icon")<contents.indexOf("text"))
+               {
+                  layout.add(iconWidget.getLayout().setAlignment(Layout.AlignCenter));
+                  layout.add(textWidget.getLayout().setAlignment(Layout.AlignCenter));
+               }
+               else
+               {
+                  layout.add(textWidget.getLayout().setAlignment(Layout.AlignCenter));
+                  layout.add(iconWidget.getLayout().setAlignment(Layout.AlignCenter));
+               }
+               setItemLayout(layout);
+            }
+         }
       }
 
       build();
@@ -172,6 +182,9 @@ class Button extends Control
                mCurrentDY = dy;
             }
          }
+
+         if (inDown && attribBool("raiseOnDown") && parent!=null)
+            parent.addChild(this);
       }
       return inDown;
    }

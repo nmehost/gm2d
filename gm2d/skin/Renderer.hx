@@ -339,10 +339,10 @@ class Renderer
 
       var vertices = new Vector<Float>(32);
       var uvtData = new Vector<Float>(32);
-      var xVals = [ 0.0, inner.left*scale, w-(bmpW-inner.right)*scale, w];
-      var yVals = [ 0.0, inner.top*scale, h-(bmpH-inner.bottom)*scale, h];
-      var uVals = [ 0.0, inner.left/bmpW, inner.right/bmpW, 1.0];
-      var vVals = [ 0.0, inner.top/bmpH, inner.bottom/bmpH, 1.0];
+      var xVals = [ 0.0, inner.left*scale, w-(bmpW-inner.right)*scale,  w];
+      var yVals = [ 0.0, inner.top*scale,  h-(bmpH-inner.bottom)*scale, h];
+      var uVals = [ 0.0, inner.left/bmpW,  inner.right/bmpW,            1.0];
+      var vVals = [ 0.0, inner.top/bmpH,   inner.bottom/bmpH,           1.0];
 
       var vid = 0;
       for(y in yVals)
@@ -363,8 +363,20 @@ class Renderer
    }
 
 
+   public function isRectRender()
+   {
+      return style!=null && switch(style)
+      {
+         case StyleRect, StyleRoundRect, StyleRoundRectRad(_) : true;
+         default: false;
+      }
+   }
+
    public function renderRect(widget:Widget, gfx:Graphics, r:Rectangle)
    {
+      if (style==null)
+         return;
+
       var lineOffset = 0.0;
       var filled = false;
 
@@ -418,12 +430,29 @@ class Renderer
             filled = true;
 
          case StyleShadowRect(depth,flags):
-            var shadow = ShadowCache.create( lineStyle, fillStyle, depth, flags );
+            var shadow = ShadowCache.create( lineStyle, fillStyle, depth, flags, 0.0 );
             if (shadow!=null)
             {
                renderScale9(gfx, r, shadow.bmp, shadow.inner, 1.0);
                filled = true;
             }
+
+         case StyleRectFlags(flags):
+            var shadow = ShadowCache.create( lineStyle, fillStyle, 0, flags | EdgeFlags.Rect, 0.0 );
+            if (shadow!=null)
+            {
+               renderScale9(gfx, r, shadow.bmp, shadow.inner, 1.0);
+               filled = true;
+            }
+
+         case StyleRoundRectFlags(flags,rad):
+            var shadow = ShadowCache.create( lineStyle, fillStyle, 0, flags | EdgeFlags.Rect, rad );
+            if (shadow!=null)
+            {
+               renderScale9(gfx, r, shadow.bmp, shadow.inner, 1.0);
+               filled = true;
+            }
+
       }
 
       if (lineOffset>0.0 || filled)
@@ -435,6 +464,9 @@ class Renderer
 
    public function getBitmap(inId:String, inState:Int) : BitmapData
    {
+      var icon:BitmapData = getDynamic("icon");
+      if (icon!=null)
+         return icon;
       if (bitmapStyle==null || inId=="" || inId==null)
       {
          return null;
@@ -470,7 +502,8 @@ class Renderer
       {
          if (minSize!=null)
             layout.setMinSize( minSize.x, minSize.y );
-         var lineWidth = Std.int(getLineWidth(lineStyle));
+         var lineWidth = isRectRender() ? Std.int(getLineWidth(lineStyle)) : 0;
+
          if (margin!=null)
          {
             layout.setBorders(margin.x+lineWidth, margin.y+lineWidth,

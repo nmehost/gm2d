@@ -276,15 +276,34 @@ class Skin
 
       addAttribs("Tabs", null, {
           style: StyleRect,
-          line: LineBorder,
+          //line: LineBorder,
+          line: null,
         });
 
       addAttribs("TabBox", null, {
           style: StyleRect,
           fill: FillDark,
           align: Layout.AlignStretch | Layout.AlignTop,
-          minItemSize: new Size(20,20),
         });
+
+
+      addAttribs("TabButton", null, {
+          filters: null,
+          // TODO - solid vs edges vs round
+          style: null,
+          //style: StyleRoundRectFlags(EdgeFlags.BottomSolid,8),
+          line: LineSolid(1,0x000000,1),
+          fill: FillDark,
+          raiseOnDown:true,
+        });
+
+
+      addAttribs("TabButton", Widget.DOWN, {
+          fill: FillSolid(0xffffff,1),
+          style: StyleRoundRectFlags(EdgeFlags.BottomSolid,8),
+        });
+
+
 
       addAttribs("Dialog", null, {
           style: StyleRect,
@@ -376,7 +395,7 @@ class Skin
           filters: null,
           fill: FillSolid(0xffffff,1),
           line: LineNone,
-          style: StyleShadowRect(2, ShadowFlags.BottomOnly),
+          style: StyleShadowRect(2, EdgeFlags.BottomOnly),
           padding: new Rectangle(0,0,0,6),
           align:Layout.AlignTop,
           wantsFocus:false,
@@ -542,18 +561,20 @@ class Skin
    {
        init();
        var map = new Map<String,Dynamic>();
-       for(attrib in attribSet)
-          if (attrib.matches(inLineage,inState))
-          {
-             attrib.merge(map);
-          }
+       var last = inLineage.length;
+       for(lid in 0...inLineage.length+1)
+          for(attrib in attribSet)
+             if (attrib.matches(inLineage[last-lid],inState))
+                attrib.merge(map);
+
        if (inAttribs!=null && Reflect.hasField(inAttribs,"id"))
        {
           var id = Reflect.field(inAttribs,"id");
           var attribs = getIdAttribs(id);
-          for(attrib in attribs)
-              if (attrib.matches(inLineage,inState))
-                 attrib.merge(map);
+          for(lid in 0...inLineage.length+1)
+             for(attrib in attribs)
+                if (attrib.matches(inLineage[last-lid],inState))
+                  attrib.merge(map);
        }
        mergeAttribMap(map,inAttribs);
 
