@@ -346,6 +346,8 @@ class Skin
         });
       addAttribs("Menubar", null, {
           minSize: new Size(0,menuHeight),
+          align: Layout.AlignStretch,
+          itemAlign: Layout.AlignLeft | Layout.AlignCenterY,
           line: LineNone,
           style: StyleCustom(renderMenubar),
         });

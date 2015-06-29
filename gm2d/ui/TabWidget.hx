@@ -67,7 +67,7 @@ class TabWidget extends Widget
       var group = new RadioGroup<Widget>(setCurrent);
       for(w in widgets)
       {
-         var ico = nme.Assets.getBitmapData ("hand.png");
+         var ico = w.getBitmap();
          var button = new Button(buttonLineage, { text:w.name, bitmapData:ico, toggle:true } );
          group.add(button, w);
          addChild(button);
@@ -82,7 +82,7 @@ class TabWidget extends Widget
 
       group.setState(currentWidget);
 
-      vlayout.add(allWidgets);
+      vlayout.add(allWidgets.stretch());
       setItemLayout(vlayout);
    }
 }
