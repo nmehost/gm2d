@@ -9,24 +9,16 @@ import gm2d.skin.Skin;
 import gm2d.ui.WidgetState;
 
 
-class CheckButtons extends ChoiceButtons
+class CheckButtons extends Button
 {
-   var onCheck:Bool->Void;
    public function new(inValue:Bool, inCheck:Bool->Void,?inLineage:Array<String>,?inAttribs:Dynamic)
    {
-      onCheck = inCheck;
-      super(onButton,null,inLineage,inAttribs);
-      add(new Button(null,null,Widget.addLines(inLineage,["ToggleButton","SimpleButton"]),{id:"#checked"}) );
-      add(new Button(null,null,Widget.addLines(inLineage,["ToggleButton","SimpleButton"]),{ id:"#unchecked"} ) );
-
+      super(null,function() inCheck(down),Widget.addLines(inLineage,["CheckButton"]),inAttribs);
       setChecked(inValue);
       build();
    }
-   function onButton(inKey:String) { if (onCheck!=null) onCheck(inKey=="#checked"); }
 
    public function setChecked(inCheck:Bool)
-   {
-      setValue(inCheck?"#checked":"#unchecked");
-   }
+      down = inCheck;
 }
 

@@ -468,9 +468,8 @@ class Renderer
       if (icon!=null)
          return icon;
       if (bitmapStyle==null || inId=="" || inId==null)
-      {
          return null;
-      }
+
       switch(bitmapStyle)
       {
          case BitmapBitmap(bmBitmapData):

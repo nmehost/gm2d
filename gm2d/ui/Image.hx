@@ -9,6 +9,8 @@ import gm2d.skin.Renderer;
 
 class Image extends Control
 {
+   public var bitmapData(get,set):BitmapData;
+   var bitmap:Bitmap;
 
    public function new(?inBmp:BitmapData, ?inLineage:Array<String>, ?inAttribs:{})
    {
@@ -16,11 +18,19 @@ class Image extends Control
       var bmp = inBmp != null ? inBmp : getBitmap();
       if (bmp!=null)
       {
-         var bitmap = new Bitmap(bmp, nme.display.PixelSnapping.AUTO, attribBool("smooth", true));
+         bitmap = new Bitmap(bmp, nme.display.PixelSnapping.AUTO, attribBool("smooth", true));
          addChild(bitmap);
          setItemLayout( new DisplayLayout(bitmap) );
       }
       build();
+   }
+
+   function get_bitmapData() return bitmap==null ? null : bitmap.bitmapData;
+   function set_bitmapData(inData:BitmapData) :BitmapData
+   {
+      if (bitmap!=null)
+         bitmap.bitmapData = inData;
+      return inData;
    }
 }
 

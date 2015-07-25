@@ -112,6 +112,8 @@ class Skin
    public static inline var Remove   = "#remove";
    public static inline var Resize   = "#resize";
  
+   // Other Buttons
+   public static inline var Checkbox   = "#checkbox";
 
 
    public static function init(inForce:Bool = false)
@@ -252,6 +254,13 @@ class Skin
           style: StyleNone,
           bitmap: BitmapFactory(DefaultBitmaps.factory),
           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+        });
+      addAttribs("CheckButton", null, {
+         style: StyleNone,
+         offset: new Point(0,0),
+         toggle: true,
+         id:"#checkbox",
+         bitmap: BitmapFactory(DefaultBitmaps.factory),
         });
       addAttribs("DockItem", null, {
           align: Layout.AlignStretch,
@@ -481,15 +490,13 @@ class Skin
 
 
 
-   public static function getIdAttribs(inId:String)
+   public static function getIdAttribs(inId:String) : AttribSet
    {
-      var attribs = idAttribs.get(inId);
-      if (attribs!=null)
-         return attribs;
+      if (idAttribs.exists(inId))
+         return idAttribs.get(inId);
+      var attribs:AttribSet = null;
       if (resolveAttribs!=null)
           attribs = resolveAttribs(inId);
-      if (attribs==null)
-          attribs = [];
       idAttribs.set(inId, attribs);
       return attribs;
     }
@@ -573,10 +580,16 @@ class Skin
        {
           var id = Reflect.field(inAttribs,"id");
           var attribs = getIdAttribs(id);
-          for(lid in 0...inLineage.length+1)
+          if (attribs!=null)
+          {
              for(attrib in attribs)
-                if (attrib.matches(inLineage[last-lid],inState))
-                  attrib.merge(map);
+                for(lid in 0...inLineage.length+1)
+                   if (attrib.matches(inLineage[last-lid],inState))
+                   {
+                      attrib.merge(map);
+                      break;
+                   }
+          }
        }
        mergeAttribMap(map,inAttribs);
 

@@ -24,6 +24,7 @@ class Button extends Control
    public var mouseHandler : String->MouseEvent->Bool;
    public var mDownDX:Float;
    public var mDownDY:Float;
+   public var iconWidget:Image;
    var mCurrentDX:Float;
    var mCurrentDY:Float;
    //public var onCurrentChangedFunc:Bool->Void;
@@ -71,7 +72,7 @@ class Button extends Control
          if (items>0)
          {
             var textWidget = (text==null) ? null : new TextLabel(text);
-            var iconWidget = (icon==null) ? null : new Image(icon);
+            iconWidget = (icon==null) ? null : new Image(icon);
             if (items==1)
             {
                addChild(textWidget!=null ? textWidget : iconWidget);
@@ -107,6 +108,8 @@ class Button extends Control
    {
       if (mStateBitmap!=null)
          mStateBitmap.bitmapData = mRenderer.getBitmap(name,state);
+      else if (iconWidget!=null)
+         iconWidget.bitmapData = mRenderer.getBitmap(name,state);
       super.redraw();
    }
 

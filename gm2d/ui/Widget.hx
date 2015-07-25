@@ -52,12 +52,12 @@ class Widget extends Sprite
       mAttribs = inAttribs;
       Reflect.setField(this,"state",0);
       mLineage = addLine(inLineage,"Widget");
-      if (mAttribs!=null && Reflect.hasField(inAttribs,"id"))
-         name = Reflect.field(inAttribs,"id");
+      combinedAttribs = Skin.combineAttribs(mLineage, state, inAttribs);
+      if (combinedAttribs.exists("id"))
+         name = combinedAttribs.get("id");
       else
          name = mLineage[0];
 
-      combinedAttribs = Skin.combineAttribs(mLineage, state, inAttribs);
       mRenderer = new Renderer(combinedAttribs);
       mChrome = new Sprite();
       addChild(mChrome);
@@ -218,6 +218,11 @@ class Widget extends Sprite
       var bitmapData:BitmapData = attrib("bitmapData");
       if (bitmapData!=null)
          return bitmapData;
+
+      bitmapData = attrib("icon");
+      if (bitmapData!=null)
+         return bitmapData;
+
 
       var resourceName:String = attrib("resource");
       if (resourceName!=null)
