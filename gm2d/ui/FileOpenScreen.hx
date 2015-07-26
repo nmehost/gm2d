@@ -54,6 +54,8 @@ class FileOpenScreen extends Screen
    var flags:Int;
    var isSave:Bool;
    var saveTextInput:TextInput;
+   var thumbSize:Size;
+   public static var thumbnailFactory:String->Widget->Size->Void;
 
    public function new(inMessage:String,
          inDir:String,
@@ -98,10 +100,8 @@ class FileOpenScreen extends Screen
       onResult = inOnResult;
       folderIcon = new gm2d.icons.Folder().toBitmap(Skin.dpiScale);
       docIcon = new gm2d.icons.Document().toBitmap(Skin.dpiScale);
-
-
-
-
+      thumbSize = new Size(docIcon.width<24 ? 24 : docIcon.width,
+                           docIcon.height<24 ? 24 : docIcon.height );
       var top = new VerticalLayout([0,0,1,0,0]);
 
 
@@ -303,6 +303,10 @@ class FileOpenScreen extends Screen
       widget.getItemLayout().setAlignment( Layout.AlignLeft | Layout.AlignCenterY );
       widget.getLayout().stretch();
       list.add(widget);
+
+      if (icon!=folderIcon && thumbnailFactory!=null)
+         thumbnailFactory(baseDir+"/"+name, widget, thumbSize);
+
       //list.addRow([icon,name]);
    }
 

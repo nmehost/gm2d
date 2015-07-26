@@ -172,6 +172,13 @@ class Widget extends Sprite
       return combinedAttribs.get(inName);
    }
 
+   public function setAttrib(inName:String,inValue:Dynamic) :Void
+   {
+      if (mAttribs==null)
+         mAttribs = {};
+      Reflect.setField(mAttribs,inName,inValue);
+      combinedAttribs.set(inName,inValue);
+   }
 
    public function attribDynamic(inName:String,inDefault:Dynamic) : Dynamic
    {

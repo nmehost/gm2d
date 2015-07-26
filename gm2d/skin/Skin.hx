@@ -171,6 +171,17 @@ class Skin
       addAttribs("ToggleButton", null, {
          offset: new Point(0,0)
         });
+      addAttribs("BMPTextButton", null, {
+          style: StyleRoundRect,
+          fill: FillLight,
+          line: LineBorder,
+          contents:"icon-text",
+          textAlign: "center",
+          itemAlign: Layout.AlignCenter,
+          padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
+          offset: new Point(scale(1),scale(1)),
+        });
+
       addAttribs("Control", null, {
          wantsFocus: true
         });

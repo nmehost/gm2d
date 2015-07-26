@@ -232,20 +232,8 @@ class Button extends Control
 
    public static function BMPTextButton(inBitmapData:BitmapData,inText:String, ?inOnClick:Void->Void,?inLineage:Array<String>,?attribs:{})
    {
-      var sprite = new Sprite();
-      var bmp = new Bitmap(inBitmapData);
-      sprite.addChild(bmp);
-      var label = new TextField();
-      var renderer = Skin.renderer(Widget.addLines(inLineage,["ButtonText","StaticText","Text"]));
-      label.text = inText;
-      renderer.renderLabel(label);
-      sprite.addChild(label);
-      label.autoSize = TextFieldAutoSize.LEFT;
-      label.x = bmp.width;
-      label.y = (bmp.height - label.height)/2;
-      var result = new Button(sprite,inOnClick,Widget.addLine(inLineage,"BitmapButton"),attribs);
-      var layout = result.getItemLayout();
-      layout.setBestSize(label.x + label.width, bmp.height);
+      var result = new Button(null,inOnClick,Widget.addLine(inLineage,"BMPTextButton"),
+          Widget.addAttribs(attribs,{icon:inBitmapData, text:inText}) );
       return result;
    }
 
