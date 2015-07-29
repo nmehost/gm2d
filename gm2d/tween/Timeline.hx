@@ -1,20 +1,64 @@
 package gm2d.tween;
 
+import haxe.Timer;
+
 class Timeline
 {
    var time:Float;
    var tweens:Array<Tween>;
+   var timer:Timer;
 
    public function new( )
    {
       tweens = new Array<Tween>();
       time = 0;
    }
-   public function clearAll()
+   public function onActivate(isActive:Bool)
    {
-      tweens = new Array<Tween>();
+      if (isActive)
+      {
+         if (timer!=null)
+         {
+            timer.stop();
+            timer = null;
+         }
+      }
+      else
+      {
+         // Huh?
+         if (timer!=null)
+             return;
+         checkTimer();
+      }
    }
-   public function remove(inName:String)
+
+   function checkTimer()
+   {
+      if ( (timer!=null) != (tweens.length>0) )
+      {
+         if (tweens.length>0)
+         {
+            timer = new Timer(50.0);
+            timer.run = Game.update;
+         }
+         else
+         {
+            timer.stop();
+            timer = null;
+         }
+      }
+   }
+
+   public function clearAll(inWithCallback = true)
+   {
+      if (inWithCallback)
+         for(tween in tweens)
+            if (tween.onComplete!=null)
+               tween.onComplete();
+      tweens = new Array<Tween>();
+      checkTimer();
+   }
+   public function remove(inName:String, inWithCallback = true)
    {
       for(i in 0...tweens.length)
       {
@@ -22,6 +66,9 @@ class Timeline
          if (tween.name==inName)
          {
             tweens.splice(i,1);
+            if (inWithCallback && tween.onComplete!=null)
+               tween.onComplete();
+            checkTimer();
             return;
          }
       }
@@ -63,6 +110,7 @@ class Timeline
       else
           tween.onUpdate = function(x:Float) inOnUpdate( inVal0 + inEasing(x)*(inVal1-inVal0) );
       tweens.push(tween);
+      checkTimer();
    }
 }
 

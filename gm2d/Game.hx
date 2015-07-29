@@ -366,6 +366,7 @@ class Game
 
       if (mCurrentScreen!=null)
       {
+         mCurrentScreen.timeline.onActivate(false);
          mCurrentScreen.onActivate(false);
          mScreenParent.removeChild(mCurrentScreen);
       }
@@ -382,6 +383,7 @@ class Game
            */
         
          mScreenParent.addChild(mCurrentScreen);
+         mCurrentScreen.timeline.onActivate(true);
          mCurrentScreen.onActivate(true);
          updateScale();
 
@@ -507,7 +509,9 @@ class Game
       return inName;
    }
 
-   static function onEnter(_)
+   static function onEnter(_) update();
+
+   public static function update()
    {
       var now = haxe.Timer.stamp();
       var big_gap = now>mLastEnter+1.0;

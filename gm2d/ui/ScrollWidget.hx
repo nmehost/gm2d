@@ -278,7 +278,7 @@ class ScrollWidget extends Control
    }
    public function finishScroll()
    {
-      //if (mScrolling) trace("Scrolling done");
+      // if (mScrolling) trace("Scrolling done");
       mScrolling = false;
    }
    public function get_scrollX() : Float{ return mScrollX; }

@@ -249,6 +249,7 @@ class Button extends Control
 
    override public function activate()
    {
+   trace("activate!");
       if (isToggle)
          set_down(!get_down());
       if (mCallback!=null)
