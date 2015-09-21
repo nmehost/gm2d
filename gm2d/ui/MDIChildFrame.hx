@@ -40,6 +40,7 @@ class MDIChildFrame extends Widget
       addChild(mPaneContainer);
  
       pane = inPane;
+      name = pane.getTitle();
       pane.setDock(mMDI,mPaneContainer);
       mHitBoxes = new HitBoxes(this, onHitBox);
 
@@ -77,6 +78,15 @@ class MDIChildFrame extends Widget
       mSizeY0 = mClientHeight;
 
       pane.setRect(mClientOffset.x, mClientOffset.y, mClientWidth, mClientHeight);
+   }
+
+   public function checkDirty()
+   {
+      if (name!=pane.getTitle())
+      {
+         name = pane.getTitle();
+         redraw();
+      }
    }
 
    public function loadLayout(inProperties:Dynamic)

@@ -38,7 +38,7 @@ class Timeline
       {
          if (tweens.length>0)
          {
-            timer = new Timer(50.0);
+            timer = new Timer(50);
             timer.run = Game.update;
          }
          else

@@ -244,7 +244,10 @@ class MDIParent extends Sprite implements IDock implements IDockable
 
    public function setDirty(inLayout:Bool, inChrome:Bool):Void
    {
-      // Do nothing for now...
+      redrawTabs();
+      if (mMaximizedPane==null)
+         for(child in mChildren)
+            child.checkDirty();
    }
 
    public function renderChrome(inBackground:Sprite,outHitBoxes:HitBoxes):Void

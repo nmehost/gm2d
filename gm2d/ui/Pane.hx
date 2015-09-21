@@ -43,11 +43,25 @@ class Pane implements IDockable
       sPanes.push(this);
       scrollX = scrollY = 0.0;
       displayObject = inObj;
-      title = inTitle;
       itemLayout = null;
       bestSize = [];
       //bestPos = [];
       properties = {};
+      setTitle(inTitle,inShortTitle);
+      flags = inFlags;
+      bestWidth = displayObject.width;
+      bestHeight = displayObject.height;
+      minSizeX = bestWidth;
+      minSizeY = bestHeight;
+      sizeX=sizeY=0.0;
+      posX=posY=0.0;
+      gm2dMinimized = false;
+      itemLayout = inItemLayout;
+   }
+
+   public function setTitle(inTitle:String, ?inShortTitle:String)
+   {
+      title = inTitle;
       if (inShortTitle==null)
       {
          var lastPart = inTitle.lastIndexOf("/");
@@ -59,15 +73,8 @@ class Pane implements IDockable
             shortTitle = shortTitle.substr(0,dot);
          */
       }
-      flags = inFlags;
-      bestWidth = displayObject.width;
-      bestHeight = displayObject.height;
-      minSizeX = bestWidth;
-      minSizeY = bestHeight;
-      sizeX=sizeY=0.0;
-      posX=posY=0.0;
-      gm2dMinimized = false;
-      itemLayout = inItemLayout;
+      if (dock!=null)
+         dock.setDirty(true,true);
    }
 
    static public function allPanes() { return sPanes.copy(); }
