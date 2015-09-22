@@ -121,7 +121,8 @@ class Pane implements IDockable
 
    public function raise()
    {
-      //if (parentDock!=null) parentDock.raise(this);
+      if (dock!=null)
+         dock.raiseDockable(this);
    }
 
    // --- IDockable interface -------------------------------------------------
