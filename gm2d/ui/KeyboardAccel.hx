@@ -18,8 +18,14 @@ class KeyboardAccel
  
       for(part in inShortcut.split("+"))
       {
-         if (part>="0" && part<="9")
-             code = part.charCodeAt(0);
+         if (part.length>1 && part.substr(0,1)=="F")
+         {
+            code = Std.parseInt( part.substr(1) ) + 111;
+         }
+         else if (part>="0" && part<="9")
+         {
+            code = part.charCodeAt(0);
+         }
          else
             switch(part)
             {
