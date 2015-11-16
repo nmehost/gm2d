@@ -11,6 +11,7 @@ import nme.events.MouseEvent;
 import gm2d.skin.TabRenderer;
 import gm2d.skin.Renderer;
 import gm2d.skin.Skin;
+import gm2d.skin.FillStyle;
 import nme.geom.Rectangle;
 
 
@@ -244,11 +245,14 @@ class SlideBar extends Sprite implements IDock
          else
          {
             oy = tabRenderer.getHeight();
-            h- tabRenderer.getHeight();
+            //h - tabRenderer.getHeight();
          }
       }
 
-      var size = current.getLayoutSize(w,h,!horizontal);
+      var size = horizontal ? 
+         current.getLayoutSize(showing,h,false) :
+         current.getLayoutSize(w,showing,true);
+      //trace(' $w $h $pinned $horizontal $showing -> 0,$oy ${size.x},${size.y}');
 
       current.setRect(0,oy,size.x,size.y);
 
@@ -275,7 +279,7 @@ class SlideBar extends Sprite implements IDock
 
          case DOCK_BOTTOM:
             this.x = x;
-            this.y = bottom-showing;
+            this.y = bottom-showing-oy;
 
          case DOCK_TOP:
             this.x = x;
@@ -286,7 +290,7 @@ class SlideBar extends Sprite implements IDock
 
       fullRect = new Rectangle(0,0,size.x,size.y);
 
-      background.getLayout().setRect(fullRect.x, fullRect.y, fullRect.width, fullRect.height);
+      background.getLayout().setRect(fullRect.x, fullRect.y, fullRect.width, fullRect.height+oy);
 
       chromeDirty = true;
 
@@ -314,7 +318,10 @@ class SlideBar extends Sprite implements IDock
             if (pos==DOCK_LEFT || pos==DOCK_RIGHT)
                tabRect.width = tabRenderer.getHeight();
             else
+            {
                tabRect.height = tabRenderer.getHeight();
+            }
+
             if (pinned)
             {
                var flags = TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_PIN;
