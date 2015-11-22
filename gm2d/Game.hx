@@ -42,8 +42,8 @@ class Game
    static public var onClosePopup:Void->Void;
 
    static var mCurrentScreen:Screen;
-   static var mCurrentDialog:Dialog;
-   static var mCurrentPopup:Window;
+   public static var mCurrentDialog(default,null):Dialog;
+   public static var mCurrentPopup(default,null):Window;
 
    static var mScreenParent:Sprite;
    static var mDialogParent:Sprite;

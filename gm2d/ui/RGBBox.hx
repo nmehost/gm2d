@@ -59,7 +59,8 @@ class RGBBox extends Widget
          if (onDialogCreated!=null)
             onDialogCreated(rgbDialog);
       }
-      Game.doShowDialog(rgbDialog,isNew);
+      //Game.doShowDialog(rgbDialog,isNew);
+      Game.popup(rgbDialog,rgbDialog.onClose);
    }
 
    public function getColour():RGBHSV

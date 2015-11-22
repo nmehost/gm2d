@@ -87,7 +87,10 @@ class Dialog extends Window
    public function goBack()
    {
       onClose();
-      Game.closeDialog();
+      if (Game.mCurrentDialog==this)
+         Game.closeDialog();
+      else if (Game.mCurrentPopup==this)
+         Game.closePopup();
    }
 
    public function center(inWidth:Float,inHeight:Float)
