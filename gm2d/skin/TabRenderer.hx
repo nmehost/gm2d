@@ -83,8 +83,8 @@ class TabRenderer
       var tmpText = Skin.mText;
       var shape = Skin.mDrawing;
 
-      var borderLeft = 2;
-      var borderRight = 8;
+      var borderLeft = 4;
+      var borderRight = 4;
       var bmpPad = 2;
       var tabGap = 0;
       var tabX = new Array<Float>();
@@ -103,6 +103,8 @@ class TabRenderer
       if ((inFlags & SHOW_PIN) > 0)
          buts.push( createTabButton( MiniButton.PIN ) );
 
+      var forceText = (inFlags & SHOW_TEXT) != 0;
+
       if ((inFlags & IS_OVERLAPPED)>0)
       {
          // Calculate actual width
@@ -110,11 +112,15 @@ class TabRenderer
          for(pane in inPanes)
          {
             tabX.push(tx);
-            var text = pane.getShortTitle();
-            if (text=="") text="Tab";
-            tmpText.text = text;
-            tx += borderLeft + tmpText.textWidth + borderRight;
             var icon = pane.getIcon();
+            tx += borderLeft + borderRight;
+            if (icon==null || forceText)
+            {
+               var text = pane.getShortTitle();
+               if (text=="") text="Tab";
+               tmpText.text = text;
+               tx += tmpText.textWidth;
+            }
             if (icon!=null)
                tx += icon.width + bmpPad*2;
             tx+=tabGap;
@@ -172,16 +178,23 @@ class TabRenderer
       for(pane in inPanes)
       {
          var tx0 = trans.tx;
-
-         var text = pane.getShortTitle();
-         if (text=="") text="Tab";
-         tmpText.text = text;
-         var tw = borderLeft + tmpText.textWidth + borderRight;
          var icon = pane.getIcon();
+
+         var tw:Float = borderLeft;
+         if (icon==null || forceText)
+         {
+            var text = pane.getShortTitle();
+            if (text=="") text="Tab";
+            tmpText.text = text;
+            tw += tmpText.textWidth;
+         }
          var iconWidth = 0;
          if (icon!=null)
-            iconWidth = icon.width + bmpPad*2;
-         tw += iconWidth;
+         {
+            tw += icon.width + bmpPad*2;
+         }
+
+         tw += borderRight;
 
 
          var r = new Rectangle(trans.tx,0,tw,tabHeight);
@@ -213,10 +226,14 @@ class TabRenderer
                trans.tx+=bmpPad;
                trans.ty = Std.int( (tabHeight - bmp.height)* 0.5 );
                bitmap.draw(bmp,trans);
-               trans.tx+=iconWidth-bmpPad;
+               trans.tx+=icon.width+bmpPad;
             }
-            trans.ty = Std.int( (tabHeight - tmpText.textHeight)*0.5 );
-            bitmap.draw(tmpText,trans);
+
+            if (icon==null || forceText)
+            {
+               trans.ty = Std.int( (tabHeight - tmpText.textHeight)*0.5 );
+               bitmap.draw(tmpText,trans);
+            }
          }
          trans.tx = tx0 + tw+tabGap;
       }
@@ -234,21 +251,27 @@ class TabRenderer
             borderLeft += 1;
          }
          borderRight += 2;
- 
-         var text = inCurrent.getShortTitle();
-         if (text=="") text="Tab";
-         tmpText.text = text;
-
-         var tw = borderLeft + tmpText.textWidth + borderRight;
-
          var icon = inCurrent.getIcon();
-         var iconWidth = 0;
-         if (icon!=null)
-            iconWidth = icon.width + bmpPad*2;
-         tw+=iconWidth;
+ 
+         var tw:Float = borderLeft;
+         if (icon==null || forceText)
+         {
+            var text = inCurrent.getShortTitle();
+            if (text=="") text="Tab";
+            tmpText.text = text;
 
+            tw += tmpText.textWidth;
+         }
+
+         if (icon!=null)
+         {
+            tw += icon.width + bmpPad*2;
+         }
          if (closeBut!=null)
             tw += closeBut.getLayout().getBestWidth() + bmpPad*2;
+
+         tw += borderRight;
+
          trans.ty = y0-1;
          trans.tx = 0;
 
@@ -276,15 +299,20 @@ class TabRenderer
             trans.ty = (tabHeight - icon.height) >> 1;
             bitmap.draw(bmp,trans);
             trans.tx+=bmpPad;
-            trans.tx+=iconWidth-bmpPad;
+            trans.tx+=icon.width+bmpPad;
          }
-         trans.ty = Std.int( (tabHeight - tmpText.textHeight)*0.5 );
-         bitmap.draw(tmpText,trans);
+
+         if (icon==null || forceText)
+         {
+            trans.ty = Std.int( (tabHeight - tmpText.textHeight)*0.5 );
+            bitmap.draw(tmpText,trans);
+            trans.tx += tmpText.textWidth;
+         }
 
          if (closeBut!=null)
          {
+            trans.tx += bmpPad;
             trans.ty = (tabHeight - Std.int(closeBut.getLayout().getBestHeight())) >> 1;
-            trans.tx += tmpText.textWidth + bmpPad;
             bitmap.draw(closeBut,trans);
          }
       }
@@ -306,19 +334,15 @@ class TabRenderer
                   display.x += Std.int((inRect.width-w)*0.5);
                else
                   display.x += inTabPos;
-               for(i in 0...tabX.length-1)
-                  outHitBoxes.add(new Rectangle(display.x+boxOffset.x+tabX[i],boxOffset.y+display.y,
-                           tabX[i+1]-tabX[i],tabHeight), TITLE(inPanes[i]) );
-               for(b in 0...buts.length)
-                  outHitBoxes.add(new Rectangle(display.x+boxOffset.x+butPos[b],boxOffset.y+display.y,
-                           butWidth[b],tabHeight),  HitAction.BUTTON(null,buts[b].name));
 
             case BOTTOM:
                display.y += inRect.height;
 
             case RIGHT:
                display.rotation = 90;
-               display.x += inRect.width + tabHeight;
+               display.x = inRect.x + tabHeight;
+               display.y = inRect.y;
+
 
             case LEFT:
                display.rotation = -90;
@@ -328,19 +352,45 @@ class TabRenderer
                   display.y += w + inTabPos;
                else
                   display.y += Std.int((inRect.height+w)*0.5);
-
-               for(i in 0...tabX.length-1)
-               {
-                  outHitBoxes.add(new Rectangle(display.x+boxOffset.x,
-                           boxOffset.y+display.y - tabX[i+1],
-                           tabHeight,tabX[i+1]-tabX[i]), TITLE(inPanes[i]) );
-               }
-               for(b in 0...buts.length)
-                  outHitBoxes.add(new Rectangle(display.x+boxOffset.x,boxOffset.y+display.y-butPos[b]-butWidth[b],
-                           tabHeight, butWidth[b]),  HitAction.BUTTON(null,buts[b].name));
-
          }
+
+          for(i in 0...tabX.length-1)
+          {
+             var rect = displayRect(display, tabX[i], 0, tabX[i+1]-tabX[i],tabHeight);
+             outHitBoxes.add(rect,TITLE(inPanes[i]));
+          }
+          for(b in 0...buts.length)
+          {
+             var rect = displayRect(display,butPos[b], 0, butWidth[b],tabHeight);
+
+             outHitBoxes.add(rect, HitAction.BUTTON(null,buts[b].name));
+          }
       }
+   }
+
+   function displayRect(display:Bitmap, inX:Float, inY:Float, inW:Float, inH:Float)
+   {
+      if (display.rotation==-90)
+      {
+         var w = inW;
+         inW = inH;
+         inH = w;
+         var y = inY;
+         inY = -inX - inH;
+         inX = y ;
+      }
+      else if (display.rotation==90)
+      {
+         var w = inW;
+         inW = inH;
+         inH = w;
+         var y = inY;
+         inY = inX;
+         inX = -y - inW;
+      }
+
+      var result = new Rectangle(inX + display.x, inY+display.y, inW, inH);
+      return result;
    }
 }
 

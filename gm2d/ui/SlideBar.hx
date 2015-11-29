@@ -39,12 +39,15 @@ class SlideBar extends Sprite implements IDock
    var mouseWatcher:MouseWatcher;
    var beginShowPos:Float;
    var showTabs:Bool;
+   
 
    var current:IDockable;
    var children:Array<IDockable>;
    var tabRenderer:TabRenderer;
    public var pinned(default,set_pinned):Bool;
    public var onPinned:Bool->Void;
+   public var showText = true;
+   public var showPin = true;
 
    public function new(inParent:DisplayObjectContainer,inPos:DockPosition,
              inMinSize:Null<Int>, inMaxSize:Null<Int>,
@@ -315,26 +318,33 @@ class SlideBar extends Sprite implements IDock
          if (tabRenderer!=null)
          {
             var tabRect = fullRect.clone();
-            if (pos==DOCK_LEFT || pos==DOCK_RIGHT)
-               tabRect.width = tabRenderer.getHeight();
-            else
-            {
-               tabRect.height = tabRenderer.getHeight();
-            }
-
+            var flags = (showText?TabRenderer.SHOW_TEXT:0) | TabRenderer.SHOW_ICON |
+                         (showPin?TabRenderer.SHOW_PIN:0);
+            var renderPos = tabSide;
             if (pinned)
             {
-               var flags = TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_PIN;
-               tabRenderer.renderTabs(background.mChrome, tabRect, children, current,
-                  hitBoxes,  TabRenderer.TOP, flags, tabPos );
+               renderPos = TabRenderer.TOP;
+               tabRect.height = tabRenderer.getHeight();
             }
             else
             {
-               var flags = TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_PIN |
-                     TabRenderer.IS_OVERLAPPED;
-               tabRenderer.renderTabs(background.mChrome, tabRect, children, current,
-                  hitBoxes, tabSide, flags, tabPos );
+               flags |= TabRenderer.IS_OVERLAPPED;
+               if (renderPos==TabRenderer.LEFT || renderPos==TabRenderer.RIGHT)
+               {
+                  if (renderPos==TabRenderer.RIGHT)
+                     tabRect.x += tabRect.width;
+                  tabRect.width = tabRenderer.getHeight();
+               }
+               else
+               {
+                  //if (pos==DOCK_BOTTOM)
+                  //   tabRect.y += tabRect.height;
+                  tabRect.height = tabRenderer.getHeight();
+               }
             }
+
+            tabRenderer.renderTabs(background.mChrome, tabRect, children, current,
+                hitBoxes,  renderPos, flags, tabPos );
          }
       }
    }
