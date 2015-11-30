@@ -2,6 +2,7 @@ package gm2d.ui;
 
 import nme.display.DisplayObjectContainer;
 import nme.display.Sprite;
+import nme.display.BitmapData;
 import gm2d.ui.DockPosition;
 import gm2d.ui.HitBoxes;
 import nme.geom.Rectangle;
@@ -13,6 +14,11 @@ import nme.text.TextField;
 
 class MultiDock implements IDock implements IDockable
 {
+   public var forceTabStyle(default,set):Bool;
+   public var title:String;
+   public var shortTitle:String;
+   public var icon:BitmapData;
+
    var parentDock:IDock;
    var mDockables:Array<IDockable>;
    var mRect:Rectangle;
@@ -21,8 +27,8 @@ class MultiDock implements IDock implements IDockable
    var bestSize:Array<Size>;
    var properties:Dynamic;
    var flags:Int;
-   var tabStyle:Bool;
    var tabRenderer:TabRenderer;
+   var tabStyle:Bool;
 
    public function new()
    {
@@ -30,11 +36,19 @@ class MultiDock implements IDock implements IDockable
       mDockables = [];
       bestSize = [];
       tabStyle = false;
+      forceTabStyle = false;
       tabRenderer = Skin.tabRenderer( ["MultiDock","Tabs","TabRenderer"] );
       properties = {};
       mRect = null;
    }
-   
+
+   public function set_forceTabStyle(inTabs:Bool)
+   {
+      forceTabStyle = inTabs;
+      setDirty(true,true);
+      return inTabs;
+   }
+
    // Hierarchy
    public function getDock():IDock { return parentDock; }
    public function getSlot():Int { return parentDock==null ? Dock.DOCK_SLOT_FLOAT : parentDock.getSlot(); }
@@ -46,9 +60,9 @@ class MultiDock implements IDock implements IDockable
    }
    public function closeRequest(inForce:Bool):Void { }
    // Display
-   public function getTitle():String { return ""; }
-   public function getShortTitle():String { return ""; }
-   public function getIcon():nme.display.BitmapData { return null; }
+   public function getTitle():String { return title; }
+   public function getShortTitle():String { return shortTitle; }
+   public function getIcon():nme.display.BitmapData { return icon; }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
    // Layout
@@ -90,9 +104,9 @@ class MultiDock implements IDock implements IDockable
       {
          var s = dock.getMinSize();
          if (s.x>min.x)
-            s.x = min.x;
+            min.x = s.x;
          if (s.y>min.y)
-            s.y = min.y;
+            min.y = s.y;
       }
  
      return addPadding(min);
@@ -127,7 +141,7 @@ class MultiDock implements IDock implements IDockable
    {
       mRect = new Rectangle(x,y,w,h);
 
-      tabStyle = w>h || w>200;
+      tabStyle = w>h || w>200 || forceTabStyle;
 
       if (currentDockable!=null)
       {
@@ -155,12 +169,17 @@ class MultiDock implements IDock implements IDockable
       var gfx = inContainer.graphics;
       if (tabStyle)
       {
-         var tabHeight = tabRenderer.getHeight();
-         gfx.beginFill(Skin.panelColor);
-         gfx.drawRect(mRect.x,mRect.y+tabHeight,mRect.width,mRect.height-tabHeight);
-         gfx.endFill();
-         var flags = TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_POPUP;
-         tabRenderer.renderTabs(inContainer,mRect,mDockables, currentDockable, outHitBoxes, TabRenderer.TOP,flags );
+         var tabRect = mRect.clone();
+         if (tabRect.width>0)
+         {
+            var tabHeight = tabRenderer.getHeight();
+            tabRect.height = tabHeight;
+            gfx.beginFill(Skin.panelColor);
+            gfx.drawRect(mRect.x,mRect.y+tabHeight,mRect.width,mRect.height-tabHeight);
+            gfx.endFill();
+            var flags = TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_POPUP;
+            tabRenderer.renderTabs(inContainer,tabRect,mDockables, currentDockable, outHitBoxes, TabRenderer.TOP,flags );
+         }
          return;
       }
 
@@ -373,7 +392,7 @@ class MultiDock implements IDock implements IDockable
       return this;
    }
 
-   function setCurrent(child:IDockable)
+   public function setCurrent(child:IDockable)
    {
       currentDockable = child;
       var found = false;
@@ -386,7 +405,9 @@ class MultiDock implements IDock implements IDockable
              d.setDock(this,container);
           }
           else
+          {
              d.setDock(this,null);
+          }
       }
 
       if (!found && tabStyle && mDockables.length>0)
