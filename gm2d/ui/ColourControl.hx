@@ -616,7 +616,7 @@ class ColourControl extends Widget
       all.setColStretch(0,0);
       all.setColStretch(1,0);
       all.setColStretch(2,1);
-      all.setRowStretch(0,1);
+      all.setRowStretch(0,0);
       all.setRowStretch(1,0);
 
       var swatches = new GridLayout(10,"Swatches");

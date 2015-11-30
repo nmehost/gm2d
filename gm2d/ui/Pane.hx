@@ -57,6 +57,11 @@ class Pane implements IDockable
       posX=posY=0.0;
       gm2dMinimized = false;
       itemLayout = inItemLayout;
+
+      if (itemLayout!=null)
+      {
+         trace(inTitle + " -> " + (new Size(itemLayout.getBestWidth(), itemLayout.getBestHeight())) );
+      }
    }
 
    public function setTitle(inTitle:String, ?inShortTitle:String)
@@ -199,7 +204,10 @@ class Pane implements IDockable
       }
    }
 
-   public function getMinSize():Size { return new Size(minSizeX,minSizeY); }
+   public function getMinSize():Size
+   {
+      return new Size(minSizeX,minSizeY);
+   }
    public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
    {
       var min = getMinSize();
@@ -253,11 +261,19 @@ class Pane implements IDockable
       sizeY = h;
       if (displayObject!=null)
       {
-         if (itemLayout!=null)
-            itemLayout.setRect(0,0,w,h);
-         displayObject.x = x;
-         displayObject.y = y;
-         displayObject.scrollRect = new Rectangle(scrollX,scrollY,w,h);
+         if (w>0 && h>0)
+         {
+            displayObject.visible = true;
+            if (itemLayout!=null)
+               itemLayout.setRect(0,0,w,h);
+            displayObject.x = x;
+            displayObject.y = y;
+            displayObject.scrollRect = new Rectangle(scrollX,scrollY,w,h);
+         }
+         else
+         {
+            displayObject.visible = false;
+         }
       }
       else if (itemLayout!=null)
       {
