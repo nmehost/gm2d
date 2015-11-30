@@ -43,11 +43,13 @@ class SlideBar extends Sprite implements IDock
 
    var current:IDockable;
    var children:Array<IDockable>;
+   var barDockable:IDockable;
    var tabRenderer:TabRenderer;
    public var pinned(default,set_pinned):Bool;
    public var onPinned:Bool->Void;
    public var showText = true;
    public var showPin = true;
+   public var tabGap = false;
 
    public function new(inParent:DisplayObjectContainer,inPos:DockPosition,
              inMinSize:Null<Int>, inMaxSize:Null<Int>,
@@ -197,6 +199,22 @@ class SlideBar extends Sprite implements IDock
    {
       return layoutDirty;
    }
+
+   public function getBarHeight()
+   {
+      var h = tabRenderer==null ? 0.0 : tabRenderer.getHeight(); 
+
+      if (barDockable!=null)
+      {
+         var bh = tabSide==TabRenderer.LEFT || tabSide==TabRenderer.RIGHT ?
+                    barDockable.getLayoutSize(h,100000,false).x :
+                    barDockable.getLayoutSize(100000,h,true).y;
+         if (bh>h)
+            h = bh;
+      }
+
+      return h;
+   }
  
    public function setRect(x:Float, y:Float, w:Float, h:Float) : Float
    {
@@ -224,7 +242,7 @@ class SlideBar extends Sprite implements IDock
          if (horizontal)
             w = maxSize;
          else
-            h = maxSize - (tabRenderer!=null ? tabRenderer.getHeight() : 0 );
+            h = maxSize - getBarHeight();
       }
       else if (maxSize!=null)
       {
@@ -247,8 +265,7 @@ class SlideBar extends Sprite implements IDock
             oy = 0;
          else
          {
-            oy = tabRenderer.getHeight();
-            //h - tabRenderer.getHeight();
+            oy = getBarHeight();
          }
       }
 
@@ -300,7 +317,7 @@ class SlideBar extends Sprite implements IDock
       if (slideOver)
          return 0;
 
-      return showing;
+      return showing + (tabGap ? getBarHeight() : 0);
     }
 
     public function checkChrome()
@@ -315,16 +332,19 @@ class SlideBar extends Sprite implements IDock
          background.redraw();
          current.renderChrome(background.mChrome,hitBoxes);
 
+         var tallBar = false;
+         var barHeight = getBarHeight();
          if (tabRenderer!=null)
          {
             var tabRect = fullRect.clone();
-            var flags = (showText?TabRenderer.SHOW_TEXT:0) | TabRenderer.SHOW_ICON |
+            var flags = (showText?TabRenderer.SHOW_TEXT:0) |
+                         TabRenderer.SHOW_ICON |
                          (showPin?TabRenderer.SHOW_PIN:0);
             var renderPos = tabSide;
             if (pinned)
             {
                renderPos = TabRenderer.TOP;
-               tabRect.height = tabRenderer.getHeight();
+               tabRect.height = barHeight;
             }
             else
             {
@@ -333,18 +353,28 @@ class SlideBar extends Sprite implements IDock
                {
                   if (renderPos==TabRenderer.RIGHT)
                      tabRect.x += tabRect.width;
-                  tabRect.width = tabRenderer.getHeight();
+                  tabRect.width = barHeight;
+                  tallBar = true;
                }
                else
                {
                   //if (pos==DOCK_BOTTOM)
                   //   tabRect.y += tabRect.height;
-                  tabRect.height = tabRenderer.getHeight();
+                  tabRect.height = barHeight;
                }
             }
 
+            var rect0 = tabRect.clone();
             tabRenderer.renderTabs(background.mChrome, tabRect, children, current,
                 hitBoxes,  renderPos, flags, tabPos );
+
+            if (barDockable!=null)
+            {
+                if (tallBar)
+                   barDockable.setRect(rect0.x, rect0.y+tabRect.height, rect0.width, rect0.height-tabRect.height);
+                else
+                   barDockable.setRect(rect0.x+tabRect.width, rect0.y, rect0.width-tabRect.width, rect0.height);
+            }
          }
       }
    }
@@ -379,13 +409,24 @@ class SlideBar extends Sprite implements IDock
    public function getDock():IDock { return this; }
    public function canAddDockable(inPos:DockPosition):Bool
    {
-      return inPos==DOCK_OVER;
+      return inPos==DOCK_OVER || inPos==DOCK_BAR;
    }
    public function addDockable(inChild:IDockable,inPos:DockPosition,inSlot:Int):Void
    {
-      children.push(inChild);
-      Dock.remove(inChild);
-      setCurrent(inChild);
+      if (inPos==DOCK_BAR)
+      {
+         if (barDockable!=null)
+            Dock.remove(barDockable);
+         barDockable = inChild;
+         barDockable.setDock(this,paneContainer);
+         setDirty(true,true);
+      }
+      else
+      {
+         children.push(inChild);
+         Dock.remove(inChild);
+         setCurrent(inChild);
+      }
    }
 
    public function getDockablePosition(child:IDockable):Int
@@ -394,6 +435,8 @@ class SlideBar extends Sprite implements IDock
    }
    public function removeDockable(child:IDockable):IDockable
    {
+      if (child==barDockable)
+         barDockable = null;
       return null;
    }
    public function raiseDockable(child:IDockable):Bool

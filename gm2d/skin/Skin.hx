@@ -1259,6 +1259,8 @@ class Skin
             y0 = inRect.y +inRect.height*0.5 - 16;
             showX = showY = 4;
             showW = showH = 24;
+         case DOCK_BAR:
+            return;
       }
 
       var gfx = outZones.container.graphics;

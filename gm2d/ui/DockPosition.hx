@@ -7,5 +7,6 @@ enum DockPosition
    DOCK_RIGHT;
    DOCK_TOP;
    DOCK_BOTTOM;
+   DOCK_BAR;
 }
 
