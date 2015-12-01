@@ -35,8 +35,10 @@ class Svg extends Group
 
     static var mStyleSplit = ~/;/g;
     static var mStyleValue = ~/\s*(.*)\s*:\s*(.*)\s*/;
+    static var mTranslate1Match = ~/translate\((.+)[\s]*\)/;
     static var mTranslateMatch = ~/translate\((.+)[,\s]+(.+)\)/;
     static var mRotateMatch = ~/rotate\((.+)[,\s]+(.+)[,\s]+(.+)\)/;
+    static var mRotate1Match = ~/rotate\((.+)\)/;
     static var mScaleMatch = ~/scale\((.*)\)/;
     static var mMatrixMatch = ~/matrix\((.+)[,\s]+(.+)[,\s]+(.+)[,\s]+(.+)[,\s]+(.+)[,\s]+(.+)\)/;
 
@@ -192,6 +194,12 @@ class Svg extends Group
                   Std.parseFloat( mTranslateMatch.matched(1) ),
                   Std.parseFloat( mTranslateMatch.matched(2) ));
        }
+       else if (mTranslate1Match.match(inTrans))
+       {
+          // TODO: Pre-translate
+          (result = new Matrix()).translate(
+                  Std.parseFloat( mTranslate1Match.matched(1) ), 0 );
+       }
        else if (mScaleMatch.match(inTrans))
        {
           // TODO: Pre-scale
@@ -210,6 +218,13 @@ class Svg extends Group
           result.rotate( angle*Math.PI/180.0 );
           result.tx += x;
           result.ty += y;
+       }
+       else if (mRotate1Match.match(inTrans))
+       {
+          // TODO: Pre-scale
+          var angle = Std.parseFloat( mRotateMatch.matched(1) );
+          result = new Matrix();
+          result.rotate( angle*Math.PI/180.0 );
        }
        else if (mMatrixMatch.match(inTrans))
        {

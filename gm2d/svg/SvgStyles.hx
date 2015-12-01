@@ -7,7 +7,7 @@ class SvgStyles
 {
    var defaultFill = FillSolid(0x000000);
    var urlMatch = ~/url\(#(.*)\)/;
-   var rgbMatch = ~/rgb\((\d+)[,\s](\d+)[,\s](\d+)\)/;
+   var rgbMatch = ~/rgb\((\d+)[,\s]\s+(\d+)[,\s]\s+(\d+)\)/;
 
    var stack : Array<Map<String,String>>;
    var gradients:GradHash;
@@ -70,7 +70,7 @@ class SvgStyles
       {
          return (Std.parseInt(rgbMatch.matched(1))<<16 ) |
                 (Std.parseInt(rgbMatch.matched(2))<<8 ) |
-                (Std.parseInt(rgbMatch.matched(3))<<8 );
+                (Std.parseInt(rgbMatch.matched(3)) );
       }
 
       var col = gm2d.RGB.resolve(s);
@@ -80,6 +80,12 @@ class SvgStyles
       return Std.parseInt(s);
    }
 
+   function hex3to6(i:Int)
+   {
+      return ( (i&0xf) * 0x11 ) |
+             ( (i&0xf0) * 0x110 ) |
+             ( (i&0xf00) * 0x1100 ) ;
+   }
 
 
    public function getFill(inKey:String)
@@ -89,7 +95,12 @@ class SvgStyles
          return defaultFill;
 
       if (s.charAt(0)=='#')
-         return FillSolid( Std.parseInt( "0x" + s.substr(1) ) );
+      {
+         if (s.length==4)
+            return FillSolid( hex3to6(Std.parseInt( "0x" + s.substr(1)) ) );
+         else
+            return FillSolid( Std.parseInt( "0x" + s.substr(1) ) );
+      }
  
       if (s=="none")
          return FillNone;
@@ -98,7 +109,7 @@ class SvgStyles
       {
          return FillSolid( (Std.parseInt(rgbMatch.matched(1))<<16 ) |
                            (Std.parseInt(rgbMatch.matched(2))<<8 ) |
-                           (Std.parseInt(rgbMatch.matched(3))<<8 ) );
+                           (Std.parseInt(rgbMatch.matched(3))) );
       }
 
       if (urlMatch.match(s))

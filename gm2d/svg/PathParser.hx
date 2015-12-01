@@ -97,6 +97,8 @@ class PathParser {
                      break;
                   if (code==FLOAT_DOT && seen_dot)
                      break;
+                  else if (code==FLOAT_DOT)
+                     seen_dot = true;
                   if (e_pos>=0)
                   {
                      if (code==FLOAT_SIGN)
