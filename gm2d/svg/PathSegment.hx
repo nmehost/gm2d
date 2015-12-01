@@ -430,46 +430,12 @@ class ArcSegment extends PathSegment
 
 
        var m = ioContext.getMatrix();
-       //    var px = cx+cos*rx;
-       //    var py = cy+sin*ry;
-       //    m.a*px+m.c*py+m.tx    m.b*px+m.d*py+m.ty
-       //  Combined
-       //    x = m.a(cx+cos*rx) + m.c(cy+sin*ry) + m.tx
-       //      = m.a*rx * cos +  m.c*ry*sin + m.a*cx+m.c*cy + m.tx
-       //      = Txc cos +  Txc sin + Tx0
-       //    y = m.b(cx+cos*rx) + m.d(cy+sin*ry) + m.ty
-       //      = m.b*rx * cos +  m.d*ry*sin + m.b*cx+m.d*cy + m.ty
-       //      = Tyc cos +  Tys sin + Ty0
-       //
 
-       var Txc:Float;
-       var Txs:Float;
-       var Tx0:Float;
-       var Tyc:Float;
-       var Tys:Float;
-       var Ty0:Float;
+       var len = Math.abs(dtheta)*Math.sqrt(rx*rx + ry*ry);
        if (m!=null)
-       {
-          Txc = m.a*rx;
-          Txs = m.c*ry;
-          Tx0 = m.a*cx + m.c*cy + m.tx;
-          Tyc = m.b*rx;
-          Tys = m.d*ry;
-          Ty0 = m.b*cx + m.d*cy + m.ty;
-       }
-       else
-       {
-          Txc = rx;
-          Txs = 0;
-          Tx0 = cx;
-          Tyc = 0;
-          Tys = ry;
-          Ty0 = cy;
-       }
-
-       var len = Math.abs(dtheta)*Math.sqrt(Txc*Txc + Txs*Txs + Tyc*Tyc + Tys*Tys);
+          len *= Math.sqrt(m.a*m.a + m.b*m.b);
+  
        // TODO: Do as series of quadratics ...
-       len *= 5;
        var steps = Math.round(len);
        
 
@@ -478,10 +444,15 @@ class ArcSegment extends PathSegment
           dtheta /= steps;
           for(i in 1...steps-1)
           {
-             var c = Math.cos(theta);
-             var s = Math.sin(theta);
+             var c = Math.cos(theta)*rx;
+             var s = Math.sin(theta)*ry;
              theta+=dtheta;
-             inGfx.lineTo(Txc*c + Txs*s + Tx0,   Tyc*c + Tys*s + Ty0);
+             var px = cx + cos*c - sin*s;
+             var py = cy + sin*c + cos*s;
+             if (m==null)
+                inGfx.lineTo(px,py);
+             else
+                inGfx.lineTo(m.a*px + m.c*py + m.tx, m.b*px + m.d*py + m.ty);
           }
        }
        inGfx.lineTo(ioContext.lastX, ioContext.lastY);

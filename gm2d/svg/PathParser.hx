@@ -278,11 +278,21 @@ class PathParser {
                     var ry = prevY();
                     return new QuadraticSegment( rx*2-prevCX(), ry*2-prevCY(),a[0]+rx, a[1]+ry );
                 case ARC:
-                    return new ArcSegment(prevX(), prevY(), a[0], a[1], a[2], a[3]!=0., a[4]!=0., a[5], a[6] );
+                    var arc =  new ArcSegment(prevX(), prevY(), a[0], a[1], a[2], a[3]!=0., a[4]!=0., a[5], a[6] );
+                    return arc;
                 case ARCR:
                     var rx = prevX();
                     var ry = prevY();
-                    return new ArcSegment( rx,ry, a[0], a[1], a[2], a[3]!=0., a[4]!=0., a[5]+rx, a[6]+ry );
+                    // end point: (cpx + x cos cb + y sin cb, cpy + x sin cb + y cos cb)
+                    var radX = a[0];
+                    var radY = a[1];
+                    var theta = a[2];
+                    var relX = a[5];
+                    var relY = a[6];
+                    var arc = new ArcSegment( rx,ry, radX, radY, theta, a[3]!=0., a[4]!=0., rx+relX, ry+relY );
+
+                    //var arc = new DrawSegment(rx + relX, ry+relY );
+                    return arc;
                 case CLOSE:
                     return new DrawSegment(lastMoveX, lastMoveY);
 
