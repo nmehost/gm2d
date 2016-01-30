@@ -62,7 +62,7 @@ class TabRenderer
 
    public function getHeight()
    {
-      return  Skin.tabHeight;
+      return  Skin.scale(Skin.tabHeight);
    }
 
    public function createTabButton(inId:String)
@@ -83,9 +83,9 @@ class TabRenderer
       var tmpText = Skin.mText;
       var shape = Skin.mDrawing;
 
-      var borderLeft = 4;
-      var borderRight = 4;
-      var bmpPad = 2;
+      var borderLeft = Skin.scale(4);
+      var borderRight = Skin.scale(4);
+      var bmpPad = Skin.scale(2);
       var tabGap = 0;
       var tabX = new Array<Float>();
 

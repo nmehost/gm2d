@@ -4,6 +4,7 @@ import nme.text.TextField;
 import nme.events.MouseEvent;
 import gm2d.ui.Layout;
 import gm2d.RGBHSV;
+import gm2d.skin.Skin;
 import nme.text.TextFieldAutoSize;
 
 
@@ -27,6 +28,7 @@ class RGBBox extends Widget
 
       var fmt = new nme.text.TextFormat();
       fmt.align = nme.text.TextFormatAlign.CENTER;
+      fmt.size = Skin.scale(14);
 
       textField = new TextField( );
       textField.border = true;
@@ -35,7 +37,7 @@ class RGBBox extends Widget
       textField.background = true;
       addChild(textField);
 
-      setItemLayout( new Layout().setMinSize(72,28) );
+      setItemLayout( new Layout().setMinSize(Skin.scale(72),Skin.scale(28)) );
 
       if (inShouldShowPopup)
          textField.addEventListener(MouseEvent.CLICK, function(_) showDialog() );

@@ -17,14 +17,14 @@ class DefaultBitmaps
       var down = (inState & Widget.DOWN) > 0;
 
 
-      var sizeX = 16;
-      var sizeY = 16;
+      var sizeX = Skin.scale(16);
+      var sizeY = Skin.scale(16);
       var effects = true;
 
       if (inButton==Skin.Checkbox)
       {
-         sizeY = 24;
-         sizeX = 48;
+         sizeY = Skin.scale(24);
+         sizeX = Skin.scale(48);
       }
 
       var bmp = new BitmapData(sizeX,sizeY,true, gm2d.RGB.CLEAR );
@@ -43,80 +43,97 @@ class DefaultBitmaps
       gfx.lineStyle(1,0xffffff);
       var matrix = new Matrix();
 
+      var s1 = Skin.scale(1);
+      var s2 = Skin.scale(2);
+      var s3 = Skin.scale(3);
+      var s4 = Skin.scale(4);
+      var s5 = Skin.scale(5);
+      var s6 = Skin.scale(6);
+      var s7 = Skin.scale(7);
+      var s8 = Skin.scale(8);
+      var s9 = Skin.scale(9);
+      var s10 = Skin.scale(10);
+      var s11 = Skin.scale(11);
+      var s12 = Skin.scale(12);
+      var s16 = Skin.scale(16);
+      var s17 = Skin.scale(17);
+      var s32 = Skin.scale(32);
+      var s40 = Skin.scale(40);
+
       if (inButton==Skin.Close)
       {
-         gfx.moveTo(3,3);
-         gfx.lineTo(12,12);
-         gfx.moveTo(12,3);
-         gfx.lineTo(3,12);
+         gfx.moveTo(s3,s3);
+         gfx.lineTo(s12,s12);
+         gfx.moveTo(s12,s3);
+         gfx.lineTo(s3,s12);
       }
       if (inButton==Skin.Minimize)
       {
-         gfx.moveTo(3,12);
-         gfx.lineTo(12,12);
+         gfx.moveTo(s3,s12);
+         gfx.lineTo(s12,s12);
       }
       else if (inButton==Skin.Maximize)
       {
-         gfx.drawRect(3,3,11,11);
+         gfx.drawRect(s3,s3,s11,s11);
       }
       else if (inButton==Skin.Restore)
       {
-         gfx.drawRect(3,3,6,6);
-         gfx.drawRect(8,8,6,6);
+         gfx.drawRect(s3,s3,s6,s6);
+         gfx.drawRect(s8,s8,s6,s6);
       }
       else if (inButton==Skin.Expand)
       {
-         gfx.drawRect(4,2,8,12);
+         gfx.drawRect(s4,s2,s8,s12);
       }
       else if (inButton==Skin.Popup)
       {
          gfx.beginFill(0xffffff);
-         gfx.moveTo(5,7);
-         gfx.lineTo(11,7);
-         gfx.lineTo(8,10);
-         gfx.lineTo(5,7);
+         gfx.moveTo(s5,s7);
+         gfx.lineTo(s11,s7);
+         gfx.lineTo(s8,s10);
+         gfx.lineTo(s5,s7);
       }
 
       else if (inButton==Skin.Pin)
       {
-         gfx.moveTo(1,7);
-         gfx.lineTo(5,7);
-         gfx.drawRect(5,3,2,9);
-         gfx.drawRect(7,5,6,5);
+         gfx.moveTo(s1,s7);
+         gfx.lineTo(s5,s7);
+         gfx.drawRect(s5,s3,s2,s9);
+         gfx.drawRect(s7,s5,s6,s5);
       }
 
       else if (inButton==Skin.Add)
       {
          gfx.lineStyle(1,0x000000);
          gfx.beginFill(0x00ff00);
-         gfx.moveTo(3,5);
-         gfx.lineTo(5,5);
-         gfx.lineTo(5,3);
-         gfx.lineTo(9,3);
-         gfx.lineTo(9,5);
-         gfx.lineTo(11,5);
-         gfx.lineTo(11,9);
-         gfx.lineTo(9,9);
-         gfx.lineTo(9,11);
-         gfx.lineTo(5,11);
-         gfx.lineTo(5,9);
-         gfx.lineTo(3,9);
-         gfx.lineTo(3,5);
+         gfx.moveTo(s3,s5);
+         gfx.lineTo(s5,s5);
+         gfx.lineTo(s5,s3);
+         gfx.lineTo(s9,s3);
+         gfx.lineTo(s9,s5);
+         gfx.lineTo(s11,s5);
+         gfx.lineTo(s11,s9);
+         gfx.lineTo(s9,s9);
+         gfx.lineTo(s9,s11);
+         gfx.lineTo(s5,s11);
+         gfx.lineTo(s5,s9);
+         gfx.lineTo(s3,s9);
+         gfx.lineTo(s3,s5);
       }
       else if (inButton==Skin.Remove)
       {
          gfx.lineStyle(1,0x000000);
          gfx.beginFill(0xff0000);
-         gfx.moveTo(3,5);
-         gfx.lineTo(11,5);
-         gfx.lineTo(11,9);
-         gfx.lineTo(3,9);
-         gfx.lineTo(3,5);
+         gfx.moveTo(s3,s5);
+         gfx.lineTo(s11,s5);
+         gfx.lineTo(s11,s9);
+         gfx.lineTo(s3,s9);
+         gfx.lineTo(3,s5);
       }
       else if (inButton==Skin.Resize)
       {
-         var w = 16;
-         var h = 16;
+         var w = Skin.scale(16);
+         var h = Skin.scale(16);
          gfx.lineStyle(1,Skin.guiDark);
          for(o in 0...4)
          {
@@ -130,23 +147,23 @@ class DefaultBitmaps
          effects = false;
          gfx.lineStyle(1,0x000000);
          gfx.beginFill(Skin.guiDark);
-         gfx.drawRoundRect(0,0,sizeX-1,sizeY-1,12,12);
+         gfx.drawRoundRect(0,0,sizeX-1,sizeY-1,s12,s12);
          gfx.beginFill(Skin.guiLight);
-         gfx.drawCircle(down ? 36 : 11.5, 11.5, 10 );
+         gfx.drawCircle(down ? Skin.scale(36) : s11 + 0.5, s11 + 0.5, s10 );
          gfx.endFill();
          gfx.lineStyle(2,Skin.guiLight);
          if (down)
          {
-            gfx.moveTo(6,12);
-            gfx.lineTo(11,17);
-            gfx.lineTo(17,6);
+            gfx.moveTo(s6,s12);
+            gfx.lineTo(s11,s17);
+            gfx.lineTo(s17,s6);
          }
          else
          {
-            gfx.moveTo(32,8);
-            gfx.lineTo(40,16);
-            gfx.moveTo(32,16);
-            gfx.lineTo(40,8);
+            gfx.moveTo(s32,s8);
+            gfx.lineTo(s40,s16);
+            gfx.moveTo(s32,s16);
+            gfx.lineTo(s40,s8);
          }
       }
 

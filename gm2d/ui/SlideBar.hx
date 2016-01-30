@@ -90,7 +90,7 @@ class SlideBar extends Sprite implements IDock
       pinned = false;
 
 
-      background = new Widget([line,"Dock"]);
+      background = new Widget([ /*line,*/ "Dock"]);
       background.build();
       addChild(background);
       paneContainer = new Sprite();
@@ -311,6 +311,7 @@ class SlideBar extends Sprite implements IDock
       fullRect = new Rectangle(0,0,size.x,size.y);
 
       background.getLayout().setRect(fullRect.x, fullRect.y, fullRect.width, fullRect.height+oy);
+      //trace( "Set BG " + fullRect.x +","+ fullRect.y +","+ fullRect.width +","+ fullRect.height+oy);
 
       chromeDirty = true;
 

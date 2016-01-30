@@ -362,7 +362,7 @@ class Skin
           itemAlign: Layout.AlignStretch | Layout.AlignCenterY,
         });
       addAttribs("TabBar", null, {
-          minSize: new Size(tabSize,tabSize),
+          minSize: size(tabSize,tabSize),
         });
       addAttribs("Menubar", null, {
           minSize: new Size(0,menuHeight),
@@ -482,6 +482,18 @@ class Skin
       return null;
    }
 
+   public static function scaleBitmap(inBmp:BitmapData)
+   {
+      var w = scale(inBmp.width);
+      var h = scale(inBmp.height);
+      var bitmap = new Bitmap(inBmp);
+      var mtx = new nme.geom.Matrix(w/inBmp.width,0,0,h/inBmp.height,0,0);
+
+      var result = new BitmapData(w,h, inBmp.transparent, 0);
+      result.draw(bitmap, mtx);
+      return result;
+   }
+   public static function size(inX:Float,inY:Float) return new Size( scale(inX), scale(inY) );
    public static function scale(inVal:Float):Int
    {
       if (dpiScale==0)
@@ -750,7 +762,7 @@ class Skin
 
    public static function getMultiDockChromePadding(inN:Int,tabStyle:Bool) : Size
    {
-      return new Size(0,tabStyle ? tabHeight : inN*24);
+      return new Size(0,tabStyle ? scale(tabHeight) : inN*24);
    }
 
 
@@ -1208,7 +1220,7 @@ class Skin
       return mDrawing.graphics;
    }
 
-   public static function getMDIClientChrome() { return new Rectangle(0,tabHeight, 0, tabHeight); }
+   public static function getMDIClientChrome() { return new Rectangle(0,scale(tabHeight), 0, scale(tabHeight)); }
 
   
 
