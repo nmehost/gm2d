@@ -230,8 +230,13 @@ class Skin
                        lineage:["DialogButton"] } ],
         });
       addAttribs("Panel", null, {
-          margin: scale(3),
+          padding: scale(3),
         });
+      addAttribs("MediumBg", null, {
+          fill: FillMedium,
+          style: StyleRect,
+        });
+
       addAttribs("GroupBox", null, {
           margin: 10,
           padding: new Rectangle(0,scale(20),0,scale(20)),

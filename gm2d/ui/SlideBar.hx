@@ -50,6 +50,7 @@ class SlideBar extends Sprite implements IDock
    public var showText = true;
    public var showPin = true;
    public var tabGap = false;
+   public var showGrip = false;
 
    public function new(inParent:DisplayObjectContainer,inPos:DockPosition,
              inMinSize:Null<Int>, inMaxSize:Null<Int>,
@@ -90,7 +91,7 @@ class SlideBar extends Sprite implements IDock
       pinned = false;
 
 
-      background = new Widget([ /*line,*/ "Dock"]);
+      background = new Widget([ line, "Dock"]);
       background.build();
       addChild(background);
       paneContainer = new Sprite();
@@ -222,7 +223,7 @@ class SlideBar extends Sprite implements IDock
       if (current==null)
          return 0;
 
-      var offset = pinned ? 0 : posOffset;
+      var offset = (pinned || showGrip) ? 0 : posOffset;
       if (horizontal)
       {
          y+=offset;
@@ -237,7 +238,7 @@ class SlideBar extends Sprite implements IDock
       var oy = 0.0;
       var right = x+w;
       var bottom = y+h;
-      if (pinned && maxSize!=null)
+      if ((pinned || showGrip) && maxSize!=null)
       {
          if (horizontal)
             w = maxSize;
@@ -259,7 +260,7 @@ class SlideBar extends Sprite implements IDock
             h = minSize;
       }
 
-      if (pinned)
+      if (pinned || showGrip )
       {
          if (tabRenderer==null)
             oy = 0;
@@ -340,12 +341,15 @@ class SlideBar extends Sprite implements IDock
             var tabRect = fullRect.clone();
             var flags = (showText?TabRenderer.SHOW_TEXT:0) |
                          TabRenderer.SHOW_ICON |
-                         (showPin?TabRenderer.SHOW_PIN:0);
+                         (showPin?TabRenderer.SHOW_PIN:0) |
+                         (showGrip?TabRenderer.SHOW_GRIP:0);
             var renderPos = tabSide;
-            if (pinned)
+            if (pinned || showGrip)
             {
                renderPos = TabRenderer.TOP;
                tabRect.height = barHeight;
+               if (showGrip)
+                  tabRect.width += barHeight;
             }
             else
             {
@@ -373,6 +377,8 @@ class SlideBar extends Sprite implements IDock
             {
                 if (tallBar)
                    barDockable.setRect(rect0.x, rect0.y+tabRect.height, rect0.width, rect0.height-tabRect.height);
+                else if (showGrip)
+                   barDockable.setRect(rect0.x+tabRect.width-barHeight, rect0.y+tabRect.height, rect0.width-tabRect.width, rect0.height-tabRect.height);
                 else
                    barDockable.setRect(rect0.x+tabRect.width, rect0.y, rect0.width-tabRect.width, rect0.height);
             }

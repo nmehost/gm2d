@@ -36,8 +36,9 @@ class TabRenderer
    public static inline var SHOW_PIN      = 0x0008;
    public static inline var SHOW_POPUP    = 0x0010;
    public static inline var SHOW_CLOSE    = 0x0020;
+   public static inline var SHOW_GRIP     = 0x0040;
 
-   public static inline var IS_OVERLAPPED = 0x0040;
+   public static inline var IS_OVERLAPPED = 0x0100;
 
    public dynamic function renderBackground(bitmap:BitmapData)
    {
@@ -55,6 +56,18 @@ class TabRenderer
       var alphas:Array<Float> = [1.0, 1.0];
       var ratio:Array<Int> = [0, 255];
       gfx.beginGradientFill(nme.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
+      gfx.drawRect(0,0,w,tabHeight);
+      bitmap.draw(shape);
+   }
+   public function renderGripBackground(bitmap:BitmapData)
+   {
+      var shape = Skin.mDrawing;
+      var gfx = shape.graphics;
+      var w = bitmap.width;
+      var tabHeight = bitmap.height;
+      gfx.clear();
+
+      gfx.beginFill(Skin.guiDark);
       gfx.drawRect(0,0,w,tabHeight);
       bitmap.draw(shape);
    }
@@ -104,6 +117,7 @@ class TabRenderer
          buts.push( createTabButton( MiniButton.PIN ) );
 
       var forceText = (inFlags & SHOW_TEXT) != 0;
+      var showGrip = (inFlags & SHOW_GRIP) != 0;
 
       if ((inFlags & IS_OVERLAPPED)>0)
       {
@@ -141,7 +155,10 @@ class TabRenderer
       display.y = ioRect.y;
       inTabContainer.addChild(display);
 
-      renderBackground(bitmap);
+      if (showGrip)
+         renderGripBackground(bitmap);
+      else
+         renderBackground(bitmap);
       var gfx = shape.graphics;
       gfx.clear();
 
@@ -214,9 +231,12 @@ class TabRenderer
          else
          {
             gfx.clear();
-            gfx.lineStyle(1,0x404040);
-            gfx.beginFill(Skin.guiDark);
-            gfx.drawRoundRect(0.5,0.5,tw,tabHeight+2,6,6);
+            if (!showGrip)
+            {
+               gfx.lineStyle(1,0x404040);
+               gfx.beginFill(Skin.guiDark);
+               gfx.drawRoundRect(0.5,0.5,tw,tabHeight+2,6,6);
+            }
             trans.ty = y0;
             bitmap.draw(shape,trans);
             trans.tx+=borderLeft;
