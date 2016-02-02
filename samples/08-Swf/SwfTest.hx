@@ -2,7 +2,12 @@ import nme.display.Sprite;
 import gm2d.Game;
 import gm2d.Screen;
 import gm2d.reso.Resources;
+
+#if swf
+import format.SWF;
+#else
 import gm2d.swf.SWF;
+#end
 
 
 
@@ -40,7 +45,7 @@ class SwfTest extends Screen
             var data = Resources.loadBytes("tests/" + test[idx++] + ".swf");
             //trace(data.length);
             var swf = new SWF(data);
-            var obj = swf.createInstance();
+            var obj = swf.createMovieClip();
             obj.cacheAsBitmap = true;
             obj.x = x*320;
             obj.y = y*240;

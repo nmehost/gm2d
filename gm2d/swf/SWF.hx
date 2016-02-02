@@ -187,6 +187,10 @@ class SWF
       result.CreateFromSWF(mMain);
       return result;
    }
+   public function createMovieClip() : gm2d.swf.MovieClip
+   {
+      return createInstance();
+   }
 
    public function createSymbolInstance(inName:String) : Dynamic
    {
