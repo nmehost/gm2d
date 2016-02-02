@@ -181,7 +181,10 @@ class MouseWatcher
 
       removeStageListeners();
       if (onUp!=null)
+      {
          onUp(ev);
+         onUp = null;
+      }
    }
 
    function onStageDrag(ev:MouseEvent)

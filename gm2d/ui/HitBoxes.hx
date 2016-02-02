@@ -33,6 +33,7 @@ enum HitAction
 {
    NONE;
    REDRAW;
+   GRIP;
    DRAG(pane:IDockable);
    BUTTON(pane:IDockable,buttonId:String);
    TITLE(pane:IDockable);
@@ -172,6 +173,8 @@ class HitBoxes
                case DOCKSIZE(dock,index):
                   if (onDockSizeDown!=null && r.rect.contains(inX,inY))
                      onDockSizeDown(dock,index,inX,inY,r.rect);
+               case GRIP:
+                  mCallback(r.action,inEvent);
                default:
             }
          }
@@ -180,6 +183,7 @@ class HitBoxes
 
    public function onUp(inX:Float, inY:Float,inEvent:MouseEvent)
    {
+      var oldPane = downPane;
       downPane = null;
       mResizeFlags = 0;
       mMoved = false;
@@ -188,12 +192,18 @@ class HitBoxes
          {
             switch(r.action)
             {
-               case BUTTON(_pane,_id):
+               case BUTTON(pane,_id):
+                  if (oldPane!=pane)
+                     return;
                   //var states = pane==null ? buttonState : pane.buttonStates();
                   //if (states[id]==BUT_STATE_DOWN)
                   //{
                      //states[id]=BUT_STATE_OVER;
                   //}
+               case TITLE(pane) :
+                  if (oldPane!=pane)
+                     return;
+               case GRIP: return;
                default:
             }
             mCallback(r.action,inEvent);
@@ -229,6 +239,9 @@ class HitBoxes
             case DOCKSIZE(dock,index):
                if (onOverDockSize!=null && rect.rect.contains(inX,inY))
                   onOverDockSize(dock,index,inX,inY,rect.rect);
+
+            // Let mouseWatcher handle it
+            case GRIP: return;
             default:
          }
       }

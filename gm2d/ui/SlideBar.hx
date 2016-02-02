@@ -105,6 +105,7 @@ class SlideBar extends Sprite implements IDock
 
    public function onHitBox(inAction:HitAction,inEvent:MouseEvent)
    {
+      popOnUp = false;
       switch(inAction)
       {
          /*
@@ -121,6 +122,9 @@ class SlideBar extends Sprite implements IDock
                Dock.raise(pane);
                beginScroll(inEvent);
             }
+         case GRIP:
+             popOnUp = true;
+            beginScroll(inEvent);
 
          case BUTTON(_,but):
             if (but==MiniButton.PIN)

@@ -55,6 +55,8 @@ class DefaultBitmaps
       var s10 = Skin.scale(10);
       var s11 = Skin.scale(11);
       var s12 = Skin.scale(12);
+      var s14 = Skin.scale(14);
+      var s15 = Skin.scale(15);
       var s16 = Skin.scale(16);
       var s17 = Skin.scale(17);
       var s32 = Skin.scale(32);
@@ -165,6 +167,14 @@ class DefaultBitmaps
             gfx.moveTo(s32,s16);
             gfx.lineTo(s40,s8);
          }
+      }
+      else if (inButton==Skin.Grip)
+      {
+         effects = false;
+         gfx.beginFill(Skin.guiLight);
+         gfx.drawRect(s2,s2, s14-s2, s4-s2);
+         gfx.drawRect(s2,s7, s14-s2, s9-s7);
+         gfx.drawRect(s2,s12, s14-s2, s14-s12);
       }
 
 

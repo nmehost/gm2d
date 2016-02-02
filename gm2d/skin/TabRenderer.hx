@@ -40,6 +40,8 @@ class TabRenderer
 
    public static inline var IS_OVERLAPPED = 0x0100;
 
+   static var gripBmp:BitmapData = null;
+
    public dynamic function renderBackground(bitmap:BitmapData)
    {
       var shape = Skin.mDrawing;
@@ -69,6 +71,18 @@ class TabRenderer
 
       gfx.beginFill(Skin.guiDark);
       gfx.drawRect(0,0,w,tabHeight);
+
+      if (gripBmp==null)
+         gripBmp = DefaultBitmaps.factory("#grip",0);
+
+      var by = Std.int( (tabHeight-gripBmp.height) * 0.5 );
+      var bx = w - gripBmp.width - by;
+      var matrix = new Matrix();
+      matrix.tx = bx;
+      matrix.ty = by;
+      gfx.beginBitmapFill(gripBmp,matrix);
+      gfx.drawRect(bx,by, gripBmp.width, gripBmp.height);
+
       bitmap.draw(shape);
    }
 
@@ -156,7 +170,10 @@ class TabRenderer
       inTabContainer.addChild(display);
 
       if (showGrip)
+      {
          renderGripBackground(bitmap);
+         outHitBoxes.add(new Rectangle(bitmap.width-tabHeight,boxOffset.y,tabHeight,tabHeight), GRIP );
+      }
       else
          renderBackground(bitmap);
       var gfx = shape.graphics;

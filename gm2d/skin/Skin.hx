@@ -111,6 +111,7 @@ class Skin
    public static inline var Add      = "#add";
    public static inline var Remove   = "#remove";
    public static inline var Resize   = "#resize";
+   public static inline var Grip     = "#grip";
  
    // Other Buttons
    public static inline var Checkbox   = "#checkbox";
