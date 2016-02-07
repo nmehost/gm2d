@@ -23,9 +23,9 @@ class Resources
          case FONT: return Assets.getFont(inName,inCache);
          case IMAGE: return Assets.getBitmapData(inName,inCache);
          case MUSIC, SOUND: return Assets.getSound(inName,inCache);
+         case _: throw "Unknown asset type: " + i.type;
       }
 
-      throw "Unknown asset type: " + i.type;
       return null;
    }
 

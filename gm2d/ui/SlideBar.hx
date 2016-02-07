@@ -271,6 +271,7 @@ class SlideBar extends Sprite implements IDock
          else
          {
             oy = getBarHeight();
+            h -= oy;
          }
       }
 
