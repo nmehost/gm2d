@@ -142,13 +142,16 @@ class ListControl extends ScrollWidget
       recalcPos();
    }
 
+   public function getRowCount() return mRows.length;
+
    public function deselect()
    {
       if (mSelected>=0 || mMultiSelect!=null)
       {
          mMultiSelect = null;
          mSelected = -1;
-         drawBG();
+         if (mHoldUpdates==0)
+            drawBG();
       }
    }
 
@@ -230,7 +233,11 @@ class ListControl extends ScrollWidget
          pos += mRows[i].height;
       }
       mRowPos[mRows.length]=pos;
+      updateHeight();
+   }
 
+   function updateHeight()
+   {
       mControlHeight = mRowPos[mRows.length];
       getItemLayout().setMinSize( mMinControlWidth, mControlHeight );
       setScrollRange(mWidth,mWidth,mControlHeight,mHeight);
@@ -352,13 +359,12 @@ class ListControl extends ScrollWidget
          {
             var pos = mRowPos[mRowPos.length-1];
             mRowPos.push(pos+rowHeight);
+            updateHeight();
          }
+         redraw();
       }
       else
          needRecalcPos = true;
-
-      if (mHoldUpdates==0)
-         redraw();
    }
 
    public function holdUpdates(inHold:Bool)
@@ -460,7 +466,10 @@ class ListControl extends ScrollWidget
                   onSelect(i);
             }
 
-            drawBG();
+            if (mHoldUpdates==0)
+            {
+               drawBG();
+            }
             if (mSelected>=0 && (inFlags&SELECT_SHOW_ITEM)!=0 )
                showItem(mSelected);
          }

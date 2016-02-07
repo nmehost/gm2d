@@ -35,6 +35,12 @@ class Resources
       return Assets.getBitmapData(inAssetName,inCache);
    }
 
+   static public function loadScaledBitmap(inAssetName:String, ?inCache:Bool) : nme.display.BitmapData
+   {
+      return gm2d.skin.Skin.scaleBitmap(Assets.getBitmapData(inAssetName,inCache));
+   }
+
+
    static public function loadBytes(inAssetName:String, ?inCache:Bool) : nme.utils.ByteArray
    {
       return Assets.getBytes(inAssetName,inCache);
