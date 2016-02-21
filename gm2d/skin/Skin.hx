@@ -237,6 +237,10 @@ class Skin
           fill: FillMedium,
           style: StyleRect,
         });
+      addAttribs("DarkBg", null, {
+          fill: FillDark,
+          style: StyleRect,
+        });
 
       addAttribs("GroupBox", null, {
           margin: 10,

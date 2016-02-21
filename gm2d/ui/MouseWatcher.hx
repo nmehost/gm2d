@@ -183,7 +183,6 @@ class MouseWatcher
       if (onUp!=null)
       {
          onUp(ev);
-         onUp = null;
       }
    }
 

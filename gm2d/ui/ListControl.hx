@@ -202,22 +202,26 @@ class ListControl extends ScrollWidget
       mChildrenClean = 0;
       var pos = 0.0;
       mColPos=[];
+      mMinControlWidth = 0.0;
       for(i in 0...mColWidths.length)
       {
          mColPos[i] = pos;
          #if neko if (mColWidths[i]==null) mColWidths[i] = 0; #end
-         pos += mColWidths[i] + mXGap;
+         #if neko if (mMinColWidths[i]==null) mMinColWidths[i] = 0; #end
+         pos += mColWidths[i];
+         mMinControlWidth += mMinColWidths[i];
+         if (i!=mColWidths.length-1)
+         {
+            mMinControlWidth += mXGap;
+            pos+=mXGap;
+         }
       }
-      mMinControlWidth = pos;
-      if (mMinControlWidth<mMinWidth)
-         mMinControlWidth = mMinWidth;
 
       var w = Math.max(mMinControlWidth,mWidth);
       var col = mStretchCol!=null ? mStretchCol : mColWidths.length-1;
 
       if (col!=null && col<mColWidths.length && col>=0 && pos!=w)
       {
-         //trace("List adjust " + (w-pos) );
          var bump = w-pos;
          pos += bump;
          mColWidths[col] += bump;
