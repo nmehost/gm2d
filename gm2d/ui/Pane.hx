@@ -32,6 +32,7 @@ class Pane implements IDockable
    public var bestSize:Array<Size>;
    public var properties:Dynamic;
    public var icon:BitmapData;
+   public var clipped:Bool;
    //public var bestPos:Array<Point>;
    var flags:Int;
    public var posX(default,null):Float;
@@ -57,6 +58,7 @@ class Pane implements IDockable
       posX=posY=0.0;
       gm2dMinimized = false;
       itemLayout = inItemLayout;
+      clipped = true;
 
       if (itemLayout!=null)
       {
@@ -265,10 +267,14 @@ class Pane implements IDockable
          {
             displayObject.visible = true;
             if (itemLayout!=null)
-               itemLayout.setRect(0,0,w,h);
-            displayObject.x = x;
-            displayObject.y = y;
-            displayObject.scrollRect = new Rectangle(scrollX,scrollY,w,h);
+               itemLayout.setRect(x,y,w,h);
+            else
+            {
+               displayObject.x = x;
+               displayObject.y = y;
+            }
+            if (clipped)
+               displayObject.scrollRect = new Rectangle(scrollX,scrollY,w,h);
          }
          else
          {

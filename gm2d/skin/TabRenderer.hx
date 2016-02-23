@@ -351,6 +351,7 @@ class TabRenderer
             trans.tx += bmpPad;
             trans.ty = (tabHeight - Std.int(closeBut.getLayout().getBestHeight())) >> 1;
             bitmap.draw(closeBut,trans);
+            trans.tx += closeBut.width + bmpPad;
          }
       }
 
@@ -360,8 +361,10 @@ class TabRenderer
          gfx.beginFill(Skin.guiMedium);
          gfx.drawRect(0,tabHeight-2,w,8);
          bitmap.draw(shape);
-         ioRect.width = w;
+         ioRect.width = trans.tx;
          ioRect.height = tabHeight;
+         ioRect.x = display.x;
+         ioRect.y = display.y;
       }
       else
       {
@@ -412,9 +415,9 @@ class TabRenderer
 
              outHitBoxes.add(rect, HitAction.BUTTON(null,buts[b].name));
           }
+          ioRect.x = display.x;
+          ioRect.y = display.y;
       }
-      ioRect.x = display.x;
-      ioRect.y = display.y;
    }
 
    function displayRect(display:Bitmap, inX:Float, inY:Float, inW:Float, inH:Float)
