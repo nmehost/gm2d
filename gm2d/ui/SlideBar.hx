@@ -384,8 +384,14 @@ class SlideBar extends Sprite implements IDock
                    // Tabs run vertically...
                    barDockable.setRect(rect0.x, rect0.y+tabRect.height, rect0.width, rect0.height-tabRect.height);
                 else if (showGrip)
+                {
+                   var x0 = rect0.x+rect0.width - barHeight;
+                   var w = barHeight;
+                   var y0 = rect0.y + rect0.height;
+                   var h = fullRect.height - rect0.height;
                    // Tabs run horizontally, but extend into bar region
-                   barDockable.setRect(rect0.x+tabRect.width-barHeight, rect0.y+tabRect.height, rect0.width-tabRect.width, rect0.height-tabRect.height);
+                   barDockable.setRect(x0, y0, w, h);
+                }
                 else
                 {
                    var y = rect0.y;
