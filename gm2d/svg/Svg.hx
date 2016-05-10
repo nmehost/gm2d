@@ -408,10 +408,12 @@ class Svg extends Group
        /*
        */
 
-       var textChild = inText.firstChild();
-       var string= textChild==null ? "" : textChild.toString();
+       var string= "";
        for(el in inText.elements())
-          string += el.toString();
+          if (el.nodeName=="tspan")
+             text.addTSpan(el);
+          else
+            string += el.nodeValue;
        //trace(string);
        text.text= string;
        

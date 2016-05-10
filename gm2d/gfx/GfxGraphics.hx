@@ -57,30 +57,55 @@ class GfxGraphics extends Gfx
             fmt.size = style.size * scale;
             fmt.color = colour;
             textField.defaultTextFormat = fmt;
-            textField.text=text.text;
-            var tw = Std.int(textField.width + 0.99);
-            var th = Std.int(textField.height + 0.99);
-            if (tw>0 && th>0)
+            for(i in 0...text.tspans.length+1)
             {
-               var bmp = new BitmapData(tw,th,true,0x00000000);
-               bmp.draw(textField);
-               var mapper = m.clone();
-               //mapper.invert();
-               //mapper.tx -= text.x;
-               //mapper.ty -= text.y;
-               graphics.beginBitmapFill(bmp,mapper,true,true);
-               for(c in 0...4)
+               var string = text.text;
+               var spanX = 0.0;
+               var spanY = 0.0;
+               if (i>0)
                {
-                  var x = text.x + ( (c==1 || c==2) ? tw/scale : 0);
-                  var y = text.y - th/scale + ( (c==2 || c==3) ? th/scale : 0);
-                  var tx =  m==null ? x : x*m.a + y*m.c + m.tx;
-                  var ty =  m==null ? y : x*m.b + y*m.d + m.ty;
-                  if (c==0)
-                     graphics.moveTo(tx,ty);
-                  else
-                     graphics.lineTo(tx,ty);
+                  var tspan = text.tspans[i-1];
+                  string = tspan.text;
+                  if (tspan.x!=null) spanX = tspan.x;
+                  if (tspan.y!=null) spanY = tspan.y;
                }
-               graphics.endFill();
+               if (string=="") continue;
+
+               textField.text=string;
+               var tw = Std.int(textField.width + 0.99);
+               var th = Std.int(textField.height + 0.99);
+               if (tw>0 && th>0)
+               {
+                  var bmp = new BitmapData(tw,th,true,0x00000000);
+                  bmp.draw(textField);
+                  /*
+                  var mapper = m==null ? new Matrix() : m.clone();
+                  mapper.tx += x0;
+                  mapper.ty += y0;
+                  mapper.invert();
+                  */
+
+                  var metrics = textField.getLineMetrics(0);
+                  var x0 = text.x + spanX;
+                  var y0 = text.y + spanY - metrics.ascent/scale;
+                  for(c in 0...4)
+                  {
+                     var x = x0 + ( (c==1 || c==2) ? tw/scale : 0);
+                     var y = y0 + ( (c==2 || c==3) ? th/scale : 0);
+                     var tx =  Std.int(m==null ? x : x*m.a + y*m.c + m.tx);
+                     var ty =  Std.int(m==null ? y : x*m.b + y*m.d + m.ty);
+                     if (c==0)
+                     {
+                        var mapper = m==null ? new Matrix(1,0,0,1,tx,ty) :
+                                               new Matrix(m.a/scale,m.b/scale,m.c/scale,m.d/scale,tx,ty);
+                        graphics.beginBitmapFill(bmp,mapper,true,true);
+                        graphics.moveTo(tx,ty);
+                     }
+                     else
+                        graphics.lineTo(tx,ty);
+                  }
+                  graphics.endFill();
+               }
             }
 
          default: trace("Hmmm");
