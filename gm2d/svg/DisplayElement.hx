@@ -39,6 +39,7 @@ class DisplayElement
    public function asPath() : Path return null;
    public function asLink() : Link return null;
    public function asText() : Text return null;
+   public function asMarker() : Marker return null;
 
 }
 

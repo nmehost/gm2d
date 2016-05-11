@@ -87,6 +87,25 @@ class SvgStyles
              ( (i&0xf00) * 0x1100 ) ;
    }
 
+   public function getMarker(inKey:String,inLinks:Map<String,DisplayElement>) : Marker
+   {
+      var s = get(inKey,"");
+      if (s=="")
+         return null;
+      if (s=="none")
+         return null;
+
+      if (urlMatch.match(s))
+      {
+         var url = urlMatch.matched(1);
+         var link = inLinks.get(url);
+         if (link==null)
+            throw "Unknown marker " + url;
+         return link.asMarker();
+      }
+      throw("Unknown marker string:" + s);
+      return null;
+   }
 
    public function getFill(inKey:String)
    {

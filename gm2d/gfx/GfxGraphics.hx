@@ -56,6 +56,15 @@ class GfxGraphics extends Gfx
             var fmt = new TextFormat();
             fmt.size = style.size * scale;
             fmt.color = colour;
+            switch(style.family)
+            {
+               case "Sans":
+                  fmt.font = "_sans";
+               default:
+                  if (style.family!="")
+                     fmt.font = style.family;
+            }
+            fmt.bold = style.weight=="bold";
             textField.defaultTextFormat = fmt;
             for(i in 0...text.tspans.length+1)
             {

@@ -99,6 +99,18 @@ class Svg extends Group
        return inDef;
     }
 
+    function loadMarker(inMarker:Xml)
+    {
+       var marker = new Marker();
+       loadElement(marker, inMarker);
+       for(el in inMarker.elements())
+         if (el.nodeName=="path")
+             marker.path = loadPath(el,PATH);
+       marker.refX = getFloat(inMarker, "refX", 0.0);
+       marker.refY = getFloat(inMarker, "refY", 0.0);
+       return marker;
+    }
+
     function loadGradient(inGrad:Xml,inType:GradientType,inCrossLink:Bool)
     {
        var name = inGrad.get("id");
@@ -179,6 +191,8 @@ class Svg extends Group
                 loadGradient(def,GradientType.LINEAR,pass==1);
              else if (name=="radialGradient")
                 loadGradient(def,GradientType.RADIAL,pass==1);
+             else if (name=="marker" && pass==0)
+                loadMarker(def);
           }
     }
 
@@ -419,6 +433,8 @@ class Svg extends Group
        
        return text;
     }
+
+    public function getLinks() return mLinks;
 
     public function findLink(inId:String):DisplayElement
     {

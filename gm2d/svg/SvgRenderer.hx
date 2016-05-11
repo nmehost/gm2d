@@ -176,6 +176,7 @@ class SvgRenderer
        textStyle.fill = styles.getFill("fill");
        textStyle.size = styles.getFloat("font-size",14);
        textStyle.family = styles.get("font-family","");
+       textStyle.weight = styles.get("font-weight","");
        mGfx.renderText(inText,mMatrix,textStyle);
     }
 
@@ -189,7 +190,9 @@ class SvgRenderer
 
        resetRenderContext();
 
+
        var geomOnly = mGfx.geometryOnly();
+       var lineStyle:gm2d.gfx.LineStyle = null;
        if (!geomOnly)
        {
           // Move to avoid the case of:
@@ -215,15 +218,15 @@ class SvgRenderer
           var stroke_colour=styles.getStroke("stroke");
           if (stroke_colour!=null)
           {
-             var style = new gm2d.gfx.LineStyle();
+             lineStyle = new gm2d.gfx.LineStyle();
              var scale = mMatrix==null ? 1.0 : Math.sqrt(mMatrix.a*mMatrix.a + mMatrix.c*mMatrix.c);
-             style.thickness = styles.getFloat("stroke-width",1)*scale;
-             style.alpha = styles.getFloat("stroke-opacity",1)*opacity;
-             style.color = stroke_colour;
-             style.capsStyle = CapsStyle.ROUND;
-             style.jointStyle = JointStyle.ROUND;
-             style.miterLimit = styles.getFloat("stroke-miterlimit",3.0);
-             mGfx.lineStyle(style);
+             lineStyle.thickness = styles.getFloat("stroke-width",1)*scale;
+             lineStyle.alpha = styles.getFloat("stroke-opacity",1)*opacity;
+             lineStyle.color = stroke_colour;
+             lineStyle.capsStyle = CapsStyle.ROUND;
+             lineStyle.jointStyle = JointStyle.ROUND;
+             lineStyle.miterLimit = styles.getFloat("stroke-miterlimit",3.0);
+             mGfx.lineStyle(lineStyle);
           }
        }
 
@@ -234,6 +237,15 @@ class SvgRenderer
 
        mGfx.endFill();
        mGfx.endLineStyle();
+
+       if (lineStyle!=null)
+       {
+          var markerEnd = styles.getMarker("marker-end",mSvg.getLinks());
+          if (markerEnd!=null)
+          {
+             // TODO
+          }
+       }
     }
 
     public function iterateChild(child:DisplayElement)
