@@ -36,6 +36,18 @@ class PathSegment
       inGfx.moveTo(ioContext.lastX, ioContext.lastY);
    }
 
+   public function getDirection(inFraction:Float, prev:PathSegment):Float
+   {
+      if (prev==null)
+         return 0.0;
+      var dx = x-prev.prevX();
+      var dy = y-prev.prevY();
+      var len = dx*dx+dy*dy;
+      if (len==0)
+         return 0;
+      return Math.atan2(dy,dx);
+   }
+
 }
 
 class MoveSegment extends PathSegment

@@ -102,10 +102,7 @@ class Svg extends Group
     function loadMarker(inMarker:Xml)
     {
        var marker = new Marker();
-       loadElement(marker, inMarker);
-       for(el in inMarker.elements())
-         if (el.nodeName=="path")
-             marker.path = loadPath(el,PATH);
+       loadGroup(marker, inMarker);
        marker.refX = getFloat(inMarker, "refX", 0.0);
        marker.refY = getFloat(inMarker, "refY", 0.0);
        return marker;
@@ -196,7 +193,7 @@ class Svg extends Group
           }
     }
 
-    function createTransform(inTrans:String) : Matrix
+    function parseTransform(inTrans:String) : Matrix
     {
        var scale = 1.0;
        var result:Matrix = null;
@@ -236,7 +233,7 @@ class Svg extends Group
        else if (mRotate1Match.match(inTrans))
        {
           // TODO: Pre-scale
-          var angle = Std.parseFloat( mRotateMatch.matched(1) );
+          var angle = Std.parseFloat( mRotate1Match.matched(1) );
           result = new Matrix();
           result.rotate( angle*Math.PI/180.0 );
        }
@@ -256,6 +253,31 @@ class Svg extends Group
 
        return result;
     }
+
+    function createTransform(inTrans:String) : Matrix
+    {
+       var result:Matrix = null;
+
+       for(part in inTrans.split(")"))
+       {
+          if (part.indexOf("(")>0)
+          {
+             var mat = parseTransform(part+")");
+             if (mat!=null)
+             {
+                if (result==null)
+                   result = mat;
+                else
+                {
+                   mat.concat(result);
+                   result = mat;
+                }
+             }
+          }
+       }
+       return result;
+    }
+
 
 
    static var attribStyles = [

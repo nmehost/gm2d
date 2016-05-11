@@ -56,10 +56,12 @@ class SvgRenderer
    var styles : SvgStyles;
    var mGfx : Gfx;
    var mMatrix : Matrix;
+   var mMarkerLockout:Bool;
 
    public function new(inSvg:Group,?inLayer:String)
    {
        mRoot = inSvg;
+       mMarkerLockout = false;
 
        if (Std.is(inSvg,Svg))
        {
@@ -193,6 +195,7 @@ class SvgRenderer
 
        var geomOnly = mGfx.geometryOnly();
        var lineStyle:gm2d.gfx.LineStyle = null;
+       var strokeScale = 1.0;
        if (!geomOnly)
        {
           // Move to avoid the case of:
@@ -219,8 +222,8 @@ class SvgRenderer
           if (stroke_colour!=null)
           {
              lineStyle = new gm2d.gfx.LineStyle();
-             var scale = mMatrix==null ? 1.0 : Math.sqrt(mMatrix.a*mMatrix.a + mMatrix.c*mMatrix.c);
-             lineStyle.thickness = styles.getFloat("stroke-width",1)*scale;
+             strokeScale = mMatrix==null ? 1.0 : Math.sqrt(mMatrix.a*mMatrix.a + mMatrix.c*mMatrix.c);
+             lineStyle.thickness = styles.getFloat("stroke-width",1)*strokeScale;
              lineStyle.alpha = styles.getFloat("stroke-opacity",1)*opacity;
              lineStyle.color = stroke_colour;
              lineStyle.capsStyle = CapsStyle.ROUND;
@@ -238,12 +241,28 @@ class SvgRenderer
        mGfx.endFill();
        mGfx.endLineStyle();
 
-       if (lineStyle!=null)
+       if (lineStyle!=null && !mMarkerLockout)
        {
           var markerEnd = styles.getMarker("marker-end",mSvg.getLinks());
           if (markerEnd!=null)
           {
-             // TODO
+             var segs = inPath.segments;
+             var n = segs.length;
+             var seg = segs[ n-1 ];
+             var prev = n>1 ? segs[ n-2 ] : null;
+             var dir = seg.getDirection(1.0, prev);
+
+             var ex = seg.prevX();
+             var ey = seg.prevY();
+             var thick = lineStyle.thickness / strokeScale;
+             var c = Math.cos(dir) * thick;
+             var s = Math.sin(dir) * thick;
+             var matrix = new Matrix(c, s, -s, c, ex-markerEnd.refX, ey-markerEnd.refY);
+             mMarkerLockout = true;
+             var old = pushMatrix(matrix);
+             iterateGroup(markerEnd);
+             mMatrix = old;
+             mMarkerLockout = false;
           }
        }
     }
