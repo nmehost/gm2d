@@ -7,7 +7,7 @@ import gm2d.skin.Skin;
 import gm2d.skin.Renderer;
 
 
-class Image extends Control
+class Image extends Widget
 {
    public var bitmapData(get,set):BitmapData;
    var bitmap:Bitmap;

@@ -46,6 +46,7 @@ class Game
    public static var mCurrentPopup(default,null):Window;
 
    static var mScreenParent:Sprite;
+   static var mDialogGrey:Shape;
    static var mDialogParent:Sprite;
    static var mPopupParent:Sprite;
    static var mDebugOverlay:Shape;
@@ -84,6 +85,8 @@ class Game
       #end
 
       mScreenParent = new Sprite();
+      mDialogGrey = new Shape();
+      mDialogGrey.visible = false;
       mDialogParent = new Sprite();
       mPopupParent = new Sprite();
       mDebugOverlay = new Shape();
@@ -101,10 +104,11 @@ class Game
 
       var parent = nme.Lib.current;
       parent.addChildAt(mScreenParent,0);
-      parent.addChildAt(mDialogParent,1);
-      parent.addChildAt(mPopupParent,2);
-      parent.addChildAt(mFPSControl,3);
-      parent.addChildAt(mDebugOverlay,4);
+      parent.addChildAt(mDialogGrey,1);
+      parent.addChildAt(mDialogParent,2);
+      parent.addChildAt(mPopupParent,3);
+      parent.addChildAt(mFPSControl,5);
+      parent.addChildAt(mDebugOverlay,5);
 
       //if (pixelAccurate)
       parent.stage.scaleMode = nme.display.StageScaleMode.NO_SCALE;
@@ -136,6 +140,8 @@ class Game
       var parent = nme.Lib.current;
       if (mScreenParent!=null)
          parent.removeChild(mScreenParent);
+      if (mDialogGrey!=null)
+         parent.removeChild(mDialogGrey);
       if (mDialogParent!=null)
          parent.removeChild(mDialogParent);
       if (mPopupParent!=null)
@@ -163,6 +169,7 @@ class Game
       parent.y = 0;
       
       mScreenParent = null;
+      mDialogGrey = null;
       mDialogParent = null;
       mPopupParent = null;
       mDebugOverlay = null;
@@ -418,6 +425,18 @@ class Game
    {
       var s = mCurrentScreen.stage;
       return isRotated() ?  s.stageWidth : s.stageHeight;
+   }
+
+   static function updateDialogGrey()
+   {
+      var s = mCurrentScreen.stage;
+      if (s!=null && mDialogGrey.visible)
+      {
+         var gfx = mDialogGrey.graphics;
+         gfx.clear();
+         gfx.beginFill(0x000000,0.25);
+         gfx.drawRect(0,0,s.stageWidth, s.stageHeight);
+      }
    }
 
 
@@ -697,6 +716,7 @@ class Game
          if (mCurrentScreen!=null && inDialog==null)
             mCurrentScreen.setRunning(true);
          mScreenParent.mouseEnabled = true;
+         mDialogGrey.visible = false;
       }
 
       mCurrentDialog = inDialog;
@@ -714,6 +734,8 @@ class Game
       }
 
       mDialogParent.visible = mCurrentDialog!=null;
+      mDialogGrey.visible = mCurrentDialog!=null;
+      updateDialogGrey();
    }
 
    public static function messageBox( inData:{title:String,label:String }, ?inAttribs:{} )
@@ -851,6 +873,7 @@ class Game
    {
       setStageTransform();
       updateScale();
+      updateDialogGrey();
    }
 
 

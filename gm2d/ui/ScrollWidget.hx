@@ -10,7 +10,7 @@ import gm2d.tween.Tween;
 import gm2d.math.TimeAverage;
 import haxe.Timer;
 
-class ScrollWidget extends Control
+class ScrollWidget extends Widget //Control
 {
    public var scrollX(get_scrollX,set_scrollX):Float;
    public var scrollY(get_scrollY,set_scrollY):Float;

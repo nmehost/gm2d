@@ -161,7 +161,7 @@ class Skin
           filters: currentFilters!=null && currentFilters.length==0 ? null : currentFilters,
        });
       addAttribs("Button", null, {
-          style: StyleRoundRect,
+          style: StyleRect,
           fill: FillLight,
           line: LineBorder,
           textAlign: "center",
@@ -196,6 +196,15 @@ class Skin
       addAttribs("SimpleButton", Widget.DOWN, {
           line: LineBorder,
         });
+      addAttribs("DialogButton", null, {
+          offset: new Point(0,0),
+          line: LineSolid(1,guiMedium,1),
+          //fill: FillNone,
+          fill: FillLight,
+          style: StyleRect,
+          padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+        });
+
       addAttribs("ChromeButton", null, {
           offset: new Point(1,1),
           line: LineSolid(1,guiMedium,1),
@@ -218,11 +227,12 @@ class Skin
         });
       addAttribs("DialogTitle", null, {
           align: Layout.AlignStretch | Layout.AlignCenterY,
-          textAlign: "center",
-          fontSize: scale(24),
+          textAlign: "left",
+          fontSize: scale(20),
+          padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
           style: StyleUnderlineRect,
           fill: FillSolid(0xffffff,1),
-          line: LineSolid(4,0x8080ff,1),
+          line: LineSolid(1,0x8080ff,1),
           //hitBoxId: HitBoxes.Title,
           chromeButtons: [ {id:Close,
                        align:Layout.AlignRight|Layout.AlignCenterY,
@@ -279,6 +289,8 @@ class Skin
       addAttribs("CheckButton", null, {
          style: StyleNone,
          offset: new Point(0,0),
+         itemAlign: Layout.AlignLeft,
+         padding: null,
          toggle: true,
          id:"#checkbox",
          bitmap: BitmapFactory(DefaultBitmaps.factory),

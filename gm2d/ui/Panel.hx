@@ -56,9 +56,9 @@ class Panel extends Widget
        mItemGrid.setMinColWidth(1,inSize);
    }
 
-   public function showDialog(inCentre=true)
+   public function showDialog(inCentre=true,?inAttribs:Dynamic, ?inLineage:Array<String>)
    {
-      var dlg = new gm2d.ui.Dialog(getPane());
+      var dlg = new gm2d.ui.Dialog(getPane(),inAttribs, inLineage);
       dlg.show(inCentre);
       return dlg;
    }

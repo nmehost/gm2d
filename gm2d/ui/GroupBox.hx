@@ -6,7 +6,7 @@ import nme.display.BitmapData;
 import nme.text.TextField;
 
 
-class GroupBox extends Control
+class GroupBox extends Widget
 {
    var icon:BitmapData;
    var title:TextLabel;

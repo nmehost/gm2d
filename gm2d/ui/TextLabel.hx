@@ -8,7 +8,7 @@ import gm2d.ui.Button;
 import gm2d.skin.Skin;
 import gm2d.ui.Layout;
 
-class TextLabel extends Control
+class TextLabel extends Widget
 {
    var mText:TextField;
    var mTextLayout:Layout;

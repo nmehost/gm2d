@@ -126,7 +126,7 @@ class Window extends Widget
             {
                for(widget in getWidgetList(commonParent))
                {
-                  if (widget==mCurrent)
+                  if (widget==mCurrent || !widget.wantsFocus())
                      continue;
                   var p = widget.localToGlobal(p00);
                   var dpx = p.x-pos.x;
@@ -154,7 +154,7 @@ class Window extends Widget
             if (nextCurrent!=null)
                setCurrentItem(nextCurrent);
          }
-
+         return true;
       }
 
       if (mCurrent!=null)
@@ -165,7 +165,8 @@ class Window extends Widget
              return true;
           }
       }
-      return false;
+      return true;
+      //return false;
    }
 
    public function getWindowWidth() { return width; }
