@@ -107,7 +107,7 @@ class Game
       parent.addChildAt(mDialogGrey,1);
       parent.addChildAt(mDialogParent,2);
       parent.addChildAt(mPopupParent,3);
-      parent.addChildAt(mFPSControl,5);
+      parent.addChildAt(mFPSControl,4);
       parent.addChildAt(mDebugOverlay,5);
 
       //if (pixelAccurate)
