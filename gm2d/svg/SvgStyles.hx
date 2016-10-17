@@ -2,12 +2,13 @@ package gm2d.svg;
 
 import gm2d.svg.FillType;
 import gm2d.svg.Grad;
+using StringTools;
 
 class SvgStyles
 {
    var defaultFill = FillSolid(0x000000);
    var urlMatch = ~/url\(#(.*)\)/;
-   var rgbMatch = ~/rgb\((\d+)[,\s]\s+(\d+)[,\s]\s+(\d+)\)/;
+   var rgbMatch = ~/rgb\((.*),(.*),(.*)\)/;
 
    var stack : Array<Map<String,String>>;
    var gradients:GradHash;
@@ -53,6 +54,20 @@ class SvgStyles
       return Std.parseFloat(s);
    }
 
+   static function parseRgbComp(s:String) : Int
+   {
+      var result = 0;
+      s = s.trim();
+      if (s.endsWith("%"))
+         result = Std.int( Std.parseFloat(s.substr(0,s.length-1)) * 2.55 );
+      else
+         result = Std.parseInt(s);
+      if (result<0)
+         return 0;
+      if (result>255)
+         return 255;
+      return result;
+   }
 
    public function getStroke(inKey:String,?inDefault:Null<Int>) : Null<Int>
    {
@@ -68,9 +83,9 @@ class SvgStyles
 
       if (rgbMatch.match(s))
       {
-         return (Std.parseInt(rgbMatch.matched(1))<<16 ) |
-                (Std.parseInt(rgbMatch.matched(2))<<8 ) |
-                (Std.parseInt(rgbMatch.matched(3)) );
+         return (parseRgbComp(rgbMatch.matched(1))<<16 ) |
+                (parseRgbComp(rgbMatch.matched(2))<<8 ) |
+                (parseRgbComp(rgbMatch.matched(3)) );
       }
 
       var col = gm2d.RGB.resolve(s);
@@ -126,9 +141,9 @@ class SvgStyles
 
       if (rgbMatch.match(s))
       {
-         return FillSolid( (Std.parseInt(rgbMatch.matched(1))<<16 ) |
-                           (Std.parseInt(rgbMatch.matched(2))<<8 ) |
-                           (Std.parseInt(rgbMatch.matched(3))) );
+         return FillSolid( (parseRgbComp(rgbMatch.matched(1))<<16 ) |
+                           (parseRgbComp(rgbMatch.matched(2))<<8 ) |
+                           (parseRgbComp(rgbMatch.matched(3))) );
       }
 
       if (urlMatch.match(s))
@@ -145,7 +160,7 @@ class SvgStyles
       if (col!=null)
          return FillSolid(col);
 
-      throw("Unknown fill string:" + s);
+      throw("Unknown fill string:'" + s + "'");
 
       return FillNone;
    }

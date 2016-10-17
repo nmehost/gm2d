@@ -184,12 +184,19 @@ class Svg extends Group
              var name = def.nodeName;
              if (name.substr(0,4)=="svg:")
                 name = name.substr(4);
+
              if (name=="linearGradient")
                 loadGradient(def,GradientType.LINEAR,pass==1);
              else if (name=="radialGradient")
                 loadGradient(def,GradientType.RADIAL,pass==1);
              else if (name=="marker" && pass==0)
                 loadMarker(def);
+             else if (pass==0)
+             {
+                var el = loadNode(def);
+                if (el!=null)
+                   mLinks.set(el.id, el);
+             }
           }
     }
 
@@ -465,7 +472,6 @@ class Svg extends Group
        return mLinks.get(inId);
     }
 
-
     public function loadElement(e:DisplayElement, xml:Xml )
     {
        if (xml.exists("transform"))
@@ -491,54 +497,63 @@ class Svg extends Group
 
        for(el in inG.elements())
        {
-          var name = el.nodeName;
-          if (name.substr(0,4)=="svg:")
-             name = name.substr(4);
-
-          if (name=="defs")
-             loadDefs(el);
-          else if (name=="g")
-          {
-             g.children.push( loadGroup(new Group(),el) );
-          }
-          else if (name=="path")
-          {
-             g.children.push( loadPath(el,PATH) );
-          }
-          else if (name=="rect")
-          {
-             g.children.push( loadPath(el,RECT) );
-          }
-          else if (name=="polygon")
-          {
-             g.children.push( loadPath(el,PATH) );
-          }
-          else if (name=="polyline")
-          {
-             g.children.push( loadPath(el,OPEN_PATH) );
-          }
-          else if (name=="line")
-          {
-             g.children.push( loadPath(el,LINE) );
-          }
-          else if (name=="ellipse" || name=="circle")
-          {
-             g.children.push( loadPath(el,CIRCLE) );
-          }
-          else if (name=="text")
-          {
-             g.children.push( loadText(el) );
-          }
-          else if (name=="use")
-          {
-             g.children.push( loadLink(el) );
-          }
-          else
-          {
-              //throw("Unknown child : " + el.nodeName );
-          }
+          var child = loadNode(el);
+          if (child!=null)
+             g.children.push(child);
        }
 
        return g;
+    }
+
+    public function loadNode(el:Xml) : DisplayElement
+    {
+       var name = el.nodeName;
+       if (name.substr(0,4)=="svg:")
+          name = name.substr(4);
+
+       if (name=="defs")
+          loadDefs(el);
+       else if (name=="g" || name=="a")
+       {
+          return loadGroup(new Group(),el);
+       }
+       else if (name=="path")
+       {
+          return loadPath(el,PATH);
+       }
+       else if (name=="rect")
+       {
+          return loadPath(el,RECT);
+       }
+       else if (name=="polygon")
+       {
+          return loadPath(el,PATH);
+       }
+       else if (name=="polyline")
+       {
+          return loadPath(el,OPEN_PATH);
+       }
+       else if (name=="line")
+       {
+          return loadPath(el,LINE);
+       }
+       else if (name=="ellipse" || name=="circle")
+       {
+          return loadPath(el,CIRCLE);
+       }
+       else if (name=="text")
+       {
+          return loadText(el);
+       }
+       else if (name=="use")
+       {
+          return loadLink(el);
+       }
+       else
+       {
+           //throw("Unknown child : " + el.nodeName );
+       }
+
+       return null;
     }
 }
