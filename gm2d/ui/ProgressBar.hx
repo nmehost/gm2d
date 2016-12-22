@@ -12,7 +12,7 @@ class ProgressBar extends Widget
       super(["ProgressBar"]);
       mMax = inMax;
       mFraction = 0.0;
-      build();
+      //build();
    }
 
    public function update(inValue:Float)

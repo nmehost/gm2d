@@ -66,7 +66,7 @@ class ScrollWidget extends Widget //Control
       var result = new ScrollWidget( );
       result.addChild(inChild);
       result.setItemLayout( inChild.getLayout().stretch() );
-      result.build();
+      result.applyStyles();
       return result;
    }
 

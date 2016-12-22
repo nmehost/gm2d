@@ -27,9 +27,9 @@ class Screen extends gm2d.ui.Window
       Game.setCurrentScreen(this);
    }
 
-   override public function build()
+   override public function applyStyles()
    {
-      super.build();
+      super.applyStyles();
       makeCurrent();
    }
 
@@ -66,9 +66,9 @@ class Screen extends gm2d.ui.Window
 
    function isDown(inCode:Int) { return Game.isDown(inCode); }
 
-   override public function setItemLayout(inLayout:Layout,inStretch:Bool=true)
+   override public function setItemLayout(inLayout:Layout)
    {
-      var layout = super.setItemLayout(inLayout, inStretch);
+      var layout = super.setItemLayout(inLayout);
       mLayout.setMinSize(Game.screenWidth, Game.screenHeight);
       return layout;
    }

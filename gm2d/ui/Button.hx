@@ -98,8 +98,9 @@ class Button extends Control
          }
       }
 
-      build();
+      //build();
 
+      applyStyles();
       if (isToggle && attribBool("down",false))
          down = true;
    }

@@ -92,7 +92,7 @@ class SlideBar extends Sprite implements IDock
 
 
       background = new Widget([ line, "Dock"]);
-      background.build();
+      background.applyStyles();
       addChild(background);
       paneContainer = new Sprite();
       addChild(paneContainer);

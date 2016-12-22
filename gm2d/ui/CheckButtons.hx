@@ -15,7 +15,7 @@ class CheckButtons extends Button
    {
       super(null,function() inCheck(down),Widget.addLines(inLineage,["CheckButton"]),inAttribs);
       setChecked(inValue);
-      build();
+      //build();
    }
 
    public function setChecked(inCheck:Bool)

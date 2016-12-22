@@ -76,11 +76,12 @@ class Widget extends Sprite
    public function addWidget(inWidget:Widget) : Widget
    {
       addChild(inWidget);
+      inWidget.applyStyles();
       var layout = getItemLayout();
       if (layout!=null)
          layout.add(inWidget.getLayout());
       else
-         setItemLayout(inWidget.getLayout(),true);
+         setItemLayout(inWidget.getLayout());
       return this;
    }
 
@@ -123,7 +124,7 @@ class Widget extends Sprite
    public static function createVLine(?inParent:DisplayObjectContainer,?inLineage:Array<String>,?inAttribs:Dynamic)
    {
       var result =  new Widget(addLines(inLineage,["VLine","Line"]), inAttribs);
-      result.build();
+      //result.build();
       if (inParent!=null)
          inParent.addChild(result);
       return result;
@@ -132,7 +133,7 @@ class Widget extends Sprite
    public static function createHLine(?inParent:DisplayObjectContainer,?inLineage:Array<String>,?inAttribs:Dynamic)
    {
       var result =  new Widget(addLines(inLineage,["HLine","Line"]), inAttribs);
-      result.build();
+      //result.build();
       if (inParent!=null)
          inParent.addChild(result);
       return result;
@@ -145,11 +146,10 @@ class Widget extends Sprite
 
 
 
-   public function setItemLayout(inLayout:Layout,inStretch:Bool=true)
+   public function setItemLayout(inLayout:Layout)
    {
       mItemLayout = inLayout;
-      if (inStretch)
-         mItemLayout.stretch();
+      //if (inStretch) mItemLayout.stretch();
       if (mLayout==null)
       {
          mLayout = new BorderLayout(mItemLayout,true);
@@ -258,11 +258,25 @@ class Widget extends Sprite
    public function getLayout() : Layout
    {
       if (mLayout==null)
+      {
+         setItemLayout( new Layout() );
+      }
+
+      /*
+      if (mLayout==null)
          build();
+      */
       return mLayout;
    }
 
-   public function build()
+   public function setAlignment(inAlign:Int)
+   {
+      getLayout().setAlignment(inAlign);
+   }
+
+   public function build() applyStyles();
+
+   public function applyStyles()
    {
       if (mLayout==null)
       {

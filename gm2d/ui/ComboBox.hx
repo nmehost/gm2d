@@ -30,7 +30,7 @@ class ComboList extends Window
       mList.onSelect = onSelect;
       mList.onClick = function(_)  gm2d.Game.closePopup();
       setItemLayout(mList.getLayout().setMinWidth(inW).stretch());
-      build();
+      //build();
    }
 
    public function getControlHeight() { return mList.getControlHeight(); }

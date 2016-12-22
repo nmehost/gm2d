@@ -385,6 +385,18 @@ class BorderLayout extends Layout
       super();
    }
 
+   
+   public override function add(inLayout:Layout) : Layout
+   {
+      if (mBase!=null)
+         super.add(inLayout);
+      else
+      {
+         mBase = inLayout;
+      }
+      return this;
+   }
+
    override public function findTextLayout() : TextLayout  { return mBase.findTextLayout(); }
 
    public function setItemLayout(inItemLayout:Layout)

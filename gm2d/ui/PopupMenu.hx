@@ -52,12 +52,14 @@ class PopupMenu extends Window
                      item.onSelect(item);
                   });
                but.addEventListener(MouseEvent.MOUSE_OVER, function(_) me.setItem(id) );
+               but.applyStyles();
                mButtons.push(but);
                addChild(but);
                if (item.checkable)
                {
                   var checkbox = new CheckButtons(item.checked, item.onSelect==null ? null :
                         function(c) { item.checked = c; item.onSelect(item); }, ["MenuCheckbox"] );
+                  checkbox.applyStyles();
                   addChild(checkbox);
                   layout.add( checkbox.getLayout() );
                }
@@ -90,6 +92,7 @@ class PopupMenu extends Window
                else
                {
                   var text = new TextLabel(item.shortcut,["Shortcut","PopupMenuItem"]);
+                  text.applyStyles();
                   addChild(text);
                   layout.add(text.getLayout());
                }
@@ -97,7 +100,7 @@ class PopupMenu extends Window
          }
       }
       setItemLayout(layout);
-      build();
+      applyStyles();
       setItem(0);
    }
 

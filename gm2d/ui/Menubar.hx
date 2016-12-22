@@ -53,7 +53,7 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
       mCurrentItem = -1;
       mNormalParent = null;
       extraWidgets = [];
-      build();
+      applyStyles();
    }
 
    public function add(inItem:MenuItem)

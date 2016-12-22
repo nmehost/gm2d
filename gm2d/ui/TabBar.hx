@@ -43,7 +43,7 @@ class TabBar extends Widget
       mLayout.setAlignment(Layout.AlignStretch | Layout.AlignTop);
       tabsWidth = tabsHeight = 0;
       mHitBoxes = new HitBoxes(this,inOnHitBox);
-      build();
+      //build();
    }
 
    override public function redraw()

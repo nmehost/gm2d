@@ -68,7 +68,7 @@ class TextLabel extends Widget
 
        mTextLayout.mDebugCol = 0xff00ff;
 
-       build();
+       //build();
    }
 
    override public function setText(inText:String) : Void
@@ -88,7 +88,7 @@ class TextLabel extends Widget
    public function setTextWidth(inW:Float)
    {
       mTextLayout.setBestWidth(inW);
-      build();
+      applyStyles();
    }
 
 

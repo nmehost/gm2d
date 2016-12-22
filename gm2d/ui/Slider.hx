@@ -61,7 +61,7 @@ class Slider extends Control
       addEventListener(MouseEvent.CLICK, OnClick );
 
       setValueQuiet(inPos);
-      build();
+      //build();
    }
 
    override public function activate()

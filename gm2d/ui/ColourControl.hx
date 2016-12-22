@@ -65,7 +65,7 @@ class ColourSlider extends Widget
       setItemLayout(layout);
       getLayout().setAlignment(inVertical ? Layout.AlignCenterX : Layout.AlignCenterY);
       updateMarker();
-      build();
+      //build();
    }
 
    public function setInputMode(inMode:Int)
@@ -282,10 +282,10 @@ class ColourWheel extends Widget
       layout.mAlign = Layout.AlignKeepAspect | Layout.AlignStretch;
       layout.name = "colour";
       layout.onLayout = onBmpLayout;
-      setItemLayout(layout,false);
+      setItemLayout(layout);
       getLayout().setAlignment(Layout.AlignStretch);
       mMode = RGBHSV.VALUE;
-      build();
+      //build();
    }
 
    function onMouse(inEvent:MouseEvent)
@@ -638,7 +638,7 @@ class ColourControl extends Widget
       updateLockout = 0;
 
       setItemLayout(vstack);
-      build();
+      //build();
    }
 
    function onRGBDrag(e:MouseEvent)

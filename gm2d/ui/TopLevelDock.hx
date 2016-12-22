@@ -304,6 +304,7 @@ class TopLevelDock implements IDock
          layoutDirty = true;
       if (inChrome)
          chromeDirty = true;
+      Game.invalidate();
    }
    public function addDockZones(outZones:DockZones):Void
    {

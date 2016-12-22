@@ -43,7 +43,7 @@ class RGBBox extends Widget
          textField.addEventListener(MouseEvent.CLICK, function(_) showDialog() );
 
       textField.text = "0x00000000";
-      build();
+      //build();
    }
 
    public function showDialog( )

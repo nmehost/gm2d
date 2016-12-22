@@ -138,7 +138,7 @@ class Renderer
                      lines = Widget.addLines(lineage,["ChromeButton","BitmapFromId"]);
 
                   var button = new Button(null, null, lines, box );
-                  button.build();
+                  button.applyStyles();
                   chromeButtons.push(button);
                   var l = button.getLayout();
                   var s = l.getBestSize();

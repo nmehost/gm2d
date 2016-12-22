@@ -37,9 +37,15 @@ class App extends Screen
 
       makeCurrent();
 
-      addEventListener(nme.events.Event.RENDER, checkSliderLayouts);
+      addEventListener(nme.events.Event.RENDER, function(_) checkSliderLayouts() );
 
       doLayout();
+   }
+
+   override public function makeCurrent()
+   {
+      super.makeCurrent();
+      checkSliderLayouts();
    }
 
    public function createMenubar(useSpriteBar = false)
@@ -80,12 +86,14 @@ class App extends Screen
                throw "Left slider already set";
             leftSlider = new SlideBar(this,inPos,inMin,inMax,inSlideOver,inShowTab,inOffset,inTabPos);
             addChild(leftSlider);
+            invalidate();
             return leftSlider;
 
          case DOCK_RIGHT:
             if (rightSlider!=null)
                throw "Right slider already set";
             rightSlider = new SlideBar(this,inPos,inMin,inMax,inSlideOver,inShowTab,inOffset,inTabPos);
+            invalidate();
             addChild(rightSlider);
             return rightSlider;
 
@@ -93,6 +101,7 @@ class App extends Screen
             if (bottomSlider!=null)
                throw "Bottom slider already set";
             bottomSlider = new SlideBar(this,inPos,inMin,inMax,inSlideOver,inShowTab,inOffset,inTabPos);
+            invalidate();
             addChild(bottomSlider);
             return bottomSlider;
 
@@ -103,7 +112,7 @@ class App extends Screen
    }
 
 
-   public function checkSliderLayouts(_)
+   public function checkSliderLayouts()
    {
        var dirty = (leftSlider!=null && leftSlider.isDirty() ) ||
                    (rightSlider!=null && rightSlider.isDirty() ) ||

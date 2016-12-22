@@ -22,7 +22,7 @@ class Image extends Widget
          addChild(bitmap);
          setItemLayout( new DisplayLayout(bitmap) );
       }
-      build();
+      applyStyles();
    }
 
    function get_bitmapData() return bitmap==null ? null : bitmap.bitmapData;

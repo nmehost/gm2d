@@ -59,11 +59,6 @@ class Pane implements IDockable
       gm2dMinimized = false;
       itemLayout = inItemLayout;
       clipped = true;
-
-      if (itemLayout!=null)
-      {
-         trace(inTitle + " -> " + (new Size(itemLayout.getBestWidth(), itemLayout.getBestHeight())) );
-      }
    }
 
    public function setTitle(inTitle:String, ?inShortTitle:String)
