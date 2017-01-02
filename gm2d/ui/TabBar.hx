@@ -36,13 +36,13 @@ class TabBar extends Widget
       super(["TabBar"] );
       mDockables = inDockables;
       tabRenderer = Skin.tabRenderer( ["Tabs","TabRenderer"] );
+      mHitBoxes = new HitBoxes(this,inOnHitBox);
       var layout = new Layout();
       layout.setAlignment(Layout.AlignStretch);
       layout.onLayout = layoutTabs;
       setItemLayout(layout);
       mLayout.setAlignment(Layout.AlignStretch | Layout.AlignTop);
       tabsWidth = tabsHeight = 0;
-      mHitBoxes = new HitBoxes(this,inOnHitBox);
       //build();
    }
 

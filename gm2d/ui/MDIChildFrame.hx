@@ -196,7 +196,7 @@ class MDIChildFrame extends Widget
       }
    }
 
-   public function setPosition(inX:Float, inY:Float)
+   override public function setPosition(inX:Float, inY:Float)
    {
       x = inX;
       y = inY;

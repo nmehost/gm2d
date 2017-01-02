@@ -78,6 +78,7 @@ class Panel extends Widget
    {
       if (mPane==null)
       {
+         applyStyles();
          var w = getLayout().getBestWidth();
          var h = getLayout().getBestHeight(w);
          mPane = new Pane(this, mTitle, 0);
@@ -149,12 +150,12 @@ class Panel extends Widget
  
    public function addLabel(inText:String,?inName:String,?inAlign:Null<Int>)
    {
+      mLayoutDirty = true;
       if (inText==null)
       {
          mItemGrid.add(null);
          return;
       }
-      mLayoutDirty = true;
       var label = new TextLabel(inText, ["Panel:" + mTitle, "PanelText"]);
       addChild(label);
       mItemGrid.add( label.getLayout() );

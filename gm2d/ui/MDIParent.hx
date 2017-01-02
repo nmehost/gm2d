@@ -54,6 +54,7 @@ class MDIParent extends Sprite implements IDock implements IDockable
 
       mDockables = [];
       mTabContainer = new TabBar(mDockables,onHitBox);
+      mTabContainer.applyStyles();
       addChild(mTabContainer);
 
       mChildren = [];

@@ -201,13 +201,13 @@ class GradientControl extends Widget
       vstack.setAlignment(Layout.AlignStretch).setSpacing(0,15);
       updateLockout = 0;
 
-      setItemLayout(vstack);
-
       positionMarker = new Bitmap( bitmaps.get("positionMarker") );
       positionMarker.y = -5;
       gradBox.addChild(positionMarker);
 
       setGradient( gradient = (new GradSwatch(0,20)).gradient );
+
+      setItemLayout(vstack);
    }
 
    public function getGradient() { return gradient.clone(); }

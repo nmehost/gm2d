@@ -8,6 +8,7 @@ import nme.text.TextField;
 import nme.geom.Point;
 import nme.geom.Rectangle;
 import nme.events.MouseEvent;
+import nme.events.Event;
 import gm2d.ui.Layout;
 import gm2d.ui.HitBoxes;
 import gm2d.skin.Skin;
@@ -32,6 +33,7 @@ class Widget extends Sprite
    public var enabled(get,set) : Bool;
    public var down(get,set):Bool;
    public var isCurrent(get,set):Bool;
+   var styled:Bool;
 
    public var text(get_text,set_text):String;
 
@@ -49,6 +51,7 @@ class Widget extends Sprite
    public function new(?inLineage:Array<String>, ?inAttribs:{})
    {
       super();
+      styled = false;
       mAttribs = inAttribs;
       Reflect.setField(this,"state",0);
       mLineage = addLine(inLineage,"Widget");
@@ -159,6 +162,9 @@ class Widget extends Sprite
       {
          mLayout.setItemLayout(mItemLayout);
       }
+      if (!styled)
+         applyStyles();
+
       return mLayout;
    }
 
@@ -257,15 +263,14 @@ class Widget extends Sprite
 
    public function getLayout() : Layout
    {
+      if (!styled)
+         applyStyles();
+
       if (mLayout==null)
       {
          setItemLayout( new Layout() );
       }
 
-      /*
-      if (mLayout==null)
-         build();
-      */
       return mLayout;
    }
 
@@ -278,6 +283,7 @@ class Widget extends Sprite
 
    public function applyStyles()
    {
+      styled = true;
       if (mLayout==null)
       {
          //throw "No layout set";
@@ -322,6 +328,14 @@ class Widget extends Sprite
    public function setRect(inX:Float, inY:Float, inW:Float, inH:Float)
    {
       getLayout().setRect(inX,inY,inW,inH);
+   }
+
+
+   public function setPosition(inX:Float, inY:Float)
+   {
+      var layout = getLayout();
+      var size = mLayout.getBestSize();
+      layout.setRect(inX,inY,size.x,size.y);
    }
 
    public function set_state(inState:Int) : Int
