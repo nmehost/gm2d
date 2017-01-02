@@ -261,15 +261,25 @@ class Pane implements IDockable
          if (w>0 && h>0)
          {
             displayObject.visible = true;
-            if (itemLayout!=null)
-               itemLayout.setRect(x,y,w,h);
-            else
+            if (clipped)
             {
+               displayObject.scrollRect = new Rectangle(scrollX,scrollY,w,h);
+               if (itemLayout!=null)
+                  itemLayout.setRect(0,0,w,h);
+               // Override setRect offset
                displayObject.x = x;
                displayObject.y = y;
             }
-            if (clipped)
-               displayObject.scrollRect = new Rectangle(scrollX,scrollY,w,h);
+            else
+            {
+               if (itemLayout!=null)
+                  itemLayout.setRect(x,y,w,h);
+               else
+               {
+                  displayObject.x = x;
+                  displayObject.y = y;
+               }
+            }
          }
          else
          {
