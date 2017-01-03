@@ -6,13 +6,13 @@ import nme.ui.Keyboard;
 
 class Window extends Widget
 {
-   var mCurrent:Widget;
-   var mDeactive:Widget;
+   var focusWidget:Widget;
+   var sleepingWidget:Widget;
 
    public function new(?inLineage:Array<String>, ?inAttribs:Dynamic)
    {
       super(Widget.addLine(inLineage,"Window"), inAttribs);
-      mCurrent = null;
+      focusWidget = null;
       addEventListener(MouseEvent.MOUSE_MOVE, windowMouseMove);
       addEventListener(MouseEvent.MOUSE_DOWN, currentFromMouse);
    }
@@ -34,13 +34,13 @@ class Window extends Widget
    {
        if (inActive)
        {
-          if (mCurrent==null && mDeactive!=null)
-             setCurrentItem(mDeactive);
-          mDeactive = null;
+          if (focusWidget==null && sleepingWidget!=null)
+             setCurrentItem(sleepingWidget);
+          sleepingWidget = null;
        }
        else
        {
-          mDeactive = mCurrent;
+          sleepingWidget = focusWidget;
           setCurrentItem(null);
        }
    }
@@ -70,22 +70,22 @@ class Window extends Widget
 
    public function setCurrentItem(inItem:gm2d.ui.Widget)
    {
-      if (inItem!=mCurrent)
+      if (inItem!=focusWidget)
       {
-         if (mCurrent!=null)
-            mCurrent.isCurrent = false;
-         mCurrent = inItem;
-         if (mCurrent!=null)
-            mCurrent.isCurrent = true;
+         if (focusWidget!=null)
+            focusWidget.isCurrent = false;
+         focusWidget = inItem;
+         if (focusWidget!=null)
+            focusWidget.isCurrent = true;
       }
    }
 
 
    public override function onKeyDown(event:nme.events.KeyboardEvent ) : Bool
    {
-      if (mCurrent!=null)
+      if (focusWidget!=null)
       {
-         var used =  mCurrent.onKeyDown(event);
+         var used =  focusWidget.onKeyDown(event);
          if (used)
             return true;
       }
@@ -106,7 +106,7 @@ class Window extends Widget
 
       if (dx!=0 || dy!=0)
       {
-         if (mCurrent==null || mCurrent.stage==null)
+         if (focusWidget==null || focusWidget.stage==null)
          {
             var items = getWidgetList();
             if (items.length>0)
@@ -115,18 +115,18 @@ class Window extends Widget
          else
          {
             var p00 = new nme.geom.Point(0,0);
-            var pos = mCurrent.localToGlobal(p00);
+            var pos = focusWidget.localToGlobal(p00);
 
             var nextCurrent:Widget = null;
 
-            var commonParent = mCurrent.parent;
+            var commonParent = focusWidget.parent;
             var closest = 0.0;
 
             while(commonParent != null)
             {
                for(widget in getWidgetList(commonParent))
                {
-                  if (widget==mCurrent || !widget.wantsFocus())
+                  if (widget==focusWidget || !widget.wantsFocus())
                      continue;
                   var p = widget.localToGlobal(p00);
                   var dpx = p.x-pos.x;
@@ -157,11 +157,11 @@ class Window extends Widget
          return true;
       }
 
-      if (mCurrent!=null)
+      if (focusWidget!=null)
       {
           if (code==Keyboard.ENTER)
           {
-             mCurrent.activate();
+             focusWidget.activate();
              return true;
           }
       }

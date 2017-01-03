@@ -33,6 +33,10 @@ class Widget extends Sprite
    public var enabled(get,set) : Bool;
    public var down(get,set):Bool;
    public var isCurrent(get,set):Bool;
+   public var layoutWidth(get,null):Int;
+   public var layoutHeight(get,null):Int;
+
+
    var styled:Bool;
 
    public var text(get_text,set_text):String;
@@ -147,6 +151,10 @@ class Widget extends Sprite
       getLayout().align(x,y,w,h);
    }
 
+   public function stretch()
+   {
+      return getLayout().stretch();
+   }
 
 
    public function setItemLayout(inLayout:Layout)
@@ -394,6 +402,8 @@ class Widget extends Sprite
          s.invalidate();
    }
 
+   public function onWidgetDrawn() { }
+
    public function redraw()
    {
       clearChrome();
@@ -401,7 +411,11 @@ class Widget extends Sprite
       {
          mRenderer.renderWidget(this);
       }
+      onWidgetDrawn();
    }
+
+   public function get_layoutWidth():Int return Std.int(mRect.width);
+   public function get_layoutHeight():Int return Std.int(mRect.height);
 
    public function relayout()
    {

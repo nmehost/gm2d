@@ -24,13 +24,9 @@ class Screen extends gm2d.ui.Window
 
    public function makeCurrent()
    {
+      applyStyles();
+      relayout();
       Game.setCurrentScreen(this);
-   }
-
-   override public function applyStyles()
-   {
-      super.applyStyles();
-      makeCurrent();
    }
 
 
@@ -70,6 +66,7 @@ class Screen extends gm2d.ui.Window
    {
       var layout = super.setItemLayout(inLayout);
       mLayout.setMinSize(Game.screenWidth, Game.screenHeight);
+      mLayout.stretch();
       return layout;
    }
 

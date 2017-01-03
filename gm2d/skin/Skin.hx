@@ -186,6 +186,12 @@ class Skin
       addAttribs("Control", null, {
          wantsFocus: true
         });
+      addAttribs("Keyboard", null, {
+         wantsFocus: true,
+         filters: null,
+        });
+
+
       addAttribs("SimpleButton", null, {
           offset: new Point(0,0),
           line: LineNone,
