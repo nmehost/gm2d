@@ -333,7 +333,6 @@ class Layout
 
       if (child.mAlign & Layout.AlignHalfPixel > 0)
       {
-trace("AlignHalfPixel");
          var right = Std.int(x+w+0.5) + 0.5;
          var bottom = Std.int(y+h+0.5) + 0.5;
          x = Std.int(x+0.5) + 0.5;

@@ -265,7 +265,10 @@ class Pane implements IDockable
             {
                displayObject.scrollRect = new Rectangle(scrollX,scrollY,w,h);
                if (itemLayout!=null)
+               {
                   itemLayout.setRect(0,0,w,h);
+                  //itemLayout.align(0,0,w,h);
+               }
                // Override setRect offset
                displayObject.x = x;
                displayObject.y = y;
@@ -273,7 +276,10 @@ class Pane implements IDockable
             else
             {
                if (itemLayout!=null)
+               {
                   itemLayout.setRect(x,y,w,h);
+                  //itemLayout.align(x,y,w,h);
+               }
                else
                {
                   displayObject.x = x;

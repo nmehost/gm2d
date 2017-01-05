@@ -31,18 +31,21 @@ class ColourSlider extends Widget
    public static var markerBitmap:BitmapData;
    var marker:Bitmap;
 
+   static var minHeight = Skin.scale(20);
+
    public function new(inMode:Int,inVertical:Bool)
    {
       super();
       if (markerBitmap==null)
       {
-         markerBitmap = new BitmapData(28,10,true,gm2d.RGB.CLEAR);
+         markerBitmap = new BitmapData(Skin.scale(28),minHeight>>1,true,gm2d.RGB.CLEAR);
          var s = new Shape();
          var gfx = s.graphics;
-         gfx.lineStyle(4,0xffffff);
-         gfx.drawRect(2.5,2.5,24,6);
-         gfx.lineStyle(2,0x000000);
-         gfx.drawRect(2.5,2.5,24,6);
+         gfx.lineStyle(Skin.scale(4),0xffffff);
+         var off = Skin.scale(2.5);
+         gfx.drawRect(off,off,Skin.scale(24),Skin.scale(6));
+         gfx.lineStyle(Skin.scale(2),0x000000);
+         gfx.drawRect(off,off,Skin.scale(24),Skin.scale(6));
          markerBitmap.draw(s);
       }
       marker = new Bitmap(markerBitmap);
@@ -58,9 +61,9 @@ class ColourSlider extends Widget
       mPos = 1;
 
       var layout = new Layout();
-      layout.minWidth = 20;
-      layout.minHeight = 20;
-      layout.setBestSize(20,20);
+      layout.minWidth = minHeight;
+      layout.minHeight = minHeight;
+      layout.setBestSize(minHeight,minHeight);
       layout.setBorders(2,2,2,2);
       setItemLayout(layout);
       getLayout().setAlignment(inVertical ? Layout.AlignCenterX : Layout.AlignCenterY);
@@ -79,12 +82,12 @@ class ColourSlider extends Widget
    {
       if (mVertical)
       {
-         marker.x = -5;
-         marker.y = mRect.height * (1.0-mPos) - 5;
+         marker.x = -minHeight*0.25;
+         marker.y = mRect.height * (1.0-mPos) - minHeight*0.25;
       }
       else
       {
-         marker.x = mRect.width * mPos + 5;
+         marker.x = mRect.width * mPos + minHeight*0.25;
          marker.y = -4;
       }
    }
@@ -135,15 +138,15 @@ class ColourSlider extends Widget
          gfx.beginFill(0xffffff);
          gfx.drawRect(0,0,mRect.width,mRect.height);
          gfx.beginFill(0x808080);
-         var x = 0;
-         var y = 0;
+         var x = 0.0;
+         var y = 0.0;
          while(x<mRect.width)
          {
-            var w = x+10.0;
+            var w = x+minHeight/2;
             if (w>mRect.width-1) w = mRect.width-1;
-            gfx.drawRect(x,y,w-x,10);
-            x+=10;
-            y=10-y;
+            gfx.drawRect(x,y,w-x,minHeight/2);
+            x+=minHeight/2;
+            y=minHeight/2-y;
          }
 	      var cols:Array<CInt> = [mColour.getRGB(), mColour.getRGB()];
          var alphas:Array<Float> = [0.0, 1.0];
@@ -244,6 +247,7 @@ class ColourWheel extends Widget
 
    var watcher:MouseWatcher;
    var marker:Bitmap;
+   var markerSize = Skin.scale(15);
 
    public static var markerBitmap:BitmapData;
 
@@ -252,13 +256,13 @@ class ColourWheel extends Widget
       super();
       if (markerBitmap==null)
       {
-         markerBitmap = emptyBmp(15,15);
+         markerBitmap = emptyBmp(markerSize,markerSize);
          var s = new Shape();
          var gfx = s.graphics;
          gfx.lineStyle(4,0xffffff);
-         gfx.drawCircle(7.5,7.5,5);
+         gfx.drawCircle(markerSize/2,markerSize/2,markerSize/3);
          gfx.lineStyle(2,0x000000);
-         gfx.drawCircle(7.5,7.5,5);
+         gfx.drawCircle(markerSize/2,markerSize/2,markerSize/3);
          markerBitmap.draw(s);
       }
       mContainer = new Sprite();
@@ -274,11 +278,11 @@ class ColourWheel extends Widget
       mContainer.addChild(bitmap);
       marker = new Bitmap(markerBitmap);
       mContainer.addChild(marker);
-      mWidth = 100;
-      mHeight = 100;
+      mWidth = Skin.scale(100);
+      mHeight = Skin.scale(100);
       var layout = new Layout();
-      layout.minWidth = 32;
-      layout.minHeight = 32;
+      layout.minWidth = Skin.scale(32);
+      layout.minHeight = Skin.scale(32);
       layout.mAlign = Layout.AlignKeepAspect | Layout.AlignStretch;
       layout.name = "colour";
       layout.onLayout = onBmpLayout;
@@ -597,12 +601,13 @@ class ColourControl extends Widget
       wheel = new ColourWheel(mColour);
       wheel.onChange = onWheel;
       addChild(wheel);
-      all.add(wheel.getLayout().setBorders(0,0,6,0));
+      all.add(wheel.getLayout().setBorders(0,0,Skin.scale(6),0));
 
       box = new RGBBox(mColour,true);
       addChild(box);
       new MouseWatcher(box,null,onRGBDrag,onRGBDrop,0,0,true);
-      all.add(box.getLayout().setAlignment( Layout.AlignStretch).setBorders(2,2,2,2));
+      var b = Skin.scale(2);
+      all.add(box.getLayout().setAlignment( Layout.AlignStretch).setBorders(b,b,b,b));
       all.setAlignment( Layout.AlignStretch);
 
       all.add(null);
@@ -621,10 +626,11 @@ class ColourControl extends Widget
 
       var swatches = new GridLayout(10,"Swatches");
       swatches.setSpacing(4,4);
+      var swatchSize = Skin.scale(16);
       for(i in 0...20)
       {
          var swatch = new Swatch(i,20);
-         var box = new SwatchBox(swatch,this,16);
+         var box = new SwatchBox(swatch,this,swatchSize);
          addChild(box);
          swatches.add(box.getLayout());
       }
