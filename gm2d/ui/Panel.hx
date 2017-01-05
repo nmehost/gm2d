@@ -19,7 +19,7 @@ class Panel extends Widget
    var mButtonLayout:Layout;
    var mLayoutDirty:Bool;
    var mLabelLookup:Hash<TextLabel>;
-   var mButtons:Array<Button>;
+   var mButtons:Array<Widget>;
    var mTitle:String;
    var mPane:Pane;
 
@@ -50,6 +50,8 @@ class Panel extends Widget
       setItemLayout( mGridLayout );
       //build();
    }
+
+   public function setButtonLayout(layout:Layout) mButtonLayout = layout;
 
    public function setItemSize(inSize:Int)
    {
@@ -100,7 +102,7 @@ class Panel extends Widget
       addChild(inItem);
       mItemGrid.add( inItem.getLayout().stretch() );
    }
-   public function addButton(inButton:gm2d.ui.Button)
+   public function addButton(inButton:gm2d.ui.Widget)
    {
       if (mButtons.length==0)
       {
