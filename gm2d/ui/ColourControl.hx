@@ -19,8 +19,8 @@ import gm2d.RGBHSV;
 
 class ColourSlider extends Widget
 {
-   public var onChange:Float->Void;
-   public var onEnter:Float->Void;
+   public var onChange:Float->Int->Void;
+   public var onEnter:Float->Int->Void;
 
    var mMode:Int;
    var mVertical:Bool;
@@ -106,12 +106,12 @@ class ColourSlider extends Widget
       updateMarker();
 
       if (onChange!=null)
-         onChange(getValue());
+         onChange(getValue(), Phase.fromMouseEvent(inEvent) );
    }
    function onMouseUp(inEvent:MouseEvent)
    {
       if (onEnter!=null)
-         onEnter(getValue());
+         onEnter(getValue(), Phase.fromMouseEvent(inEvent));
    }
 
    public function setColour(inCol:RGBHSV)
@@ -784,26 +784,26 @@ class ColourControl extends Widget
       send(inPhase);
    }
 
-   public function onAlpha(inValue:Float)
+   public function onAlpha(inValue:Float,inPhase:Int)
    {
       mColour.setA(inValue);
       box.setColour(mColour);
       wheel.setColour(mColour,false);
-      send();
+      send(inPhase);
    }
 
-   public function onMainChange(inValue:Float)
+   public function onMainChange(inValue:Float, inPhase:Int)
    {
       mColour.set(mMode,inValue);
       setAll(false);
-      send();
+      send(inPhase);
    }
 
-   public function onMainEnter(inValue:Float)
+   public function onMainEnter(inValue:Float, inPhase:Int)
    {
       mColour.set(mMode,inValue);
       setAll(true);
-      send();
+      send(inPhase);
    }
 
 
