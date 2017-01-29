@@ -39,6 +39,7 @@ class NumericInput extends TextInput
    var isInteger:Bool;
    var newDrag:Bool;
    var textChanged:Bool;
+   var dynamicMax:Bool;
    var init:Bool;
    static var SLIDER_W = 22;
 
@@ -50,7 +51,17 @@ class NumericInput extends TextInput
 
       isInteger = attribBool("isInteger",false);
       min = attribFloat("minValue");
-      max = attribFloat("maxValue",100.0);
+      var maxVal:Dynamic = attrib("maxValue");
+      if (maxVal==null)
+      {
+         max = 1e20;
+         dynamicMax = true;
+      }
+      else
+      {
+         dynamicMax = false;
+         max = maxVal;
+      }
       maxBar = max;
       fullValue = inVal;
       textChanged = false;
@@ -76,7 +87,10 @@ class NumericInput extends TextInput
       init = true;
       if (restrictedValue!=inVal)
          setValue(restrictedValue);
-      redrawBar();
+      if (dynamicMax)
+         updateMax();
+      else
+         redrawBar();
    }
 
    override function alwaysPlaceholder() return true;
@@ -120,9 +134,21 @@ class NumericInput extends TextInput
       return getValue();
    }
 
+   function updateMax()
+   {
+      if (dynamicMax)
+      {
+         maxBar = restrictedValue<1 ? 5 : restrictedValue * 5;
+         if (maxBar<=min)
+            maxBar = min + 1;
+         redrawBar();
+      }
+   }
+
    public function set_value(inValue:Float) : Float
    {
       setValue(inValue);
+      updateMax();
       return restrictedValue;
    }
 
@@ -181,8 +207,11 @@ class NumericInput extends TextInput
 
    public function onTextUp(e:MouseEvent)
    {
+      updateMax();
+
       if (!textWatcher.wasDragged && isInput)
          setTextEditMode(true);
+
       if (!newDrag && onUpdate!=null)
          onUpdate(restrictedValue,Phase.END);
    }
@@ -222,6 +251,7 @@ class NumericInput extends TextInput
    public function setMaximum(inValue:Float)
    {
       max = inValue;
+      dynamicMax = false;
       if (fullValue>max)
          setValue(max);
       redrawBar();
@@ -244,7 +274,7 @@ class NumericInput extends TextInput
       }
    }
 
-
+/*
    function onSliderDown(e:MouseEvent)
    {
       var pos = slider.localToGlobal( new Point(0,0) );
@@ -280,6 +310,7 @@ class NumericInput extends TextInput
       slider.x = sliderX;
       slider.y = 0;
       sliderWatcher = null;
+      updateMax();
       if (onEnter!=null)
          onEnter(restrictedValue);
       if (onUpdate!=null)
@@ -309,6 +340,7 @@ class NumericInput extends TextInput
       gfx.lineTo(10.5,20.5);
       gfx.lineTo(3.5,12.5);
    }
+   */
 
    function onUpdateText(inText:String)
    {
@@ -329,6 +361,7 @@ class NumericInput extends TextInput
          if (restrictedValue>max)
             restrictedValue = max;
 
+         updateMax();
          redrawBar();
 
          if (onEnter!=null)
@@ -336,6 +369,7 @@ class NumericInput extends TextInput
 
          else if (onUpdate!=null)
             onUpdate(restrictedValue,Phase.ALL);
+
       }
    }
 

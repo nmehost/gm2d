@@ -485,6 +485,10 @@ class Skin
           filters: null,
         });
 
+      addAttribs("ChoiceBox", null, {
+          isInput: false,
+         } );
+
       addAttribs("WidgetDrawer", null, {
           filters: null,
           fill: FillSolid(0xffffff,1),
