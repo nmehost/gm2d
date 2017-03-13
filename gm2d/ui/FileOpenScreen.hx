@@ -263,6 +263,7 @@ class FileOpenScreen extends Screen
       #if flash
       throw "Not supported";
       #else
+      Game.popScreen();
       //trace("Selected file: " + inFile);
       if (inFile=="")
         onResult(null,null);
@@ -286,7 +287,6 @@ class FileOpenScreen extends Screen
          }
          onResult(baseDir + "/" + inFile,result);
       }
-      Game.popScreen();
       #end
    }
 
