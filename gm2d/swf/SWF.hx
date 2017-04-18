@@ -157,7 +157,7 @@ class SWF
                SymbolClass();
 
             default:
-               trace("Unknown tag:" + Tags.string(tag));
+               //trace("Unknown tag:" + Tags.string(tag));
          }
          mStream.EndTag();
       }
@@ -190,6 +190,11 @@ class SWF
    public function createMovieClip() : gm2d.swf.MovieClip
    {
       return createInstance();
+   }
+
+   public function hasSymbol(inName:String):Bool
+   {
+      return mSymbols.exists(inName);
    }
 
    public function createSymbolInstance(inName:String) : Dynamic
