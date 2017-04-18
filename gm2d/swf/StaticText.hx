@@ -95,6 +95,8 @@ class StaticText
             advances.push( inStream.Bits(advance_bits,true) );
          }
 
+         //trace("Using static font " + font + ":'" +glyphs.map(String.fromCharCode).join("") + "'" );
+
          mRecords.push( {  mSWFFont:font,
                            mOffsetX : x_off,
                            mOffsetY : y_off,

@@ -63,7 +63,6 @@ class EditText
          {
             case charFont(font):
                mTextFormat.font = font.GetName();
-
                //trace("Font :" + mFont.GetName());
             default:
                throw("Specified font is incorrect type");
@@ -95,8 +94,6 @@ class EditText
 
       var var_name = inStream.ReadString();
       mInitialText = has_text ? inStream.ReadString() : "";
-      //trace(mInitialText);
-      
    }
    
    public function Apply(inText:TextField)

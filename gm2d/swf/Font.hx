@@ -4,6 +4,11 @@ import gm2d.swf.SWFStream;
 import nme.display.Graphics;
 import nme.geom.Matrix;
 
+#if !flash
+import nme.text.NmeFont;
+import nme.display.BitmapData;
+#end
+
 typedef FontCommand = Graphics -> Matrix -> Void;
 typedef FontCommands = Array<FontCommand>;
 
@@ -221,9 +226,12 @@ class Font
 
       //RenderGlyph( new gm2d.display.DebugGfx(), 1, new Matrix() );
 
-      // TODO:
-      //gm2d.text.FontManager.RegisterFont(this);
+      #if !flash
+      nme.text.NMEFont.registerFont(mName, function(def) return new NmeSwfFont(def,this) );
+      #end
    }
+
+   public function toString() return 'Font($mName)';
 
    function RestoreLineStyle(g:Graphics)
    {
@@ -255,8 +263,6 @@ class Font
    static var first = true;
    public function RenderGlyph(inGraphics:Graphics,inGlyph:Int,m:Matrix) : Void
    {
-
-
       if (mGlyphs.length>inGlyph)
       {
          var commands = mGlyphs[inGlyph].mCommands;
@@ -286,5 +292,44 @@ class Font
    public function GetLeading() : Float { return mLeading; }
 
 
-
 }
+
+#if !flash
+class NmeSwfFont extends NMEFont
+{
+   var scaledFont:ScaledFont;
+   var shape:nme.display.Shape;
+
+   public function new(inDef:NMEFontDef, inFont:Font)
+   {
+      scaledFont = new ScaledFont(inFont, inDef.height);
+      super(inDef.height, scaledFont.GetAscent(), scaledFont.GetDescent(), false);
+      shape = new nme.display.Shape();
+   }
+
+   override public function getGlyphInfo(inChar:Int):NMEGlyphInfo 
+   {
+      return
+      {
+         width:scaledFont.GetAdvance(inChar),
+         height:height,
+         advance:scaledFont.GetAdvance(inChar),
+         offsetX:0,
+         offsetY:scaledFont.GetDescent(),
+      };
+   }
+
+   override public function renderGlyph(inChar:Int) : BitmapData 
+   {
+      var w = scaledFont.GetAdvance(inChar);
+      var h = height;
+      var gfx = shape.graphics;
+      gfx.clear();
+      gfx.beginFill(0xffffff);
+      scaledFont.Render(gfx,inChar,0,0, false);
+      var bitmap = new BitmapData(w, h, true, 0x000000);
+      bitmap.draw(shape);
+      return bitmap;
+   }
+}
+#end
