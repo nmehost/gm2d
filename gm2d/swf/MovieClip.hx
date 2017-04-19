@@ -201,6 +201,7 @@ class MovieClip extends MovieClipBase
                       case charStaticText(text):
                          var s = new nme.display.Shape();
                          text.Render(s.graphics);
+                         s.cacheAsBitmap = true;
                          disp_object = s;
  
                       case charEditText(text):

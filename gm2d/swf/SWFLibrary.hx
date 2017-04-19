@@ -45,6 +45,8 @@ class SWFLibrary extends AssetLibrary
    
    public override function getMovieClip(id:String):MovieClip
    {
+      if (id=="")
+         return swf.createInstance();
       return swf.createSymbolInstance(id);
    }
 
