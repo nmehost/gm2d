@@ -46,7 +46,7 @@ class SwfTest extends Screen
             //trace(data.length);
             var swf = new SWF(data);
             var obj = swf.createMovieClip();
-            obj.cacheAsBitmap = true;
+            //obj.cacheAsBitmap = true;
             obj.x = x*320;
             obj.y = y*240;
             obj.scaleX = 0.5;

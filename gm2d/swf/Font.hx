@@ -295,40 +295,81 @@ class Font
 }
 
 #if !flash
+class NmeSwfGlyphInfo
+{
+   public function new() { }
+
+   public var width:Int;
+   public var height:Int;
+   public var advance:Int;
+   public var offsetX:Int;
+   public var y0:Int;
+   public var offsetY:Int;
+}
+
 class NmeSwfFont extends NMEFont
 {
    var scaledFont:ScaledFont;
    var shape:nme.display.Shape;
+   var reference:nme.display.Sprite;
+   var lastShapeChar:Int;
+   var glyphInfo:Array<NmeSwfGlyphInfo>;
 
    public function new(inDef:NMEFontDef, inFont:Font)
    {
       scaledFont = new ScaledFont(inFont, inDef.height);
       super(inDef.height, scaledFont.GetAscent(), scaledFont.GetDescent(), false);
       shape = new nme.display.Shape();
+      reference = new nme.display.Sprite();
+      reference.addChild(shape);
+      glyphInfo = [];
+      lastShapeChar = -1;
    }
 
    override public function getGlyphInfo(inChar:Int):NMEGlyphInfo 
    {
-      return
+      if (glyphInfo[inChar]==null)
       {
-         width:scaledFont.GetAdvance(inChar),
-         height:height,
-         advance:scaledFont.GetAdvance(inChar),
-         offsetX:0,
-         offsetY:scaledFont.GetDescent(),
-      };
+         var info = new NmeSwfGlyphInfo();
+         if (lastShapeChar!=inChar)
+         {
+            var gfx = shape.graphics;
+            gfx.clear();
+            gfx.beginFill(0xffffff);
+            scaledFont.Render(gfx,inChar,0,0, false);
+            lastShapeChar = inChar;
+         }
+         shape.x = shape.y = 0.0;
+         var bounds = shape.getBounds(reference);
+
+         info.offsetX = Std.int(Math.floor(bounds.x));
+         var y0 = Std.int(Math.floor(bounds.y));
+         info.offsetY = y0 - height;
+         info.width = Std.int(Math.ceil(bounds.x+bounds.width)) - info.offsetX;
+         info.height = Std.int(Math.ceil(bounds.y+bounds.height)) - y0;
+         info.advance = scaledFont.GetAdvance(inChar);
+         glyphInfo[inChar] = info;
+      }
+      return glyphInfo[inChar];
    }
 
    override public function renderGlyph(inChar:Int) : BitmapData 
    {
-      var w = scaledFont.GetAdvance(inChar);
-      var h = height;
-      var gfx = shape.graphics;
-      gfx.clear();
-      gfx.beginFill(0xffffff);
-      scaledFont.Render(gfx,inChar,0,0, false);
+      var info = getGlyphInfo(inChar);
+      var w = info.width;
+      var h = info.height;
+      shape.x = -info.offsetX;
+      shape.y = -(info.offsetY+height);
+      if (lastShapeChar!=inChar)
+      {
+         var gfx = shape.graphics;
+         gfx.clear();
+         gfx.beginFill(0xffffff);
+         scaledFont.Render(gfx,inChar,0,0, false);
+         lastShapeChar = inChar;
+      }
       var bitmap = new BitmapData(w, h, true, 0x000000);
-      bitmap.draw(shape);
+      bitmap.draw(reference);
       return bitmap;
    }
 }
