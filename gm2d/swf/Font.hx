@@ -326,7 +326,7 @@ class NmeSwfFont extends NMEFont
       lastShapeChar = -1;
    }
 
-   override public function getGlyphInfo(inChar:Int):NMEGlyphInfo 
+   override public function getGlyphInfo(inChar:Int):NmeSwfGlyphInfo 
    {
       if (glyphInfo[inChar]==null)
       {
@@ -342,11 +342,11 @@ class NmeSwfFont extends NMEFont
          shape.x = shape.y = 0.0;
          var bounds = shape.getBounds(reference);
 
-         info.offsetX = Std.int(Math.floor(bounds.x));
-         var y0 = Std.int(Math.floor(bounds.y));
-         info.offsetY = y0 - height;
-         info.width = Std.int(Math.ceil(bounds.x+bounds.width)) - info.offsetX;
-         info.height = Std.int(Math.ceil(bounds.y+bounds.height)) - y0;
+         info.offsetX = Std.int(Math.floor(bounds.x))-1;
+         info.y0 = Std.int(Math.floor(bounds.y))-1;
+         info.offsetY = info.y0 - scaledFont.GetAscent();
+         info.width = Std.int(Math.ceil(bounds.x+bounds.width)) - info.offsetX + 1;
+         info.height = Std.int(Math.ceil(bounds.y+bounds.height)) - info.y0 + 1;
          info.advance = scaledFont.GetAdvance(inChar);
          glyphInfo[inChar] = info;
       }
@@ -359,7 +359,7 @@ class NmeSwfFont extends NMEFont
       var w = info.width;
       var h = info.height;
       shape.x = -info.offsetX;
-      shape.y = -(info.offsetY+height);
+      shape.y = -(info.y0);
       if (lastShapeChar!=inChar)
       {
          var gfx = shape.graphics;
