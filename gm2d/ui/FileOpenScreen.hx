@@ -18,16 +18,26 @@ import nme.display.Bitmap;
 import nme.display.DisplayObjectContainer;
 
 import haxe.io.Path;
+import nme.utils.ByteArray;
+import nme.net.SharedObject;
 
 #if flash
 // Nothing
 #else
-import sys.FileSystem;
 import nme.filesystem.File;
+#if js
+class FileSource
+{
+   public static function exists(inName:String) return false;
+   public static function createDirectory(inName:String) throw "Can't createDirectory";
+   public static function isDirectory(inName:String) return false;
+   public static function readDirectory(inName:String) : Array<String> return [];
+}
+#else
+typedef FileSource = sys.FileSystem;
+#end
 #end
 
-import nme.utils.ByteArray;
-import nme.net.SharedObject;
 
 class FileOpenScreen extends Screen
 {
@@ -229,7 +239,7 @@ class FileOpenScreen extends Screen
       if (!isAbsolute)
          name = baseDir + "/" + name;
 
-      if ( (flags & FileOpen.CHECK_OVERWRITE)!=0 && FileSystem.exists(name) )
+      if ( (flags & FileOpen.CHECK_OVERWRITE)!=0 && FileSource.exists(name) )
       {
          var panel = new Panel("Confirm Overwrite");
          panel.addLabel("File " + name + " already exists.  Do you want ot overwrite?");
@@ -394,11 +404,11 @@ class FileOpenScreen extends Screen
       {
          try
          {
-         for(item in FileSystem.readDirectory(inDir))
+         for(item in FileSource.readDirectory(inDir))
          {
             if (item.substr(0,1)!=".")
             {
-               if (FileSystem.isDirectory(inDir + "/" + item))
+               if (FileSource.isDirectory(inDir + "/" + item))
                   dirs.push(item);
                else
                {
@@ -433,7 +443,7 @@ class FileOpenScreen extends Screen
       Game.inputBox( {title:"Create new directory", label:"Directory Name", value:"", onOk:function(name) {
           try
           {
-            sys.FileSystem.createDirectory(baseDir+"/"+name);
+            FileSource.createDirectory(baseDir+"/"+name);
             setDir(baseDir);
           }
           catch(e:Dynamic)
