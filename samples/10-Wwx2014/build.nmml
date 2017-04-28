@@ -24,7 +24,7 @@
      hardware="true"
   />
 
-  <staticlink value="true" />
+  <staticlink value="false" />
   
 
   <assets embed="true">

@@ -12,6 +12,7 @@ import gm2d.ui.Layout;
 import nme.Assets;
 
 
+@:keep
 class Wwx2014 extends Talk
 {
    public function new()
@@ -21,6 +22,7 @@ class Wwx2014 extends Talk
       bulletBmp = Assets.getBitmapData("Bullet.png");
    }
 
+   @:keep
    public function renderScreen0()
    {
       var layout = new VerticalLayout();

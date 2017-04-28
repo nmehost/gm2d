@@ -24,7 +24,7 @@
      hardware="true"
   />
 
-  <staticlink value="true" />
+  <staticlink value="true" if="cpp" />
   
   <icon name="icon.svg" />
 

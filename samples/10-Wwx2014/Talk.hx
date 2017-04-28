@@ -21,6 +21,7 @@ import gm2d.ui.MouseWatcher;
 import nme.Assets;
 
 
+@:keep
 class Talk extends Sprite
 {
    public static var instance:Talk;
@@ -41,7 +42,7 @@ class Talk extends Sprite
    var option:Int = 0;
    var mouseWatcher:MouseWatcher;
 
-   var screens:Array<Void->Void>;
+   var screens:Array<Dynamic>;
 
    // Syntax colouring
    var white = "<font color='#ffffff'>";
@@ -61,7 +62,7 @@ class Talk extends Sprite
    public function new()
    {
       defaultFont = "_sans";
-      #if !flash
+      #if sys
       if (Sys.systemName()=="Mac")
          defaultFont = "Arial";
       #end
@@ -71,9 +72,10 @@ class Talk extends Sprite
       screens = [];
       for(i in 0...1000)
       {
-         var render = Reflect.field(this, "renderScreen" + i);
-         if (render!=null)
-            screens.push(render);
+         var name = "renderScreen" + i;
+         var field = Reflect.field(this,name);
+         if (field!=null)
+            screens.push(field);
       }
 
       screen = 0;
@@ -104,7 +106,7 @@ class Talk extends Sprite
          setOption(option-1);
       else if (event.keyCode==Keyboard.DOWN)
          setOption(option+1);
-      #if !flash
+      #if sys
       if (event.keyCode==27 && event.altKey)
          Sys.exit(0);
       #end
@@ -166,7 +168,7 @@ class Talk extends Sprite
          graphics.clear();
          while(numChildren>0)
            removeChildAt(0);
-         screens[screen]();
+         Reflect.callMethod(this,screens[screen],[]);
          setOption(0);
       }
    }

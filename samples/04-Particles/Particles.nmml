@@ -17,7 +17,7 @@
 		fps="60"
 		background="0x202040"
       resizeable="true"
-		hardware="true"
+      hardware="true"
 	/>
 
    <icon name="../icon.svg" />

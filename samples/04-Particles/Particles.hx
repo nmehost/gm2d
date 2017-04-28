@@ -71,7 +71,7 @@ class Particles extends Screen
    var mParticleLayer:Layer;
    var mParticles : Array<Particle>;
    var mText:TextField;
-   static var MAX_PARTICLES = 250;
+   var addParticles:Int;
 
    function new()
    {
@@ -82,12 +82,14 @@ class Particles extends Screen
       mTilesheet = new Tilesheet(bmp);
       mTiles = mTilesheet.partition(16,16);
       for(tile in mTiles)
-         tile.hotX = tile.hotY = 0;
+         tile.hotX = tile.hotY = 8;
 
       mViewport = gm2d.blit.Viewport.create(400, 300, gm2d.blit.Viewport.BG_DONT_CARE, 0x000000);
       mViewport.x = 40;
       mViewport.y = 10;
       addChild(mViewport);
+
+      addParticles = 50;
 
       mParticleLayer = mViewport.createLayer();
       mParticleLayer.dynamicRender = renderParticles;
@@ -104,6 +106,8 @@ class Particles extends Screen
 
       makeCurrent();
    }
+
+   override public function getScaleMode() return gm2d.ScreenScaleMode.CENTER_SCALED;
 
    function renderParticles(inX,inY)
    {
@@ -131,9 +135,16 @@ class Particles extends Screen
            alive.push(p);
       }
 
+      if (inDT>0.020)
+         addParticles--;
+      else
+         addParticles++;
+
       mParticles = alive;
-      for(p in 0...50)
-         mParticles.push( new Particle(mViewport.mouseX, mViewport.mouseY) );
+      var mx = mViewport.mouseX;
+      var my = mViewport.mouseY;
+      for(p in 0...addParticles)
+         mParticles.push( new Particle(mx+(Math.random()*10-5),my+(Math.random()*10-5)) );
 
       mText.text = "Particles: " + mParticles.length;
 
