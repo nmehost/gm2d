@@ -4,6 +4,7 @@ import gm2d.ui.MenuItem;
 import gm2d.ui.Pane;
 import nme.display.Sprite;
 import nme.display.Bitmap;
+import nme.display.DisplayObject;
 import nme.utils.ByteArray;
 import gm2d.Game;
 import gm2d.svg.SvgRenderer;
@@ -63,6 +64,9 @@ class SampleApp extends App
       bar.add( edit );
       var view = new MenuItem("View");
       view.add( new MenuItem("New", onViewNew) );
+      #if !flash
+      view.add( new MenuItem("Clone Gfx", onCloneGfx) );
+      #end
       #if cpp
       view.add( new MenuItem("Debug Trace Panes", onViewDebugTracePanes) );
       #end
@@ -89,6 +93,19 @@ class SampleApp extends App
       addPane( new Pane(item,"View:"+col,Dock.RESIZABLE), DOCK_OVER );
 
    }
+
+   #if !flash
+   function onCloneGfx(_)
+   {
+      var bytes = encodeDisplay(0);
+      var display = DisplayObject.decodeDisplay(bytes,0);
+      var pane = new Pane(display,"Clone",Dock.RESIZABLE);
+      pane.bestWidth = display.width;
+      pane.bestHeight = display.height;
+      addPane( pane, DOCK_OVER );
+   }
+   #end
+
 
    function onTest(_)
    {
