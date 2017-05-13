@@ -217,6 +217,8 @@ class ListControl extends ScrollWidget
          }
       }
 
+      if (mMinControlWidth<mMinWidth)
+         mMinControlWidth = mMinWidth;
       var w = Math.max(mMinControlWidth,mWidth);
       var col = mStretchCol!=null ? mStretchCol : mColWidths.length-1;
 
