@@ -569,6 +569,7 @@ class ListControl extends ScrollWidget
       super.doClick(inX,inY,ev);
    }
 
+   public function getSelected() return mSelected;
 
 
    public function drawBG()
