@@ -42,9 +42,9 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
 
    var extraWidgets:Array<Widget>;
 
-   public function new(inParent:DisplayObjectContainer,?dummy:Int)
+   public function new(inParent:DisplayObjectContainer,?dummy:Int,?inLineage:Array<String>,?inAttribs:{})
    {
-      super(["Menubar"]);
+      super( Widget.addLines(inLineage,["Menubar"]), inAttribs);
       if (inParent!=null)
          inParent.addChild(this);
       mItems = [];
@@ -101,7 +101,10 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
          mNormalParent = parent;
          Game.moveToPopupLayer(this);
       }
-      var stagePos = localToGlobal( new nme.geom.Point(mButtons[inPos].x, mHeight) );
+
+      var yPos = mHeight > 0 ? mHeight : mRect.height;
+
+      var stagePos = localToGlobal( new nme.geom.Point(mButtons[inPos].x, yPos) );
       Game.popup( new PopupMenu(mItems[inPos],this), stagePos.x, stagePos.y );
       Game.onClosePopup = function() mCurrentItem = -1;
    }
