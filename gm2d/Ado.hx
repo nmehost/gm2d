@@ -85,6 +85,7 @@ class Ado
       edits = [];
       undone = [];
       edit = null;
+      updateText();
    }
 
    public function updateText()
@@ -184,6 +185,7 @@ class Ado
       edit = new Edit(inName);
       edit.add(inDo,inUndo);
       inDo();
+      finishEdit();
    }
 
 

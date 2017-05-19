@@ -393,7 +393,7 @@ class Skin
           minSize: size(tabSize,tabSize),
         });
       addAttribs("Menubar", null, {
-          minSize: new Size(0,menuHeight),
+          minSize: new Size(0,scale(menuHeight)),
           align: Layout.AlignStretch,
           itemAlign: Layout.AlignLeft | Layout.AlignCenterY,
           line: LineNone,

@@ -157,7 +157,12 @@ class FileOpen
 
       #else
 
-      new gm2d.ui.FileOpenScreen(inMessage, inDefaultPath==null?"":inDefaultPath, onResult, inFilter, inFlags);
+      var path = inDefaultPath;
+      if (path==null)
+         path="";
+      else if (path!="" && sys.FileSystem.exists(path) && !sys.FileSystem.isDirectory(path))
+         path = haxe.io.Path.directory(path);
+      new gm2d.ui.FileOpenScreen(inMessage, path, onResult, inFilter, inFlags);
 
       #end
    }

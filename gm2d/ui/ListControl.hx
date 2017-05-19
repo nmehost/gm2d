@@ -120,7 +120,7 @@ class ListControl extends ScrollWidget
       mChildrenClean = 0;
       mSelected = -1;
       mItemHeight = mOrigItemHeight;
-      mWidth = mMinWidth;
+      //mWidth = mMinWidth;
       scrollWheelStep = mOrigItemHeight;
       graphics.clear();
       while(mListContents.numChildren>0)
