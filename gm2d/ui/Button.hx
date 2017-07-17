@@ -76,7 +76,7 @@ class Button extends Control
             if (items==1)
             {
                addChild(textWidget!=null ? textWidget : iconWidget);
-               setItemLayout((textWidget!=null ? textWidget : iconWidget).getLayout());
+               setItemLayout((textWidget!=null ? (textWidget:Widget) : (iconWidget:Widget)).getLayout());
             }
             else
             {
