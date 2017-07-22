@@ -73,7 +73,7 @@ class NumericInput extends TextInput
       onUpdate = inOnUpdateFloat;
       step = attribFloat("step",0.1);
       quantization = 0.01;
-      if (step<quantization)
+      if (step>quantization)
          quantization = step;
       newDrag = false;
       popupMode = INLINE_SLIDE;
@@ -168,14 +168,15 @@ class NumericInput extends TextInput
       if (v>max) v = max;
       if (isInteger)
          v = Std.int(v);
+      if (quantization>0)
+      {
+         v = min + (Std.int((v-min)*quantization+0.5)/quantization);
+      }
+
       if (v!=restrictedValue || textChanged)
       {
          textChanged = false;
          restrictedValue = fullValue = v;
-         if (quantization>0)
-         {
-            restrictedValue = min + (Std.int((restrictedValue+quantization*0.5-min)/quantization)*quantization);
-         }
 
          mText.text = Std.string(restrictedValue);
          redrawBar();
