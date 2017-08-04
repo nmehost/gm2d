@@ -43,6 +43,7 @@ class ListControl extends ScrollWidget
    var mHeight:Float;
    var mChildrenClean :Int;
    var mColWidths:Array<Float>;
+   var mBestColWidths:Array<Float>;
    var mMinColWidths:Array<Float>;
    var mColPos:Array<Float>;
    var mColAlign:Array<Int>;
@@ -94,6 +95,7 @@ class ListControl extends ScrollWidget
 
       mRows = [];
       mColWidths = [];
+      mBestColWidths = [];
       mMinColWidths = [];
       mColPos = [0.0];
       mRowPos = [0.0];
@@ -115,6 +117,7 @@ class ListControl extends ScrollWidget
    {
       mRows = [];
       mColWidths = mMinColWidths.copy();
+      mBestColWidths = mMinColWidths.copy();
       mColPos = [0.0];
       mRowPos = [0.0];
       mChildrenClean = 0;
@@ -189,9 +192,9 @@ class ListControl extends ScrollWidget
    public function setMinColWidth(inCol:Int, inWidth:Float)
    {
       mMinColWidths[inCol] = inWidth;
-      if (mColWidths[inCol]<inWidth)
+      if (mBestColWidths[inCol]<inWidth)
       {
-         mColWidths[inCol] = inWidth;
+         mBestColWidths[inCol] = inWidth;
          recalcPos();
          redraw();
       }
@@ -203,23 +206,32 @@ class ListControl extends ScrollWidget
       var pos = 0.0;
       mColPos=[];
       mMinControlWidth = 0.0;
+      var bestWidth = getLayout().getBordersX();
       for(i in 0...mColWidths.length)
       {
          mColPos[i] = pos;
          #if neko if (mColWidths[i]==null) mColWidths[i] = 0; #end
+         #if neko if (mBestWidths[i]==null) mBestWidths[i] = 0; #end
          #if neko if (mMinColWidths[i]==null) mMinColWidths[i] = 0; #end
+         mColWidths[i] = mBestColWidths[i];
          pos += mColWidths[i];
          mMinControlWidth += mMinColWidths[i];
+         bestWidth += mBestColWidths[i];
          if (i!=mColWidths.length-1)
          {
             mMinControlWidth += mXGap;
             pos+=mXGap;
+            bestWidth+=mXGap;
          }
       }
 
       if (mMinControlWidth<mMinWidth)
          mMinControlWidth = mMinWidth;
-      var w = Math.max(mMinControlWidth,mWidth);
+
+      if (mMinControlWidth<bestWidth)
+         mMinControlWidth = bestWidth;
+
+      var w = Math.max(mMinControlWidth, mWidth );
       var col = mStretchCol!=null ? mStretchCol : mColWidths.length-1;
 
       if (col!=null && col<mColWidths.length && col>=0 && pos!=w)
@@ -277,11 +289,12 @@ class ListControl extends ScrollWidget
       {
          if (i==mColAlign.length)
             mColAlign.push(Layout.AlignCenterY | Layout.AlignLeft);
-         if (mColWidths.length<=i)
+         if (mBestColWidths.length<=i)
          {
             if (mMinColWidths.length<=i)
                mMinColWidths[i] = 0;
             mColWidths.push(mMinColWidths[i]);
+            mBestColWidths.push(mMinColWidths[i]);
          }
          var item:Dynamic = inRow[i];
          if (item!=null)
@@ -320,11 +333,12 @@ class ListControl extends ScrollWidget
             if (h>rowHeight)
                rowHeight = h;
 
-            if (w>mColWidths[i])
+            if (w>mBestColWidths[i])
             {
-               mColWidths[i] = w;
+               mBestColWidths[i] = w;
                needRecalcPos = true;
             }
+
             row.push(obj);
             mListContents.addChild(obj);
          }

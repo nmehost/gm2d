@@ -17,10 +17,12 @@ class MouseWatcher
    var mPendingDrag:MouseEvent;
    var mPendingDragTimer:Timer;
    var mDragsSinceRender:Int;
+   var mLongTimer:haxe.Timer;
 
    public var onDown:MouseEvent->Void;
    public var onDrag:MouseEvent->Void;
    public var onUp:MouseEvent->Void;
+
    public var isDown:Bool;
    public var wasDragged:Bool;
    public var minDragDistance:Float;
@@ -112,8 +114,21 @@ class MouseWatcher
       mDragsSinceRender = 0;
    }
 
+   public function setLongTimer(onLong:Void->Void, inTimeoutMs:Int)
+   {
+      killTimer();
+      mLongTimer = new haxe.Timer(inTimeoutMs);
+      mLongTimer.run = function() { mLongTimer.stop(); mLongTimer=null; onLong(); }
+   }
+   public function stopSequence()
+   {
+      removeStageListeners();
+   }
+
+
    function onMouseDown(ev:MouseEvent)
    {
+       killTimer();
        mEventStage = mWatch.stage;
        pos = new Point(ev.stageX,ev.stageY);
        downPos = new Point(ev.stageX,ev.stageY);
@@ -176,6 +191,7 @@ class MouseWatcher
 
    function onStageUp(ev:MouseEvent)
    {
+      killTimer();
       // Flush
       onPendingDrag();
 
@@ -206,6 +222,7 @@ class MouseWatcher
       prevPos.y = pos.y;
       pos.x = ev.stageX;
       pos.y = ev.stageY;
+      killTimer();
       if (!wasDragged)
       {
          var dx = draggedX();
@@ -216,6 +233,15 @@ class MouseWatcher
 
       if (onDrag!=null && wasDragged)
          onDrag(ev);
+   }
+
+   function killTimer()
+   {
+      if (mLongTimer!=null)
+      {
+         mLongTimer.stop();
+         mLongTimer = null;
+      }
    }
 }
 

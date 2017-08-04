@@ -63,6 +63,9 @@ class Layout
       mAlign = AlignCenterX|AlignCenterY;
    }
 
+   public function getBordersX() return mBLeft + mBRight;
+   public function getBordersY() return mBTop + mBBottom;
+
    public static function setDebugObject(inShape:Shape)
    {
      mDebugObject = inShape;
