@@ -477,6 +477,9 @@ class Svg extends Group
        if (xml.exists("transform"))
           e.matrix = createTransform(xml.get("transform"));
 
+       if (xml.exists("inkscape:label"))
+          e.name = xml.get("inkscape:label");
+
        if (xml.exists("id"))
        {
           e.id = xml.get("id");
@@ -484,8 +487,6 @@ class Svg extends Group
           e.name = e.id;
        }
 
-       if (xml.exists("inkscape:label"))
-          e.name = xml.get("inkscape:label");
 
        e.style = loadStyle(xml);
    }

@@ -178,6 +178,7 @@ class Window extends Widget
    public function onMouseMove(inX:Float, inY:Float) { }
    public function onMouseDown(inX:Float, inY:Float) { }
    public function onMouseUp(inX:Float, inY:Float) { }
+   public function onMouseClick(inX:Float, inY:Float) { }
 
 
 }

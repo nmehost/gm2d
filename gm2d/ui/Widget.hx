@@ -77,7 +77,10 @@ class Widget extends Sprite
    {
       var target:DisplayObject = e.target;
       if (target==this || target==mChrome)
+      {
          activate();
+         e.stopImmediatePropagation();
+      }
    }
 
    public function addWidget(inWidget:Widget) : Widget

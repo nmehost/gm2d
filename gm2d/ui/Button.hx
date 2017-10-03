@@ -126,6 +126,7 @@ class Button extends Control
          return;
       if (mCallback!=null && !isToggle)
          mCallback();
+      e.stopImmediatePropagation();
    }
 
 

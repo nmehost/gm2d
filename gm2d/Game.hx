@@ -124,6 +124,7 @@ class Game
       parent.stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
       parent.stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
       parent.stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+      parent.stage.addEventListener(MouseEvent.CLICK, onMouseClick);
 
       setStageTransform();
    }
@@ -163,6 +164,7 @@ class Game
       stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
       stage.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
       stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+      stage.removeEventListener(MouseEvent.CLICK, onMouseClick);
    
       parent.rotation = 0;
       parent.x = 0;
@@ -307,6 +309,16 @@ class Game
       {
          var pos = mCurrentScreen.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
          mCurrentScreen.onMouseUp(pos.x,pos.y);
+      }
+   }
+
+
+   public static function onMouseClick(inEvent)
+   {
+      if (mCurrentScreen!=null)
+      {
+         var pos = mCurrentScreen.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
+         mCurrentScreen.onMouseClick(pos.x,pos.y);
       }
    }
 
