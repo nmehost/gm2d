@@ -24,6 +24,8 @@ class Game
 {
    static public var initWidth = 320;
    static public var initHeight = 240;
+   static public var safeWidth:Null<Int>;
+   static public var safeHeight:Null<Int>;
    static public var screenWidth = 320;
    static public var screenHeight = 240;
    static public var useHardware = true;
@@ -83,6 +85,10 @@ class Game
       initWidth = screenWidth;
       initHeight = screenHeight;
       #end
+      if (safeWidth==null)
+         safeWidth = initWidth;
+      if (safeHeight==null)
+         safeHeight = initHeight;
 
       mScreenParent = new Sprite();
       mDialogGrey = new Shape();
@@ -461,8 +467,8 @@ class Game
          var stage_width = stageWidth();
          var stage_height = stageHeight();
    
-         var sw = stage_width / initWidth;
-         var sh = stage_height / initHeight;
+         var sw = stage_width / safeWidth;
+         var sh = stage_height / safeHeight;
          scale = sw < sh ? sw : sh;
          var graphics_scale = scale;
 

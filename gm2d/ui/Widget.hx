@@ -79,7 +79,6 @@ class Widget extends Sprite
       if (target==this || target==mChrome)
       {
          activate();
-         e.stopImmediatePropagation();
       }
    }
 

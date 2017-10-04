@@ -24,7 +24,7 @@ class BitmapFont extends Screen
 
       makeCurrent();
 
-      var bmp:BitmapData = ApplicationMain.getAsset("Edmunds.png");
+      var bmp:BitmapData = nme.Assets.getBitmapData("Edmunds.png");
       var font = gm2d.ui.BitmapFont.createFromActiveRects(bmp,0x20);
       font.packing = -3;
 
