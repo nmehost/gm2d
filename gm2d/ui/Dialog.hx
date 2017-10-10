@@ -47,9 +47,9 @@ class Dialog extends Window
       //   cacheAsBitmap = true;
    }
 
-   public function show(inCentre = true)
+   public function show(inCentre = true, inAutoClose=true)
    {
-      gm2d.Game.doShowDialog(this, inCentre);
+      gm2d.Game.doShowDialog(this, inCentre,inAutoClose);
    }
 
    override public function onChromeMouse(inId:String,inEvent:MouseEvent) : Bool

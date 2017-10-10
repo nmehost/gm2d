@@ -42,6 +42,8 @@ class Game
    static public var toggleFullscreenOnAltEnter:Bool = true;
    static public var mapEscapeToBack:Bool = true;
    static public var onClosePopup:Void->Void;
+   static public var gapDetect = 1.0;
+   static public var gapReplace = 0.1;
 
    static var mCurrentScreen:Screen;
    public static var mCurrentDialog(default,null):Dialog;
@@ -53,6 +55,7 @@ class Game
    static var mPopupParent:Sprite;
    static var mDebugOverlay:Shape;
    static var mFPSControl:TextField;
+   static var mAutoCloseDialog:Bool;
    static var mFPSColor:Int = 0xff0000;
    static var mLastEnter = 0.0;
    static var mLastStep = 0.0;
@@ -90,6 +93,8 @@ class Game
       if (safeHeight==null)
          safeHeight = initHeight;
 
+      mAutoCloseDialog = true;
+
       mScreenParent = new Sprite();
       mDialogGrey = new Shape();
       mDialogGrey.visible = false;
@@ -123,6 +128,7 @@ class Game
       parent.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp );
       parent.stage.addEventListener(Event.RESIZE, onSize);
       parent.stage.addEventListener(Event.ENTER_FRAME, onEnter);
+      parent.stage.addEventListener(Event.RENDER, onEnter);
 
       parent.stage.addEventListener(MouseEvent.MOUSE_MOVE, onPreMouseMove, true);
       parent.stage.addEventListener(MouseEvent.MOUSE_DOWN, onPreMouseDown, true);
@@ -275,7 +281,7 @@ class Game
             if (mCurrentDialog.shouldConsumeEvent==null ||
                  mCurrentDialog.shouldConsumeEvent(inEvent))
             {
-               if (inCloseIfNeeded)
+               if (inCloseIfNeeded && mAutoCloseDialog)
                   closeDialog();
                inEvent.stopImmediatePropagation();
             }
@@ -551,10 +557,10 @@ class Game
    public static function update()
    {
       var now = haxe.Timer.stamp();
-      var big_gap = now>mLastEnter+1.0;
+      var big_gap = now>mLastEnter+gapDetect;
       if (mCurrentScreen!=null)
       {
-         mCurrentScreen.updateTimeline(big_gap ? 0.001 : now-mLastEnter);
+         mCurrentScreen.updateTimeline(big_gap ? gapReplace : now-mLastEnter);
          var freq = mCurrentScreen.getUpdateFrequency();
          if (freq<=0)
          {
@@ -648,7 +654,7 @@ class Game
             event.stopPropagation();
             return;
          }
-         else if (mCurrentDialog!=null)
+         else if (mCurrentDialog!=null && mAutoCloseDialog)
          {
             mCurrentDialog.goBack();
             event.stopPropagation();
@@ -709,12 +715,12 @@ class Game
    }
 
 
-   static public function showDialog(inDialog:String,inCenter:Bool=true) : Dialog
+   static public function showDialog(inDialog:String,inCenter:Bool=true,inAutoClose=true) : Dialog
    {
       var dialog:Dialog = mDialogMap.get(inDialog);
       if (dialog==null)
          throw "Invalid Dialog "+  inDialog;
-      doShowDialog(dialog,inCenter);
+      doShowDialog(dialog,inCenter, inAutoClose);
       return dialog;
    }
 
@@ -723,9 +729,10 @@ class Game
       doShowDialog(null,false);
    }
 
-   static public function doShowDialog(inDialog:Dialog,inCenter:Bool)
+   static public function doShowDialog(inDialog:Dialog,inCenter:Bool, inAutoClose = true)
    {
       closePopup();
+      mAutoCloseDialog = inAutoClose;
       if (mCurrentDialog!=null)
       {
          mCurrentDialog.onClose();
@@ -851,6 +858,7 @@ class Game
 
    public static function isDown(inCode:Int) : Bool { return mKeyDown[inCode]; }
 
+/*
    static function onUpdate(e:nme.events.Event)
    {
       var now = haxe.Timer.stamp();
@@ -885,7 +893,7 @@ class Game
       }
       mLastEnter = now;
    }
-
+*/
 
    static function onSize(e:Event)
    {

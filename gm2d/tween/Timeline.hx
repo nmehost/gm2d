@@ -75,6 +75,8 @@ class Timeline
    }
    public function update(inDT:Float)
    {
+   if (inDT>0.2)
+      trace(inDT);
       time += inDT;
       if (tweens.length>0)
       {
@@ -95,6 +97,7 @@ class Timeline
             }
          }
       }
+      checkTimer();
    }
 
 
@@ -109,6 +112,7 @@ class Timeline
           tween.onUpdate = function(x:Float) inOnUpdate( inVal0 + x*(inVal1-inVal0) );
       else
           tween.onUpdate = function(x:Float) inOnUpdate( inVal0 + inEasing(x)*(inVal1-inVal0) );
+      tween.onUpdate(0);
       tweens.push(tween);
       checkTimer();
    }
