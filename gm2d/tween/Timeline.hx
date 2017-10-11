@@ -4,7 +4,7 @@ import haxe.Timer;
 
 class Timeline
 {
-   var time:Float;
+   public var time(default,null):Float;
    var tweens:Array<Tween>;
    var timer:Timer;
 
@@ -75,8 +75,7 @@ class Timeline
    }
    public function update(inDT:Float)
    {
-   if (inDT>0.2)
-      trace(inDT);
+      //if (inDT>0.2) trace(inDT);
       time += inDT;
       if (tweens.length>0)
       {

@@ -199,6 +199,9 @@ class Game
       var sw = parent.stage.stageWidth;
       var sh = parent.stage.stageHeight;
 
+      parent.rotation=0;   parent.x=0;   parent.y = 0;
+
+     /*
       #if (iphone || android)
          rotation  = (initWidth>initHeight) == (sw>sh) ? 0 : 90;
       #else
@@ -217,6 +220,7 @@ class Game
          case 270: parent.rotation=270; parent.x = 0; parent.y=sw;
          default: throw("Unsupported orientation :" + rotation);
       }
+      */
 
       layoutScreen();
    }
@@ -370,6 +374,7 @@ class Game
          {
             var stage = nme.Lib.current.stage;
             layout.setRect(0,0,stage.stageWidth, stage.stageHeight);
+            stage.invalidate();
          }
       }
    }

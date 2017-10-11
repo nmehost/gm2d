@@ -54,6 +54,12 @@ class Screen extends gm2d.ui.Window
          Game.close();
       return true;
    }
+   public function getTime() : Float
+   {
+      if (timeline==null)
+         return 0.0;
+      return timeline.time;
+   }
 
    public function getScaleMode() : ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
 
