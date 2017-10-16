@@ -39,7 +39,7 @@ class Game
    static public var icon(default,set_icon):String;
    static public var debugLayout(get,set):Bool;
    static public var pixelAccurate:Bool = false;
-   static public var toggleFullscreenOnAltEnter:Bool = true;
+   static public var toggleFullscreenOnAltEnter:Bool = false;
    static public var mapEscapeToBack:Bool = true;
    static public var onClosePopup:Void->Void;
    static public var gapDetect = 1.0;
