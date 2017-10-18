@@ -121,7 +121,7 @@ class Widget extends Sprite
    {
       if (inAttribs0==null)
          return inAttribs1;
-      var result:Dynamic = [];
+      var result:Dynamic = {};
       for(field in Reflect.fields(inAttribs0))
          Reflect.setField(result, field, Reflect.field(inAttribs0,field));
       for(field in Reflect.fields(inAttribs1))

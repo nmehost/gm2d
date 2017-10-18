@@ -23,7 +23,7 @@ class Panel extends Widget
    var mTitle:String;
    var mPane:Pane;
 
-   public function new(inTitle:String = "", ?inLineage:Array<String>, ?inAttribs:Dynamic)
+   public function new(inTitle:String = "", ?inLineage:Array<String>, ?inAttribs:{})
    {
       if (inTitle!="")
          inAttribs = Widget.addAttribs(inAttribs, {title:inTitle});
