@@ -35,11 +35,16 @@ class KeyboardAccel
                case "Del" : code = Keyboard.DELETE;
                default:
                   var upper= part.toUpperCase();
-                  var f =  Reflect.field(Keyboard,upper);
-                  if (Std.is(f,Int))
-                     code = f;
+                  if (upper.charCodeAt(0)>='A'.code && upper.charCodeAt(0)<='Z'.code)
+                     code = upper.charCodeAt(0);
                   else
-                     throw "Unknown key : " + part;
+                  {
+                     var f =  Reflect.field(Keyboard,upper);
+                     if (Std.is(f,Int))
+                        code = f;
+                     else
+                        throw "Unknown key : " + part;
+                  }
             }
       }
       if (code<0)
@@ -48,7 +53,9 @@ class KeyboardAccel
 
    public function matches(key:KeyboardEvent) : Bool
    {
-      return Std.int(key.keyCode)==code && shift==key.shiftKey && alt==key.altKey && ctrl==key.ctrlKey;
+      var match =  Std.int(key.keyCode)==code && shift==key.shiftKey && alt==key.altKey && ctrl==key.ctrlKey;
+      return match;
+      // return Std.int(key.keyCode)==code && shift==key.shiftKey && alt==key.altKey && ctrl==key.ctrlKey;
    }
 }
 
