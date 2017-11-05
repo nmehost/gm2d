@@ -50,9 +50,13 @@ class Skin
 {
    // You can use these to set the defaults before you create a Widget
    public static var roundRectRad = 6.0;
-   public static var guiLight = 0xf0f0e0;
-   public static var guiMedium = 0xe0e0d0;
-   public static var guiDark = 0xa0a090;
+   public static var guiLight = 0xeeeeee;
+   public static var guiMedium = 0xc0c0cc;
+   public static var guiDark = 0x606060;
+   public static var guiVeryDark = 0x404040;
+
+   public static var guiLightText = 0xffffff;
+
    public static var guiDisabled = 0x808080;
    public static var guiBorder = 0x000000;
    public static var textFormat:nme.text.TextFormat;
@@ -68,7 +72,7 @@ class Skin
    public static var controlColor = guiLight;
    public static var disableColor = 0x808080;
    public static var tabGradientColor = 0x909080;
-   public static var menuHeight:Float = 22;
+   public static var menuHeight:Float = 32;
 
    public static var rowSelectColour = 0xffd0d0f0;
    public static var rowEvenColour   = 0xffffffff;
@@ -354,7 +358,7 @@ class Skin
 
 
       addAttribs("Dialog", null, {
-          style: StyleRect,
+          style: StyleRoundRect,
           line: LineBorder,
           padding: new Rectangle(borders, borders, borders*2, borders*2),
           chromeFilters: shadowFilters,
@@ -397,7 +401,10 @@ class Skin
           align: Layout.AlignStretch,
           itemAlign: Layout.AlignLeft | Layout.AlignCenterY,
           line: LineNone,
-          style: StyleCustom(renderMenubar),
+          fill: FillSolid(guiVeryDark,1),
+          style: StyleRect,
+          //fill: FillSolid(guiVeryDark,1),
+          //style: StyleCustom(renderMenubar),
         });
       addAttribs(null, Widget.DOWN, {
           fill: FillMedium,
@@ -411,6 +418,7 @@ class Skin
       addAttribs("MenubarItem", null, {
           filters:null,
           line: LineNone,
+          textColor: guiLightText,
         });
       addAttribs("ListRow", null, {
           filters:null,
@@ -457,10 +465,12 @@ class Skin
           style: StyleNone,
           overlapped: true,
         });
+        /*
       addAttribs("MenuCheckbox", Widget.CURRENT, {
           fill: FillMedium,
           style: StyleRect,
         });
+        */
 
       addAttribs("PopupMenu", null, {
           chromeFilters: shadowFilters,

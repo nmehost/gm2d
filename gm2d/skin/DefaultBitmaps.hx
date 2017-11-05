@@ -148,7 +148,7 @@ class DefaultBitmaps
       {
          effects = false;
          gfx.lineStyle(1,0x000000);
-         gfx.beginFill(Skin.guiDark);
+         gfx.beginFill(Skin.guiMedium);
          gfx.drawRoundRect(0,0,sizeX-1,sizeY-1,s12,s12);
          gfx.beginFill(Skin.guiLight);
          gfx.drawCircle(down ? Skin.scale(36) : s11 + 0.5, s11 + 0.5, s10 );
