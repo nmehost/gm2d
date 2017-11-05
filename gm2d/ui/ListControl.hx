@@ -72,7 +72,7 @@ class ListControl extends ScrollWidget
       mOrigItemHeight = mHeight = attribFloat("itemHeight",0);
       mItemHeight = mOrigItemHeight;
 
-      var rowLineage = attrib("rowLineage") ? [attrib("rowLineage"),"ListRow"] : ["ListRow"];
+      var rowLineage = hasAttrib("rowLineage") ? [Std.string(attrib("rowLineage")),"ListRow"] : ["ListRow"];
       var attribs = attrib("rowAttribs");
       if (hasAttrib("itemHeight"))
          Widget.addAttribs( attribs, {minSize: new Size(mMinWidth,mItemHeight) } );

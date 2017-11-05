@@ -457,14 +457,21 @@ class Skin
           style: StyleNone,
           overlapped: true,
         });
+      addAttribs("MenuCheckbox", Widget.CURRENT, {
+          fill: FillMedium,
+          style: StyleRect,
+        });
+
       addAttribs("PopupMenu", null, {
           chromeFilters: shadowFilters,
+          filters: null,
           style: StyleRect,
           fill: FillLight,
           line: LineBorder,
         });
       addAttribs("PopupComboBox", null, {
           chromeFilters: shadowFilters,
+          filters: null,
           style: StyleRect,
           fill: FillNone,
           line: LineBorder,
@@ -472,18 +479,33 @@ class Skin
         });
 
       addAttribs("PopupMenuItem", null, {
-          style: StyleRect,
-          fill: FillLight,
+          //style: StyleRect,
+          //fill: FillLight,
+          filters: null,
           textAlign: "left",
           padding: scale(3),
           align: Layout.AlignStretch | Layout.AlignCenterY,
         });
       addAttribs("PopupMenuItem", Widget.CURRENT, {
-          fill: FillMedium,
-          //line: LineBorder,
           textColor: 0xffffff,
-          filters: null,
         });
+
+      addAttribs("PopupMenuList", null, {
+          rowLineage:"PopupMenuRow",
+          textColor: 0xffffff,
+        });
+      addAttribs("PopupMenuRow", null, {
+          style: StyleUnderlineRect,
+          fill: FillNone,
+        });
+      addAttribs("PopupMenuRow", Widget.ALTERNATE, {
+          fill: FillNone,
+        });
+      addAttribs("PopupMenuRow", Widget.CURRENT, {
+          fill: FillDark,
+        });
+
+
 
       addAttribs("ChoiceBox", null, {
           isInput: false,
