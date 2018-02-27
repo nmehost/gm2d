@@ -35,6 +35,7 @@ class RadioGroup<Key>
    public function add(inButton:Button, inKey:Key) : Button
    {
       buttons.push(inButton);
+      inButton.isToggle = true;
       keys.push(inKey);
       var nextIndex = keys.length;
       inButton.mCallback = onItem!=null ?
