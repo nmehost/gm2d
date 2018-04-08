@@ -50,8 +50,8 @@ class Skin
 {
    // You can use these to set the defaults before you create a Widget
    public static var roundRectRad = 6.0;
-   public static var guiLight = 0xeeeeee;
-   public static var guiMedium = 0xc0c0cc;
+   public static var guiLight = 0xf0f0f0;
+   public static var guiMedium = 0xe0e0e0;
    public static var guiDark = 0x606060;
    public static var guiVeryDark = 0x404040;
 

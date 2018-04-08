@@ -47,6 +47,13 @@ class Dialog extends Window
       //   cacheAsBitmap = true;
    }
 
+   public function close()
+   {
+      if (gm2d.Game.mCurrentDialog==this)
+         gm2d.Game.closeDialog();
+   }
+
+
    public function show(inCentre = true, inAutoClose=true)
    {
       gm2d.Game.doShowDialog(this, inCentre,inAutoClose);
