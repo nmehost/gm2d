@@ -170,7 +170,7 @@ class NumericInput extends TextInput
          v = Std.int(v);
       if (quantization>0)
       {
-         v = min + (Std.int((v-min)*quantization+0.5)/quantization);
+         v = min + (Std.int((v-min)/quantization+0.5)*quantization);
       }
 
       if (v!=restrictedValue || textChanged)
