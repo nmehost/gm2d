@@ -284,7 +284,7 @@ class Skin
         });
       addAttribs("Dock", null, {
           style: StyleRect,
-          fill: FillMedium,
+          fill: FillSolid(guiVeryDark,1),
           filters: null,
           padding: null,
         });
