@@ -7,6 +7,7 @@ enum FillStyle
    FillNone;
    FillLight;
    FillMedium;
+   FillButton;
    FillDark;
    FillDisabled;
    FillTransparent;

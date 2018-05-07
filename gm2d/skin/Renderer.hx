@@ -193,6 +193,9 @@ class Renderer
              case FillStyle.FillMedium:
                 inGraphics.beginFill(Skin.guiMedium);
 
+             case FillStyle.FillButton:
+                inGraphics.beginFill(Skin.guiButton);
+
              case FillStyle.FillDark:
                 inGraphics.beginFill(Skin.guiDark);
 
@@ -217,7 +220,7 @@ class Renderer
              case FillStyle.FillBitmap(bmp):
                 inGraphics.beginBitmapFill(bmp);
 
-             default:
+             case FillNone:
                  filled = false;
           }
       }
@@ -230,9 +233,9 @@ class Renderer
       {
          switch(inLineStyle)
          {
-            case LineBorder: return 1;
+            case LineNone: return 0.0;
+            case LineBorder, LineTrim, LineHighlight: return 1;
             case LineSolid( width, rgb, a ): return width==0 ? 1 : width;
-            default:
          }
       }
       return 0.0;
@@ -244,8 +247,19 @@ class Renderer
       {
          switch(inLineStyle)
          {
+            case LineNone:
+               return 0.0;
+
             case LineBorder:
                inGraphics.lineStyle(0, Skin.guiBorder);
+               return 0.5;
+
+            case LineTrim:
+               inGraphics.lineStyle(0, Skin.guiTrim);
+               return 0.5;
+
+            case LineHighlight:
+               inGraphics.lineStyle(0, Skin.guiHighlight);
                return 0.5;
 
             case LineSolid( width, rgb, a ):

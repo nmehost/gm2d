@@ -52,6 +52,9 @@ class Skin
    public static var roundRectRad = 6.0;
    public static var guiLight = 0xf0f0f0;
    public static var guiMedium = 0xe0e0e0;
+   public static var guiButton = guiMedium;
+   public static var guiTrim = 0xadadad;
+   public static var guiHighlight = 0x1883d7;
    public static var guiDark = 0x606060;
    public static var guiVeryDark = 0x404040;
 
@@ -65,7 +68,7 @@ class Skin
    public static var controlBorder = 0x000000;
    public static var centerTitle = true;
    public static var buttonBorderX = 10;
-   public static var buttonBorderY = 5;
+   public static var buttonBorderY = 2;
    public static var mdiBGColor = 0x404040;
    public static var labelColor = 0x000000;
    public static var panelColor = guiMedium;
@@ -166,13 +169,16 @@ class Skin
        });
       addAttribs("Button", null, {
           style: StyleRect,
-          fill: FillLight,
-          line: LineBorder,
+          fill: FillButton,
+          line: LineTrim,
           textAlign: "center",
           itemAlign: Layout.AlignCenter,
           padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
           offset: new Point(scale(1),scale(1)),
         });
+      addAttribs("Button", Widget.CURRENT, {
+          line: LineHighlight,
+      } );
       addAttribs("ToggleButton", null, {
          offset: new Point(0,0)
         });
@@ -208,11 +214,15 @@ class Skin
         });
       addAttribs("DialogButton", null, {
           offset: new Point(0,0),
-          line: LineSolid(1,guiMedium,1),
-          //fill: FillNone,
+          line: LineNone,
           fill: FillLight,
+          //fill: FillButton,
           style: StyleRect,
           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+        });
+
+      addAttribs("DialogButton", Widget.CURRENT, {
+          line: LineHighlight,
         });
 
       addAttribs("ChromeButton", null, {
@@ -221,7 +231,13 @@ class Skin
           fill: FillLight,
           minItemSize: new Size(scale(10),scale(10)),
           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+          filters: null,
+          chromeFilters: null,
         });
+      addAttribs("ChromeButton", Widget.CURRENT, {
+          line: LineHighlight
+        });
+
  
       addAttribs("TextLabel", null, {
           align: Layout.AlignLeft,
@@ -238,11 +254,10 @@ class Skin
       addAttribs("DialogTitle", null, {
           align: Layout.AlignStretch | Layout.AlignCenterY,
           textAlign: "left",
-          fontSize: scale(20),
+          fontSize: scale(16),
           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
-          style: StyleUnderlineRect,
+          style: StyleRect,
           fill: FillSolid(0xffffff,1),
-          line: LineSolid(1,0x8080ff,1),
           //hitBoxId: HitBoxes.Title,
           chromeButtons: [ {id:Close,
                        align:Layout.AlignRight|Layout.AlignCenterY,
@@ -358,16 +373,18 @@ class Skin
 
 
       addAttribs("Dialog", null, {
-          style: StyleRoundRect,
-          line: LineBorder,
-          padding: new Rectangle(borders, borders, borders*2, borders*2),
+          style: StyleRect,
+          line: LineHighlight,
+          //padding: new Rectangle(borders, borders, borders*2, borders*2),
           chromeFilters: shadowFilters,
-          fill: FillSolid(0xffffff,1),
+          fill: FillLight,
+          /*
           chromeButtons: [ {id:Resize,
               align:Layout.AlignRight|Layout.AlignBottom|Layout.AlignOverlap,
               margin:new Rectangle(0,0,0,0),
               wantsFocus:false,
               lineage:["NoChrome"] } ],
+           */
         });
 
       addAttribs("Line", null, {
