@@ -251,7 +251,7 @@ class TabRenderer
             if (!showGrip)
             {
                gfx.lineStyle(1,0x404040);
-               gfx.beginFill(Skin.guiDark);
+               gfx.beginFill(Skin.guiTrim);
                gfx.drawRoundRect(0.5,0.5,tw,tabHeight+2,6,6);
             }
             trans.ty = y0;

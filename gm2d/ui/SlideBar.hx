@@ -137,7 +137,7 @@ class SlideBar extends Sprite implements IDock
 
    function onUp(_)
    {
-      if (!mouseWatcher.wasDragged)
+      if (mouseWatcher!=null && !mouseWatcher.wasDragged)
       {
          if (showing<=0)
          {

@@ -199,6 +199,9 @@ class Renderer
              case FillStyle.FillDark:
                 inGraphics.beginFill(Skin.guiDark);
 
+             case FillStyle.FillHighlight:
+                inGraphics.beginFill(Skin.guiHighlight);
+
              case FillStyle.FillDisabled:
                 inGraphics.beginFill(Skin.guiDisabled);
 

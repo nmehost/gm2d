@@ -529,7 +529,7 @@ class Skin
           fill: FillNone,
         });
       addAttribs("PopupMenuRow", Widget.CURRENT, {
-          fill: FillDark,
+          fill: FillHighlight,
         });
 
 
