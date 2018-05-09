@@ -11,6 +11,7 @@ import nme.events.MouseEvent;
 import nme.text.TextField;
 import gm2d.ui.Dialog;
 import nme.geom.Point;
+import gm2d.ui.PopupMenu;
 import gm2d.ui.Window;
 import gm2d.ui.TextInput;
 import nme.filters.BitmapFilter;
@@ -797,7 +798,6 @@ class Game
        onClosePopup = inOnClosePopup;
        mCurrentPopup = inPopup;
        mPopupParent.addChild(inPopup);
-       var rect = inPopup.scrollRect;
        var w = inPopup.getWindowWidth();
        var h = inPopup.getWindowHeight();
        if (inX==null)
@@ -805,11 +805,24 @@ class Game
        if (inY==null)
           inY = Std.int( (stageHeight()-h) * 0.5 );
 
+       var asPopup:PopupMenu = cast inPopup;
+
        var pos = mPopupParent.localToGlobal( new Point(inX+w,inY+h) );
        if (pos.x>mPopupParent.stage.stageWidth)
           inX -= (pos.x-stageWidth()) / mPopupParent.scaleX;
-       if (pos.y>mPopupParent.stage.stageHeight)
-          inY -= (pos.y-stageHeight()) / mPopupParent.scaleY;
+       var clipY = pos.y-mPopupParent.stage.stageHeight;
+       if (clipY>0)
+       {
+          if (asPopup!=null)
+          {
+             h -= clipY;
+             inPopup.setRect(0,0,w,h);
+          }
+          else
+          {
+             inY -= clipY;
+          }
+       }
 
        var pos = mPopupParent.localToGlobal( new Point(inX,inY) );
        if (pos.x<0)

@@ -127,6 +127,11 @@ class PopupMenu extends Window
       setItem(0);
    }
 
+   public function getSelected()
+   {
+      return mList.getSelected();
+   }
+
    public function setItem(inIDX:Int)
    {
       mList.select(mRowIdx[inIDX]);
