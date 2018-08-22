@@ -21,13 +21,13 @@ import gm2d.ui.WidgetState;
 import gm2d.ui.Size;
 import gm2d.ui.Button;
 import gm2d.ui.Layout;
-import gm2d.skin.Style;
+import gm2d.skin.Shape;
 import gm2d.skin.BitmapStyle;
 
 
 class Renderer
 {
-   public var style:Style;
+   public var shape:Shape;
    public var fillStyle:FillStyle;
    public var lineStyle:LineStyle;
    public var textFormat:TextFormat;
@@ -46,7 +46,7 @@ class Renderer
 
    public function new(?inMap:Map<String,Dynamic>)
    {
-      style = Style.StyleNone;
+      shape = Shape.ShapeNone;
       textFormat = Skin.getTextFormat();
       offset = new Point(0,0);
       align = null;
@@ -100,8 +100,8 @@ class Renderer
             textFormat.align = map.get("textAlign");
          if (map.exists("bold"))
             textFormat.bold= map.get("bold");
-         if (map.exists("style"))
-             style = map.get("style");
+         if (map.exists("shape"))
+             shape = map.get("shape");
          if (map.exists("bitmap"))
              bitmapStyle = map.get("bitmap");
          if (map.exists("filters"))
@@ -332,7 +332,7 @@ class Renderer
           inWidget.mChrome.filters = null;
 
 
-      if (style==StyleNone)
+      if (shape==ShapeNone)
          return;
 
       var gfx = inWidget.mChrome.graphics;
@@ -402,31 +402,31 @@ class Renderer
 
    public function isRectRender()
    {
-      return style!=null && switch(style)
+      return shape!=null && switch(shape)
       {
-         case StyleRect, StyleRoundRect, StyleRoundRectRad(_) : true;
+         case ShapeRect, ShapeRoundRect, ShapeRoundRectRad(_) : true;
          default: false;
       }
    }
 
    public function renderRect(widget:Widget, gfx:Graphics, r:Rectangle)
    {
-      if (style==null)
+      if (shape==null)
          return;
 
       var lineOffset = 0.0;
       var filled = false;
 
-      switch(style)
+      switch(shape)
       {
-         case StyleNone:
-         case StyleRect:
+         case ShapeNone:
+         case ShapeRect:
             lineOffset = setLine(gfx,lineStyle);
             filled = setFill(gfx,fillStyle,widget);
             if (lineOffset>0 || filled)
                gfx.drawRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2);
 
-         case StyleRoundRect:
+         case ShapeRoundRect:
             lineOffset = setLine(gfx,lineStyle);
             filled = setFill(gfx,fillStyle,widget);
             if (lineOffset>0 || filled)
@@ -435,7 +435,7 @@ class Renderer
                    Skin.roundRectRad*2,Skin.roundRectRad*2);
             }
 
-         case StyleUnderlineRect:
+         case ShapeUnderlineRect:
             if (setFill(gfx,fillStyle,widget))
             {
                gfx.drawRect(r.x, r.y, r.width, r.height);
@@ -448,13 +448,13 @@ class Renderer
                gfx.lineTo(r.x+r.width-lineOffset, r.y+r.height-lineOffset);
             }
 
-         case StyleRoundRectRad(rad):
+         case ShapeRoundRectRad(rad):
             lineOffset = setLine(gfx,lineStyle);
             filled = setFill(gfx,fillStyle,widget);
             if (lineOffset>0 || filled)
                gfx.drawRoundRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2, rad*2,rad*2);
 
-         case StyleCustom( render ):
+         case ShapeCustom( render ):
             lineOffset = setLine(gfx,lineStyle);
             filled = setFill(gfx,fillStyle,widget);
             if (widget==null)
@@ -462,11 +462,11 @@ class Renderer
             render(widget);
             filled = true;
 
-         case StyleScale9(bmp, inner, scale ):
+         case ShapeScale9(bmp, inner, scale ):
             renderScale9(gfx, r, bmp, inner, scale);
             filled = true;
 
-         case StyleShadowRect(depth,flags):
+         case ShapeShadowRect(depth,flags):
             var shadow = ShadowCache.create( lineStyle, fillStyle, depth, flags, 0.0 );
             if (shadow!=null)
             {
@@ -474,7 +474,7 @@ class Renderer
                filled = true;
             }
 
-         case StyleRectFlags(flags):
+         case ShapeRectFlags(flags):
             var shadow = ShadowCache.create( lineStyle, fillStyle, 0, flags | EdgeFlags.Rect, 0.0 );
             if (shadow!=null)
             {
@@ -482,7 +482,7 @@ class Renderer
                filled = true;
             }
 
-         case StyleRoundRectFlags(flags,rad):
+         case ShapeRoundRectFlags(flags,rad):
             var shadow = ShadowCache.create( lineStyle, fillStyle, 0, flags | EdgeFlags.Rect, rad );
             if (shadow!=null)
             {

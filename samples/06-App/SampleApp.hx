@@ -2,7 +2,6 @@ import gm2d.ui.App;
 import gm2d.ui.Menubar;
 import gm2d.ui.MenuItem;
 import gm2d.ui.Widget;
-import gm2d.skin.Style;
 import gm2d.skin.FillStyle;
 import gm2d.ui.Pane;
 import nme.display.Sprite;

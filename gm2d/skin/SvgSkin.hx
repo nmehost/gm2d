@@ -22,7 +22,7 @@ import gm2d.ui.Size;
 import gm2d.ui.WidgetState;
 import gm2d.ui.Slider;
 
-import gm2d.skin.Style;
+import gm2d.skin.Shape;
 import gm2d.skin.FillStyle;
 import gm2d.skin.LineStyle;
 
@@ -56,7 +56,7 @@ class SvgSkin
 
       if (bounds!=null)
       {
-         result.style = Style.StyleCustom(function(inWidget:Widget)
+         result.shape = Shape.ShapeCustom(function(inWidget:Widget)
          {
             inWidget.mChrome.graphics.clear();
             renderer.renderRect0(inWidget.mChrome.graphics,null,scaleRect,bounds,inWidget.mRect);
@@ -82,7 +82,7 @@ class SvgSkin
          result.align = Layout.AlignStretch | Layout.AlignCenterY;
          result.textAlign =  "center";
 
-         //result.style = StyleUnderlineRect;
+         //result.shape = ShapeUnderlineRect;
          //result.fill = FillSolid(0xffffff,1);
          //result.line = LineSolid(4,0x8080ff,1);
       }
@@ -104,7 +104,7 @@ class SvgSkin
       var scaleRect = getScaleRect(renderer,bounds);
 
       var result = Skin.renderer(["Frame","Widget"], 0, {
-         style: Style.StyleCustom(function(widget:Widget) {
+         shape: Shape.ShapeCustom(function(widget:Widget) {
             var gfx = widget.mChrome.graphics;
             var matrix = new Matrix();
             matrix.tx = widget.mRect.x-(bounds.x);

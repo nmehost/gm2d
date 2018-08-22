@@ -18,7 +18,6 @@ import nme.filters.GlowFilter;
 import nme.display.Sprite;
 import nme.display.BitmapData;
 import nme.display.Bitmap;
-import nme.display.Shape;
 import nme.display.Graphics;
 import nme.text.TextField;
 import nme.text.TextFieldAutoSize;
@@ -35,7 +34,7 @@ import gm2d.ui.HitBoxes;
 import gm2d.skin.FillStyle;
 import gm2d.skin.LineStyle;
 import gm2d.skin.BitmapStyle;
-import gm2d.skin.Style;
+import gm2d.skin.Shape;
 
 import nme.display.SimpleButton;
 import gm2d.svg.Svg;
@@ -181,7 +180,7 @@ class Skin
            },
         "Button" => {
            parent:"Control",
-           style: StyleRect,
+           shape: ShapeRect,
            fill: FillButton,
            line: LineTrim,
            textAlign: "center",
@@ -193,7 +192,7 @@ class Skin
            offset: new Point(0,0),
            line: LineNone,
            fill: FillNone,
-           style: StyleRect,
+           shape: ShapeRect,
            padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
            },
         "ToggleButton" => {
@@ -202,7 +201,7 @@ class Skin
            },
         "BMPTextButton" => {
            parent:"Button",
-           style: StyleRoundRect,
+           shape: ShapeRoundRect,
            fill: FillLight,
            line: LineBorder,
            contents:"icon-text",
@@ -220,7 +219,7 @@ class Skin
            offset: new Point(0,0),
            line: LineNone,
            fill: FillNone,
-           style: StyleRect,
+           shape: ShapeRect,
            padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
            stateDown: {
               line: LineBorder,
@@ -232,7 +231,7 @@ class Skin
            line: LineNone,
            fill: FillLight,
            //fill: FillButton,
-           style: StyleRect,
+           shape: ShapeRect,
            padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
            },
         "ChromeButton" => {
@@ -267,7 +266,7 @@ class Skin
            textAlign: "left",
            fontSize: scale(16),
            padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
-           style: StyleRect,
+           shape: ShapeRect,
            fill: FillSolid(0xffffff,1),
            //hitBoxId: HitBoxes.Title,
            chromeButtons: [ {
@@ -281,7 +280,7 @@ class Skin
            },
         "DocumentFrame" => {
            padding: 0,//new Rectangle(scale(2),scale(2),scale(4),scale(4)),
-           style: StyleRect,
+           sampe: ShapeRect,
            fill: FillMedium,
            line: LineSolid(scale(2),guiLight,1),
         },
@@ -290,7 +289,7 @@ class Skin
            textAlign: "left",
            fontSize: scale(16),
            padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
-           style: StyleRect,
+           shape: ShapeRect,
            fill: FillLight,
 
            },
@@ -300,11 +299,11 @@ class Skin
            },
         "MediumBg" => {
            fill: FillMedium,
-           style: StyleRect,
+           shape: ShapeRect,
            },
         "DarkBg" => {
            fill: FillDark,
-           style: StyleRect,
+           shape: ShapeRect,
            },
 
         "GroupBox" => {
@@ -312,16 +311,16 @@ class Skin
            padding: new Rectangle(0,scale(20),0,scale(20)),
            line:LineBorder,
            fill: FillLight,
-           style:StyleRoundRect
+           shape:ShapeRoundRect
            },
         "GroupBoxTitle" => {
            line: LineBorder,
            fill: FillLight,
-           style: StyleRoundRect,
+           shape: ShapeRoundRect,
            },
         "TextInput" => {
            parent:"Control",
-           style: StyleRect,
+           shape: ShapeRect,
            align: Layout.AlignLeft,
            isInput: true,
            minItemSize : new Size(scale(100),1),
@@ -329,7 +328,7 @@ class Skin
            fill: FillSolid(0xffffff,1),
            },
         "Dock" => {
-           style: StyleRect,
+           shape: ShapeRect,
            fill: FillSolid(guiLight,1),
            filters: null,
            padding: null,
@@ -339,12 +338,12 @@ class Skin
            },
 
         "UiButton" => {
-           style: StyleNone,
+           shape: ShapeNone,
            bitmap: BitmapFactory(DefaultBitmaps.factory),
            padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
            },
         "CheckButton" => {
-           style: StyleNone,
+           shape: ShapeNone,
            offset: new Point(0,0),
            itemAlign: Layout.AlignLeft,
            padding: null,
@@ -357,28 +356,28 @@ class Skin
            titleLineage:[ "FrameTitle" ],
            },
         "Frame" => {
-           style: StyleRect,
+           shape: ShapeRect,
            //line: LineBorder,
            },
         "FrameTitle" => {
            align: Layout.AlignStretch | Layout.AlignCenterY,
            textAlign: "center",
            fontSize: scale(14),
-           style: StyleRect,
+           shape: ShapeRect,
            fill: FillSolid(0xf0f0f0,1),
            padding: new Rectangle(0,scale(4),0,scale(8)),
-           //style: StyleUnderlineRect,
+           //shape: ShapeUnderlineRect,
            //line: LineSolid(2,0x8080ff,1),
            },
 
         "Tabs" => {
-           style: StyleRect,
+           shape: ShapeRect,
            //line: LineBorder,
            line: null,
            },
 
         "TabBox" => {
-           style: StyleRect,
+           shape: ShapeRect,
            fill: FillDark,
            align: Layout.AlignStretch | Layout.AlignTop,
            },
@@ -394,7 +393,7 @@ class Skin
 
 
         "Dialog" => {
-           style: StyleRect,
+           shape: ShapeRect,
            line: LineHighlight,
            //padding: new Rectangle(borders, borders, borders*2, borders*2),
            chromeFilters: shadowFilters,
@@ -411,7 +410,7 @@ class Skin
         "Line" => {
            fill: FillDark,
            line: LineNone,
-           style: StyleRect,
+           shape: ShapeRect,
            minItemSize: new Size(1,1),
            align: Layout.AlignStretch,
            },
@@ -440,13 +439,13 @@ class Skin
            itemAlign: Layout.AlignLeft | Layout.AlignCenterY,
            line: LineNone,
            fill: FillSolid(guiVeryDark,1),
-           style: StyleRect,
+           shape: ShapeRect,
            //fill: FillSolid(guiVeryDark,1),
-           //style: StyleCustom(renderMenubar),
+           //shape: ShapeCustom(renderMenubar),
            },
         "MenubarItem" => {
            filters:null,
-           style: StyleUnderlineRect,
+           shape: ShapeUnderlineRect,
            line: LineNone,
            fill: FillNone,
            textColor: guiLightText,
@@ -458,7 +457,7 @@ class Skin
         "ListRow" => {
            filters:null,
            line: LineNone,
-           style: StyleUnderlineRect,
+           shape: ShapeUnderlineRect,
            fill: FillRowOdd,
            stateAlternate: {
              fill: FillRowEven,
@@ -469,18 +468,18 @@ class Skin
            },
         "TileControl" => {
            fill: FillSolid(0xffffff,1),
-           style: StyleRect,
+           shape: ShapeRect,
            wantsFocus:false,
            },
         "SimpleTile" => {
            filters: null,
            fill: FillSolid(0xffffff,1),
            line: LineSolid(0,0xffffff,0),
-           style: StyleShadowRect(1,0),
+           shape: ShapeShadowRect(1,0),
            padding: new Rectangle(10,10,20,20),
            wantsFocus:true,
            stateCurrent: {
-              style: StyleShadowRect(3,0),
+              shape: ShapeShadowRect(3,0),
               line: LineSolid(0,0x8080ff,1),
               }
            },
@@ -488,7 +487,7 @@ class Skin
            filters: null,
            fill: FillSolid(0xffffff,1),
            line: LineNone,
-           style: StyleShadowRect(2, EdgeFlags.BottomOnly),
+           shape: ShapeShadowRect(2, EdgeFlags.BottomOnly),
            padding: new Rectangle(0,0,0,6),
            align:Layout.AlignTop,
            wantsFocus:false,
@@ -497,34 +496,34 @@ class Skin
         "MenuCheckbox" => {
            filters:null,
            line: LineNone,
-           style: StyleNone,
+           shape: ShapeNone,
            overlapped: true,
            },
          /*
          "MenuCheckbox" => {
            fill: FillMedium,
-           style: StyleRect,
+           shape: ShapeRect,
            },
          */
 
         "PopupMenu" => {
            chromeFilters: shadowFilters,
            filters: null,
-           style: StyleRect,
+           shape: ShapeRect,
            fill: FillLight,
            line: LineBorder,
            },
         "PopupComboBox" => {
            chromeFilters: shadowFilters,
            filters: null,
-           style: StyleRect,
+           shape: ShapeRect,
            fill: FillNone,
            line: LineBorder,
            padding: 0,
            },
 
         "PopupMenuItem" => {
-           //style: StyleRect,
+           //shape: ShapeRect,
            //fill: FillLight,
            filters: null,
            textAlign: "left",
@@ -540,7 +539,7 @@ class Skin
            textColor: 0xffffff,
            },
         "PopupMenuRow" => {
-           style: StyleUnderlineRect,
+           shape: ShapeUnderlineRect,
            fill: FillNone,
            stateAlternate: {
               fill: FillNone,
@@ -558,7 +557,7 @@ class Skin
            filters: null,
            fill: FillSolid(0xffffff,1),
            line: LineSolid(0,0x0000ff,0),
-           style: StyleShadowRect(3,0),
+           shape: ShapeShadowRect(3,0),
            },
 
 
@@ -572,7 +571,7 @@ class Skin
            chromeFilters: null,
            fill: FillNone,
            line: LineNone,
-           style: StyleNone,
+           shape: ShapeNone,
            }
       ];
 
