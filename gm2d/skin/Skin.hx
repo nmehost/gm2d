@@ -42,9 +42,8 @@ import gm2d.svg.Svg;
 import gm2d.svg.SvgRenderer;
 import gm2d.CInt;
 
+typedef AttribSet = Map<String,Dynamic>;
 
-
-typedef AttribSet = Array<RenderAttribs>;
 
 class Skin
 {
@@ -74,6 +73,7 @@ class Skin
    public static var panelColor = guiMedium;
    public static var controlColor = guiLight;
    public static var disableColor = 0x808080;
+   public static var resizeBarColor = 0x00ff00;
    public static var tabGradientColor = 0x909080;
    public static var menuHeight:Float = 32;
 
@@ -98,9 +98,9 @@ class Skin
    public static inline var SHOW_COLLAPSE    = 0x0002;
    public static inline var SHOW_EXPAND      = 0x0004;
 
-   public static var attribSet:AttribSet;
-   public static var idAttribs:Map<String,AttribSet>;
-   public static var resolveAttribs: String->AttribSet = defaultResolveAttribs;
+   public static var attribSet:Map<String,Dynamic>;
+   public static var cachedIdAttribs:Map<String,Dynamic>;
+   public static var resolveAttribs: String->Dynamic = defaultResolveAttribs;
 
    public static var tabSize = 32;
    public static var dpiScale:Float = 0.0;
@@ -159,406 +159,422 @@ class Skin
 
       initGfx();
 
-      if (idAttribs==null)
-         idAttribs = new Map<String,AttribSet>();
+      if (cachedIdAttribs==null)
+         cachedIdAttribs = new Map<String,Dynamic>();
 
       // Rebuild attribs from scratch
-      attribSet = [];
-      addAttribs(null, Widget.CURRENT, {
-          filters: currentFilters!=null && currentFilters.length==0 ? null : currentFilters,
-       });
-      addAttribs("Button", null, {
-          style: StyleRect,
-          fill: FillButton,
-          line: LineTrim,
-          textAlign: "center",
-          itemAlign: Layout.AlignCenter,
-          padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
-          offset: new Point(scale(1),scale(1)),
-        });
-      addAttribs("Button", Widget.CURRENT, {
-          line: LineHighlight,
-      } );
-      addAttribs("ToggleButton", null, {
-         offset: new Point(0,0)
-        });
-      addAttribs("BMPTextButton", null, {
-          style: StyleRoundRect,
-          fill: FillLight,
-          line: LineBorder,
-          contents:"icon-text",
-          textAlign: "center",
-          itemAlign: Layout.AlignCenter,
-          padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
-          offset: new Point(scale(1),scale(1)),
-        });
+      attribSet = [
+        "*" => {
+           stateDown: {
+              fill: FillMedium,
+              },
+           stateDisabled: {
+              fill: FillDisabled,
+              },
+           },
+        "Control" => {
+           wantsFocus: true,
+           stateCurrent: {
+              filters: currentFilters!=null && currentFilters.length==0 ? null : currentFilters,
+              //line: LineHighlight,
+              },
+           },
+        "Button" => {
+           parent:"Control",
+           style: StyleRect,
+           fill: FillButton,
+           line: LineTrim,
+           textAlign: "center",
+           itemAlign: Layout.AlignCenter,
+           padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
+           offset: new Point(scale(1),scale(1)),
+           },
+        "SimpleButton" => {
+           offset: new Point(0,0),
+           line: LineNone,
+           fill: FillNone,
+           style: StyleRect,
+           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           },
+        "ToggleButton" => {
+           parent:"Button",
+           offset: new Point(0,0),
+           },
+        "BMPTextButton" => {
+           parent:"Button",
+           style: StyleRoundRect,
+           fill: FillLight,
+           line: LineBorder,
+           contents:"icon-text",
+           textAlign: "center",
+           itemAlign: Layout.AlignCenter,
+           padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
+           offset: new Point(scale(1),scale(1)),
+           },
+        "Keyboard" => {
+           wantsFocus: true,
+           filters: null,
+           },
+        "SipleButton" => {
+           parent:"Control",
+           offset: new Point(0,0),
+           line: LineNone,
+           fill: FillNone,
+           style: StyleRect,
+           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           stateDown: {
+              line: LineBorder,
+              },
+           },
+        "DialogButton" => {
+           parent:"Button",
+           offset: new Point(0,0),
+           line: LineNone,
+           fill: FillLight,
+           //fill: FillButton,
+           style: StyleRect,
+           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           },
+        "ChromeButton" => {
+           parent:["Button"],
+           offset: new Point(1,1),
+           //line: LineSolid(1,guiDark,0.5),
+           line: LineNone,
+           fill: FillMedium,
+           minItemSize: new Size(scale(10),scale(10)),
+           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           filters: null,
+           chromeFilters: null,
+           align:Layout.AlignRight|Layout.AlignCenterY,
+           margin:new Rectangle(5,0,10,0),
+           itemAlign:Layout.AlignCenter,
+           bitmap: BitmapFactory(DefaultBitmaps.factory),
+           },
+        "TextLabel" => {
+           align: Layout.AlignLeft,
+           },
+        "TextPlaceholder" => {
+           textColor: 0xa0a0a0,
+           },
+        "TextPlaceholderAlways" => {
+           textAlign: "right",
+           },
+        "PanelText" => {
+           align: Layout.AlignRight,
+           },
+        "DialogTitle" => {
+           align: Layout.AlignStretch | Layout.AlignCenterY,
+           textAlign: "left",
+           fontSize: scale(16),
+           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           style: StyleRect,
+           fill: FillSolid(0xffffff,1),
+           //hitBoxId: HitBoxes.Title,
+           chromeButtons: [ {
+                id:Close,
+                align:Layout.AlignRight|Layout.AlignCenterY,
+                margin:new Rectangle(5,0,10,0),
+                itemAlign:Layout.AlignCenter,
+                parent:"DialogButton"
+                }
+              ],
+           },
+        "DocumentFrame" => {
+           padding: 0,//new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           style: StyleRect,
+           fill: FillMedium,
+           line: LineSolid(scale(2),guiLight,1),
+        },
+        "TitleBar" => {
+           align: Layout.AlignStretch | Layout.AlignLeft,
+           textAlign: "left",
+           fontSize: scale(16),
+           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           style: StyleRect,
+           fill: FillLight,
 
-      addAttribs("Control", null, {
-         wantsFocus: true
-        });
-      addAttribs("Keyboard", null, {
-         wantsFocus: true,
-         filters: null,
-        });
+           },
+
+        "Panel" => {
+           padding: scale(3),
+           },
+        "MediumBg" => {
+           fill: FillMedium,
+           style: StyleRect,
+           },
+        "DarkBg" => {
+           fill: FillDark,
+           style: StyleRect,
+           },
+
+        "GroupBox" => {
+           margin: 10,
+           padding: new Rectangle(0,scale(20),0,scale(20)),
+           line:LineBorder,
+           fill: FillLight,
+           style:StyleRoundRect
+           },
+        "GroupBoxTitle" => {
+           line: LineBorder,
+           fill: FillLight,
+           style: StyleRoundRect,
+           },
+        "TextInput" => {
+           parent:"Control",
+           style: StyleRect,
+           align: Layout.AlignLeft,
+           isInput: true,
+           minItemSize : new Size(scale(100),1),
+           line: LineBorder,
+           fill: FillSolid(0xffffff,1),
+           },
+        "Dock" => {
+           style: StyleRect,
+           fill: FillSolid(guiLight,1),
+           filters: null,
+           padding: null,
+           },
+        "BitmapFromId" => {
+           bitmap: BitmapFactory(DefaultBitmaps.factory),
+           },
+
+        "UiButton" => {
+           style: StyleNone,
+           bitmap: BitmapFactory(DefaultBitmaps.factory),
+           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           },
+        "CheckButton" => {
+           style: StyleNone,
+           offset: new Point(0,0),
+           itemAlign: Layout.AlignLeft,
+           padding: null,
+           toggle: true,
+           id:"#checkbox",
+           bitmap: BitmapFactory(DefaultBitmaps.factory),
+           },
+        "DockItem" => {
+           align: Layout.AlignStretch,
+           titleLineage:[ "FrameTitle" ],
+           },
+        "Frame" => {
+           style: StyleRect,
+           //line: LineBorder,
+           },
+        "FrameTitle" => {
+           align: Layout.AlignStretch | Layout.AlignCenterY,
+           textAlign: "center",
+           fontSize: scale(14),
+           style: StyleRect,
+           fill: FillSolid(0xf0f0f0,1),
+           padding: new Rectangle(0,scale(4),0,scale(8)),
+           //style: StyleUnderlineRect,
+           //line: LineSolid(2,0x8080ff,1),
+           },
+
+        "Tabs" => {
+           style: StyleRect,
+           //line: LineBorder,
+           line: null,
+           },
+
+        "TabBox" => {
+           style: StyleRect,
+           fill: FillDark,
+           align: Layout.AlignStretch | Layout.AlignTop,
+           },
+
+        "TabButton" => {
+           fill: FillLight,
+           },
+
+        "TabBarButton" => {
+           bitmap: BitmapFactory(DefaultBitmaps.darkFactory),
+           fill: FillDark,
+           },
 
 
-      addAttribs("SimpleButton", null, {
-          offset: new Point(0,0),
-          line: LineNone,
-          fill: FillNone,
-          style: StyleRect,
-          padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
-        });
-      addAttribs("SimpleButton", Widget.DOWN, {
-          line: LineBorder,
-        });
-      addAttribs("DialogButton", null, {
-          offset: new Point(0,0),
-          line: LineNone,
-          fill: FillLight,
-          //fill: FillButton,
-          style: StyleRect,
-          padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
-        });
-
-      addAttribs("DialogButton", Widget.CURRENT, {
-          line: LineHighlight,
-        });
-
-      addAttribs("ChromeButton", null, {
-          offset: new Point(1,1),
-          line: LineSolid(1,guiMedium,1),
-          fill: FillLight,
-          minItemSize: new Size(scale(10),scale(10)),
-          padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
-          filters: null,
-          chromeFilters: null,
-        });
-      addAttribs("ChromeButton", Widget.CURRENT, {
-          line: LineHighlight
-        });
-
- 
-      addAttribs("TextLabel", null, {
-          align: Layout.AlignLeft,
-        });
-      addAttribs("TextPlaceholder", null, {
-         textColor: 0xa0a0a0,
-        });
-      addAttribs("TextPlaceholderAlways", null, {
-          textAlign: "right",
-        });
-      addAttribs("PanelText", null, {
-          align: Layout.AlignRight,
-        });
-      addAttribs("DialogTitle", null, {
-          align: Layout.AlignStretch | Layout.AlignCenterY,
-          textAlign: "left",
-          fontSize: scale(16),
-          padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
-          style: StyleRect,
-          fill: FillSolid(0xffffff,1),
-          //hitBoxId: HitBoxes.Title,
-          chromeButtons: [ {id:Close,
-                       align:Layout.AlignRight|Layout.AlignCenterY,
-                       margin:new Rectangle(5,0,10,0),
-                       itemAlign:Layout.AlignCenter,
-                       lineage:["DialogButton"] } ],
-        });
-      addAttribs("Panel", null, {
-          padding: scale(3),
-        });
-      addAttribs("MediumBg", null, {
-          fill: FillMedium,
-          style: StyleRect,
-        });
-      addAttribs("DarkBg", null, {
-          fill: FillDark,
-          style: StyleRect,
-        });
-
-      addAttribs("GroupBox", null, {
-          margin: 10,
-          padding: new Rectangle(0,scale(20),0,scale(20)),
-          line:LineBorder,
-          fill: FillLight,
-          style:StyleRoundRect
-        });
-      addAttribs("GroupBoxTitle", null, {
-          line: LineBorder,
-          fill: FillLight,
-          style: StyleRoundRect,
-        });
-      addAttribs("TextInput", null, {
-          style: StyleRect,
-          align: Layout.AlignLeft,
-          isInput: true,
-          minItemSize : new Size(scale(100),1),
-          line: LineBorder,
-          fill: FillSolid(0xffffff,1),
-        });
-      addAttribs("Dock", null, {
-          style: StyleRect,
-          fill: FillSolid(guiVeryDark,1),
-          filters: null,
-          padding: null,
-        });
-      addAttribs("BitmapFromId", null, {
-          bitmap: BitmapFactory(DefaultBitmaps.factory),
-        });
-      addAttribs("UiButton", null, {
-          style: StyleNone,
-          bitmap: BitmapFactory(DefaultBitmaps.factory),
-          padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
-        });
-      addAttribs("CheckButton", null, {
-         style: StyleNone,
-         offset: new Point(0,0),
-         itemAlign: Layout.AlignLeft,
-         padding: null,
-         toggle: true,
-         id:"#checkbox",
-         bitmap: BitmapFactory(DefaultBitmaps.factory),
-        });
-      addAttribs("DockItem", null, {
-          align: Layout.AlignStretch,
-          titleLineage:[ "FrameTitle" ],
-        });
-
-      addAttribs("Frame", null, {
-          style: StyleRect,
-          //line: LineBorder,
-        });
-
-      addAttribs("FrameTitle", null, {
-          align: Layout.AlignStretch | Layout.AlignCenterY,
-          textAlign: "center",
-          fontSize: scale(14),
-          style: StyleRect,
-          fill: FillSolid(0xf0f0f0,1),
-          padding: new Rectangle(0,scale(4),0,scale(8)),
-          //style: StyleUnderlineRect,
-          //line: LineSolid(2,0x8080ff,1),
-        });
-
-      addAttribs("Tabs", null, {
-          style: StyleRect,
-          //line: LineBorder,
-          line: null,
-        });
-
-      addAttribs("TabBox", null, {
-          style: StyleRect,
-          fill: FillDark,
-          align: Layout.AlignStretch | Layout.AlignTop,
-        });
-
-
-      addAttribs("TabButton", null, {
-          filters: null,
-          // TODO - solid vs edges vs round
-          style: null,
-          //style: StyleRoundRectFlags(EdgeFlags.BottomSolid,8),
-          line: LineSolid(1,0x000000,1),
-          fill: FillDark,
-          raiseOnDown:true,
-        });
-
-
-      addAttribs("TabButton", Widget.DOWN, {
-          fill: FillSolid(0xffffff,1),
-          style: StyleRoundRectFlags(EdgeFlags.BottomSolid,8),
-        });
-
-
-
-      addAttribs("Dialog", null, {
-          style: StyleRect,
-          line: LineHighlight,
-          //padding: new Rectangle(borders, borders, borders*2, borders*2),
-          chromeFilters: shadowFilters,
-          fill: FillLight,
-          /*
-          chromeButtons: [ {id:Resize,
+        "Dialog" => {
+           style: StyleRect,
+           line: LineHighlight,
+           //padding: new Rectangle(borders, borders, borders*2, borders*2),
+           chromeFilters: shadowFilters,
+           fill: FillLight,
+           /*
+           chromeButtons: [ {id:Resize,
               align:Layout.AlignRight|Layout.AlignBottom|Layout.AlignOverlap,
               margin:new Rectangle(0,0,0,0),
               wantsFocus:false,
               lineage:["NoChrome"] } ],
            */
-        });
+           },
 
-      addAttribs("Line", null, {
-          fill: FillDark,
-          line: LineNone,
-          style: StyleRect,
-          minItemSize: new Size(1,1),
-          align: Layout.AlignStretch,
-        });
-      addAttribs("ProgressBar", null, {
-          align: Layout.AlignStretch,
-          minItemSize: new Size(scale(100),scale(20)),
-        });
-      addAttribs("Stretch", null, {
-          align: Layout.AlignStretch,
-          itemAlign: Layout.AlignStretch,
-        });
-      addAttribs("VLine", null, {
-          align: Layout.AlignStretch,
-          itemAlign: Layout.AlignStretch | Layout.AlignCenterX,
-        });
-      addAttribs("HLine", null, {
-          align: Layout.AlignStretch,
-          itemAlign: Layout.AlignStretch | Layout.AlignCenterY,
-        });
-      addAttribs("TabBar", null, {
-          minSize: size(tabSize,tabSize),
-        });
-      addAttribs("Menubar", null, {
-          minSize: new Size(0,scale(menuHeight)),
-          align: Layout.AlignStretch,
-          itemAlign: Layout.AlignLeft | Layout.AlignCenterY,
-          line: LineNone,
-          fill: FillSolid(guiVeryDark,1),
-          style: StyleRect,
-          //fill: FillSolid(guiVeryDark,1),
-          //style: StyleCustom(renderMenubar),
-        });
-      addAttribs(null, Widget.DOWN, {
-          fill: FillMedium,
-        });
-      addAttribs(null, Widget.DISABLED, {
-          fill: FillDisabled,
-        });
-      addAttribs(null, Widget.DISABLED, {
-          fill: FillDisabled,
-        });
-      addAttribs("MenubarItem", null, {
-          filters:null,
-          line: LineNone,
-          textColor: guiLightText,
-        });
-      addAttribs("ListRow", null, {
-          filters:null,
-          line: LineNone,
-          style: StyleUnderlineRect,
-          fill: FillRowOdd,
-        });
-      addAttribs("ListRow", Widget.ALTERNATE, {
-          fill: FillRowEven,
-        });
-      addAttribs("ListRow", Widget.CURRENT, {
-          fill: FillRowSelect,
-        });
-       addAttribs("TileControl", null, {
-          fill: FillSolid(0xffffff,1),
-          style: StyleRect,
-          wantsFocus:false,
-        });
-       addAttribs("SimpleTile", null, {
-          filters: null,
-          fill: FillSolid(0xffffff,1),
-          line: LineSolid(0,0xffffff,0),
-          style: StyleShadowRect(1,0),
-          padding: new Rectangle(10,10,20,20),
-          wantsFocus:true,
-        });
-       addAttribs("SimpleTile", Widget.CURRENT, {
-          style: StyleShadowRect(3,0),
-          line: LineSolid(0,0x8080ff,1),
-        });
-       addAttribs("AppBar", null, {
-          filters: null,
-          fill: FillSolid(0xffffff,1),
-          line: LineNone,
-          style: StyleShadowRect(2, EdgeFlags.BottomOnly),
-          padding: new Rectangle(0,0,0,6),
-          align:Layout.AlignTop,
-          wantsFocus:false,
-        });
+        "Line" => {
+           fill: FillDark,
+           line: LineNone,
+           style: StyleRect,
+           minItemSize: new Size(1,1),
+           align: Layout.AlignStretch,
+           },
+        "ProgressBar" => {
+           align: Layout.AlignStretch,
+           minItemSize: new Size(scale(100),scale(20)),
+           },
+        "Stretch" => {
+           align: Layout.AlignStretch,
+           itemAlign: Layout.AlignStretch,
+           },
+        "VLine" => {
+           align: Layout.AlignStretch,
+           itemAlign: Layout.AlignStretch | Layout.AlignCenterX,
+           },
+        "HLine" => {
+           align: Layout.AlignStretch,
+           itemAlign: Layout.AlignStretch | Layout.AlignCenterY,
+           },
+        "TabBar" => {
+           minSize: size(tabSize,tabSize),
+           },
+        "Menubar" => {
+           minSize: new Size(0,scale(menuHeight)),
+           align: Layout.AlignStretch,
+           itemAlign: Layout.AlignLeft | Layout.AlignCenterY,
+           line: LineNone,
+           fill: FillSolid(guiVeryDark,1),
+           style: StyleRect,
+           //fill: FillSolid(guiVeryDark,1),
+           //style: StyleCustom(renderMenubar),
+           },
+        "MenubarItem" => {
+           filters:null,
+           style: StyleUnderlineRect,
+           line: LineNone,
+           fill: FillNone,
+           textColor: guiLightText,
+           stateCurrent : {
+              filters:null,
+              line: LineSolid(scale(4),guiHighlight,1),
+              }
+           },
+        "ListRow" => {
+           filters:null,
+           line: LineNone,
+           style: StyleUnderlineRect,
+           fill: FillRowOdd,
+           stateAlternate: {
+             fill: FillRowEven,
+             },
+           stateCurrent: {
+             fill: FillRowSelect,
+             },
+           },
+        "TileControl" => {
+           fill: FillSolid(0xffffff,1),
+           style: StyleRect,
+           wantsFocus:false,
+           },
+        "SimpleTile" => {
+           filters: null,
+           fill: FillSolid(0xffffff,1),
+           line: LineSolid(0,0xffffff,0),
+           style: StyleShadowRect(1,0),
+           padding: new Rectangle(10,10,20,20),
+           wantsFocus:true,
+           stateCurrent: {
+              style: StyleShadowRect(3,0),
+              line: LineSolid(0,0x8080ff,1),
+              }
+           },
+        "AppBar" => {
+           filters: null,
+           fill: FillSolid(0xffffff,1),
+           line: LineNone,
+           style: StyleShadowRect(2, EdgeFlags.BottomOnly),
+           padding: new Rectangle(0,0,0,6),
+           align:Layout.AlignTop,
+           wantsFocus:false,
+           },
  
-      addAttribs("MenuCheckbox", null, {
-          filters:null,
-          line: LineNone,
-          style: StyleNone,
-          overlapped: true,
-        });
-        /*
-      addAttribs("MenuCheckbox", Widget.CURRENT, {
-          fill: FillMedium,
-          style: StyleRect,
-        });
-        */
+        "MenuCheckbox" => {
+           filters:null,
+           line: LineNone,
+           style: StyleNone,
+           overlapped: true,
+           },
+         /*
+         "MenuCheckbox" => {
+           fill: FillMedium,
+           style: StyleRect,
+           },
+         */
 
-      addAttribs("PopupMenu", null, {
-          chromeFilters: shadowFilters,
-          filters: null,
-          style: StyleRect,
-          fill: FillLight,
-          line: LineBorder,
-        });
-      addAttribs("PopupComboBox", null, {
-          chromeFilters: shadowFilters,
-          filters: null,
-          style: StyleRect,
-          fill: FillNone,
-          line: LineBorder,
-          padding: 0,
-        });
+        "PopupMenu" => {
+           chromeFilters: shadowFilters,
+           filters: null,
+           style: StyleRect,
+           fill: FillLight,
+           line: LineBorder,
+           },
+        "PopupComboBox" => {
+           chromeFilters: shadowFilters,
+           filters: null,
+           style: StyleRect,
+           fill: FillNone,
+           line: LineBorder,
+           padding: 0,
+           },
 
-      addAttribs("PopupMenuItem", null, {
-          //style: StyleRect,
-          //fill: FillLight,
-          filters: null,
-          textAlign: "left",
-          padding: scale(3),
-          align: Layout.AlignStretch | Layout.AlignCenterY,
-        });
-      addAttribs("PopupMenuItem", Widget.CURRENT, {
-          textColor: 0xffffff,
-        });
+        "PopupMenuItem" => {
+           //style: StyleRect,
+           //fill: FillLight,
+           filters: null,
+           textAlign: "left",
+           padding: scale(3),
+           align: Layout.AlignStretch | Layout.AlignCenterY,
+           stateCurrent:{
+              textColor: 0xffffff,
+              }
+           },
 
-      addAttribs("PopupMenuList", null, {
-          rowLineage:"PopupMenuRow",
-          textColor: 0xffffff,
-        });
-      addAttribs("PopupMenuRow", null, {
-          style: StyleUnderlineRect,
-          fill: FillNone,
-        });
-      addAttribs("PopupMenuRow", Widget.ALTERNATE, {
-          fill: FillNone,
-        });
-      addAttribs("PopupMenuRow", Widget.CURRENT, {
-          fill: FillHighlight,
-        });
+        "PopupMenuList" => {
+           rowLineage:"PopupMenuRow",
+           textColor: 0xffffff,
+           },
+        "PopupMenuRow" => {
+           style: StyleUnderlineRect,
+           fill: FillNone,
+           stateAlternate: {
+              fill: FillNone,
+              },
+           stateCurrent: {
+             fill: FillHighlight,
+             },
+           },
 
+        "ChoiceBox" => {
+           isInput: false,
+           },
 
-
-      addAttribs("ChoiceBox", null, {
-          isInput: false,
-         } );
-
-      addAttribs("WidgetDrawer", null, {
-          filters: null,
-          fill: FillSolid(0xffffff,1),
-          line: LineSolid(0,0x0000ff,0),
-          style: StyleShadowRect(3,0),
-         } );
+        "WidgetDrawer" => {
+           filters: null,
+           fill: FillSolid(0xffffff,1),
+           line: LineSolid(0,0x0000ff,0),
+           style: StyleShadowRect(3,0),
+           },
 
 
-      addAttribs("NoFilters", null, {
-          filters: null,
-          chromeFilters: null,
-        });
+        "NoFilters" => {
+           filters: null,
+           chromeFilters: null,
+           },
 
-      addAttribs("NoChrome", null, {
-          filters: null,
-          chromeFilters: null,
-          fill: FillNone,
-          line: LineNone,
-          style: StyleNone,
-        });
-
+        "NoChrome" => {
+           filters: null,
+           chromeFilters: null,
+           fill: FillNone,
+           line: LineNone,
+           style: StyleNone,
+           }
+      ];
 
       return null;
    }
@@ -582,51 +598,63 @@ class Skin
       return Std.int(inVal*dpiScale);
    }
 
-   public static function addId(inId:String, inState:Null<Int>, inAttribs:{ })
+   public static function addId(inId:String, inAttribs:{ })
    {
-      var attribs = idAttribs.get(inId);
+      var attribs = cachedIdAttribs.get(inId);
       if (attribs==null)
-         idAttribs.set( inId, attribs = new AttribSet() );
-      
-      attribs.push( new RenderAttribs(null, inState, inAttribs) );
+         cachedIdAttribs.set( inId, attribs = { } );
+
+      for(key in Reflect.fields(inAttribs))
+         Reflect.setField(attribs, key, Reflect.field(inAttribs,key));
    }
 
 
-
-
-   public static function getIdAttribs(inId:String) : AttribSet
+   public static function getIdAttribs(inId:String) : Dynamic
    {
-      if (idAttribs.exists(inId))
-         return idAttribs.get(inId);
-      var attribs:AttribSet = null;
+      if (cachedIdAttribs.exists(inId))
+         return cachedIdAttribs.get(inId);
+      var attribs:Dynamic = null;
       if (resolveAttribs!=null)
           attribs = resolveAttribs(inId);
-      idAttribs.set(inId, attribs);
+      cachedIdAttribs.set(inId, attribs);
       return attribs;
     }
   
 
-   public static function getIdAttrib(inId:String, inName:String, ?inState:Null<Int>) : Dynamic
+   public static function getIdAttrib(inId:String, inName:String) : Dynamic
    {
       var attribs = getIdAttribs(inId);
-      for(attrib in attribs)
-         if (attrib.matches(null,inState))
-         {
-            var result = attrib.attribs.get(inName);
-            if (result!=null)
-               return result;
-         }
+      if (attribs==null)
+         return null;
+
+      if (Reflect.hasField(attribs,inName))
+         return Reflect.field(attribs,inName);
+
       return null;
    }
 
 
-   public static function addAttribs(inLine:String, inState:Null<Int>, inAttribs:Dynamic)
+   public static function addAttribs(inLine:String, inAttribs:Dynamic)
    {
-      attribSet.push( new RenderAttribs(inLine, inState, inAttribs) );
+      var oldAttribs = attribSet.get(inLine);
+      if (oldAttribs!=null)
+      {
+         for(key in Reflect.fields(inAttribs))
+             Reflect.setField(oldAttribs, key, Reflect.field(inAttribs,key));
+      }
+      else
+         attribSet.set( inLine, inAttribs );
    }
 
-   public static function replaceAttribs(inLine:String, inState:Null<Int>, inAttribs:Dynamic)
+   public static function removeAttribs(inLine:String)
    {
+      attribSet.remove(inLine);
+   }
+
+   public static function replaceAttribs(inLine:String, inAttribs:Dynamic)
+   {
+      if (inLine==null)
+         inLine = "*";
       #if flash9
       if (Std.is(inAttribs,Renderer))
       {
@@ -636,16 +664,7 @@ class Skin
          inAttribs = o;
       }
       #end
-      var idx = 0;
-      for(idx in 0...attribSet.length)
-      {
-         if (attribSet[idx].line == inLine && attribSet[idx].state==inState)
-         {
-            attribSet[idx] = new RenderAttribs(inLine,inState,inAttribs);
-            return;
-         }
-      }
-      addAttribs(inLine,inState,inAttribs);
+      attribSet.set( inLine, inAttribs );
    }
 
 
@@ -670,32 +689,51 @@ class Skin
       return defaultTabRenderer;
    }
 
+   static function mergeAttribMapState(map, attrib:Dynamic, inState:Int)
+   {
+      if (attrib==null)
+         return;
+
+      if ( (inState & Widget.ALTERNATE)!=0)
+         mergeAttribMap( map, Reflect.field(attrib,"stateAlternate") );
+
+      if ( (inState & Widget.CURRENT)!=0)
+         mergeAttribMap( map, Reflect.field(attrib,"stateCurrent") );
+
+      if ( (inState & Widget.DOWN)!=0)
+         mergeAttribMap( map, Reflect.field(attrib,"stateDown") );
+
+      if ( (inState & Widget.DISABLED)!=0)
+         mergeAttribMap( map, Reflect.field(attrib,"stateDisabled") );
+   }
+
+
    public static function combineAttribs(inLineage:Array<String>,inState:Int=0, ?inAttribs:{}) : Map<String,Dynamic>
    {
        init();
        var map = new Map<String,Dynamic>();
        var last = inLineage.length;
-       for(lid in 0...inLineage.length+1)
-          for(attrib in attribSet)
-             if (attrib.matches(inLineage[last-lid],inState))
-                attrib.merge(map);
+       var stateAttribs:Array<Dynamic> = null;
 
-       if (inAttribs!=null && Reflect.hasField(inAttribs,"id"))
-       {
-          var id = Reflect.field(inAttribs,"id");
-          var attribs = getIdAttribs(id);
-          if (attribs!=null)
-          {
-             for(attrib in attribs)
-                for(lid in 0...inLineage.length+1)
-                   if (attrib.matches(inLineage[last-lid],inState))
-                   {
-                      attrib.merge(map);
-                      break;
-                   }
-          }
-       }
+       mergeAttribMap(map, attribSet.get("*") );
+
+       for(line in 0...last)
+          mergeAttribMap(map, attribSet.get(inLineage[last-1-line]) );
+
        mergeAttribMap(map,inAttribs);
+
+       if (inState>0)
+       {
+          for(line in 0...last)
+             mergeAttribMapState(map, attribSet.get(inLineage[last-1-line]), inState );
+
+          mergeAttribMapState(map, inAttribs, inState );
+       }
+
+       var id = map.get("id");
+       var attribs = getIdAttribs(id);
+       if (attribs!=null)
+          mergeAttribMap(map,attribs);
 
        return map;
    }
@@ -764,18 +802,18 @@ class Skin
       if (inSvg.hasGroup("dialog"))
       {
          var frameRenderer = SvgSkin.createFrameRenderer(inSvg,"dialog");
-         addAttribs("Dialog", null, frameRenderer);
+         addAttribs("Dialog", frameRenderer);
 
          var title = inSvg.findGroup("dialog").findGroup(".title");
          if (title!=null)
-            replaceAttribs("DialogTitle", null, SvgSkin.createButtonRenderer(title));
+            replaceAttribs("DialogTitle", SvgSkin.createButtonRenderer(title));
             // Inherit chrome buttons?
             //addAttribs("DialogTitle", null, SvgSkin.createButtonRenderer(title));
       }
       if (inSvg.hasGroup("slider"))
          sliderRenderer = SvgSkin.createSliderRenderer(inSvg,"slider");
       if (inSvg.hasGroup("button"))
-         replaceAttribs("Button", null, SvgSkin.createButtonRenderer(inSvg,"button") );
+         replaceAttribs("Button", SvgSkin.createButtonRenderer(inSvg,"button") );
    }
 
 
@@ -831,12 +869,12 @@ class Skin
          if (Dock.isToolbar(pane))
          {
             if (inTopGrip)
-               return new Rectangle(2,8,4,10);
+               return new Rectangle(scale(2),scale(8),scale(4),scale(10));
             else
-               return new Rectangle(8,2,10,4);
+               return new Rectangle(scale(8),scale(2),scale(10),scale(4));
          }
          else
-            return new Rectangle(2,22,4,24);
+            return new Rectangle(scale(2),scale(22),scale(4),scale(24));
       }
       return new Rectangle(0,0,0,0);
    }
@@ -950,31 +988,6 @@ class Skin
 
    }
 
-   public static function renderResizeBars(inDock:SideDock,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inHorizontal:Bool,inSizes:Array<Float>):Void
-   {
-      var gfx = inContainer.graphics;
-      //gfx.lineStyle();
-      gfx.beginFill(panelColor);
-      var gap = getResizeBarWidth();
-      var extra = 2;
-      var pos = 0.0;
-      for(p in 0...inSizes.length-1)
-      {
-         pos += inSizes[p];
-         if (inHorizontal)
-         {
-            gfx.drawRect(inRect.x+pos, inRect.y,gap,inRect.height);
-            outHitBoxes.add( new Rectangle(inRect.x+pos-extra, inRect.y,gap+extra*2,inRect.height), DOCKSIZE(inDock,p) );
-         }
-         else
-         {
-            gfx.drawRect(inRect.x, inRect.y+pos,inRect.width,gap);
-            outHitBoxes.add( new Rectangle(inRect.x, inRect.y+pos-extra,inRect.width,gap+extra*2), DOCKSIZE(inDock,p) );
-         }
-         pos += gap;
-      }
-   }
-
 
    public static function addResizeDockZones(outZones:DockZones,inRect:Rectangle,inHorizontal:Bool,inSizes:Array<Float>, inOnDock:IDockable->Int->Void ):Void
    {
@@ -1051,6 +1064,7 @@ class Skin
       inGfx.drawRoundRect(0.5,0.5,inWidth*inFraction,inHeight,6,6);
    }
 
+/*
    public static function renderMDI(inMDI:Sprite)
    {
       var gfx = inMDI.graphics;
@@ -1062,6 +1076,7 @@ class Skin
          gfx.drawRect(rect.x, rect.y, rect.width, rect.height );
       }
    }
+*/
 
    public static function getFrameClientOffset() : Point
    {
@@ -1077,7 +1092,7 @@ class Skin
    }
    public static function getResizeBarWidth() : Float
    {
-      return 2;
+      return scale(3);
    }
    public static function getSideBorder() : Float
    {
@@ -1085,88 +1100,6 @@ class Skin
    }
 
 
-
-
-   public static function renderFrame(inObj:Sprite, pane:IDockable, inW:Float, inH:Float,
-             outHitBoxes:HitBoxes,inIsCurrent:Bool)
-   {
-      outHitBoxes.clear();
-
-      var gfx = inObj.graphics;
-      gfx.clear();
-
-      var w = inW+borders*2;
-      var h = inH+borders*2+title_h;
-      var x = inW - borders;
-
-      gfx.beginFill(panelColor);
-      gfx.drawRoundRect(0.5,0.5,w, h, 3,3 );
-
-      if (inIsCurrent)
-      {
-         var mtx = new nme.geom.Matrix();
-         mtx.createGradientBox(title_h+borders,title_h+borders,Math.PI * 0.5);
-         var cols:Array<CInt> = [guiLight, guiMedium, guiDark];
-         var alphas:Array<Float> = [1.0, 1.0, 1.0];
-         var ratio:Array<Int> = [0, 128, 255];
-         gfx.beginGradientFill(nme.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
-      }
-      else
-      {
-         gfx.beginFill(guiDark);
-      }
-
-      gfx.drawRoundRect(0.5,0.5,w, title_h, 3,3 );
-      gfx.endFill();
-      if (inIsCurrent)
-         gfx.lineStyle(2,guiLight);
-      else
-         gfx.lineStyle(2,guiDark);
-
-      gfx.drawRoundRect(0.5,0.5,w, h, 3,3 );
-      if ( Dock.isResizeable(pane))
-      {
-         gfx.lineStyle(1,guiDark);
-         for(o in 0...4)
-         {
-            var dx = (o+2)*3;
-            gfx.moveTo(w-dx,h);
-            gfx.lineTo(w,h-dx);
-         }
-         outHitBoxes.add( new Rectangle(w-12,h-12,12,12), HitAction.RESIZE(pane, ResizeFlag.S|ResizeFlag.E) );
-      }
-
-
-      for(but in [ MiniButton.CLOSE, MiniButton.MINIMIZE, MiniButton.MAXIMIZE ] )
-      {
-         var button =  Button.create(["PaneButton", "UiButton"], { id:but });
-         /*
-         var state =  getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
-         var button =  new SimpleButton( state,
-                                        getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
-                                        getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
-         */
-         inObj.addChild(button);
-         button.y = Std.int( (title_h - button.height)/2 );
-         x-= button.width;
-         button.x = x;
-
-         if (outHitBoxes.mCallback!=null)
-            button.addEventListener( MouseEvent.CLICK, function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
-      }
-
-      var titleBmp = new Bitmap();
-      titleBmp.x = borders;
-      titleBmp.y = borders;
-      inObj.addChild(titleBmp);
-      titleBmp.bitmapData = renderText(pane.getTitle(),pane.getShortTitle(),x-borders,  title_h-borders*2);
-
-      if (centerTitle)
-         titleBmp.x = Std.int((x-borders-titleBmp.width)/2);
-
-      //trace("Title : " + inW + "x"  + title_h );
-      outHitBoxes.add( new Rectangle(0,0,inW,title_h), TITLE(pane) );
-   }
 
    public static function renderText(inText:String, inAltText:String,inWidth:Float, inHeight:Float)
    {
@@ -1313,60 +1246,63 @@ class Skin
       var y0 = Std.int(inRect.y) + 0.5;
       var showX = 0;
       var showY = 0;
-      var showW = 32;
-      var showH = 32;
+      var showW = scale(32);
+      var showH = scale(32);
+      var half = scale(16);
+      var plusHalf = scale(48);
+      var gap = scale(2);
 
       switch(inPosition)
       {
          case DOCK_LEFT:
-            y0 = Std.int(inRect.y + inRect.height/2 - 16 ) + 0.5;
+            y0 = Std.int(inRect.y + inRect.height/2 - half ) + 0.5;
             if (inCentred)
-               x0 = inRect.x +inRect.width*0.5 - 48 - 2;
-            showW = 12;
+               x0 = inRect.x +inRect.width*0.5 - plusHalf - gap;
+            showW = scale(12);
          case DOCK_RIGHT:
             if (inCentred)
-               x0 = inRect.x +inRect.width*0.5 + 16 + 2;
+               x0 = inRect.x +inRect.width*0.5 + half + gap;
             else
-               x0 = Std.int(inRect.right-32)-0.5;
-            y0 = Std.int(inRect.y + inRect.height/2 - 16 ) + 0.5;
-            showX = 20;
-            showW = 12;
+               x0 = Std.int(inRect.right-showW)-0.5;
+            y0 = Std.int(inRect.y + inRect.height/2 - half ) + 0.5;
+            showX = scale(20);
+            showW = scale(12);
          case DOCK_TOP:
             if (inCentred)
-               y0 = inRect.y +inRect.height*0.5 - 48 - 2;
-            x0 = Std.int(inRect.x + inRect.width/2 - 16 ) + 0.5;
-            showH = 12;
+               y0 = inRect.y +inRect.height*0.5 - plusHalf - 2;
+            x0 = Std.int(inRect.x + inRect.width/2 - half ) + 0.5;
+            showH = scale(12);
          case DOCK_BOTTOM:
-            x0 = Std.int(inRect.x + inRect.width/2 - 16 ) + 0.5;
+            x0 = Std.int(inRect.x + inRect.width/2 - half ) + 0.5;
             if (inCentred)
-               y0 = inRect.y +inRect.height*0.5 + 16 + 2;
+               y0 = inRect.y +inRect.height*0.5 + half + gap;
             else
-               y0 = Std.int(inRect.bottom-32)-0.5;
-            showY = 20;
-            showH = 12;
+               y0 = Std.int(inRect.bottom-showH)-0.5;
+            showY = scale(20);
+            showH = scale(12);
          case DOCK_OVER:
             if (!inCentred)
                return;
 
-            x0 = inRect.x +inRect.width*0.5 - 16;
-            y0 = inRect.y +inRect.height*0.5 - 16;
-            showX = showY = 4;
-            showW = showH = 24;
+            x0 = inRect.x +inRect.width*0.5 - half;
+            y0 = inRect.y +inRect.height*0.5 - half;
+            showX = showY = scale(4);
+            showW = showH = scale(24);
          case DOCK_BAR:
             return;
       }
 
       var gfx = outZones.container.graphics;
-      var result = new Rectangle(x0,y0,32,32);
+      var result = new Rectangle(x0,y0,scale(32),scale(32));
       if (result.contains(outZones.x,outZones.y))
       {
          gfx.lineStyle();
          gfx.beginFill(0x7070ff);
-         gfx.drawRect(x0-4,y0-4,40,40);
+         gfx.drawRect(x0-gap*2,y0-gap*2,scale(40),scale(40));
       }
       gfx.beginFill(0xffffff);
       gfx.lineStyle(1,0x000000);
-      gfx.drawRect(x0,y0,32,32);
+      gfx.drawRect(x0,y0,scale(32),scale(32));
       gfx.beginFill(0x4040a0);
       gfx.drawRect(x0+showX,y0+showY,showW,showH);
 
@@ -1374,11 +1310,28 @@ class Skin
    }
 
 
-   static function mergeAttribMap(map:Map<String,Dynamic>, inAttribs:Dynamic)
+
+   public static function mergeAttribs(a0:{}, aover:{}) : {}
+   {
+      var result = {};
+      for(k in Reflect.fields(a0))
+         Reflect.setField(result, k, Reflect.field(a0,k));
+      for(k in Reflect.fields(aover))
+         Reflect.setField(result, k, Reflect.field(aover,k));
+      return result;
+   }
+
+   public static function mergeAttribMap(map:Map<String,Dynamic>, inAttribs:Dynamic,maxDepth=10)
    {
       if (inAttribs!=null)
+      {
+         if (maxDepth>0 && Reflect.hasField(inAttribs,"parent"))
+            mergeAttribMap(map, inAttribs.parent, maxDepth-1 );
+
          for(key in Reflect.fields(inAttribs))
-             map.set(key, Reflect.field(inAttribs,key));
+             if (key!="parent")
+                 map.set(key, Reflect.field(inAttribs,key));
+      }
    }
 
 
@@ -1393,10 +1346,8 @@ class Skin
    }
 
 
-   public static function defaultResolveAttribs(inId) : AttribSet
+   public static function defaultResolveAttribs(inId) : Dynamic
    {
-      var result = new AttribSet();
-
       switch(inId)
       {
          case "#checked":
@@ -1407,7 +1358,7 @@ class Skin
             gfx.lineTo(20,8);
             var bmp = new BitmapData(24,24,true,gm2d.RGB.CLEAR );
             bmp.draw(mDrawing);
-            result.push( new RenderAttribs(null, null, { icon:bmp } ) );
+            return( { icon:bmp } );
 
          case "#unchecked":
             var gfx = initGfx();
@@ -1418,10 +1369,10 @@ class Skin
             gfx.lineTo(16,8);
             var bmp = new BitmapData(24,24,true,gm2d.RGB.CLEAR );
             bmp.draw(mDrawing);
-            result.push( new RenderAttribs(null, null, { icon:bmp } ) );
+            return( { icon:bmp } );
        }
 
-       return result;
+       return null;
    }
 }
 

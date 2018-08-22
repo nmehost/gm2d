@@ -14,21 +14,22 @@ import gm2d.ui.HitBoxes;
 import gm2d.ui.Dock;
 import gm2d.ui.DockPosition;
 import gm2d.Game;
+import gm2d.skin.FillStyle;
 import gm2d.skin.Skin;
 import gm2d.ui.WidgetState;
 import gm2d.ui.Layout;
 
 
-class MDIParent extends Sprite implements IDock implements IDockable
+class DocumentParent extends Sprite implements IDock implements IDockable
 {
    var parentDock:IDock;
-   var mChildren:Array<MDIChildFrame>;
+   var mChildren:Array<DockFrame>;
    var mDockables:Array<IDockable>;
    public var clientArea(default,null):Sprite;
    public var clientLayout : Layout;
    public var clientWidth(default,null):Float;
    public var clientHeight(default,null):Float;
-   var mTabContainer:TabBar;
+   var tabBar:TabBar;
    var mTopLevel:TopLevelDock;
    var mMaximizedPane:IDockable;
    var mLayout:GridLayout;
@@ -42,20 +43,18 @@ class MDIParent extends Sprite implements IDock implements IDockable
 
    public function new()
    {
-      //super(["MDIParent", "Dock", "Widget"] );
+      //super(["DocumentParent", "Dock", "Widget"] );
       super();
 
       clientArea = new Sprite();
       clientArea.name = "Client area";
-      clientWidth = 100;
-      clientHeight = 100;
       properties = {};
       addChild(clientArea);
 
       mDockables = [];
-      mTabContainer = new TabBar(mDockables,onHitBox);
-      mTabContainer.applyStyles();
-      addChild(mTabContainer);
+      tabBar = new TabBar(mDockables,onHitBox,true);
+      tabBar.applyStyles();
+      addChild(tabBar);
 
       mChildren = [];
       mMaximizedPane = null;
@@ -70,9 +69,10 @@ class MDIParent extends Sprite implements IDock implements IDockable
       clientLayout = new DisplayLayout(clientArea, Layout.AlignStretch, clientWidth, clientHeight);
       clientLayout.setAlignment(Layout.AlignStretch);
       clientLayout.onLayout = setClientSize;
-      mLayout.add(mTabContainer.getLayout());
+      mLayout.add(tabBar.getLayout());
       mLayout.add( clientLayout );
       mLayout.setRowStretch(0,0);
+      mLayout.setMinSize( Skin.scale(50), Skin.scale(50) );
    }
 
    public function setTopLevel(inTopLevel:TopLevelDock)
@@ -88,17 +88,27 @@ class MDIParent extends Sprite implements IDock implements IDockable
       throw "Bad dock position";
    }
 
+   function addFrame(pane:Pane)
+   {
+      var child = new DockFrame(pane,this, {
+           onPaneMaximize : function() maximize(pane)
+         });
+      mChildren.push(child);
+      clientArea.addChild(child);
+   }
+
+   public function hasBestSize() return false;
+
    public function addDockable(inChild:IDockable,inPos:DockPosition,inSlot:Int):Void
    {
       if (inPos!=DOCK_OVER)
          throw "Bad dock position";
       Dock.remove(inChild);
       mDockables.push(inChild);
-      if (mMaximizedPane==null)
+      if (mMaximizedPane==null && inChild.asPane()!=null)
       {
-         var child = new MDIChildFrame(inChild,this,true);
-         mChildren.push(child);
-         clientArea.addChild(child);
+         var pane = inChild.asPane();
+         addFrame(pane);
          current = inChild;
          redrawTabs();
       }
@@ -153,7 +163,7 @@ class MDIParent extends Sprite implements IDock implements IDockable
        return this;
    }
 
-   public function getSlot():Int { return mMaximizedPane==null ? Dock.DOCK_SLOT_MDI : Dock.DOCK_SLOT_MDIMAX; }
+   public function getSlot():Int { return mMaximizedPane==null ? Dock.DOCK_SLOT_DOC : Dock.DOCK_SLOT_DOCMAX; }
 
    public function raiseDockable(child:IDockable):Bool
    {
@@ -213,6 +223,7 @@ class MDIParent extends Sprite implements IDock implements IDockable
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
    // Layout
+   public function getLayout() return mLayout;
    public function getBestSize(inPos:Int):Size
    {
       var chrome = Skin.getMDIClientChrome();
@@ -229,15 +240,17 @@ class MDIParent extends Sprite implements IDock implements IDockable
    public function isLocked():Bool { return false; }
 
 
-
+/*
    public function setRect(inX:Float,inY:Float,w:Float,h:Float):Void
    {
       dockX = inX;
       dockY = inY;
       sizeX = w;
       sizeY = h;
+      trace('-----> $dockX,$dockY,$sizeX,$sizeY');
       mLayout.setRect(inX,inY,w,h);
    }
+   */
    public function getDockRect():Rectangle
    {
       return new Rectangle(dockX, dockY, sizeX, sizeY );
@@ -253,6 +266,7 @@ class MDIParent extends Sprite implements IDock implements IDockable
 
    public function renderChrome(inBackground:Sprite,outHitBoxes:HitBoxes):Void
    {
+      //trace("renderChrome");
    }
 
    public function asPane() : Pane { return null; }
@@ -260,7 +274,8 @@ class MDIParent extends Sprite implements IDock implements IDockable
 
    public function addDockZones(outZones:DockZones):Void
    {
-      var rect = new Rectangle(dockX,dockY,sizeX,sizeY);
+      //var rect = new Rectangle(dockX,dockY,sizeX,sizeY);
+      var rect = mLayout.getRect();
 
       if (rect.contains(outZones.x,outZones.y))
       {
@@ -280,7 +295,7 @@ class MDIParent extends Sprite implements IDock implements IDockable
       for(i in 0...mDockables.length)
          dockables[i] = mDockables[i].getLayoutInfo();
 
-      return { type:"MDIParent",
+      return { type:"DocumentParent",
           sizeX:sizeX,  sizeY:sizeY,
           dockables:dockables, properties:properties, flags:flags,
           current:current==null ? null : current.getTitle() };
@@ -310,7 +325,10 @@ class MDIParent extends Sprite implements IDock implements IDockable
 
       current = inPane;
       for(child in mChildren)
-         child.destroy();
+      {
+         child.pane.setDock(this,null);
+         clientArea.removeChild(child);
+      }
       mChildren = [];
       if (clientArea.numChildren==1)
          clientArea.removeChildAt(0);
@@ -326,8 +344,8 @@ class MDIParent extends Sprite implements IDock implements IDockable
          child.isCurrent = child.pane==current;
 
       inPane.setDock(this,clientArea);
-      inPane.setRect(0,0,clientWidth,clientHeight);
-      redrawTabs();
+      inPane.getLayout().setRect(0,0,clientWidth,clientHeight);
+      redraw();
    }
    public function restore()
    {
@@ -337,14 +355,7 @@ class MDIParent extends Sprite implements IDock implements IDockable
          mMaximizedPane.setDock(this,null);
          mMaximizedPane = null;
          for(pane in mDockables)
-         {
-            //if ((pane.getFlags()&Dock.MINIMIZED)==0)
-            {
-               var frame = new MDIChildFrame(pane,this,pane==current);
-               mChildren.push(frame);
-               clientArea.addChild(frame);
-            }
-         }
+            addFrame(pane.asPane());
          redraw();
          raiseDockable(current);
       }
@@ -364,20 +375,42 @@ class MDIParent extends Sprite implements IDock implements IDockable
          clientArea.visible = true;
          clientArea.scrollRect = new Rectangle(0,0,clientWidth,clientHeight);
          if (mMaximizedPane!=null)
-            mMaximizedPane.setRect(0,0,clientWidth,clientHeight);
+            mMaximizedPane.getLayout().setRect(0,0,clientWidth,clientHeight);
       }
       redraw();
    }
 
    public function redraw()
    {
+      var gfx = clientArea.graphics;
+      gfx.clear();
+
       if (mMaximizedPane!=null)
       {
-         clientArea.graphics.clear();
-         mMaximizedPane.setRect(0,0,clientWidth,clientHeight);
+         var fill:FillStyle = null;
+         var asPane = mMaximizedPane.asPane();
+         if (asPane!=null)
+         {
+            fill = Reflect.field(asPane.frameAttribs,"fill");
+            if (fill==null)
+            {
+               gfx.beginFill(Skin.guiLight);
+               gfx.drawRect(0,0,clientWidth,clientHeight);
+            }
+            else if (fill!=FillNone)
+            {
+               if (gm2d.skin.Renderer.setFill(gfx,fill,null))
+                  gfx.drawRect(0,0,clientWidth,clientHeight);
+            }
+         }
+
+         mMaximizedPane.getLayout().setRect(0,0,clientWidth,clientHeight);
       }
       else
-         Skin.renderMDI(clientArea);
+      {
+         gfx.beginFill(Skin.mdiBGColor);
+         gfx.drawRect(0,0,clientWidth,clientHeight);
+      }
 
       redrawTabs();
    }
@@ -400,7 +433,7 @@ class MDIParent extends Sprite implements IDock implements IDockable
 
    function redrawTabs()
    {
-      mTabContainer.setTop(current, mMaximizedPane!=null);
+      tabBar.setTop(current, mMaximizedPane!=null);
    }
 
 	function showPaneMenu(inX:Float, inY:Float)
@@ -426,10 +459,10 @@ class MDIParent extends Sprite implements IDock implements IDockable
             else if (id==MiniButton.RESTORE)
                restore();
             else if (id==MiniButton.POPUP)
-				{
-			      if (mDockables.length>0)
-			         showPaneMenu(inEvent.localX, inEvent.localY);
-				}
+            {
+               if (mDockables.length>0)
+                  mTopLevel.showPaneMenu(mDockables, inEvent.stageX, inEvent.stageY);
+            }
             redrawTabs();
          case REDRAW:
             redrawTabs();

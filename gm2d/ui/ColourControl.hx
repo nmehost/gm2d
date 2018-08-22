@@ -5,7 +5,9 @@ import nme.display.BitmapData;
 import nme.display.Shape;
 import nme.display.Sprite;
 import nme.display.Bitmap;
+import nme.utils.ByteArray;
 import nme.geom.Rectangle;
+import nme.geom.Matrix;
 import nme.text.TextField;
 import gm2d.ui.MouseWatcher;
 import gm2d.ui.Layout;
@@ -88,7 +90,7 @@ class ColourSlider extends Widget
       else
       {
          marker.x = mRect.width * mPos + minHeight*0.25;
-         marker.y = -4;
+         marker.y = -minHeight*0.25;
       }
    }
    public function getValue() : Float
@@ -196,7 +198,10 @@ class SwatchBox extends Sprite
       gfx.drawRect(0.5,0.5,inSize,inSize);
       addEventListener(MouseEvent.MOUSE_DOWN, function(_) inControl.applyColour(inSwatch.colour) );
    }
-   public function getLayout() { return new DisplayLayout(this); }
+   public function getLayout() {
+      var o = new DisplayLayout(this);
+      return o;
+   }
    public function dropColour(inCol:RGBHSV)
    {
      swatch.setColour(inCol);
@@ -382,7 +387,7 @@ class ColourWheel extends Widget
 
    function emptyBmp(w:Int, h:Int)
    {
-      return  new BitmapData(w,h,true,gm2d.RGB.CLEAR);
+      return new BitmapData(w,h,true,gm2d.RGB.CLEAR);
    }
 
    function buildBmp()
@@ -397,12 +402,14 @@ class ColourWheel extends Widget
       var h = y0*2+1;
       if (w<1 || h<1)
          return;
-      var bmp = emptyBmp(w,h);
+      var bmp = new BitmapData(w,h,false,0);
       bitmap.bitmapData = bmp;
 
-      var pixels = new nme.utils.ByteArray();
+      var pixels:ByteArray = null;
+
       if ( mMode==RGBHSV.VALUE || mMode==RGBHSV.SATURATION )
       {
+         pixels = new ByteArray();
          for(y in 0...h)
          {
             var y_ = y0-y;
@@ -456,19 +463,40 @@ class ColourWheel extends Widget
       {
          var col = new RGBHSV();
          col.setH( mColour.h );
-         for(y in 0...h)
+         if (false)
          {
-            col.setV( 256*(h-y-1)/h );
-            for(x in 0...w)
+            pixels = new ByteArray();
+            for(y in 0...h)
             {
-               col.setS( x/(w-1) );
-               pixels.writeInt(0xff000000|col.getRGB());
+               col.setV( 256*(h-y-1)/h );
+               for(x in 0...w)
+               {
+                  col.setS( x/(w-1) );
+                  pixels.writeInt(0xff000000|col.getRGB());
+               }
             }
          }
- 
+         else
+         {
+            var tiny = new BitmapData(2,2,false,0);
+            for(v in 0...2)
+               for(s in 0...2)
+               {
+                 col.setV(v*255);
+                 col.setS(s*255);
+                 tiny.setPixel32(s,1-v,col.getRGB()|0xff000000);
+               }
+            var mtx = new Matrix();
+            mtx.a = w;
+            mtx.d = h;
+            mtx.tx = -w*0.5;
+            mtx.ty = -h*0.5;
+            bmp.draw(tiny,mtx,null, null, null, true);
+         }
       }
       else
       {
+         pixels = new ByteArray();
          var c0 = getC0();
          var c1 = getC1();
          var col = mColour.clone();
@@ -485,8 +513,11 @@ class ColourWheel extends Widget
  
  
 
-      pixels.position = 0;
-      bmp.setPixels(new Rectangle(0,0,w,h),pixels);
+      if (pixels!=null)
+      {
+         pixels.position = 0;
+         bmp.setPixels(new Rectangle(0,0,w,h),pixels);
+      }
 
       var s = new Shape();
       var gfx = s.graphics;
@@ -578,9 +609,9 @@ class ColourControl extends Widget
    var updateLockout:Int;
    public var onColourChange:RGBHSV->Int->Void;
 
-   public function new(inColour:RGBHSV, ?inOnChange:RGBHSV->Int->Void)
+   public function new(inColour:RGBHSV, ?inOnChange:RGBHSV->Int->Void,?inAttribs:{})
    {
-      super();
+      super(null,inAttribs);
 
       mColour = inColour.clone();
       onColourChange = inOnChange;
@@ -599,11 +630,12 @@ class ColourControl extends Widget
       all.add(mainSlider.getLayout());
 
       wheel = new ColourWheel(mColour);
+      wheel.getLayout().setBestSize( Skin.scale(140),Skin.scale(140) );
       wheel.onChange = onWheel;
       addChild(wheel);
       all.add(wheel.getLayout().setBorders(0,0,Skin.scale(6),0));
 
-      box = new RGBBox(mColour,true);
+      box = new RGBBox(mColour,true, false, null, mRenderer.getDynamic("rgbBox"));
       addChild(box);
       new MouseWatcher(box,null,onRGBDrag,onRGBDrop,0,0,true);
       var b = Skin.scale(2);
@@ -634,6 +666,7 @@ class ColourControl extends Widget
          addChild(box);
          swatches.add(box.getLayout());
       }
+
       var vstack = new GridLayout(1);
       vstack.add(swatches);
       vstack.add(all);
@@ -644,6 +677,7 @@ class ColourControl extends Widget
       updateLockout = 0;
 
       setItemLayout(vstack);
+
       //build();
    }
 
@@ -806,14 +840,6 @@ class ColourControl extends Widget
       send(inPhase);
    }
 
-
-
-   /*
-   public override function layout(inWidth:Float,inHeight:Float)
-   {
-      super.layout(inWidth,inHeight);
-   }
-   */
 }
 
 

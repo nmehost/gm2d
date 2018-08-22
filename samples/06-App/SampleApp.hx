@@ -1,6 +1,9 @@
 import gm2d.ui.App;
 import gm2d.ui.Menubar;
 import gm2d.ui.MenuItem;
+import gm2d.ui.Widget;
+import gm2d.skin.Style;
+import gm2d.skin.FillStyle;
 import gm2d.ui.Pane;
 import nme.display.Sprite;
 import nme.display.Bitmap;
@@ -31,16 +34,17 @@ class SampleApp extends App
       createMenus();
 
       var side = new SideDock(DOCK_TOP);
+      side.name = "col pair";
+      addPane(side, DockPosition.DOCK_LEFT,0);
 
+      // TODO
       var colour = new ColourControl( new RGBHSV(0xff00ff) );
-      var pane = new Pane(colour,"Colour 1",Dock.RESIZABLE,null, colour.getLayout().setMinWidth(400) );
+      var pane = new Pane(colour,"Colour 1",Dock.RESIZABLE,null);
       side.addDockable( pane, DockPosition.DOCK_TOP,0);
 
       var colour = new ColourControl( new RGBHSV(0xff00ff) );
-      var pane = new Pane(colour,"Colour 2",Dock.RESIZABLE,null, colour.getLayout().setMinWidth(400) );
+      var pane = new Pane(colour,"Colour 2",Dock.RESIZABLE,null);
       side.addDockable( pane, DockPosition.DOCK_TOP,1);
-
-      addPane(side, DockPosition.DOCK_LEFT,0);
 
       doLayout();
 
@@ -84,10 +88,11 @@ class SampleApp extends App
    function onViewNew(_)
    {
       var item = new Sprite();
+      //var item = new Widget({ style:StyleRect, fill:FillSolid(0x000000,1)});
       var gfx = item.graphics;
       var col = Std.int(Math.random()*0xffffff);
-      gfx.beginFill(0x0000);
-      gfx.drawRect(0,0,200,200);
+      //gfx.beginFill(0x0000);
+      //gfx.drawRect(0,0,200,200);
       gfx.beginFill(col);
       gfx.drawCircle(100,100,100);
       addPane( new Pane(item,"View:"+col,Dock.RESIZABLE), DOCK_OVER );
@@ -100,8 +105,8 @@ class SampleApp extends App
       var bytes = encodeDisplay(0);
       var display = DisplayObject.decodeDisplay(bytes,0);
       var pane = new Pane(display,"Clone",Dock.RESIZABLE);
-      pane.bestWidth = display.width;
-      pane.bestHeight = display.height;
+      //pane.bestWidth = display.width;
+      //pane.bestHeight = display.height;
       addPane( pane, DOCK_OVER );
    }
    #end
@@ -124,8 +129,9 @@ class SampleApp extends App
       svg.render(gfx);
       item.cacheAsBitmap = true;
       var pane = new Pane(item,inName,Dock.RESIZABLE);
-      pane.bestWidth = svg.width;
-      pane.bestHeight = svg.height;
+      pane.getLayout().setBestSize(svg.width, svg.height);
+      //pane.bestWidth = svg.width;
+      //pane.bestHeight = svg.height;
       
       addPane( pane, DOCK_OVER );
 
@@ -144,8 +150,9 @@ class SampleApp extends App
       var obj = swf.createInstance();
       obj.cacheAsBitmap = true;
       var pane = new Pane(obj,inName,Dock.RESIZABLE);
-      pane.bestWidth = swf.Width();
-      pane.bestHeight = swf.Height();
+      pane.getLayout().setBestSize(swf.Width(),swf.Height());
+      //pane.bestWidth = swf.Width();
+      //pane.bestHeight = swf.Height();
 
       addPane( pane, DOCK_OVER );
    }

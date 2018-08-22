@@ -18,9 +18,9 @@ class RGBBox extends Widget
    var mShowAlpha:Bool;
    var rgbDialog:RGBDialog;
 
-   public function new(inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Int->Void)
+   public function new(inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Int->Void, inAttribs:{ })
    {
-      super();
+      super(null,inAttribs);
       mShowAlpha = inShowAlpha;
       onColourChange = inOnColour;
       mColour = inColour.clone();
@@ -31,18 +31,24 @@ class RGBBox extends Widget
       fmt.size = Skin.scale(14);
 
       textField = new TextField( );
-      textField.border = true;
+      textField.text = "FFFFFFFF";
+      mRenderer.renderLabel(textField);
+      textField.border = false;
+      textField.background = false;
+      // Todo - enter text
+      //textField.selectable = true;
+      var fmt = textField.defaultTextFormat;
+      fmt.align = "center";
       textField.defaultTextFormat = fmt;
-      textField.borderColor = 0x000000;
-      textField.background = true;
       addChild(textField);
 
-      setItemLayout( new Layout().setMinSize(Skin.scale(72),Skin.scale(28)) );
+      var textLayout = new TextLayout(textField).setAlignment(Layout.AlignCenterY|Layout.AlignStretch);
+      textLayout.setMinSize( textField.textWidth, textField.textHeight*1.2 );
+      setItemLayout(textLayout);
 
       if (inShouldShowPopup)
-         textField.addEventListener(MouseEvent.CLICK, function(_) showDialog() );
+         addEventListener(MouseEvent.CLICK, function(_) showDialog() );
 
-      textField.text = "0x00000000";
       //build();
    }
 
@@ -84,9 +90,13 @@ class RGBBox extends Widget
 
    override function redraw()
    {
-      textField.width = mRect.width;
-      textField.height = mRect.height;
-      textField.backgroundColor = mColour.getRGB();
+      clearChrome();
+      var gfx = mChrome.graphics;
+      gfx.lineStyle(0,0x000000);
+      gfx.beginFill(mColour.getRGB());
+      gfx.drawRect( mRect.x, mRect.y, mRect.width, mRect.height );
+      onWidgetDrawn();
+
       textField.textColor = mColour.v > 128 ? 0x000000 : 0xffffff;
       updateLockout++;
       if (mShowAlpha)

@@ -5,6 +5,7 @@ import nme.display.Sprite;
 import nme.display.Graphics;
 import nme.display.BitmapData;
 import nme.display.CapsStyle;
+import nme.display.GradientType;
 import nme.filters.BitmapFilter;
 import nme.text.TextField;
 import nme.text.TextFieldAutoSize;
@@ -127,19 +128,15 @@ class Renderer
             if (data!=null && data.length>0)
             {
                var pad = padding==null ? new Rectangle(0,0,0,0) : padding.clone();
-               chromeButtons = new Array<Button>();
+               chromeButtons = null;
                for(box in data)
                {
-                  var lineage = box.lineage;
-                  var lines:Array<String> = null;
-                  if (Std.is(lineage,String))
-                     lines = [Std.string(lineage),"ChromeButton","BitmapFromId"];
-                  else
-                     lines = Widget.addLines(lineage,["ChromeButton","BitmapFromId"]);
-
-                  var button = new Button(null, null, lines, box );
+                  var button = new Button(null, null, ["ChromeButton"], box );
                   button.applyStyles();
-                  chromeButtons.push(button);
+                  if (chromeButtons==null)
+                     chromeButtons = [button];
+                  else
+                     chromeButtons.push(button);
                   var l = button.getLayout();
                   var s = l.getBestSize();
                   if ( (l.mAlign & Layout.AlignOverlap) == 0)
@@ -178,7 +175,7 @@ class Renderer
    }
 
 
-   public static function setFill(inGraphics:Graphics,inFillStyle:FillStyle):Bool
+   public static function setFill(inGraphics:Graphics,inFillStyle:FillStyle,widget:Widget):Bool
    {
       var filled = false;
 
@@ -223,6 +220,29 @@ class Renderer
              case FillStyle.FillBitmap(bmp):
                 inGraphics.beginBitmapFill(bmp);
 
+             case FillStyle.FillGradV(rgb0,rgb1,a):
+                if (widget==null)
+                   inGraphics.beginFill(rgb0,a);
+                else
+                {
+                   var mtx = new Matrix();
+                   var w = widget.layoutWidth;
+                   var h = widget.layoutHeight;
+                   mtx.createGradientBox(w,h,Math.PI*0.5);
+                   inGraphics.beginGradientFill(LINEAR, [rgb0,rgb1], [a,a], [0,255], mtx );
+                }
+
+             case FillStyle.FillGradH(rgb0,rgb1,a):
+                if (widget==null)
+                   inGraphics.beginFill(rgb0,a);
+                else
+                {
+                   var mtx = new Matrix();
+                   var w = widget.layoutWidth;
+                   var h = widget.layoutHeight;
+                   mtx.createGradientBox(w,h);
+                   inGraphics.beginGradientFill(LINEAR, [rgb0,rgb1], [a,a], [0,255], mtx );
+                }
              case FillNone:
                  filled = false;
           }
@@ -402,21 +422,21 @@ class Renderer
          case StyleNone:
          case StyleRect:
             lineOffset = setLine(gfx,lineStyle);
-            filled = setFill(gfx,fillStyle);
+            filled = setFill(gfx,fillStyle,widget);
             if (lineOffset>0 || filled)
                gfx.drawRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2);
 
          case StyleRoundRect:
             lineOffset = setLine(gfx,lineStyle);
-            filled = setFill(gfx,fillStyle);
+            filled = setFill(gfx,fillStyle,widget);
             if (lineOffset>0 || filled)
             {
                gfx.drawRoundRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2,
-                   Skin.roundRectRad,Skin.roundRectRad);
+                   Skin.roundRectRad*2,Skin.roundRectRad*2);
             }
 
          case StyleUnderlineRect:
-            if (setFill(gfx,fillStyle))
+            if (setFill(gfx,fillStyle,widget))
             {
                gfx.drawRect(r.x, r.y, r.width, r.height);
                gfx.endFill();
@@ -430,13 +450,13 @@ class Renderer
 
          case StyleRoundRectRad(rad):
             lineOffset = setLine(gfx,lineStyle);
-            filled = setFill(gfx,fillStyle);
+            filled = setFill(gfx,fillStyle,widget);
             if (lineOffset>0 || filled)
-               gfx.drawRoundRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2, rad,rad);
+               gfx.drawRoundRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2, rad*2,rad*2);
 
          case StyleCustom( render ):
             lineOffset = setLine(gfx,lineStyle);
-            filled = setFill(gfx,fillStyle);
+            filled = setFill(gfx,fillStyle,widget);
             if (widget==null)
                throw "Invalid custom renderer on non-widget";
             render(widget);

@@ -5,48 +5,94 @@ import nme.display.Sprite;
 import nme.display.BitmapData;
 import gm2d.ui.DockPosition;
 import gm2d.ui.HitBoxes;
+import gm2d.ui.Layout;
 import nme.geom.Rectangle;
 import gm2d.skin.Skin;
 import gm2d.skin.TabRenderer;
+import gm2d.skin.FillStyle;
 import nme.display.SimpleButton;
 import nme.events.MouseEvent;
 import nme.text.TextField;
 
-class MultiDock implements IDock implements IDockable
+
+
+class MultiDock extends Widget implements IDock implements IDockable
 {
-   public var forceTabStyle(default,set):Bool;
    public var title:String;
    public var shortTitle:String;
    public var icon:BitmapData;
 
    var parentDock:IDock;
    var mDockables:Array<IDockable>;
-   var mRect:Rectangle;
-   var container:DisplayObjectContainer;
    var currentDockable:IDockable;
    var bestSize:Array<Size>;
    var properties:Dynamic;
    var flags:Int;
    var tabRenderer:TabRenderer;
-   var tabStyle:Bool;
+   var hitBoxes:HitBoxes;
+   var tabBar:TabBar;
+   var clientLayout:Layout;
 
    public function new()
    {
+      super(["Dock"]);
       flags = 0;
       mDockables = [];
       bestSize = [];
-      tabStyle = false;
-      forceTabStyle = false;
       tabRenderer = Skin.tabRenderer( ["MultiDock","Tabs","TabRenderer"] );
+      hitBoxes = new HitBoxes(mChrome, onHitBox);
       properties = {};
-      mRect = null;
+
+      tabBar = new TabBar(mDockables,onHitBox,false);
+      tabBar.applyStyles();
+      addChild(tabBar);
+
+      var layout = new VerticalLayout([0,1]);
+      layout.setAlignment(Layout.AlignStretch);
+      layout.add(tabBar.getLayout());
+      clientLayout = new Layout().stretch();
+      layout.add(clientLayout);
+      clientLayout.onLayout = setClientRect;
+      setItemLayout(layout);
    }
 
-   public function set_forceTabStyle(inTabs:Bool)
+   function setClientRect(x:Float, y:Float, w:Float, h:Float)
    {
-      forceTabStyle = inTabs;
-      setDirty(true,true);
-      return inTabs;
+      if (currentDockable!=null)
+         currentDockable.getLayout().setRect(x,y,w,y);
+   }
+
+   public function onHitBox(inAction:HitAction,inEvent:MouseEvent)
+   {
+      var tld = TopLevelDock.findRoot(this);
+      var doDefault = false;
+
+      switch(inAction)
+      {
+         case DRAG(p):
+            tld.floatWindow(p,inEvent,null);
+         case TITLE(pane):
+            Dock.raise(pane);
+         case BUTTON(pane,id):
+            if (id==MiniButton.CLOSE)
+            {
+               currentDockable.asPane().closeRequest(false);
+            }
+            else if (id==MiniButton.POPUP)
+            {
+               tld.showPaneMenu(mDockables,inEvent.stageX, inEvent.stageY);
+            }
+            else
+            {
+               trace("Unknown button " + inAction);
+               doDefault = true;
+            }
+         case REDRAW:
+            redraw();
+         default:
+      }
+      if (doDefault)
+          tld.onHitBox(inAction, inEvent);
    }
 
    // Hierarchy
@@ -54,9 +100,13 @@ class MultiDock implements IDock implements IDockable
    public function getSlot():Int { return parentDock==null ? Dock.DOCK_SLOT_FLOAT : parentDock.getSlot(); }
    public function setDock(inDock:IDock,inParent:DisplayObjectContainer):Void
    {
-      parentDock = inDock;
-      container = inParent;
-      setCurrent(currentDockable);
+      if (parent!=inParent)
+         inParent.addChild(this);
+      if (parentDock!=inDock)
+      {
+         parentDock = inDock;
+         setCurrent(currentDockable);
+      }
    }
    public function closeRequest(inForce:Bool):Void { }
    // Display
@@ -66,11 +116,14 @@ class MultiDock implements IDock implements IDockable
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
    // Layout
+   public function hasBestSize() return true;
+
    public function addPadding(ioSize:Size):Size
    {
-      var pad = Skin.getMultiDockChromePadding(mDockables.length,tabStyle);
-      ioSize.x += pad.x;
-      ioSize.y += pad.y;
+      var outer = mLayout.getRect();
+      var inner = clientLayout.getRect();
+      ioSize.x += outer.width-inner.width;
+      ioSize.y += outer.height-inner.height;
       return ioSize;
    }
    public function getBestSize(inSlot:Int):Size
@@ -80,7 +133,7 @@ class MultiDock implements IDock implements IDockable
          var best = new Size(0,0);
          for(dock in mDockables)
          {
-            var s = dock.getBestSize(inSlot);
+            var s = dock.getLayout().getBestSize();
             if (s.x>best.x)
                best.x = s.x;
             if (s.y>best.y)
@@ -102,7 +155,7 @@ class MultiDock implements IDock implements IDockable
       var s = getSlot();
       for(dock in mDockables)
       {
-         var s = dock.getMinSize();
+         var s = dock.getLayout().getMinSize();
          if (s.x>min.x)
             min.x = s.x;
          if (s.y>min.y)
@@ -119,141 +172,64 @@ class MultiDock implements IDock implements IDockable
 
    public function isLocked():Bool { return false; }
 
-   function getCurrentRect()
+   function getCurrentRect() return clientLayout.getRect();
+
+
+   override public function redraw()
    {
-      var rect:Rectangle = null;
-      if (tabStyle)
-      {
-         var tabHeight = tabRenderer.getHeight();
-         return new Rectangle(mRect.x, mRect.y + tabHeight, mRect.width, mRect.height-tabHeight);
-      }
-
-      var pos = 0;
-      for(i in 0...mDockables.length)
-         if (currentDockable==mDockables[i])
-           pos = i;
-      return new Rectangle(mRect.x, mRect.y+24*(pos+1),
-                  mRect.width, Math.max(0,mRect.height-mDockables.length*24));
-   }
-
-
-   public function setRect(x:Float,y:Float,w:Float,h:Float):Void
-   {
-      mRect = new Rectangle(x,y,w,h);
-
-      tabStyle = w>h || w>200 || forceTabStyle;
+      var x = mRect.x;
+      var y = mRect.y;
+      var w = mRect.width;
+      var h = mRect.height;
 
       if (currentDockable!=null)
       {
          var rect = getCurrentRect();
 
-         currentDockable.setRect(rect.x,rect.y,rect.width,rect.height);
+         currentDockable.getLayout().setRect(rect.x,rect.y,rect.width,rect.height);
       }
       else
       {
          // All collapsed
-         trace("No current?");
+         //trace("No current?");
       }
 
-      bestSize[getSlot()] = new Size(w,h);
-      setDirty(false,true);
+      tabBar.setTop(currentDockable, true);
+
+      //bestSize[getSlot()] = new Size(w,h);
+      //setDirty(false,true);
    }
 
    public function getDockRect():nme.geom.Rectangle
    {
-      return mRect.clone();
+      return new Rectangle(x,y,mRect.width,mRect.height);
    }
 
+   
    public function renderChrome(inContainer:Sprite,outHitBoxes:HitBoxes):Void
    {
-      var gfx = inContainer.graphics;
-      if (tabStyle)
+      var fill:FillStyle = null;
+      var asPane = currentDockable.asPane();
+      if (asPane!=null)
       {
-         var tabRect = mRect.clone();
-         if (tabRect.width>0)
+         fill = Reflect.field(asPane.frameAttribs,"fill");
+         if (fill==null)
+            fill = attribDynamic("fill",null);
+         if (fill!=null && fill!=FillNone)
          {
-            var tabHeight = tabRenderer.getHeight();
-            tabRect.height = tabHeight;
-            gfx.beginFill(Skin.panelColor);
-            gfx.drawRect(mRect.x,mRect.y+tabHeight,mRect.width,mRect.height-tabHeight);
-            gfx.endFill();
-            var flags = TabRenderer.SHOW_TEXT | TabRenderer.SHOW_ICON | TabRenderer.SHOW_POPUP;
-            tabRenderer.renderTabs(inContainer,tabRect,mDockables, currentDockable, outHitBoxes, TabRenderer.TOP,flags );
+            var gfx = inContainer.graphics;
+            if (gm2d.skin.Renderer.setFill(gfx,fill,this))
+            {
+               var rect = getLayout().getRect();
+               gfx.drawRect(rect.x, rect.y, rect.width, rect.height);
+            }
          }
-         return;
       }
-
-      var gap = mRect.height - mDockables.length*24;
-      if (gap<0)
-        gap = 0;
-      var y = mRect.y;
-      gfx.lineStyle();
-      gfx.beginFill(Skin.panelColor);
-      gfx.drawRect(mRect.x,mRect.y,mRect.width,mRect.height);
-      gfx.endFill();
-
-      for(d in mDockables)
-      {
-         gfx.beginFill(Skin.guiDark);
-         gfx.drawRoundRect(mRect.x+1+0.5, y+0.5, mRect.width-2, 22,5,5);
-         gfx.endFill();
-
-         var pane = d.asPane();
-         if (pane!=null)
-         {
-            var but = (currentDockable==d) ? MiniButton.MINIMIZE : MiniButton.EXPAND;
-            var button =  Button.create(["MultiDock", "UiButton"], { id:but });
-
-            /*
-            var state =  Skin.getButtonBitmap(but,HitBoxes.BUT_STATE_UP);
-            var button =  new SimpleButton( state,
-                                        Skin.getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
-                                        Skin.getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
-            */
-            inContainer.addChild(button);
-            button.x = mRect.right-16;
-            button.y = Std.int( y + 3);
-
-            outHitBoxes.add(new Rectangle(mRect.x+2, y+2, mRect.width-18, 18), TITLE(pane) );
-
-            if (outHitBoxes.mCallback!=null)
-               button.mCallback = function() outHitBoxes.mCallback( BUTTON(pane,but), null);
-               //button.addEventListener( MouseEvent.CLICK, function(e) outHitBoxes.mCallback( BUTTON(pane,but), e ) );
-         }
-
-         if (pane!=null)
-         {
-            var text = new TextField();
-            Skin.styleText(text);
-            text.selectable = false;
-            text.mouseEnabled = false;
-            text.text = pane.shortTitle;
-            text.x = mRect.x+2;
-            text.y = y+2;
-            text.width = mRect.width-4;
-            text.height = mRect.height-4;
-            inContainer.addChild(text);
-         }
-         
-         y+=24;
-         if (d==currentDockable)
-            y+=gap;
-      }
-
-
-      //Skin.renderMultiDock(this,inContainer,outHitBoxes,mRect,mDockables,currentDockable,tabStyle);
    }
+
 
    public function asPane() : Pane { return null; }
 
-   /*
-   function onDock(inDockable:IDockable, inPos:Int )
-   {
-      Dock.remove(inDockable);
-      addDockable(inDockable,horizontal?DOCK_LEFT:DOCK_TOP,inPos);
-      raiseDockable(inDockable);
-   }
-   */
 
    public function addDockZones(outZones:DockZones):Void
    {
@@ -296,7 +272,7 @@ class MultiDock implements IDock implements IDockable
    }
 
 
-
+   //public function getLayout() return layout;
 
    // --- IDock -----------------------------------------
    public function canAddDockable(inPos:DockPosition):Bool
@@ -310,7 +286,7 @@ class MultiDock implements IDock implements IDockable
    public function addDockable(child:IDockable,inPos:DockPosition,inSlot:Int):Void
    {
       Dock.remove(child);
-      child.setDock(this,container);
+      child.setDock(this,this);
       if (inSlot>=mDockables.length)
          mDockables.push(child);
       else
@@ -323,7 +299,7 @@ class MultiDock implements IDock implements IDockable
       throw "No sibling for multi-dock";
    }
 
-   public function toString()
+   override public function toString()
    {
       var r = getDockRect();
       return("MultiDock " + mDockables);
@@ -366,6 +342,8 @@ class MultiDock implements IDock implements IDockable
          }
          else if (mDockables.length==1)
          {
+            if (parent!=null)
+               parent.removeChild(this);
             return mDockables[0];
          }
       }
@@ -380,10 +358,10 @@ class MultiDock implements IDock implements IDockable
                if (currentDockable==old)
                {
                   currentDockable = mDockables[i];
-                  mDockables[i].setDock(this,container);
+                  mDockables[i].setDock(this,this);
                }
                else
-                  mDockables[i].setDock(this,container);
+                  mDockables[i].setDock(null,null);
                setDirty(true,true);
             }
          }
@@ -394,6 +372,9 @@ class MultiDock implements IDock implements IDockable
 
    public function setCurrent(child:IDockable)
    {
+      if (currentDockable!=child)
+         setDirty(true,true);
+
       currentDockable = child;
       var found = false;
 
@@ -402,7 +383,7 @@ class MultiDock implements IDock implements IDockable
           if (d==child)
           {
              found = true;
-             d.setDock(this,container);
+             d.setDock(this,this);
           }
           else
           {
@@ -410,16 +391,20 @@ class MultiDock implements IDock implements IDockable
           }
       }
 
-      if (!found && tabStyle && mDockables.length>0)
+      if (!found && mDockables.length>0)
          setCurrent(mDockables[0]);
       else if (currentDockable!=null && mRect!=null)
       {
          var rect = getCurrentRect();
 
-         currentDockable.setRect(rect.x,rect.y,rect.width,rect.height);
+         currentDockable.getLayout().setRect(rect.x,rect.y,rect.width,rect.height);
       }
+      if (child!=null)
+      {
+         var s = child.getLayout().getBestSize();
 
-      setDirty(true,true);
+         getLayout().setBestSize(s.x,s.y);
+      }
    }
  
  

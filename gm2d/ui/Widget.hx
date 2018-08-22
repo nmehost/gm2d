@@ -279,6 +279,7 @@ class Widget extends Sprite
       if (mLayout==null)
       {
          setItemLayout( new Layout() );
+         mLayout.onLayout = onLayout;
       }
 
       return mLayout;
@@ -289,7 +290,7 @@ class Widget extends Sprite
       getLayout().setAlignment(inAlign);
    }
 
-   public function build() applyStyles();
+   public function build() { applyStyles(); return this; }
 
    public function applyStyles()
    {
@@ -298,6 +299,7 @@ class Widget extends Sprite
       {
          //throw "No layout set";
          setItemLayout( new Layout() );
+         mLayout.onLayout = onLayout;
       }
       if (mRenderer!=null)
       {
@@ -335,9 +337,10 @@ class Widget extends Sprite
       mLayout.setRect(0,0,size.x,size.y);
    }
 
-   public function setRect(inX:Float, inY:Float, inW:Float, inH:Float)
+   public function setRect(inX:Float, inY:Float, inW:Float, inH:Float) : Widget
    {
       getLayout().setRect(inX,inY,inW,inH);
+      return this;
    }
 
 
@@ -356,6 +359,7 @@ class Widget extends Sprite
          state = inState;
          combinedAttribs = Skin.combineAttribs(mLineage, state, mAttribs);
          mRenderer = new Renderer(combinedAttribs);
+         //trace(combinedAttribs + ":" + isCurrent);
          redraw();
          if (isCurrent && !wasCurrent && attribBool("raiseCurrent",true) && parent!=null)
             parent.setChildIndex(this, parent.numChildren-1 );
@@ -396,6 +400,8 @@ class Widget extends Sprite
       mRect = new Rectangle(0,0,inW,inH);
       redraw();
    }
+
+   public function getLayoutRect() return mRect.clone();
 
    public function invalidate()
    {
@@ -466,6 +472,7 @@ class Widget extends Sprite
 
 
 
+/*
    public function getHitBoxes() : HitBoxes
    {
       var p = parent;
@@ -481,7 +488,7 @@ class Widget extends Sprite
  
       return null;
    }
-
+*/
    public function getPane() : Pane { return null; }
 
    public function clearChrome()
@@ -491,7 +498,9 @@ class Widget extends Sprite
          mChrome.removeChildAt(0);
    }
 
-   public function onKeyDown(event:nme.events.KeyboardEvent ) : Bool { return false; }
+   public function onKeyDown(event:nme.events.KeyboardEvent ) : Bool {
+      return false;
+   }
 
    // public function layout(inW:Float,inH:Float):Void { }
 

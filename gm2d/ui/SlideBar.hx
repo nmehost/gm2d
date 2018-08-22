@@ -274,13 +274,16 @@ class SlideBar extends Sprite implements IDock
             h -= oy;
          }
       }
+      paneContainer.y = oy;
 
       var size = horizontal ? 
          current.getLayoutSize(showing,h,false) :
          current.getLayoutSize(w,showing,true);
       //trace(' $w $h $pinned $horizontal $showing -> 0,$oy ${size.x},${size.y}');
 
-      current.setRect(0,oy,size.x,size.y);
+      current.getLayout().setRect(0,0,size.x,size.y);
+      //paneContainer.scrollRect = new Rectangle(0,0,size.x,size.y);
+
 
       if (horizontal)
       {
@@ -374,31 +377,34 @@ class SlideBar extends Sprite implements IDock
                }
             }
 
-            var rect0 = tabRect.clone();
-            tabRenderer.renderTabs(background.mChrome, tabRect, children, current,
+            // tabRect returns the gap after the tabs
+            var gapRect = tabRenderer.renderTabs(background.mChrome, tabRect, children, current,
                 hitBoxes,  renderPos, flags, tabPos );
 
             if (barDockable!=null)
             {
                 if (tallBar)
+                {
+                trace("tallbar");
                    // Tabs run vertically...
-                   barDockable.setRect(rect0.x, rect0.y+tabRect.height, rect0.width, rect0.height-tabRect.height);
+                   barDockable.getLayout().setRect(tabRect.x, tabRect.y+gapRect.y, tabRect.width, tabRect.height-gapRect.y);
+                }
                 else if (showGrip)
                 {
-                   var x0 = rect0.x+rect0.width - barHeight;
+                   var x0 = tabRect.x+tabRect.width - barHeight;
                    var w = barHeight;
-                   var y0 = rect0.y + rect0.height;
-                   var h = fullRect.height - rect0.height;
+                   var y0 = 0;
+                   var h = fullRect.height - tabRect.height;
                    // Tabs run horizontally, but extend into bar region
-                   barDockable.setRect(x0, y0, w, h);
+                   barDockable.getLayout().setRect(x0, y0, w, h);
                 }
                 else
                 {
-                   var y = rect0.y;
-                   if ( (flags&TabRenderer.IS_OVERLAPPED)!=0 && pos==DOCK_BOTTOM)
+                   var y = tabRect.y;
+                   if (pos==DOCK_BOTTOM)
                       y-= barHeight;
                    // tabs run horizontally, followed by bar
-                   barDockable.setRect(tabRect.x+tabRect.width, y, rect0.width-tabRect.width-tabRect.x, barHeight);
+                   barDockable.getLayout().setRect(gapRect.x, y, gapRect.width, barHeight);
                 }
             }
          }

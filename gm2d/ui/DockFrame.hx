@@ -7,77 +7,110 @@ import nme.events.MouseEvent;
 import gm2d.ui.HitBoxes;
 import gm2d.ui.Dock;
 import gm2d.ui.DockPosition;
+import gm2d.ui.IDockable;
 import gm2d.skin.Skin;
+import gm2d.ui.Layout;
 
 
-// --- MDIChildFrame ----------------------------------------------------------------------
+// --- DockFrame ----------------------------------------------------------------------
 
+typedef DockCallbacks =  {
+    ?onPaneMaximize:Void->Void,
+    ?onPaneMinimize:Void->Void,
+    ?onTitleDrag:IDockable->MouseEvent->Void,
+}
 
-
-class MDIChildFrame extends Widget
+class DockFrame extends Widget
 {
    public var pane(default,null) : IDockable;
 
-   static var mNextChildPos = 0;
-   var mMDI : MDIParent;
-   var mHitBoxes:HitBoxes;
+   var title:TitleBar;
    var mClientWidth:Int;
    var mClientHeight:Int;
    var mClientOffset:Point;
    var mDragStage:nme.display.Stage;
-   var mPaneContainer:Sprite;
    var mResizeHandle:Sprite;
-	var mIsCurrent:Bool;
    var mSizeX0:Int;
    var mSizeY0:Int;
 
-   public function new(inPane:IDockable, inMDI:MDIParent, inIsCurrent:Bool )
+   public function new(inPane:IDockable, parentDock:IDock, callbacks:DockCallbacks, ?inAttribs:{ })
    {
-      super("MDIChildFrame");
-      mIsCurrent = inIsCurrent;
-      mMDI = inMDI;
-      mPaneContainer = new Sprite();
-      addChild(mPaneContainer);
- 
-      pane = inPane;
-      name = pane.getTitle();
-      pane.setDock(mMDI,mPaneContainer);
-      mHitBoxes = new HitBoxes(this, onHitBox);
-
-      var size = inPane.getBestSize( Dock.DOCK_SLOT_FLOAT );
-      if (size.x<Skin.getMinFrameWidth())
-         size = inPane.getLayoutSize(Skin.getMinFrameWidth(),size.y,true);
-
-      var props:Dynamic = inPane.getProperties();
-      var pos_x:Dynamic = props.mdiX;
-      var pos_y:Dynamic = props.mdiY;
-      if (pos_x==null || pos_y==null)
+      var p = inPane.asPane();
+      if (p!=null)
       {
-         mNextChildPos += 20;
-         x = props.mdiX = mNextChildPos;
-         y = props.mdiY = mNextChildPos;
+         if (inAttribs==null)
+            inAttribs = p.frameAttribs;
+         else if (p.frameAttribs!=null)
+            inAttribs = Skin.mergeAttribs(p.frameAttribs,inAttribs);
+      }
+      super(["DocumentFrame","Dock"],inAttribs);
+
+      this.name = "DockFrame";
+
+      pane = inPane;
+
+      name = pane.getTitle();
+
+      var vlayout = new VerticalLayout([0,1]);
+
+      var chromeButtons:Array<{}> = [
+          { id:Skin.Close, onClick:function() pane.closeRequest(false) },
+      ];
+      if (callbacks!=null && callbacks.onPaneMaximize!=null )
+         chromeButtons.push({ id:Skin.Maximize, onClick:callbacks.onPaneMaximize });
+      if (callbacks!=null && callbacks.onPaneMinimize!=null )
+         chromeButtons.push({ id:Skin.Maximize, onClick:callbacks.onPaneMinimize });
+
+      title = new TitleBar(name,  { chromeButtons: chromeButtons } );
+      addChild(title);
+      vlayout.add(title.getLayout().stretch());
+
+      inPane.setDock(parentDock,this);
+      vlayout.add(inPane.getLayout().stretch());
+      setItemLayout(vlayout.stretch());
+ 
+      build();
+
+      var asPane = pane.asPane();
+      //if (asPane!=null && asPane.clipped && asPane.displayObject!=null)
+      //   getLayout().onLayout = function(_,_,_,_) clipPane(asPane);
+
+
+      if (callbacks.onTitleDrag!=null)
+      {
+         var cb = callbacks.onTitleDrag;
+         title.addEventListener(nme.events.MouseEvent.MOUSE_DOWN, function(e) cb(inPane,e) );
       }
       else
       {
-         x = pos_x;
-         y = pos_y;
+         title.addEventListener(nme.events.MouseEvent.MOUSE_DOWN, doDrag );
       }
+      //mChrome.addEventListener(nme.events.MouseEvent.MOUSE_DOWN, doDrag);
 
-      if (x>mMDI.clientWidth-20 || y>mMDI.clientHeight-20)
-      {
-         mNextChildPos = 0;
-         x = y = mNextChildPos;
-         props.mdiX = props.mdiY = mNextChildPos;
-      }
+      //pane.setRect(mClientOffset.x, mClientOffset.y, mClientWidth, mClientHeight);
+      //redraw();
+   }
 
-      mClientWidth = Std.int(Math.max(size.x,Skin.getMinFrameWidth())+0.99);
-      mClientHeight = Std.int(size.y+0.99);
-      setClientSize(mClientWidth,mClientHeight);
+   function clipPane(p:Pane)
+   {
+      var r = p.getLayout().getRect();
+      trace(r);
+      trace(p.displayObject);
+      trace(p.displayObject.x + "," + p.displayObject.y);
+      p.displayObject.scrollRect = new Rectangle(0,0,r.width,r.height);
+   }
 
-      mSizeX0 = mClientWidth;
-      mSizeY0 = mClientHeight;
 
-      pane.setRect(mClientOffset.x, mClientOffset.y, mClientWidth, mClientHeight);
+   function doneDrag(_)
+   {
+      stopDrag();
+      stage.removeEventListener(nme.events.MouseEvent.MOUSE_UP, doneDrag);
+   }
+
+   function doDrag(_)
+   {
+      startDrag();
+      stage.addEventListener(nme.events.MouseEvent.MOUSE_UP, doneDrag);
    }
 
    public function checkDirty()
@@ -85,7 +118,7 @@ class MDIChildFrame extends Widget
       if (name!=pane.getTitle())
       {
          name = pane.getTitle();
-         redraw();
+         //redraw();
       }
    }
 
@@ -93,8 +126,10 @@ class MDIChildFrame extends Widget
    {
    }
 
+   /*
    public function setClientSize(inW:Int, inH:Int)
    {
+      trace("############### setClientSize -> " + inW + " " + inH);
       var minW = Skin.getMinFrameWidth();
       mClientWidth = Std.int(Math.max(inW,minW));
       mClientHeight = Std.int(Math.max(inH,1));
@@ -104,28 +139,12 @@ class MDIChildFrame extends Widget
       mClientWidth = Std.int(size.x);
       mClientHeight = Std.int(size.y);
       mClientOffset = Skin.getFrameClientOffset();
-      pane.setRect(mClientOffset.x, mClientOffset.y, mClientWidth, mClientHeight);
+      pane.getLayout().setRect(mClientOffset.x, mClientOffset.y, mClientWidth, mClientHeight);
       redraw();
    }
+   (/
 
-/*
-	public function setCurrent(inIsCurrent:Bool)
-	{
-	   if (mIsCurrent!=inIsCurrent)
-		{
-		   mIsCurrent = inIsCurrent;
-         redraw();
-		}
-	}
-*/
-
-
-   public function destroy()
-   {
-      pane.setDock(mMDI,null);
-      parent.removeChild(this);
-   }
-
+   /*
    function onHitBox(inAction:HitAction,inEvent:MouseEvent)
    {
       switch(inAction)
@@ -140,7 +159,10 @@ class MDIChildFrame extends Widget
             if (id==MiniButton.CLOSE)
                pane.closeRequest(false);
             else if (id==MiniButton.MAXIMIZE)
-               mMDI.maximize(pane);
+            {
+               trace("->MAXIMIZE");
+               docParent.maximize(pane);
+            }
             redraw();
          case REDRAW:
             redraw();
@@ -157,20 +179,17 @@ class MDIChildFrame extends Widget
          default:
       }
    }
+   */
 
+      /*
    function saveRect()
    {
       //pane.gm2dMDIRect = new Rectangle(x,y,mClientWidth,mClientHeight);
    }
 
-   override public function redraw()
-   {
-      clearChrome();
-      Skin.renderFrame(mChrome,pane,mClientWidth,mClientHeight,mHitBoxes,mIsCurrent);
-   }
-
    function onEndDrag(_)
    {
+      trace("onEndDrag!!!!!!!!!!!!!!!!!!!!!!!!");
       mDragStage.removeEventListener(MouseEvent.MOUSE_UP,onEndDrag);
       if (mResizeHandle!=null)
       {
@@ -195,12 +214,8 @@ class MDIChildFrame extends Widget
          setClientSize(cw,ch);
       }
    }
+      */
 
-   override public function setPosition(inX:Float, inY:Float)
-   {
-      x = inX;
-      y = inY;
-   }
 }
 
 

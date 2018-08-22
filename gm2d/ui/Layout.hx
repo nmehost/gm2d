@@ -5,6 +5,7 @@ import nme.display.Graphics;
 import nme.display.Shape;
 import nme.text.TextField;
 import nme.text.TextFieldAutoSize;
+import nme.geom.Rectangle;
 import nme.geom.Point;
 
 // --- Layout -------------------------------------------
@@ -31,6 +32,9 @@ class Layout
    public static inline var AlignKeepAspect= 0x0400;
    public static inline var AlignOverlap   = 0x0800;
 
+   public var bestWidth:Null<Float>;
+   public var bestHeight:Null<Float>;
+
    public var mBLeft:Float;
    public var mBTop:Float;
    public var mBRight:Float;
@@ -46,6 +50,8 @@ class Layout
    public var mDebugCol:Int;
 
    public var mAlign:Int;
+
+   public var lastRect:Rectangle;
 
    public var onLayout:Float->Float->Float->Float->Void;
 
@@ -167,6 +173,12 @@ class Layout
       return this;
    }
 
+   public function getMinSize()
+   {
+      //trace('  $this (specified) -> $minWidth, $minHeight');
+      return new Size(minWidth,minHeight);
+   }
+
    public function findTextLayout() : TextLayout  { return null; }
    public static function findTextLayoutInList(inLayouts:LayoutList) : TextLayout
    {
@@ -197,7 +209,15 @@ class Layout
    }
    public function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
-      fireLayout(inX, inY, inW, inH);
+      lastRect = new Rectangle(inX,inY,inW,inH);
+      if (onLayout!=null)
+         onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
+   }
+   public function getRect() return lastRect;
+   public function relayout()
+   {
+      if (lastRect!=null)
+         setRect(lastRect.x, lastRect.y, lastRect.width, lastRect.height );
    }
    public function setSpacing(inX:Float,inY:Float) : Layout { return this; }
 
@@ -254,8 +274,16 @@ class Layout
       mBBottom = -inDY;
    }
 
-   public function setBestWidth(inW:Float) : Layout { return this; }
-   public function setBestHeight(inH:Float) : Layout { return this; }
+   public function setBestWidth(inW:Float) : Layout
+   {
+      bestWidth = inW;
+      return this;
+   }
+   public function setBestHeight(inH:Float) : Layout
+   {
+      bestHeight = inH;
+      return this;
+   }
    public function setBestSize(inW:Float, inH:Float) : Layout
    {
       setBestWidth(inW);
@@ -264,8 +292,15 @@ class Layout
    }
    public function getColWidths() : Array<Float> { return [ getBestWidth() ]; }
 
-   public function getBestWidth(?inHeight:Null<Float>) : Float { return minWidth; }
-   public function getBestHeight(?inWidth:Null<Float>) : Float { return minHeight; }
+   public function getBestWidth(?inHeight:Null<Float>) : Float
+   {
+      return bestWidth!=null ? bestWidth : minWidth;
+   }
+
+   public function getBestHeight(?inWidth:Null<Float>) : Float
+   {
+      return bestHeight!=null ? bestHeight : minHeight;
+   }
 
    public function getBestSize() : Size
    {
@@ -281,6 +316,9 @@ class Layout
 
    public function alignChild(child:Layout, x:Float, y:Float, w:Float, h:Float)
    {
+      var inW = w;
+      var inH = h;
+
       if ( (child.mAlign & Layout.AlignKeepAspect) > 0 )
       {
          if (w*child.getBestHeight() > h*child.getBestWidth())
@@ -353,6 +391,7 @@ class Layout
          h = bottom - y;
       }
 
+      //trace(' aligned $inW,$inH -> ' + w + "," + h);
       child.setRect(x,y,w,h);
 
       /*
@@ -364,11 +403,6 @@ class Layout
       */
    }
 
-   function fireLayout(inX:Float, inY:Float, inW:Float, inH:Float)
-   {
-      if (onLayout!=null)
-         onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
-   }
 }
 
 typedef LayoutList = Array<Layout>;
@@ -417,9 +451,10 @@ class BorderLayout extends Layout
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
+      //trace("BorderLayout setRect " + inW + "," + inH + " " + mBase + ':' + mBase.getBestWidth() + "," + mBase.getBestHeight() );
       alignChild(mBase, (inX+mBLeft)*positionMask, (inY+mBTop)*positionMask,
                          inW-mBLeft-mBRight, inH-mBTop-mBBottom );
-      fireLayout(inX,inY,inW,inH);
+      super.setRect(inX, inY, inW, inH);
    }
 
    public override function getBestWidth(?inHeight:Null<Float>) : Float
@@ -445,6 +480,17 @@ class BorderLayout extends Layout
       mBase.setBestHeight(inH-mBTop-mBBottom);
       return this;
    }
+
+
+   public override function getMinSize() : Size
+   {
+      var s = mBase.getMinSize();
+      //trace(' border min $mBase ->' + s);
+      s.x += mBLeft + mBRight;
+      s.y += mBTop + mBBottom;
+      return s;
+   }
+
 }
 
 // --- DisplayLayout ---------------------------------------------------
@@ -487,6 +533,11 @@ class DisplayLayout extends Layout
       return this;
    }
  
+   public override function getMinSize() : Size
+   {
+      return new Size(mOWidth>minWidth ? mOWidth:minWidth, mOHeight>minHeight ? mOHeight:minHeight );
+   }
+
    public override function setBestSize(inW:Float,inH:Float)
    {
      mOWidth = inW;
@@ -579,7 +630,7 @@ class DisplayLayout extends Layout
          renderDebug(pos,w,h);
       }
 
-      fireLayout(inX,inY,inW,inH);
+      super.setRect(inX, inY, inW, inH);
    }
 
    public function renderDebug(pos:Point, w:Float, h:Float)
@@ -701,7 +752,7 @@ class StackLayout extends Layout
       for(child in mChildren)
          alignChild(child,inX+mBLeft, inY+mBTop, inW-mBLeft-mBRight, inH-mBTop-mBBottom );
 
-      fireLayout(inX,inY,inW,inH);
+      super.setRect(inX, inY, inW, inH);
    }
 
    public override function add(inLayout:Layout) : Layout
@@ -823,7 +874,7 @@ class ChildStackLayout extends StackLayout
 
      }
 
-      fireLayout(inX,inY,inW,inH);
+      super.setRect(inX, inY, inW, inH);
    }
 
    public function setChildPadding(left:Float, top:Float, right:Float, bottom:Float)
@@ -1193,6 +1244,8 @@ class GridLayout extends Layout
 
    public override function getBestWidth(?inHeight:Null<Float>) : Float
    {
+      if (bestWidth!=null)
+         return bestWidth;
       BestColWidths();
       var w = mBLeft + mBRight;
       if (mColInfo.length>0)
@@ -1204,6 +1257,8 @@ class GridLayout extends Layout
    }
    public override function getBestHeight(?inWidth:Null<Float>) : Float
    {
+      if (bestHeight!=null)
+         return bestHeight;
       BestRowHeights();
       var h = mBTop + mBBottom;
       if (mRowInfo.length>0)
@@ -1213,6 +1268,40 @@ class GridLayout extends Layout
       if (minHeight>h) return minHeight;
       return h;
    }
+
+   public override function getMinSize() : Size
+   {
+      var minX = [ for(c in mColInfo) c.mMinWidth ];
+      var minY = [ for(r in mRowInfo) 0 ];
+      for(r in 0...mRowInfo.length)
+      {
+         var row = mRowInfo[r];
+         for(c in 0...mColInfo.length)
+         {
+            var item = row.mCols[c];
+            if (item!=null)
+            {
+               var s = item.getMinSize();
+               if (s.x>minX[c])
+                  minX[c] = Std.int(s.x);
+               if (s.y>minY[r])
+                  minY[r] = Std.int(s.y);
+            }
+         }
+      }
+
+      var sx = (mColInfo.length-1)*mSpaceX + mBLeft + mBRight;
+      for(m in minX) sx+= m;
+      if (sx<minWidth)
+         sx = minWidth;
+
+      var sy = (mRowInfo.length-1)*mSpaceY + mBTop + mBBottom;
+      for(m in minY) sy+= m;
+      if (sy<minHeight)
+         sy = minHeight;
+      return new Size( sx, sy );
+   }
+
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
@@ -1253,7 +1342,7 @@ class GridLayout extends Layout
          Layout.mDebug.drawRect(p.x,p.y,inW,inH);
       }
 
-      fireLayout(inX,inY,inW,inH);
+      super.setRect(inX, inY, inW, inH);
    }
 }
 
@@ -1401,7 +1490,7 @@ class FlowLayout extends Layout
         layoutRow(c0,mChildren.length,inX+mBLeft, y, rowWidth - spaceX,rowHeight, maxW);
       }
 
-      fireLayout(inX,inY,inW,inH);
+      super.setRect(inX, inY, inW, inH);
    }
 
    public override function add(inLayout:Layout) : Layout

@@ -81,7 +81,7 @@ class HitBoxes
       mCallback = inCallback;
       downPane = null;
       mResizeFlags = 0;
-      inObject.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+      inObject.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDowny);
       inObject.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
       inObject.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
       inObject.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
@@ -92,7 +92,7 @@ class HitBoxes
       return mObject.globalToLocal( inObj.localToGlobal(new Point(inX,inY)) );
    }
 
-   function onMouseDown(event:MouseEvent)
+   function onMouseDowny(event:MouseEvent)
    {
       var obj:nme.display.DisplayObject = event.target;
       if (obj==mObject)
@@ -159,9 +159,12 @@ class HitBoxes
       for(r in rects)
          if (r.rect.contains(inX,inY))
          {
+            //trace("Hit " + r.action);
+            inEvent.stopImmediatePropagation();
             switch(r.action)
             {
-               case BUTTON(_pane,_id) :
+               case BUTTON(pane,id) :
+                  downPane = pane;
                   //var states = pane==null ? buttonState : pane.buttonStates();
                   //states[id] = BUT_STATE_DOWN;
                   //mCallback(HitAction.REDRAW,inEvent);
@@ -177,6 +180,7 @@ class HitBoxes
                   mCallback(r.action,inEvent);
                default:
             }
+            break;
          }
    }
 
@@ -207,6 +211,7 @@ class HitBoxes
                default:
             }
             mCallback(r.action,inEvent);
+            break;
          }
    }
 
@@ -244,6 +249,7 @@ class HitBoxes
             case GRIP: return;
             default:
          }
+         break;
       }
 
       var moved = (downPane!=null) && (!mMoved) && (Math.abs(inX-downX)>5 || Math.abs(inY-downY)>5);

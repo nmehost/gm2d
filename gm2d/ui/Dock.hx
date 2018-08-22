@@ -12,8 +12,8 @@ class Dock
    public static inline var DOCK_SLOT_HORIZ = 0;
    public static inline var DOCK_SLOT_VERT  = 1;
    public static inline var DOCK_SLOT_FLOAT = 2;
-   public static inline var DOCK_SLOT_MDI   = 3;
-   public static inline var DOCK_SLOT_MDIMAX = 4;
+   public static inline var DOCK_SLOT_DOC   = 3;
+   public static inline var DOCK_SLOT_DOCMAX = 4;
 
    public static function isResizeable(i:IDockable) { return (i.getFlags()&RESIZABLE)!=0; }
    public static function isToolbar(i:IDockable) { return (i.getFlags()&TOOLBAR)!=0; }
@@ -42,9 +42,15 @@ class Dock
          child.setDock(null,null);
       }
    }
-   public static function raise(child:IDockable)
+   public static function raise(child:IDockable) : Bool
    {
-      return child.getDock().raiseDockable(child);
+      var dock = child.getDock();
+      if (dock==null)
+      {
+         trace("No dock?");
+         return false;
+      }
+      return dock.raiseDockable(child);
    }
    public static function minimize(child:IDockable)
    {
@@ -52,7 +58,7 @@ class Dock
    }
 
 
-   static function loadChildren(inDockables:Dynamic, panes:Array<Pane>,inMDI:MDIParent ):Array<IDockable>
+   static function loadChildren(inDockables:Dynamic, panes:Array<Pane>,inDocParent:DocumentParent ):Array<IDockable>
    {
       var children = new Array<IDockable>();
       var dockables:Array<Dynamic> = inDockables;
@@ -60,7 +66,7 @@ class Dock
       {
          for(d in dockables)
          {
-            var child = loadLayout(d, panes, inMDI);
+            var child = loadLayout(d, panes, inDocParent);
             if (child!=null)
                children.push(child);
          }
@@ -68,15 +74,15 @@ class Dock
       return children;
    }
 
-   public static function loadLayout(inInfo:Dynamic, panes:Array<Pane>,inMDI:MDIParent ):IDockable
+   public static function loadLayout(inInfo:Dynamic, panes:Array<Pane>,inDocParent:DocumentParent ):IDockable
    {
       if (inInfo==null)
          return null;
       switch(inInfo.type)
       {
-         case "MDIParent" :
+         case "DocumentParent" :
             if (inInfo!=null)
-               inMDI.loadLayout(inInfo);
+               inDocParent.loadLayout(inInfo);
             var dockables:Array<Dynamic> = inInfo.dockables;
             var currentTitle:String = inInfo.current==null ? inInfo.current : "";
             var current:Pane = null;
@@ -88,15 +94,15 @@ class Dock
                   if (pane.title==title)
                   {
                      pane.loadLayout(d);
-                     inMDI.addDockable(pane,DOCK_OVER,0);
+                     inDocParent.addDockable(pane,DOCK_OVER,0);
                      if (title==currentTitle)
                         current = pane;
                      break;
                   }
                }
             if (current!=null)
-               inMDI.raiseDockable(current);
-            return inMDI;
+               inDocParent.raiseDockable(current);
+            return inDocParent;
 
          case "Pane" :
             var title:String = inInfo.title;
@@ -110,7 +116,7 @@ class Dock
 
 
          case "SideDock" :
-            var children = loadChildren(inInfo.dockables,panes,inMDI);
+            var children = loadChildren(inInfo.dockables,panes,inDocParent);
             if (children.length==0)
                return null;
             if (children.length==1)
@@ -124,7 +130,7 @@ class Dock
             return side;
 
          case "MultiDock" :
-            var children = loadChildren(inInfo.dockables,panes,inMDI);
+            var children = loadChildren(inInfo.dockables,panes,inDocParent);
             if (children.length==0)
                return null;
             if (children.length==1)

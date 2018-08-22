@@ -22,7 +22,7 @@ class App extends Screen
    var rightSlider:SlideBar;
    var bottomSlider:SlideBar;
    var dock:TopLevelDock;
-   var mMDI:MDIParent;
+   var docParent:DocumentParent;
    var slideBorders:Int;
 
    public function new()
@@ -31,9 +31,9 @@ class App extends Screen
 
       slideBorders = 3;
 
-      mMDI = new MDIParent();
+      docParent = new DocumentParent();
 
-      dock = new TopLevelDock(this,mMDI);
+      dock = new TopLevelDock(this,docParent);
 
       makeCurrent();
 
@@ -229,12 +229,22 @@ class App extends Screen
 
    override public function onKeyDown(event:KeyboardEvent ) : Bool
    {
+      if (super.onKeyDown(event))
+         return true;
+
       var focusElem = stage.focus;
       if (focusElem==null && !Std.is(focusElem,TextField))
       {
          if (topMenuBar!=null && topMenuBar==_menubar)
             return topMenuBar.onKeyDown(event);
       }
+      return false;
+   }
+
+   public function sendMenuKey(event:KeyboardEvent ) : Bool
+   {
+      if (topMenuBar!=null && topMenuBar==_menubar)
+         return topMenuBar.onKeyDown(event);
       return false;
    }
 

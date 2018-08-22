@@ -8,6 +8,8 @@ import nme.display.Sprite;
 import nme.display.BitmapData;
 import gm2d.ui.IDockable;
 import gm2d.skin.Skin;
+import gm2d.ui.Layout;
+
 
 class Pane implements IDockable
 {
@@ -16,16 +18,16 @@ class Pane implements IDockable
    public var title(default,null):String;
    public var shortTitle(default,null):String;
    public var displayObject(default,null):DisplayObject;
-   public var bestWidth:Float;
-   public var bestHeight:Float;
+   public var frameAttribs:{ };
    public var gm2dMinimized:Bool;
-   public var minSizeX:Float;
-   public var minSizeY:Float;
-   public var sizeX(default,null):Float;
-   public var sizeY(default,null):Float;
+   //public var minSizeX:Float;
+   //public var minSizeY:Float;
+   public var sizeX(get,never):Float;
+   public var sizeY(get,never):Float;
    public var scrollX(default,null):Float;
    public var scrollY(default,null):Float;
-   public var onLayout:Void->Void;
+
+   public var onLayout(never,set):Void->Void;
    public var onClose:Void->Void;
    public var onRaise:Void->Void;
    public var itemLayout:Layout;
@@ -50,15 +52,17 @@ class Pane implements IDockable
       properties = {};
       setTitle(inTitle,inShortTitle);
       flags = inFlags;
-      bestWidth = displayObject.width;
-      bestHeight = displayObject.height;
-      minSizeX = bestWidth;
-      minSizeY = bestHeight;
-      sizeX=sizeY=0.0;
-      posX=posY=0.0;
+      //bestWidth = displayObject.width;
+      //bestHeight = displayObject.height;
       gm2dMinimized = false;
       itemLayout = inItemLayout;
       clipped = true;
+
+      if (itemLayout==null && Std.is(inObj,Widget))
+         itemLayout = cast(inObj,Widget).getLayout();
+
+      if (itemLayout==null)
+         itemLayout = new DisplayLayout(inObj);
    }
 
    public function setTitle(inTitle:String, ?inShortTitle:String)
@@ -81,6 +85,36 @@ class Pane implements IDockable
 
    static public function allPanes() { return sPanes.copy(); }
 
+   public function set_onLayout(call:Void->Void)
+   {
+      var lay = getLayout();
+      if (lay!=null)
+         getLayout().onLayout = function(x,y,w,h) {
+            call();
+         }
+      return call;
+   }
+   public function get_sizeX() : Float
+   {
+      var layout = getLayout();
+      if (layout==null)
+          return 0;
+      var rect = layout.getRect();
+      if (rect==null)
+          return layout.getBestWidth();
+      return rect.width;
+   }
+   public function get_sizeY() : Float
+   {
+      var layout = getLayout();
+      if (layout==null)
+          return 0;
+      var rect = layout.getRect();
+      if (rect==null)
+          return layout.getBestHeight();
+      return rect.height;
+   }
+
    public function screenIntersection():Rectangle
    {
       var stage = displayObject.stage;
@@ -92,8 +126,11 @@ class Pane implements IDockable
 
    public function setMinSize(inX:Float, inY:Float)
    {
-      minSizeX = inX;
-      minSizeY = inY;
+      itemLayout.setMinWidth(inX);
+      itemLayout.setMinHeight(inY);
+      //minSizeX = inX;
+      //minSizeY = inY;
+      /*
       if (bestWidth<inX)
          bestWidth = inX;
       if (bestHeight<inY)
@@ -104,6 +141,7 @@ class Pane implements IDockable
             if (s.x<inX) s.x = inX;
             if (s.y<inY) s.y = inY;
          }
+      */
    }
 
    public function removeDockable(child:IDockable):IDockable
@@ -153,7 +191,7 @@ class Pane implements IDockable
          }
       }
    }
-
+   public function relayout() getLayout().relayout();
 
    public function getDock():IDock { return dock; }
    public function getTitle():String { return title; }
@@ -161,6 +199,7 @@ class Pane implements IDockable
    public function getIcon():BitmapData { return icon; }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int) : Void { flags=inFlags; }
+   /*
    public function getBestSize(inSlot):Size
    {
       if (bestSize[inSlot]==null)
@@ -179,6 +218,12 @@ class Pane implements IDockable
       }
       return bestSize[inSlot].clone();
    }
+   */
+   public function getLayout()
+   {
+      return itemLayout;
+   }
+
    public function onLayoutSwitch(inOldSlot:Int)
    {
       if (bestSize[inOldSlot]!=null)
@@ -192,18 +237,13 @@ class Pane implements IDockable
    public function getProperties() : Dynamic { return properties; }
    public function setBestSize(inW:Float,inH:Float)
    {
-      bestWidth = inW;
-      bestHeight = inH;
-      if (dock!=null)
-      {
-         var slot = dock.getSlot();
-         bestSize[slot] = new Size(bestWidth,bestHeight);
-      }
+      getLayout().setBestSize(inW,inH);
    }
 
    public function getMinSize():Size
    {
-      return new Size(minSizeX,minSizeY);
+      //return new Size(minSizeX,minSizeY);
+      return itemLayout.getMinSize();
    }
    public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
    {
@@ -221,96 +261,23 @@ class Pane implements IDockable
       }
       if (inHorizontal)
       {
-        if (inMove<0 && sizeX <= minSizeX)
+        if (inMove<0 && sizeX <= itemLayout.minWidth)
            return false;
       }
       else
       {
-        if (inMove<0 && sizeY <= minSizeY)
+        if (inMove<0 && sizeY <= itemLayout.minHeight)
            return false;
       }
       return true;
-   }
-   public function setRect(x:Float,y:Float,w:Float,h:Float):Void
-   {
-      if (dock!=null && w>0 && h>0)
-      {
-         var slot = dock.getSlot();
-         bestSize[slot] = new Size(w,h);
-         if (slot==Dock.DOCK_SLOT_FLOAT || slot==Dock.DOCK_SLOT_MDI)
-             bestSize[Dock.DOCK_SLOT_FLOAT] = bestSize[Dock.DOCK_SLOT_MDI] = new Size(w,h);
-         if (Dock.isToolbar(this))
-         {
-            if (slot==Dock.DOCK_SLOT_HORIZ)
-            {
-               h = getLayoutSize(w,h,true).y;
-            }
-            else if (slot==Dock.DOCK_SLOT_VERT)
-            {
-               w = getLayoutSize(w,h,false).x;
-            }
-         }
-      }
-
-      posX = x;
-      posY = y;
-      sizeX = w;
-      sizeY = h;
-      if (displayObject!=null)
-      {
-         if (w>0 && h>0)
-         {
-            displayObject.visible = true;
-            if (clipped)
-            {
-               displayObject.scrollRect = new Rectangle(scrollX,scrollY,w,h);
-               if (itemLayout!=null)
-               {
-                  itemLayout.setRect(0,0,w,h);
-                  //itemLayout.align(0,0,w,h);
-               }
-               // Override setRect offset
-               displayObject.x = x;
-               displayObject.y = y;
-            }
-            else
-            {
-               if (itemLayout!=null)
-               {
-                  itemLayout.setRect(x,y,w,h);
-                  //itemLayout.align(x,y,w,h);
-               }
-               else
-               {
-                  displayObject.x = x;
-                  displayObject.y = y;
-               }
-            }
-         }
-         else
-         {
-            displayObject.visible = false;
-         }
-      }
-      else if (itemLayout!=null)
-      {
-         itemLayout.setRect(x,y,w,h);
-      }
-
-      if (onLayout!=null)
-         onLayout();
-   }
-
-   public function relayout()
-   {
-      setRect(posX,posY,sizeX,sizeY);
    }
 
    public function verify()
    {
    }
 
-   
+   public function hasBestSize() return true;
+
    public function getDockRect():nme.geom.Rectangle
    {
       return new Rectangle(posX, posY, sizeX, sizeY );
@@ -318,7 +285,7 @@ class Pane implements IDockable
 
    public function addDockZones(outZones:DockZones):Void
    {
-      var rect = getDockRect();
+      var rect = getLayout().getRect(); //getDockRect();
 
       if (rect.contains(outZones.x,outZones.y))
       {

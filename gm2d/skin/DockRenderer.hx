@@ -26,17 +26,11 @@ class DockRenderer
    {
       return Skin.getChromeRect(inDocked,gripperTop);
    }
-   public function renderResizeBar(outDisplay:Sprite, inRect:Rectangle, inPos:Float)
+   public function renderResizeBar(outDisplay:Sprite, inRect:Rectangle)
    {
       var gfx = outDisplay.graphics;
-      var gap = getResizeBarWidth();
-      var extra = 2;
-      gfx.beginFill(Skin.panelColor);
-      //gfx.beginFill(0x000000);
-      if (!variableWidths)
-         gfx.drawRect(inRect.x, inRect.y+inPos,inRect.width,gap);
-      else
-         gfx.drawRect(inRect.x+inPos, inRect.y,gap,inRect.height);
+      gfx.beginFill(Skin.resizeBarColor);
+      gfx.drawRect(inRect.x, inRect.y,inRect.width,inRect.height);
    }
    public function renderPaneChrome(outDisplay:Sprite, inPane:Pane, inRect:Rectangle,
                 outHitBoxes:HitBoxes )

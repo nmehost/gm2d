@@ -17,5 +17,7 @@ enum FillStyle
    FillRowSelect;
    FillBitmap( bmp:BitmapData );
    FillSolid( rgb:Int, a:Float );
+   FillGradV( rgb0:Int, rgb1:Int, a:Float );
+   FillGradH( rgb0:Int, rgb1:Int, a:Float );
 }
 

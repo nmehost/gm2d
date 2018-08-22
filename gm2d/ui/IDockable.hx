@@ -27,18 +27,18 @@ interface IDockable
    public function getIcon():BitmapData;
    public function getFlags():Int;
    public function setFlags(inFlags:Int):Void;
+
    // Layout
-   public function getBestSize(inSlot:Int):Size;
-   public function getMinSize():Size;
+   public function getLayout():Layout;
    public function getLayoutSize(w:Float,h:Float,limitX:Bool):Size;
-   public function setRect(x:Float,y:Float,w:Float,h:Float):Void;
-   public function getDockRect():nme.geom.Rectangle;
+   public function isLocked():Bool;
+   public function hasBestSize():Bool;
+
+   // Saving / loading
    public function getLayoutInfo():Dynamic;
    public function loadLayout(inLayout:Dynamic):Void;
-   public function isLocked():Bool;
-
-   // generic
    public function getProperties():Dynamic;
+
    // Debug
    public function verify():Void;
 }

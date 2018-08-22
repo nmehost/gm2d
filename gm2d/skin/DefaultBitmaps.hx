@@ -11,12 +11,15 @@ import gm2d.ui.Widget;
 
 class DefaultBitmaps
 {
+   static var cache = new Map<String, BitmapData>();
 
-   public static function factory(inButton:String, inState:Int) : BitmapData
+   public static function createBitmap(inButton:String, inState:Int, lineCol:Int, fillCol:Int ) : BitmapData
    {
+      var key = '$inButton:$inState:$lineCol:$fillCol';
+      if (cache.exists(key))
+         return cache.get(key);
+
       var down = (inState & Widget.DOWN) > 0;
-
-
       var sizeX = Skin.scale(16);
       var sizeY = Skin.scale(16);
       var effects = true;
@@ -27,20 +30,19 @@ class DefaultBitmaps
          sizeX = Skin.scale(48);
       }
 
-      var bmp = new BitmapData(sizeX,sizeY,true, gm2d.RGB.CLEAR );
+      var invert = true;
+
+      var bmp = new BitmapData(sizeX,sizeY,true, 0x00000000 );
       var shape = new nme.display.Shape();
       var gfx = shape.graphics;
 
-      if (false)
+      gfx.lineStyle( Skin.scale(1),lineCol );
+      switch(inButton)
       {
-         var cols = [ 0xff0000, 0x00ff00, 0x0000ff ];
-         gfx.beginFill(cols[inState]);
-         gfx.drawRect(0,0,16,16);
-         gfx.endFill();
+         case Skin.Maximize, Skin.Popup, Skin.Restore:
+            gfx.beginFill(fillCol);
+         default:
       }
-
-
-      gfx.lineStyle(1,0xffffff);
       var matrix = new Matrix();
 
       var s1 = Skin.scale(1);
@@ -89,7 +91,6 @@ class DefaultBitmaps
       }
       else if (inButton==Skin.Popup)
       {
-         gfx.beginFill(0xffffff);
          gfx.moveTo(s5,s7);
          gfx.lineTo(s11,s7);
          gfx.lineTo(s8,s10);
@@ -136,7 +137,6 @@ class DefaultBitmaps
       {
          var w = Skin.scale(16);
          var h = Skin.scale(16);
-         gfx.lineStyle(1,Skin.guiDark);
          for(o in 0...4)
          {
             var dx = (o+2)*3;
@@ -177,13 +177,12 @@ class DefaultBitmaps
          gfx.drawRect(s2,s12, s14-s2, s14-s12);
       }
 
-
       if (down && effects)
          matrix.tx = matrix.ty = 1.5;
       else
          matrix.tx = matrix.ty = 0.5;
 
-      if ((inState&Widget.CURRENT)>0)
+      if ((inState&Widget.CURRENT)>0 && false)
       {
          // todo: why does this not work in flash
          // - flash ignores transforms in top-level object in draw - need to nest?
@@ -191,10 +190,22 @@ class DefaultBitmaps
          shape.filters = [ glow ];
       }
 
-      bmp.draw(shape,matrix);
+      bmp.draw(shape,matrix,null);
+
+      cache.set(key,bmp);
+
       return bmp;
    }
 
+   public static function factory(inButton:String, inState:Int) : BitmapData
+   {
+      return createBitmap(inButton, inState, Skin.guiDark, Skin.guiLight);
+   }
+
+   public static function darkFactory(inButton:String, inState:Int) : BitmapData
+   {
+      return createBitmap(inButton, inState, Skin.guiLight, Skin.guiDark);
+   }
 
 }
 

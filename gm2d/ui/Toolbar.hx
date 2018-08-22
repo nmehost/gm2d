@@ -37,6 +37,8 @@ class Toolbar extends Pane
       padX = 2.0;
       padY = 2.0;
       super(root, inTitle, Dock.RESIZABLE  | Dock.TOOLBAR );
+      getLayout().setAlignment( Layout.AlignTop | Layout.AlignLeft );
+      getLayout().onLayout = setRect;
    }
 
    public function addTool(inTool:Widget)
@@ -75,8 +77,7 @@ class Toolbar extends Pane
             maxX = x;
          x+=padX;
       }
-      bestWidth = maxX;
-      bestHeight = y+row_height+padY;
+      setBestSize(maxX,y+row_height+padY);
    }
 
    override public function isLocked():Bool { return true; }
@@ -87,7 +88,6 @@ class Toolbar extends Pane
    {
       return new Size(bestWidth,bestHeight);
    }
-   */
   
    override public function getBestSize(inSlot:Int):Size
    {
@@ -102,6 +102,7 @@ class Toolbar extends Pane
       }
       return bestSize[inSlot].clone();
    }
+   */
 
 
    override public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
@@ -116,14 +117,14 @@ class Toolbar extends Pane
           var minWidth = 0.0;
           for(item in items)
           {
-             var w = item.getLayout().getBestSize().x;
+             var w = getLayout().getBestSize().x;
              if (w>minWidth)
                 minWidth = w;
           }
 
           var tryWidth = minWidth;
           layout(tryWidth,false);
-          while(bestHeight>h && layoutRows>1)
+          while(getLayout().getBestSize().y>h && layoutRows>1)
           {
              tryWidth += minWidth;
              layout(tryWidth,false);
@@ -131,17 +132,20 @@ class Toolbar extends Pane
 
           //trace("Find " + h + " = " + bestHeight + " -> width " + bestWidth );
       }
-      return new Size(bestWidth,bestHeight);
+      return getLayout().getBestSize();
+      //return new Size(bestWidth,bestHeight);
    }
-   override public function setRect(x:Float,y:Float,w:Float,h:Float):Void
+
+   public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
       // todo:set best size...
       layout(w,true);
 
+      /*
       if (dock!=null)
       {
          var slot = dock.getSlot();
-         bestSize[slot] = new Size(bestWidth, bestHeight);
+         bestSize[slot] = getLayout().getBestSize();
       }
       if (displayObject!=null)
       {
@@ -149,11 +153,7 @@ class Toolbar extends Pane
          displayObject.y = y;
          displayObject.scrollRect = new Rectangle(scrollX,scrollY,w,h);
       }
-
-      posX = x;
-      posY = y;
-      sizeX = w;
-      sizeY = h;
+      */
    }
 }
 

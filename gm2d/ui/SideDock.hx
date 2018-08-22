@@ -8,37 +8,133 @@ import nme.geom.Rectangle;
 import gm2d.skin.Skin;
 import gm2d.skin.DockRenderer;
 
-class SideDock implements IDock implements IDockable
+class FramedDockable
+{
+   var frame:DockFrame;
+
+   public var parent:SideDock;
+   public var item(default,null):IDockable;
+   public var layoutSize:Null<Int>;
+   public var position:Int;
+
+   public function new(inParent:SideDock,inItem:IDockable)
+   {
+      parent = inParent;
+      setItem(inItem);
+   }
+
+
+   public function setItem(inItem:IDockable)
+   {
+      clearFrame();
+ 
+      item = inItem;
+      var pane = item.asPane();
+      if (pane!=null)
+      {
+         frame = new DockFrame(pane, parent, { onTitleDrag:TopLevelDock.dragTitle }, pane.frameAttribs );
+         frame.name = "DockFrame(" + pane + ")";
+      }
+      item.setDock(parent,frame);
+   }
+
+   public function clearFrame()
+   {
+      layoutSize = null;
+      position = 0;
+      if (frame!=null)
+      {
+         if (frame.parent!=null)
+            frame.parent.removeChild(frame);
+         frame = null;
+      }
+   }
+
+
+   public function getLayout() : Layout
+   {
+      if (frame!=null)
+          return frame.getLayout();
+      return item.getLayout();
+   }
+   public function getLayoutSize(w:Float,h:Float,limitX:Bool):Size
+   {
+      return item.getLayoutSize(w,h,limitX);
+   }
+   public function getDockedSize(w:Float,h:Float,variableWidth:Bool):Int
+   {
+      if (layoutSize==null)
+      {
+         if (variableWidth)
+            layoutSize = Std.int(getLayout().getBestWidth(h));
+         else
+            layoutSize = Std.int(getLayout().getBestHeight(w));
+      }
+      return layoutSize;
+   }
+   public function getBestSize(?w:Null<Float>,?h:Null<Float>,variableWidth:Bool):Int
+   {
+      if (variableWidth)
+         return Std.int(getLayout().getBestWidth(h));
+      else
+         return Std.int(getLayout().getBestHeight(w));
+   }
+   public function getMinSize(variableWidth:Bool)
+   {
+      var s = getLayout().getMinSize();
+      if (variableWidth)
+         return s.x;
+      else
+         return s.y;
+   }
+   public function setRect(container:DisplayObjectContainer,x:Float, y:Float, w:Float, h:Float)
+   {
+      if (frame!=null && frame.parent != container)
+         container.addChild(frame);
+      else if (frame==null)
+         item.setDock(parent,container);
+      getLayout().setRect(x,y,w,h);
+   }
+   public function toString():String
+   {
+      return 'FramedDockable($item)';
+   }
+}
+
+
+class SideDock extends Layout implements IDock implements IDockable
 {
    var variableWidths:Bool;
    var parentDock:IDock;
-   var mDockables:Array<IDockable>;
+   var mDockables:Array<FramedDockable>;
    var mRect:Rectangle;
-   var mPositions:Array<Float>;
-   var mWidths:Array<Float>;
-   var mSizes:Array<Size>;
+   var mSizes:Array<Float>;
    var container:DisplayObjectContainer;
    var position:DockPosition;
    var properties:Dynamic;
    var flags:Int;
    var mRenderer:DockRenderer;
+   //var sideLayout:SideLayout;
+
    public var shortTitle:String;
    public var icon:BitmapData;
    public var title:String;
 
    public function new(inPos:DockPosition)
    {
+      super();
+
       flags =  Dock.RESIZABLE;
       variableWidths = inPos==DOCK_LEFT || inPos==DOCK_RIGHT;
       position = variableWidths ? DOCK_LEFT : DOCK_TOP;
       mRenderer = Skin.dockRenderer([variableWidths?"VariableWidth":"VariableHeight","SideDock","Dock"]);
       mDockables = [];
-      mPositions = [];
-      mWidths = [];
       mSizes = [];
       properties = [];
       mRect = new Rectangle();
       title = shortTitle = "";
+      stretch();
+      //sideLayout = new SideLayout(this);
    }
    
    // Hierarchy
@@ -48,8 +144,8 @@ class SideDock implements IDock implements IDockable
    {
       parentDock = inDock;
       container = inParent;
-      for(d in mDockables)
-         d.setDock(this,container);
+      //for(d in mDockables)
+      //   d.setDock(this,container);
    }
    public function closeRequest(inForce:Bool):Void { }
    // Display
@@ -61,6 +157,7 @@ class SideDock implements IDock implements IDockable
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
    public function isHorizontal() { return variableWidths; }
    // Layout
+   public function getLayout() : Layout return this;
    function addPadding(size:Size) : Size
    {
       if (variableWidths)
@@ -69,20 +166,23 @@ class SideDock implements IDock implements IDockable
          size.y += (mDockables.length-1) * mRenderer.getResizeBarWidth();
       return size;
    }
-   public function addPaneChromeSize(inDock:IDockable,ioPos:Size):Size
+
+   override public function getBestWidth(?inHeight:Null<Float>) : Float
    {
-      var rect = mRenderer.getChromeRect(inDock);
-      ioPos.x += rect.width;
-      ioPos.y += rect.height;
-      return ioPos;
+      return getBestSize().x;
    }
-   public function getBestSize(inSlot:Int):Size
+   override public function getBestHeight(?inWidth:Null<Float>) : Float
+   {
+      return getBestSize().y;
+   }
+   override public function getBestSize():Size
    {
       var best = new Size(0,0);
-      for(dock in mDockables)
+      for(dv in mDockables)
       {
-         var s = dock.getBestSize(variableWidths?Dock.DOCK_SLOT_HORIZ : Dock.DOCK_SLOT_VERT );
-         addPaneChromeSize(dock,s);
+         var dock = dv.item;
+         //var s = dock.getBestSize(variableWidths?Dock.DOCK_SLOT_HORIZ : Dock.DOCK_SLOT_VERT );
+         var s = dv.getLayout().getBestSize();
          if (variableWidths)
          {
             best.x += s.x;
@@ -101,13 +201,13 @@ class SideDock implements IDock implements IDockable
    public function getProperties() : Dynamic { return properties; }
 
 
-   public function getMinSize():Size
+   override public function getMinSize():Size
    {
       var min = new Size(0,0);
-      for(dock in mDockables)
+      for(dv in mDockables)
       {
-         var s = dock.getMinSize();
-         addPaneChromeSize(dock,s);
+         var dock = dv.item;
+         var s = dv.getLayout().getMinSize();
          if (variableWidths)
          {
             min.x += s.x;
@@ -121,6 +221,7 @@ class SideDock implements IDock implements IDockable
       }
      return addPadding(min);
    }
+
    public function getLayoutSize(w:Float,h:Float,limitX:Bool):Size
    {
       if (isLocked())
@@ -129,8 +230,9 @@ class SideDock implements IDock implements IDockable
          addPadding(min);
          w-=min.x;
          h-=min.y;
-         for(dock in mDockables)
+         for(dv in mDockables)
          {
+            var dock = dv.item;
             var chrome = mRenderer.getChromeRect(dock);
             var s = dock.getLayoutSize(w-chrome.width, h-chrome.height,!variableWidths);
             s.x+=chrome.width;
@@ -156,15 +258,25 @@ class SideDock implements IDock implements IDockable
 
    function dockName(inIndex:Int) : String
    {
-      var p = mDockables[inIndex].asPane();
+      var p = mDockables[inIndex].item.asPane();
       if (p==null) return "dock";
       return p.shortTitle;
    }
  
    static var indent = "";
-   public function setRect(x:Float,y:Float,w:Float,h:Float):Void
+   override public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
       mRect = new Rectangle(x,y,w,h);
+      layoutChildren();
+      super.setRect(x,y,w,h);
+   }
+
+   function layoutChildren()
+   {
+      var x = mRect.x;
+      var y = mRect.y;
+      var w = mRect.width;
+      var h = mRect.height;
 
       var right = x+w;
       var bottom = y+h;
@@ -174,22 +286,15 @@ class SideDock implements IDock implements IDockable
       else
          h-= barSize * (mDockables.length-1);
 
-      mPositions = [];
-      mWidths = [];
       mSizes = [];
 
       // Only toolbars - changes logic a bit
       if (isLocked())
       {
-         for(d in mDockables)
+         for(dv in mDockables)
          {
-            var chrome = mRenderer.getChromeRect(d);
-            var s = d.getLayoutSize(w-chrome.width,h-chrome.height,!variableWidths);
-            s.x+=chrome.width;
-            s.y+=chrome.height;
+            var s = dv.getDockedSize(w,h,variableWidths);
             mSizes.push(s);
-            var layout_size = Std.int(!variableWidths ? s.y:s.x);
-            mWidths.push(layout_size);
          }
       }
       else
@@ -198,41 +303,52 @@ class SideDock implements IDock implements IDockable
          var min_sizes = new Array<Int>();
          var best_sizes = new Array<Int>();
          var stretch_weight = new Array<Float>();
+         var first_no_best = -1;
    
          var idx = 0;
-         for(d in mDockables)
+         for(idx in 0...mDockables.length)
          {
-            var s = d.getMinSize();
-            addPaneChromeSize(d,s);
-            var m_size = Std.int(variableWidths ? s.x : s.y);
+            var dv = mDockables[idx];
+            var m_size = Std.int(dv.getMinSize(variableWidths));
             min_sizes.push(m_size);
    
-            var s = variableWidths ? d.getBestSize(Dock.DOCK_SLOT_HORIZ) :
-                                 d.getBestSize(Dock.DOCK_SLOT_VERT);
-
-            addPaneChromeSize(d,s);
-   
-            mSizes.push(s.clone());
-            var b_size = Std.int(variableWidths ? s.x : s.y);
-            stretch_weight.push(b_size > 1 ? b_size : 1 );
+            var has_best = true;
+            if (first_no_best<0 && !dv.item.hasBestSize())
+            {
+               has_best = false;
+               first_no_best = idx;
+            }
+            var has_best = first_no_best>=0 || dv.item.hasBestSize();
+            var b_size = dv.getDockedSize(w,h,variableWidths);
             if (b_size<m_size)
                b_size = m_size;
+
             best_sizes.push(b_size);
             best_total += b_size;
+
+            stretch_weight.push(b_size+1);
          }
    
          var is_locked = new Array<Bool>();
          var too_big = best_total > (variableWidths ? w : h);
-         for(d in 0...mDockables.length)
+         //trace('first_no_best : $first_no_best  bs:'+best_sizes[first_no_best]+" min:" + min_sizes[first_no_best]);
+         if ( first_no_best>=0 && (!too_big || best_sizes[first_no_best]>min_sizes[first_no_best]))
          {
-            var dock = mDockables[d];
-            var pane = dock.asPane();
-            is_locked.push( (too_big && (best_sizes[d]<=min_sizes[d] )) ||
-                             dock.isLocked() || !Dock.isResizeable(dock));
+            //stretch_weight[first_no_best] = 1.0;
+            for(i in 0...mDockables.length)
+               is_locked.push(i!=first_no_best);
          }
-   
+         else
+         {
+            for(d in 0...mDockables.length)
+            {
+               var dock = mDockables[d].item;
+               var pane = dock.asPane();
+               is_locked.push( (too_big && (best_sizes[d]<=min_sizes[d] )) || dock.isLocked() || !Dock.isResizeable(dock));
+            }
+         }
+
          var locked_changed = true;
-         var pass = 0;
    
          while(locked_changed)
          {
@@ -253,6 +369,7 @@ class SideDock implements IDock implements IDockable
                      is_stretch.push(false);
                }
             }
+            //trace('EXTRAS $extra, stretches: $stretchers $is_stretch $stretch_weight : $stretchers');
    
             //trace(indent + " " + extra + " over " + is_stretch + "  best " + best_sizes);
    
@@ -278,63 +395,61 @@ class SideDock implements IDock implements IDockable
                   stretchers-=stretch_weight[d];
                }
    
-               var chrome = mRenderer.getChromeRect(mDockables[d]);
-               var layout_w = (variableWidths?size:w) - chrome.width;
-               var layout_h = (variableWidths?h:size) - chrome.height;
-               var s = mDockables[d].getLayoutSize(layout_w, layout_h, variableWidths);
                //trace(indent + "Layout " + dockName(d) + " = " + layout_w + "x" + layout_h + "  -> " + s + " lock:" + is_locked[d] + "  size=" + size);
-               s.x += chrome.width;
-               s.y += chrome.height;
-               mSizes[d] = s.clone();
-   
+               var s = mDockables[d].getLayoutSize(variableWidths?size:w, variableWidths?h:size, variableWidths);
+               var layout_size = Std.int(variableWidths ? s.x : s.y);
                if (is_stretch[d])
                {
-                  var layout_size = Std.int(!variableWidths ? s.y : s.x);
                   // Layout wants to snap to certain size - lock in this size...
                   if (layout_size!=size)
                   {
                      is_locked[d] = true;
                      best_total += layout_size - best_sizes[d];
                      best_sizes[d] = min_sizes[d] = layout_size;
-                     mWidths[d] = layout_size;
+                     mSizes[d] = layout_size;
                      locked_changed = true;
                      break;
                   }
                }
                else
                {
-                  size = Std.int(variableWidths ? s.x : s.y );
+                  size = layout_size;
                }
    
-               mWidths[d] = size;
+               mSizes[d] = size;
             }
          }
       }
    
+      //trace("Sizes  " + mSizes );
       for(d in 0...mDockables.length)
       {
-         var dockable = mDockables[d];
-         var size = mWidths[d];
-         var chrome = mRenderer.getChromeRect(dockable);
+         var dockable = mDockables[d].item;
+         var size = Std.int(mSizes[d]);
          var pane = dockable.asPane();
-         var dw = (variableWidths?size:mSizes[d].x)-chrome.width;
-         var dh = (variableWidths?mSizes[d].y:size) -chrome.height;
+         var dw = (variableWidths?size:w);
+         var dh = (variableWidths?h:size);
          var oid = indent;
          indent+="   ";
-         dockable.setRect(x+chrome.x,y+chrome.y, dw, dh );
+         //trace("  child set rect " + [x,y, dw, dh ]);
+         mDockables[d].setRect(container,x,y, dw, dh );
+
          indent = oid;
+
+         mDockables[d].layoutSize = size;
 
          if (variableWidths)
          {
-            mPositions.push( x );
+            mDockables[d].position = Std.int(x);
             x+=size + barSize;
          }
          else
          {
-            mPositions.push( y );
+            mDockables[d].position = Std.int(y);
             y+=size + barSize;
          }
       }
+      //trace(" -> " + mSizes);
 
       setDirty(false,true);
    }
@@ -343,61 +458,48 @@ class SideDock implements IDock implements IDockable
    public function isLocked():Bool
    {
       for(d in mDockables)
-         if (!d.isLocked())
+         if (!d.item.isLocked())
             return false;
       return true;
    }
 
-
-
-   public function getDockRect():nme.geom.Rectangle
-   {
-      return mRect.clone();
-   }
-
    public function renderChrome(inContainer:Sprite,outHitBoxes:HitBoxes):Void
    {
+      //trace("renderChrome " + mRect + " "  + mSizes);
       for(d in 0...mDockables.length)
       {
-         var pane = mDockables[d].asPane();
+         mDockables[d].item.renderChrome(inContainer,outHitBoxes);
+         /*
+         var dv = mDockables[d];
+         var pane = dv.item.asPane();
          var rect = variableWidths ?
-              new Rectangle( mPositions[d], mRect.y, mWidths[d], mRect.height ) :
-              new Rectangle( mRect.x, mPositions[d], mRect.width, mWidths[d] );
-         if (pane!=null)
-         {
-            mRenderer.renderPaneChrome(inContainer,pane,rect,outHitBoxes);
-         }
-         else
-         {
-            mDockables[d].renderChrome(inContainer,outHitBoxes);
-            var r = mDockables[d].getDockRect();
-            var gap = variableWidths ? mRect.height - r.height : mRect.width-r.width;
-            if (gap>0.5)
-            {
-               if (variableWidths)
-                  mRenderer.renderToolbarGap(inContainer,rect.x, rect.bottom-gap, rect.width, gap);
-               else
-                  mRenderer.renderToolbarGap(inContainer,rect.right - gap, rect.y, gap, rect.height);
-            }
-         }
+              new Rectangle( dv.position, mRect.y, mSizes[d], mRect.height ) :
+              new Rectangle( mRect.x, dv.position, mRect.width, mSizes[d] );
+         */
+         //var frame = mDockables[d].getFrame();
+         //if (frame.parent!=inContainer)
+            //inContainer.addChild(frame);
+         //frame.setRect(rect.x,rect.y,rect.width,rect.height);
       }
 
-
       var gap = mRenderer.getResizeBarWidth();
-      for(i in 0...mWidths.length-1)
+      for(i in 0...mSizes.length-1)
       {
-         var pos = mPositions[i] + mWidths[i];
-         mRenderer.renderResizeBar(inContainer, mRect, pos);
+         var dv = mDockables[i];
+         var pos = dv.position + dv.layoutSize;
 
-         var extra = 2;
+         var extra = 1;
          var rect = variableWidths ?
-            new Rectangle(pos-extra, mRect.y, gap+extra*2, mRect.height) :
-            new Rectangle(mRect.x, pos-extra, mRect.width, gap+extra*2);
+            new Rectangle(pos-extra, mRect.y,   gap+extra*2, mRect.height) :
+            new Rectangle(mRect.x,   pos-extra, mRect.width, gap+extra*2);
+         //trace(mRect + " "  + rect + " " + inContainer);
+         var gfx = inContainer.graphics;
+         gfx.beginFill(0xff0000);
+         gfx.drawRect( rect.x, rect.y, rect.width, rect.height );
+         mRenderer.renderResizeBar(inContainer, rect);
 
          outHitBoxes.add( rect, DOCKSIZE(this,i) );
       }
-
-
    }
 
    public function asPane() : Pane { return null; }
@@ -413,16 +515,23 @@ class SideDock implements IDock implements IDockable
       if (mRect.contains(outZones.x, outZones.y))
       {
           for(d in mDockables)
-             d.addDockZones(outZones);
-          Skin.addResizeDockZones(outZones,mRect,variableWidths,mWidths,onDock);
+             d.item.addDockZones(outZones);
+          Skin.addResizeDockZones(outZones,mRect,variableWidths,mSizes,onDock);
       }
+   }
+   public function hasBestSize()
+   {
+      for(d in mDockables)
+         if (d.item.hasBestSize())
+            return true;
+      return false;
    }
 
    public function getLayoutInfo():Dynamic
    {
       var dockables = new Array<Dynamic>();
       for(i in 0...mDockables.length)
-         dockables[i] = mDockables[i].getLayoutInfo();
+         dockables[i] = mDockables[i].item.getLayoutInfo();
 
       return { type:"SideDock", variableWidths:variableWidths, dockables:dockables, properties:properties, flags:flags };
    }
@@ -435,49 +544,62 @@ class SideDock implements IDock implements IDockable
 
    // --- Externals -----------------------------------------
 
-   function doResize(inIndex:Int, inS0:Size, inS1:Size)
+   /*
+   function doResize1(inIndex:Int, inS0:Size, inS1:Size)
    {
-      var rect = mDockables[inIndex].getDockRect();
-      var delta = variableWidths ? inS0.x-rect.width : inS0.y-rect.height;
+      trace("doResize " + inIndex);
+      var orig = mDockables[inIndex].layoutSize;
+      var delta = Std.int(variableWidths ? inS0.x-orig : inS0.y-orig);
+
+      trace("Delta ->" + delta);
+      var rect = mDockables[inIndex].getRect();
       mDockables[inIndex].setRect(rect.x, rect.y, inS0.x, inS0.y);
 
-      var rect = mDockables[inIndex+1].getDockRect();
+      var rect = mDockables[inIndex+1].getRect();
       if (variableWidths)
          rect.left += delta;
       else
          rect.top += delta;
       mDockables[inIndex+1].setRect(rect.x, rect.y, inS1.x, inS1.y );
 
-      mWidths[inIndex] += delta;
-      mWidths[inIndex+1] -= delta;
+      // TODO - apply to array
+      mSizes[inIndex] += delta;
+      mSizes[inIndex+1] -= delta;
+      mDockables[inIndex].layoutSize += delta;
+      mDockables[inIndex+1].layoutSize -= delta;
+
       mPositions[inIndex+1] += delta;
       setDirty(false,true);
    }
+   */
 
    public function tryResize(inIndex:Int, inPosition:Float )
    {
-      var delta = Std.int(inPosition-mPositions[inIndex+1]);
       var prev = inIndex;
       var next = inIndex+1;
-      if (next>=mPositions.length)
+      if (next>=mDockables.length)
          return;
 
-      //trace( inIndex + " -> " + delta );
-      // See if we can resize...
+      var dv = mDockables[prev];
+      var delta = Std.int(inPosition-dv.position-dv.layoutSize);
+
+      // Account for quantized layouts
+      // Pass 0, we try moving the first bopx, calcualte the delta and move the second box and see it it fits.
+      // Pass 1, we reverse it and try moving the second one first
       for(pass in 0...2)
       {
-         var orig = mDockables[prev].getDockRect();
+         var orig = mDockables[prev].item.getLayout().getRect();
          // Try delta ...
          var test_w = variableWidths ? orig.width+delta : orig.width;
          var test_h = variableWidths ? orig.height : orig.height+delta;
          var s0 = mDockables[prev].getLayoutSize(test_w, test_h, variableWidths);
+         var new_delta = Std.int(variableWidths ? s0.x - orig.width : s0.y-orig.height);
 
-         var new_delta = variableWidths ? s0.x - orig.width : s0.y-orig.height;
          //trace("try " + test_w + "x" + test_h + "   " + s0 + " -> " + new_delta + " fixX=" + (variableWidths) );
          if (new_delta!=0)
          {
             // now see if next pane is happy with this too...
-            var orig = mDockables[next].getDockRect();
+            var orig = mDockables[next].item.getLayout().getRect();
             // Try new_delta ...
             var test_w = variableWidths ? orig.width-new_delta : orig.width;
             var test_h = variableWidths ? orig.height : orig.height-new_delta;
@@ -486,7 +608,10 @@ class SideDock implements IDock implements IDockable
             var new_delta2 = variableWidths ? s1.x - orig.width : s1.y-orig.height;
             if (new_delta2+new_delta == 0)
             {
-               doResize(inIndex,pass==0 ? s0:s1, pass==0?s1:s0);
+               var deltaS = pass==0 ? s0:s1;
+               mDockables[inIndex].layoutSize += new_delta;
+               mDockables[inIndex+1].layoutSize -= new_delta;
+               layoutChildren();
                return;
             }
          }
@@ -512,14 +637,16 @@ class SideDock implements IDock implements IDockable
          inSlot = mDockables.length-inSlot;
       Dock.remove(child);
       child.setDock(this,container);
+      var v = new FramedDockable(this,child);
       if (inSlot>=mDockables.length)
       {
-         mDockables.push(child);
+         mDockables.push(v);
       }
       else
-         mDockables.insert(inSlot<0?0:inSlot, child);
+         mDockables.insert(inSlot<0?0:inSlot, v);
       setDirty(true,true);
    }
+
    public function addSibling(inReference:IDockable,inIncoming:IDockable,inPos:DockPosition)
    {
       var ref = getDockablePosition(inReference);
@@ -532,13 +659,16 @@ class SideDock implements IDock implements IDockable
       var direction = inPos==DOCK_LEFT||inPos==DOCK_RIGHT ? DOCK_LEFT : DOCK_TOP;
       var after = inPos==DOCK_RIGHT||inPos==DOCK_BOTTOM;
       if (canAddDockable(inPos))
+      {
+         trace("canAddDockable");
          addDockable(inIncoming, direction, after ? ref+1 : ref);
+      }
       else if (inPos==DOCK_OVER)
       {
-          var rect = inReference.getDockRect();
+          var rect = inReference.getLayout().getRect();
           // Patch up references...
           var over = new MultiDock();
-          mDockables[ref] = over;
+          mDockables[ref].setItem(over);
           over.setDock(this,container);
           over.pushDockableInternal(inReference);
           inReference.setDock(over,container);
@@ -551,17 +681,17 @@ class SideDock implements IDock implements IDockable
           var rect = getDockableRect(ref);
           // Patch up references...
           var split = new SideDock(direction);
-          var asPane = mDockables[ref].asPane();
+          var asPane = mDockables[ref].item.asPane();
           if (asPane!=null)
           {
              if (Dock.isToolbar(asPane))
                 split.mRenderer.gripperTop = mRenderer.gripperTop;
              asPane.onLayoutSwitch(getSlot());
           }
-          mDockables[ref] = split;
+          mDockables[ref].setItem(split);
+          split.addDockable(inReference,direction,-1);
           split.setDock(this,container);
-          split.mDockables.push(inReference);
-          inReference.setDock(split,container);
+
           split.addDockable(inIncoming,direction,after?1:-1);
           split.setRect(rect.x,rect.y,rect.width,rect.height);
           setDirty(true,true);
@@ -569,30 +699,33 @@ class SideDock implements IDock implements IDockable
       verify();
    }
 
+
    public function getDockableRect(inRef:Int)
    {
       var origin = 0.0;
       for(i in 0...inRef)
-         origin += mWidths[i];
+         origin += mSizes[i];
       if (inRef>1)
         origin + (inRef-1) * mRenderer.getResizeBarWidth();
 
       if (variableWidths)
-         return new Rectangle(mRect.x+origin, mRect.y, mWidths[inRef], mRect.height);
+         return new Rectangle(mRect.x+origin, mRect.y, mSizes[inRef], mRect.height);
       else
-         return new Rectangle(mRect.x, mRect.y+origin, mRect.width, mWidths[inRef]);
+         return new Rectangle(mRect.x, mRect.y+origin, mRect.width, mSizes[inRef]);
    }
 
    public function toString()
    {
-      var r = getDockRect();
-      return("SideDock(" + r.x + "," + r.y + " " + r.width + "x" + r.height + ")");
+      if (lastRect==null)
+         return "SideDock(null)";
+      return("SideDock(" + lastRect.x + "," + lastRect.y + " " + lastRect.width + "x" + lastRect.height + ")");
    }
 
    public function verify()
    {
-      for(d in mDockables)
+      for(dv in mDockables)
       {
+         var d = dv.item;
          if (d.getDock()!=this)
          {
              trace("  this  " + this );
@@ -608,14 +741,20 @@ class SideDock implements IDock implements IDockable
    public function getDockablePosition(child:IDockable):Int
    {
       for(i in 0...mDockables.length)
-        if (child==mDockables[i])
+        if (child==mDockables[i].item)
            return i;
       return -1;
    }
+
+   // removeDockable - and collapse if required.
    public function removeDockable(child:IDockable):IDockable
    {
-      if (mDockables.remove(child))
+      var idx = getDockablePosition(child);
+      if (idx>=0)
       {
+         var d = mDockables[idx];
+         d.clearFrame();
+         mDockables.splice(idx,1);
          child.setDock(null,null);
          if (mDockables.length==0)
          {
@@ -625,17 +764,22 @@ class SideDock implements IDock implements IDockable
          }
          else if (mDockables.length==1)
          {
-            return mDockables[0];
+            mDockables[0].clearFrame();
+            return mDockables[0].item;
          }
       }
       else
       {
+         // Child may have collapsed from SideDock into a container
          for(i in 0...mDockables.length)
          {
-             mDockables[i] = mDockables[i].removeDockable(child);
-             mDockables[i].setDock(this,container);
+             var item = mDockables[i].item;
+             var newItem = item.removeDockable(child);
+             if (item!=newItem)
+                 mDockables[i].setItem(newItem);
          }
       }
+      setDirty(true,true);
       
       return this;
    }
@@ -643,7 +787,7 @@ class SideDock implements IDock implements IDockable
    public function raiseDockable(child:IDockable):Bool
    {
       for(i in 0...mDockables.length)
-        if (child==mDockables[i])
+        if (child==mDockables[i].item)
         {
            return true;
         }

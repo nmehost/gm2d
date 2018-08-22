@@ -8,11 +8,13 @@ import gm2d.ui.HitBoxes;
 import gm2d.ui.Button;
 import gm2d.ui.IDockable;
 import gm2d.ui.Widget;
+import gm2d.ui.Pane;
 import nme.display.Sprite;
 import nme.display.BitmapData;
 import nme.display.Bitmap;
 import nme.display.Shape;
 import nme.display.Graphics;
+import nme.events.MouseEvent;
 import nme.text.TextField;
 import nme.text.TextFieldAutoSize;
 import nme.geom.Point;
@@ -41,6 +43,8 @@ class TabRenderer
    public static inline var IS_OVERLAPPED = 0x0100;
 
    static var gripBmp:BitmapData = null;
+
+   var buts:Array<Widget>;
 
    public dynamic function renderBackground(bitmap:BitmapData)
    {
@@ -92,19 +96,24 @@ class TabRenderer
       return  Skin.scale(Skin.tabHeight);
    }
 
-   public function createTabButton(inId:String)
+   public function createTabButton(inId:String, forTab = false,?pane:Pane,hitBoxes:HitBoxes)
    {
-      return Button.create(["UiButton"], { id:inId });
+      var but =  Button.create([forTab ? "TabButton" : "TabBarButton","ChromeButton"], { id:inId });
+      var cb = hitBoxes.mCallback;
+      but.addEventListener(MouseEvent.MOUSE_DOWN, function(e) cb( HitAction.BUTTON(pane,inId), e) );
+      but.addEventListener(MouseEvent.MOUSE_UP, function(e) cb( HitAction.BUTTON(pane,inId), e) );
+      buts.push(but);
+      return but;
    }
 
    public function renderTabs(inTabContainer:Sprite,
-                              ioRect:Rectangle,
+                              inRect:Rectangle,
                               inPanes:Array<IDockable>,
                               inCurrent:IDockable,
                               outHitBoxes:HitBoxes,
                               inSide:Int,
                               inFlags:Int,
-                              ?inTabPos:Null<Int> )
+                              ?inTabPos:Null<Int> ) : Rectangle
    {
       //var tabHeight = Skin.tabHeight;
       var tmpText = Skin.mText;
@@ -116,19 +125,22 @@ class TabRenderer
       var tabGap = 0;
       var tabX = new Array<Float>();
 
-      var w = inSide==TOP || inSide==BOTTOM ? ioRect.width : ioRect.height;
-      var tabHeight = Std.int(inSide==TOP || inSide==BOTTOM ? ioRect.height : ioRect.width);
+      if (buts!=null)
+         for(but in buts)
+            inTabContainer.removeChild(but);
+      buts = [];
 
-      var buts = new Array<Widget>();
-      var butPos = new Array<Int>();
-      var butWidth = new Array<Int>();
+
+      var w = inSide==TOP || inSide==BOTTOM ? inRect.width : inRect.height;
+      var right = w;
+      var tabHeight = Std.int(inSide==TOP || inSide==BOTTOM ? inRect.height : inRect.width);
 
       if ((inFlags & SHOW_POPUP) > 0)
-         buts.push( createTabButton( MiniButton.POPUP )  );
+         createTabButton( MiniButton.POPUP,outHitBoxes );
       if ((inFlags & SHOW_RESTORE) > 0)
-         buts.push( createTabButton( MiniButton.RESTORE ) );
-      if ((inFlags & SHOW_PIN) > 0)
-         buts.push( createTabButton( MiniButton.PIN ) );
+         createTabButton( MiniButton.RESTORE,outHitBoxes );
+
+      var pinBut =  ((inFlags & SHOW_PIN) > 0) ? createTabButton( MiniButton.PIN,outHitBoxes ) : null;
 
       var forceText = (inFlags & SHOW_TEXT) != 0;
       var showGrip = (inFlags & SHOW_GRIP) != 0;
@@ -157,17 +169,23 @@ class TabRenderer
          if (buts.length>0)
             tx+= 6;
          for(but in buts)
-            tx+=but.getLayout().getBestSize().x;
+         {
+            var s = but.getLayout().getBestSize();
+            but.getLayout().setRect(tx,(Std.int(tabHeight-s.y)>>1),tx+s.x,tabHeight);
+            tx+=s.x;
+         }
 
          w = tx + 3;
       }
 
       var bitmap = new BitmapData(Std.int(w), tabHeight ,true, gm2d.RGB.CLEAR );
       var display = new Bitmap(bitmap);
-      var boxOffset = outHitBoxes.getHitBoxOffset(inTabContainer,ioRect.x,ioRect.y);
-      display.x = ioRect.x;
-      display.y = ioRect.y;
+      var boxOffset = outHitBoxes.getHitBoxOffset(inTabContainer,inRect.x,inRect.y);
+      display.x = inRect.x;
+      display.y = inRect.y;
       inTabContainer.addChild(display);
+      for(but in buts)
+         inTabContainer.addChild(but);
 
       if (showGrip)
       {
@@ -181,25 +199,25 @@ class TabRenderer
 
 
       var x = bitmap.width - 4.0;
-      for(b in 0...buts.length)
+      if ((inFlags & IS_OVERLAPPED)==0)
       {
-         var but = buts[b];
-         var size = but.getLayout().getBestSize();
-         x-= size.x;
-         var y = (tabHeight-size.y)/2;
-
-         var mtx = new Matrix();
-         mtx.tx = x;
-         mtx.ty = y;
-         bitmap.draw( but, mtx );
-
-         if ((inFlags & IS_OVERLAPPED)==0)
-            outHitBoxes.add( new Rectangle(boxOffset.x + x,boxOffset.y +  y,size.x,size.y), HitAction.BUTTON(null,but.name) );
-         else
+         for(b in 0...buts.length)
          {
-            butPos[b] = Std.int(x);
-            butWidth[b] = Std.int(size.x);
+            var but = buts[b];
+            if (but!=pinBut)
+            {
+               var size = but.getLayout().getBestSize();
+               x-= size.x;
+               var y = Std.int((tabHeight-size.y)/2);
+
+               if ((inFlags & IS_OVERLAPPED)==0)
+               {
+                  var s = but.getLayout().getBestSize();
+                  but.getLayout().setRect(x,y,s.x,s.y);
+               }
+            }
          }
+         right = x;
       }
 
       var trans = new nme.geom.Matrix();
@@ -233,16 +251,19 @@ class TabRenderer
 
          var r = new Rectangle(trans.tx,0,tw,tabHeight);
          if ((inFlags & IS_OVERLAPPED)==0)
+         {
             outHitBoxes.add(new Rectangle(trans.tx+boxOffset.x,boxOffset.y,tw,tabHeight), TITLE(pane) );
+         }
 
          if (pane==inCurrent)
          {
             cx = tx0;
             if ((inFlags & SHOW_CLOSE)!=0)
             {
-               closeBut = createTabButton( MiniButton.CLOSE ) ;
-               outHitBoxes.add(new Rectangle(trans.tx+tw,boxOffset.y,closeBut.width,tabHeight), BUTTON(pane,MiniButton.CLOSE) );
-               tw += closeBut.getLayout().getBestWidth() + bmpPad*2;
+               closeBut = createTabButton( MiniButton.CLOSE, true, pane.asPane(), outHitBoxes ) ;
+               inTabContainer.addChild(closeBut);
+               var size = closeBut.getLayout().getBestSize();
+               tw += size.x+bmpPad;
             }
          }
          else
@@ -274,6 +295,7 @@ class TabRenderer
          }
          trans.tx = tx0 + tw+tabGap;
       }
+      var lastTab = trans.tx;
 
       if (inCurrent!=null)
       {
@@ -305,7 +327,7 @@ class TabRenderer
             tw += icon.width + bmpPad*2;
          }
          if (closeBut!=null)
-            tw += closeBut.getLayout().getBestWidth() + bmpPad*2;
+            tw += closeBut.getLayout().getBestWidth() + bmpPad;
 
          tw += borderRight;
 
@@ -348,11 +370,17 @@ class TabRenderer
 
          if (closeBut!=null)
          {
-            trans.tx += bmpPad;
-            trans.ty = (tabHeight - Std.int(closeBut.getLayout().getBestHeight())) >> 1;
-            bitmap.draw(closeBut,trans);
-            trans.tx += closeBut.width + bmpPad;
+            var size = closeBut.getLayout().getBestSize();
+            closeBut.getLayout().setRect(trans.tx + bmpPad,Std.int((tabHeight-size.y)/2),size.x,size.y);
          }
+      }
+
+      if (pinBut!=null)
+      {
+         lastTab += tabGap + bmpPad;
+         var s = pinBut.getLayout().getBestSize();
+         pinBut.setRect(Std.int(lastTab), Std.int((tabHeight-s.y)/2), s.x, s.y );
+         lastTab += s.x;
       }
 
       if ((inFlags & IS_OVERLAPPED) == 0)
@@ -361,10 +389,7 @@ class TabRenderer
          gfx.beginFill(Skin.guiMedium);
          gfx.drawRect(0,tabHeight-2,w,8);
          bitmap.draw(shape);
-         ioRect.width = trans.tx;
-         ioRect.height = tabHeight;
-         ioRect.x = display.x;
-         ioRect.y = display.y;
+
       }
       else
       {
@@ -373,23 +398,17 @@ class TabRenderer
             case TOP:
                display.y -= tabHeight-2;
                if (inTabPos==null)
-                  display.x += Std.int((ioRect.width-w)*0.5);
+                  display.x += Std.int((inRect.width-w)*0.5);
                else
                   display.x += inTabPos;
-               ioRect.width = w;
-               ioRect.height = tabHeight;
 
             case BOTTOM:
-               display.y += ioRect.height;
-               ioRect.width = w;
-               ioRect.height = tabHeight;
+               display.y += inRect.height;
 
             case RIGHT:
                display.rotation = 90;
-               display.x = ioRect.x + tabHeight;
-               display.y = ioRect.y;
-               ioRect.width = tabHeight;
-               ioRect.height = w;
+               display.x = inRect.x + tabHeight;
+               display.y = inRect.y;
 
 
             case LEFT:
@@ -399,9 +418,7 @@ class TabRenderer
                if (inTabPos!=null)
                   display.y += w + inTabPos;
                else
-                  display.y += Std.int((ioRect.height+w)*0.5);
-               ioRect.width = tabHeight;
-               ioRect.height = w;
+                  display.y += Std.int((inRect.height+w)*0.5);
          }
 
           for(i in 0...tabX.length-1)
@@ -409,15 +426,15 @@ class TabRenderer
              var rect = displayRect(display, tabX[i], 0, tabX[i+1]-tabX[i],tabHeight);
              outHitBoxes.add(rect,TITLE(inPanes[i]));
           }
-          for(b in 0...buts.length)
+          for(but in buts)
           {
-             var rect = displayRect(display,butPos[b], 0, butWidth[b],tabHeight);
-
-             outHitBoxes.add(rect, HitAction.BUTTON(null,buts[b].name));
+             but.x += display.x;
+             but.y += display.y;
           }
-          ioRect.x = display.x;
-          ioRect.y = display.y;
+
       }
+
+      return new Rectangle(lastTab, 0, right-lastTab, tabHeight);
    }
 
    function displayRect(display:Bitmap, inX:Float, inY:Float, inW:Float, inH:Float)

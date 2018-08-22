@@ -640,8 +640,6 @@ class Game
 
       if (!used && mCurrentScreen!=null)
          used = mCurrentScreen.onKeyDown(event);
-
-
    }
 
    static function onKeyUp(event:KeyboardEvent )

@@ -10,44 +10,27 @@ import nme.geom.Rectangle;
 import gm2d.ui.HitBoxes;
 import nme.events.MouseEvent;
 
-class FloatingWin extends Sprite implements IDock
+class FloatingWin extends DockFrame implements IDock
 {
-   public var pane: Pane;
-
    var mTopLevel:TopLevelDock;
    var mHitBoxes:HitBoxes;
-   var mClientWidth:Float;
-   var mClientHeight:Float;
    var mFull:Bool;
-   var chrome:Sprite;
    var mouseWatcher:MouseWatcher;
    var origRect:Rectangle;
 
    public function new(inTopLevel:TopLevelDock,inPane:Pane,inX:Float, inY:Float)
    {
-      super();
-      pane = inPane;
+      super(inPane, inTopLevel, { onTitleDrag:function(_,e) doStartDrag(e) } );
       mTopLevel = inTopLevel;
       mHitBoxes = new HitBoxes(this, onHitBox);
-      chrome = new Sprite();
       mouseWatcher = null;
       origRect = null;
-      addChild(chrome);
       pane.setDock(this,this);
-      pane.properties.floatingPos = { x:inX, y:inY };
+      inPane.properties.floatingPos = { x:inX, y:inY };
 
-      var size = inPane.getBestSize( Dock.DOCK_SLOT_FLOAT );
-
-      mClientWidth = Std.int(Math.max(size.x,Skin.getMinFrameWidth())+0.99);
-      mClientHeight = Std.int(size.y+0.99);
-      setClientSize(mClientWidth,mClientHeight);
-
-      pane.setRect(inX,inY, mClientWidth, mClientHeight);
-
-      setFull(true);
-      addEventListener(MouseEvent.ROLL_OVER,function(_) setFull(true));
-      addEventListener(MouseEvent.ROLL_OUT,function(_) setFull(false));
-      //pane.displayObject.scrollRect = new Rectangle(20,20,mClientWidth, mClientHeight);
+      var outer = getLayout().getRect();
+      var inner = pane.getLayout().getRect();
+      getLayout().setRect(inX+outer.x-inner.x, inY+outer.y-inner.y, outer.width, outer.height);
    }
 
    public function setFull(inFull:Bool)
@@ -56,28 +39,10 @@ class FloatingWin extends Sprite implements IDock
       redraw();
    }
 
-   public function setClientSize(inW:Float, inH:Float)
-   {
-      var minW = Skin.getMinFrameWidth();
-      mClientWidth = Std.int(Math.max(inW,minW));
-      mClientHeight = Std.int(Math.max(inH,1));
-      var size = pane.getLayoutSize(mClientWidth,mClientHeight,true);
-      if (size.x<minW)
-         size = pane.getLayoutSize(minW,mClientHeight,true);
-      mClientWidth = Std.int(size.x);
-      mClientHeight = Std.int(size.y);
-      var rect = pane.getDockRect();
-      pane.setRect(rect.x, rect.y, mClientWidth, mClientHeight);
-      redraw();
-   }
-
-
    public function destroy()
    {
       if (pane!=null)
-      {
          pane.setDock(null,null);
-      }
       parent.removeChild(this);
    }
 
@@ -101,18 +66,10 @@ class FloatingWin extends Sprite implements IDock
 
    public function doStartDrag(inEvent:MouseEvent)
    {
-      //trace("start " + inEvent.stageX + "," +  inEvent.stageY );
       mouseWatcher = MouseWatcher.watchDrag(this, inEvent.stageX, inEvent.stageY, onDrag, onEndDrag);
-      origRect = pane.getDockRect();
+      origRect = getLayout().getRect();
    }
 
-   function redraw()
-   {
-      var solid = (mFull || (mouseWatcher!=null));
-      alpha = solid ? 1.0 : 0.5;
-      var rect = pane.getDockRect();
-      Skin.renderMiniWin(chrome,pane,rect,mHitBoxes,solid);
-   }
 
    function onDrag(inEvent:MouseEvent)
    {
@@ -120,8 +77,9 @@ class FloatingWin extends Sprite implements IDock
       //trace(" Dragged : " + mouseWatcher.draggedX() + "," + mouseWatcher.draggedY() );
       var tx = origRect.x+mouseWatcher.draggedX();
       var ty = origRect.y+mouseWatcher.draggedY();
-      pane.setRect( tx, ty, origRect.width, origRect.height );
-      pane.properties.floatingPos = { x:tx, y:ty };
+      var layout = getLayout();
+      layout.setRect( tx, ty, origRect.width, origRect.height );
+      pane.asPane().properties.floatingPos = { x:tx, y:ty };
       redraw();
    }
 
@@ -134,7 +92,7 @@ class FloatingWin extends Sprite implements IDock
    {
       //trace(" -- end -- ");
       mouseWatcher = null;
-      mTopLevel.finishDockDrag(pane,inEvent);
+      mTopLevel.finishDockDrag(pane.asPane(),inEvent);
    }
    public function addSibling(inReference:IDockable,inIncoming:IDockable,inPos:DockPosition)
    {

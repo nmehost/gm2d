@@ -8,6 +8,7 @@ import gm2d.ui.HitBoxes;
 import gm2d.ui.MouseWatcher;
 import nme.events.MouseEvent;
 import nme.geom.Rectangle;
+import nme.geom.Point;
 import gm2d.ui.DockZones;
 import gm2d.skin.Skin;
 
@@ -20,7 +21,7 @@ class TopLevelDock implements IDock
    var paneContainer:Sprite;
    var floatingContainer:Sprite;
    var floatingWins:Array<FloatingWin>;
-   var mdi:MDIParent;
+   var docParent:DocumentParent;
    var hitBoxes:HitBoxes;
    var chromeDirty:Bool;
    var layoutDirty:Bool;
@@ -28,19 +29,24 @@ class TopLevelDock implements IDock
    var size:Rectangle;
    var dockZones:DockZones;
 
-   public function new(inContainer:Sprite,?inMDI:MDIParent)
+   public function new(inContainer:Sprite,?inDocParent:DocumentParent)
    {
-      mdi = inMDI;
-      if (mdi!=null)
-         mdi.setTopLevel(this);
+      inContainer.name = "TopLevelDock.container";
+      docParent = inDocParent;
+      if (docParent!=null)
+         docParent.setTopLevel(this);
       container = inContainer;
       backgroundContainer = new Sprite();
       container.addChild(backgroundContainer);
+      backgroundContainer.name = "backgroundContainer";
       paneContainer = new Sprite();
+      paneContainer.name = "paneContainer";
       container.addChild(paneContainer);
       floatingContainer = new Sprite();
+      floatingContainer.name = "floatingContainer";
       container.addChild(floatingContainer);
       overlayContainer = new Sprite();
+      overlayContainer.name = "overlayContainer";
       container.addChild(overlayContainer);
       floatingWins = [];
 
@@ -49,23 +55,61 @@ class TopLevelDock implements IDock
       hitBoxes = new HitBoxes(backgroundContainer,onHitBox);
       new DockSizeHandler(container,overlayContainer,hitBoxes);
 
-      if (inMDI!=null)
+      if (inDocParent!=null)
       {
-         root = mdi;
-         mdi.setDock(this,paneContainer);
+         root = docParent;
+         docParent.setDock(this,paneContainer);
       }
       container.addEventListener(nme.events.Event.RENDER, updateLayout);
+   }
+   public static function findRoot(inDockable:IDockable):TopLevelDock
+   {
+      var topDock = inDockable.getDock();
+      if (topDock==null)
+         throw("No parent dock");
+
+      while(true)
+      {
+         var dock = topDock.getDock();
+         if (dock==null)
+            break;
+         topDock = dock;
+      }
+      if (!Std.is(topDock, TopLevelDock))
+      {
+         throw('Not top level $topDock');
+      }
+      return cast topDock;
+ 
+   }
+   public static function dragTitle(inDockable:IDockable, inEvent:MouseEvent)
+   {
+      var tld = findRoot( inDockable );
+      tld.floatWindow(inDockable,inEvent, inDockable.getProperties());
    }
 
    public function floatWindow(inDockable:IDockable, inEvent:MouseEvent, inProps:Dynamic)
    {
-      Dock.remove(inDockable);
       var pane = inDockable.asPane();
       if (pane!=null)
       {
+         var fx = inEvent==null ? 0 : inEvent.stageX;
+         var fy = inEvent==null ? 0 : inEvent.stageY;
+         var obj = pane.displayObject;
+         if (obj!=null && obj.stage!=null)
+         {
+            var r = inDockable.getLayout().getRect();
+            var stagePos = obj.parent.localToGlobal( new Point(r.x,r.y) );
+            var best = inDockable.getLayout().getBestSize();
+            fx = Math.max(stagePos.x,fx-best.x);
+            fy = Math.max(stagePos.y,fy-best.y);
+         }
+
+         Dock.remove(inDockable);
+
          var floating:FloatingWin = null;
          if (inEvent!=null)
-            floating = new FloatingWin(this,pane,inEvent.stageX, inEvent.stageY)
+            floating = new FloatingWin(this,pane,fx,fy)
          else
          {
             pane.loadLayout(inProps);
@@ -79,10 +123,15 @@ class TopLevelDock implements IDock
          if (inEvent!=null)
             floating.doStartDrag(inEvent);
       }
+      else
+      {
+         Dock.remove(inDockable);
+      }
    }
 
    public function onHitBox(inAction:HitAction,inEvent:MouseEvent)
    {
+      trace("onHitBox " + inAction);
       switch(inAction)
       {
          case DRAG(p):
@@ -103,13 +152,13 @@ class TopLevelDock implements IDock
    {
       size = new Rectangle(x,y,w,h);
       if (root!=null)
-         root.setRect(x,y,w,h);
+         root.getLayout().setRect(x,y,w,h);
    }
 
    function forceLayout()
    {
       if (root!=null)
-        root.setRect(size.x, size.y, size.width, size.height );
+        root.getLayout().setRect(size.x, size.y, size.width, size.height );
 
       setDirty(false,true);
    }
@@ -149,7 +198,13 @@ class TopLevelDock implements IDock
       }
    }
 
-
+   public function showPaneMenu(dockables:Array<IDockable>,inX:Float, inY:Float)
+   {
+      var menu = new MenuItem("Tabs");
+      for(pane in dockables)
+         menu.add( new MenuItem(pane.getShortTitle(), function(_)  Dock.raise(pane) ) );
+      Game.popup( new PopupMenu(menu), inX, inY);
+   }
 
 
 
@@ -201,7 +256,7 @@ class TopLevelDock implements IDock
             }
       }
 
-      root = Dock.loadLayout(inInfo.root,panes,mdi);
+      root = Dock.loadLayout(inInfo.root,panes,docParent);
       if (root!=null)
         root.setDock(this,paneContainer);
    }
@@ -214,9 +269,9 @@ class TopLevelDock implements IDock
    {
       // trace("addDockable " + inChild + " x " + inPos + " " + inSlot );
       Dock.remove(inChild);
-      if (mdi!=null && inPos==DOCK_OVER)
+      if (docParent!=null && inPos==DOCK_OVER)
       {
-          mdi.addDockable(inChild,inPos,inSlot);
+          docParent.addDockable(inChild,inPos,inSlot);
       }
       else if (root==null)
       {

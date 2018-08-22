@@ -24,6 +24,7 @@ class DockSizeHandler
 
    public function onOverDockSize(inDock:SideDock, inIndex:Int, inX:Float, inY:Float, inRect:Rectangle )
    {
+      //trace("onOverDockSize!");
       showResizeHint(inX,inY,inDock.isHorizontal());
 
       resizeBox = inRect;
@@ -41,8 +42,9 @@ class DockSizeHandler
       container.stage.removeEventListener(MouseEvent.MOUSE_MOVE,checkResizeDock);
       resizeListen = false;
 
-      MouseWatcher.watchDrag(container,inX,inY,
+      var watcher = MouseWatcher.watchDrag(container,inX,inY,
           function(_) onDockSize(inDock,inIndex,_) , clearOverlay );
+      watcher.combineDragEvents(0.25);
    }
 
    function onDockSize(inDock:SideDock, inIndex:Int, inEvent:MouseEvent)
@@ -72,6 +74,7 @@ class DockSizeHandler
       overlayContainer.graphics.clear();
       overlayContainer.x = 0;
       overlayContainer.y = 0;
+      overlayContainer.scaleX = overlayContainer.scaleY = 1.0;
       while(overlayContainer.numChildren>0)
          overlayContainer.removeChildAt(0);
    }
@@ -89,6 +92,9 @@ class DockSizeHandler
          new gm2d.icons.EastWest().render(gfx);
       else
          new gm2d.icons.NorthSouth().render(gfx);
+      var scale = gm2d.skin.Skin.dpiScale;
+      if (scale!=1)
+         overlayContainer.scaleX = overlayContainer.scaleY =  scale;
    }
 
 

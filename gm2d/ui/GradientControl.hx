@@ -123,7 +123,7 @@ class GradientControl extends Widget
       gradBox.addEventListener(MouseEvent.MOUSE_DOWN, onMouse);
 
       var stopControls = new GridLayout(1);
-      colourBox = new RGBBox(new RGBHSV(0xff00ff,1), false, true, onGradColour);
+      colourBox = new RGBBox(new RGBHSV(0xff00ff,1), false, true, onGradColour, { });
       colourBox.onDialogCreated = onColourDialog;
       addChild(colourBox);
       stopControls.add(colourBox.getLayout().setMinSize(64,28));

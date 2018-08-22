@@ -61,13 +61,11 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
       var pos = mItems.length;
       mItems.push(inItem);
       
-      var me = this;
       var nx = mNextX;
-      var but = Button.TextButton(inItem.text,function(){me.showMenu(pos);},
-                  ["MenubarItem", "SimpleButton" ]);
+      var but = Button.TextButton(inItem.text,function() showMenu(pos), ["MenubarItem", "SimpleButton" ]);
       but.isToggle = true;
       mButtons.push(but);
-      but.addEventListener(MouseEvent.MOUSE_OVER, function(_) me.onMouseItem(pos) );
+      but.addEventListener(MouseEvent.MOUSE_OVER, function(_) onMouseItem(pos) );
 
       but.x = mNextX;
       mNextX += but.width + 10;
@@ -94,7 +92,10 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
       Game.closePopup();
       mCurrentItem = inPos;
       for(b in 0...mButtons.length)
+      {
+         mButtons[b].isCurrent = b==mCurrentItem;
          mButtons[b].down = b==mCurrentItem;
+      }
 
       if (mNormalParent==null)
       {

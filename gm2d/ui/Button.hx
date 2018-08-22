@@ -37,6 +37,9 @@ class Button extends Control
       mDownDY = offset.y;
 
       mCallback = inOnClick;
+      if (mCallback==null)
+         mCallback = mRenderer.getDynamic("onClick");
+
       mDisplayObj = inObject;
       mCurrentDX = mCurrentDY = 0;
       noFocus = false;
@@ -71,11 +74,13 @@ class Button extends Control
          var items = (icon!=null ? 1:0) + (text!=null ? 1:0);
          if (items>0)
          {
-            var textWidget = (text==null) ? null : new TextLabel(text);
+            var textStyle = attribDynamic("textStyle",{});
+            var textLineage = attribDynamic("textLineage",[]);
+            var textWidget = (text==null) ? null : new TextLabel(text,textLineage,textStyle);
             iconWidget = (icon==null) ? null : new Image(icon);
             if (items==1)
             {
-               addChild(textWidget!=null ? textWidget : iconWidget);
+               addChild(mDisplayObj = (textWidget!=null ? textWidget : iconWidget) );
                setItemLayout((textWidget!=null ? (textWidget:Widget) : (iconWidget:Widget)).getLayout());
             }
             else
@@ -221,6 +226,7 @@ class Button extends Control
 
    public static function TextButton(inText:String,inOnClick:Void->Void,?inLineage:Array<String>, ?inArrtibs:Dynamic)
    {
+      var lin = Widget.addLines(inLineage,["ButtonText","Button","StaticText","Text"]);
       var renderer = Skin.renderer(Widget.addLines(inLineage,["ButtonText","Button","StaticText","Text"]));
       var label = new TextField();
       label.text = inText;
