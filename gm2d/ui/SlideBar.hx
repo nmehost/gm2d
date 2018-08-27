@@ -27,6 +27,7 @@ class SlideBar extends Sprite implements IDock
    var tabPos:Null<Int>;
    var background:Widget;
    var paneContainer:Sprite;
+   var barContainer:Sprite;
    var overlayContainer:Sprite;
    var slideOver:Bool;
    var hitBoxes:HitBoxes;
@@ -96,6 +97,8 @@ class SlideBar extends Sprite implements IDock
       addChild(background);
       paneContainer = new Sprite();
       addChild(paneContainer);
+      barContainer = new Sprite();
+      addChild(barContainer);
       overlayContainer = new Sprite();
       addChild(overlayContainer);
       hitBoxes = new HitBoxes(background,onHitBox);
@@ -180,11 +183,12 @@ class SlideBar extends Sprite implements IDock
          inShowing = 0;
       if (maxSize!=null && inShowing>maxSize)
          inShowing = maxSize;
+
     
       if (inShowing!=showing)
       {
+         paneContainer.visible = inShowing>0;
          showing = inShowing;
-
          setDirty(true,false);
       }
    }
@@ -224,8 +228,7 @@ class SlideBar extends Sprite implements IDock
    public function setRect(x:Float, y:Float, w:Float, h:Float) : Float
    {
       layoutDirty = false;
-      if (current==null)
-         return 0;
+      //if (current==null) return 0;
 
       var offset = (pinned || showGrip) ? 0 : posOffset;
       if (horizontal)
@@ -275,13 +278,16 @@ class SlideBar extends Sprite implements IDock
          }
       }
       paneContainer.y = oy;
+      barContainer.y = oy;
 
-      var size = horizontal ? 
-         current.getLayoutSize(showing,h,false) :
-         current.getLayoutSize(w,showing,true);
-      //trace(' $w $h $pinned $horizontal $showing -> 0,$oy ${size.x},${size.y}');
-
-      current.getLayout().setRect(0,0,size.x,size.y);
+      var size = new Size(horizontal ? 0 : w,horizontal ? h : 0);
+      if (current!=null)
+      {
+         size = horizontal ? 
+             current.getLayoutSize(showing,h,false) :
+             current.getLayoutSize(w,showing,true);
+         current.getLayout().setRect(0,0,size.x,size.y);
+      }
       //paneContainer.scrollRect = new Rectangle(0,0,size.x,size.y);
 
 
@@ -332,15 +338,13 @@ class SlideBar extends Sprite implements IDock
 
     public function checkChrome()
     {
-      if (current==null)
-         return;
-
       if (chromeDirty)
       {
          chromeDirty = false;
          hitBoxes.clear();
          background.redraw();
-         current.renderChrome(background.mChrome,hitBoxes);
+         if (current!=null)
+            current.renderChrome(background.mChrome,hitBoxes);
 
          var tallBar = false;
          var barHeight = getBarHeight();
@@ -350,7 +354,7 @@ class SlideBar extends Sprite implements IDock
             var flags = (showText?TabRenderer.SHOW_TEXT:0) |
                          TabRenderer.SHOW_ICON |
                          (showPin?TabRenderer.SHOW_PIN:0) |
-                         (showGrip?TabRenderer.SHOW_GRIP:0);
+                         (showGrip && current!=null ?TabRenderer.SHOW_GRIP:0);
             var renderPos = tabSide;
             if (pinned || showGrip)
             {
@@ -450,7 +454,8 @@ class SlideBar extends Sprite implements IDock
          if (barDockable!=null)
             Dock.remove(barDockable);
          barDockable = inChild;
-         barDockable.setDock(this,paneContainer);
+         barContainer.visible = true;
+         barDockable.setDock(this,barContainer);
          setDirty(true,true);
       }
       else

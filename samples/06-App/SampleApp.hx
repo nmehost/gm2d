@@ -45,7 +45,7 @@ class SampleApp extends App
       var pane = new Pane(colour,"Colour 2",Dock.RESIZABLE,null);
       side.addDockable( pane, DockPosition.DOCK_TOP,1);
 
-      doLayout();
+      relayout();
 
       //var dlg = new gm2d.ui.Dialog(pane);
       //Game.doShowDialog(dlg,true);

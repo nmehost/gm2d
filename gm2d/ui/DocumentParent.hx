@@ -110,12 +110,12 @@ class DocumentParent extends Sprite implements IDock implements IDockable
          var pane = inChild.asPane();
          addFrame(pane);
          current = inChild;
-         redrawTabs();
+         maximize(inChild);
       }
       else
       {
          inChild.setDock(this,clientArea);
-         maximize(inChild);
+         redrawTabs();
       }
    }
    public function getDockablePosition(child:IDockable):Int

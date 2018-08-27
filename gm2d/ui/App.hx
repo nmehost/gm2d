@@ -7,6 +7,11 @@ import gm2d.ui.Layout;
 import gm2d.ui.Dock;
 import gm2d.ui.IDockable;
 import gm2d.ui.Menubar;
+import gm2d.ui.SlideBar;
+import gm2d.ui.TopLevelDock;
+import gm2d.ui.DocumentParent;
+import gm2d.ui.Widget;
+import gm2d.ui.DockPosition;
 import nme.events.KeyboardEvent;
 import nme.text.TextField;
 
@@ -17,19 +22,23 @@ class App extends Screen
 {
    var _menubar:Menubar;
    public var menubar(get_menubar,null):Menubar;
-   var topMenuBar:SpriteMenubar;
+   var spriteMenuBar:SpriteMenubar;
    var leftSlider:SlideBar;
    var rightSlider:SlideBar;
    var bottomSlider:SlideBar;
    var dock:TopLevelDock;
    var docParent:DocumentParent;
    var slideBorders:Int;
+   var statusBar:Widget;
+   var statusHeight:Int;
 
    public function new()
    {
       super();
 
-      slideBorders = 3;
+      slideBorders = 0;
+
+      //widgets = new WidgetManager();
 
       docParent = new DocumentParent();
 
@@ -37,15 +46,22 @@ class App extends Screen
 
       makeCurrent();
 
-      addEventListener(nme.events.Event.RENDER, function(_) checkSliderLayouts() );
+      addEventListener(nme.events.Event.RENDER, checkSliderLayouts);
 
-      doLayout();
+      relayout();
    }
 
-   override public function makeCurrent()
+   override public function goBack( ) :Bool
    {
-      super.makeCurrent();
-      checkSliderLayouts();
+      trace("goBack");
+      return false;
+   }
+
+   public function createStatusBar(inText="",?inAttribs)
+   {
+      statusBar = new TextLabel(inText,["StatusBar"],inAttribs);
+      statusHeight = Std.int(statusBar.getLayout().getBestHeight());
+      addChild(statusBar);
    }
 
    public function createMenubar(useSpriteBar = false)
@@ -54,22 +70,24 @@ class App extends Screen
       if (_menubar==null)
          _menubar = new WxMenubar(this);
       #else
-      if (topMenuBar==null)
+      if (spriteMenuBar==null)
       {
-         topMenuBar = new SpriteMenubar(this,Layout.AlignTop);
-         _menubar = topMenuBar;
+         spriteMenuBar = new SpriteMenubar(this,Layout.AlignTop);
+         _menubar = spriteMenuBar;
       }
       #end
 
-      if (useSpriteBar && topMenuBar==null)
-         topMenuBar = new SpriteMenubar(this,Layout.AlignTop);
+      if (useSpriteBar && spriteMenuBar==null)
+         spriteMenuBar = new SpriteMenubar(this,Layout.AlignTop);
+
+      return _menubar;
    }
 
    public function setMenuWidgets(inWidgets:Array<Widget>)
    {
-      if (topMenuBar!=null)
-         topMenuBar.setWidgets(inWidgets);
-      doLayout();
+      if (spriteMenuBar!=null)
+         spriteMenuBar.setWidgets(inWidgets);
+      relayout();
    }
 
    override public function getScaleMode():ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
@@ -86,14 +104,12 @@ class App extends Screen
                throw "Left slider already set";
             leftSlider = new SlideBar(this,inPos,inMin,inMax,inSlideOver,inShowTab,inOffset,inTabPos);
             addChild(leftSlider);
-            invalidate();
             return leftSlider;
 
          case DOCK_RIGHT:
             if (rightSlider!=null)
                throw "Right slider already set";
             rightSlider = new SlideBar(this,inPos,inMin,inMax,inSlideOver,inShowTab,inOffset,inTabPos);
-            invalidate();
             addChild(rightSlider);
             return rightSlider;
 
@@ -101,7 +117,6 @@ class App extends Screen
             if (bottomSlider!=null)
                throw "Bottom slider already set";
             bottomSlider = new SlideBar(this,inPos,inMin,inMax,inSlideOver,inShowTab,inOffset,inTabPos);
-            invalidate();
             addChild(bottomSlider);
             return bottomSlider;
 
@@ -112,13 +127,13 @@ class App extends Screen
    }
 
 
-   public function checkSliderLayouts()
+   public function checkSliderLayouts(_)
    {
        var dirty = (leftSlider!=null && leftSlider.isDirty() ) ||
                    (rightSlider!=null && rightSlider.isDirty() ) ||
                    (bottomSlider!=null && bottomSlider.isDirty() );
        if (dirty)
-          doLayout();
+          relayout();
        if (leftSlider!=null) leftSlider.checkChrome();
        if (rightSlider!=null) rightSlider.checkChrome();
        if (bottomSlider!=null) bottomSlider.checkChrome();
@@ -154,40 +169,47 @@ class App extends Screen
    }
 
 
-   function doLayout()
+   override function relayout()
    {
       var x0 = 0.0;
       var y0 = 0.0;
       var w:Float = stage.stageWidth;
       var h:Float = stage.stageHeight;
 
-      if (_menubar!=null && _menubar!=topMenuBar)
+      if (_menubar!=null && _menubar!=spriteMenuBar)
       {
          var menu_h = _menubar.layout(w);
          y0 += menu_h;
          h -= menu_h;
       }
 
+      if (statusBar!=null)
+      {
+         statusBar.setRect(0,h-statusHeight,w,statusHeight);
+         h -= statusHeight;
+      }
+
       var bottomX = x0;
-      var bottomW = w;
+
+ 
+      if (spriteMenuBar!=null)
+      {
+         var topMenuHeight = spriteMenuBar.layout(w);
+         y0 += topMenuHeight;
+         h -= topMenuHeight;
+      }
 
       if (rightSlider!=null)
       {
          var size = rightSlider.setRect(x0+slideBorders,y0,w-slideBorders,h);
          w -=size+slideBorders;
-         bottomW -=size+slideBorders;
-      }
- 
-      if (topMenuBar!=null)
-      {
-         var topMenuHeight = topMenuBar.layout(w);
-         y0 += topMenuHeight;
-         h -= topMenuHeight;
       }
 
+      var bottomOffset = 0;
       if (leftSlider!=null)
       {
          var size = leftSlider.setRect(x0,y0,w-slideBorders,h);
+         bottomOffset = Std.int(leftSlider.getBarHeight());
          x0+=size+slideBorders;
          w -=size+slideBorders;
       }
@@ -196,7 +218,7 @@ class App extends Screen
       {
          //var size = bottomSlider.setRect(x0,y0+slideBorders,w,h-slideBorders);
          //h -=size+slideBorders;
-         var size = bottomSlider.setRect(bottomX,y0+slideBorders,bottomW,h-slideBorders);
+         var size = bottomSlider.setRect(x0-bottomOffset,y0+slideBorders,w+bottomOffset,h-slideBorders);
          h -=size+slideBorders;
       }
  
@@ -206,48 +228,49 @@ class App extends Screen
       if (leftSlider!=null) leftSlider.checkChrome();
       if (rightSlider!=null) rightSlider.checkChrome();
       if (bottomSlider!=null) bottomSlider.checkChrome();
+
    }
 
    override public function scaleScreen(inScale:Float)
    {
-      doLayout();
+      relayout();
    }
 
    public function get_menubar() : Menubar
    {
       if (_menubar==null)
       {
-         #if (waxe && !nme_menu)
-         _menubar = new WxMenubar(this);
-         #else
-         _menubar = new SpriteMenubar(this);
-         #end
-         doLayout();
+         createMenubar();
+         relayout();
       }
       return _menubar;
    }
 
-   override public function onKeyDown(event:KeyboardEvent ) : Bool
-   {
-      if (super.onKeyDown(event))
-         return true;
-
-      var focusElem = stage.focus;
-      if (focusElem==null && !Std.is(focusElem,TextField))
-      {
-         if (topMenuBar!=null && topMenuBar==_menubar)
-            return topMenuBar.onKeyDown(event);
-      }
-      return false;
-   }
 
    public function sendMenuKey(event:KeyboardEvent ) : Bool
    {
-      if (topMenuBar!=null && topMenuBar==_menubar)
-         return topMenuBar.onKeyDown(event);
+      if (spriteMenuBar!=null && spriteMenuBar==_menubar)
+         return spriteMenuBar.onKeyDown(event);
       return false;
    }
 
+   override public function onKeyDown(event:KeyboardEvent ) : Bool
+   {
+      var focusElem = stage.focus;
+      if (focusElem==null && !Std.is(focusElem,TextField))
+         return sendMenuKey(event);
+      return false;
+   }
+
+   public function setStatus(s:String)
+   {
+      if (setStatus==null)
+         throw "setStatus - no statusBar";
+      statusBar.setText(s);
+   }
+
+
 }
+
 
 

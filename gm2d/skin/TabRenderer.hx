@@ -178,7 +178,9 @@ class TabRenderer
          w = tx + 3;
       }
 
-      var bitmap = new BitmapData(Std.int(w), tabHeight ,true, gm2d.RGB.CLEAR );
+      var limit = inRect.width;
+
+      var bitmap = new BitmapData(Std.int(Math.min(limit,w)), tabHeight ,true, gm2d.RGB.CLEAR );
       var display = new Bitmap(bitmap);
       var boxOffset = outHitBoxes.getHitBoxOffset(inTabContainer,inRect.x,inRect.y);
       display.x = inRect.x;
@@ -187,10 +189,14 @@ class TabRenderer
       for(but in buts)
          inTabContainer.addChild(but);
 
+      var gripClip:BitmapData = null;
       if (showGrip)
       {
          renderGripBackground(bitmap);
          outHitBoxes.add(new Rectangle(bitmap.width-tabHeight,boxOffset.y,tabHeight,tabHeight), GRIP );
+         limit -= tabHeight;
+         gripClip = new BitmapData(tabHeight,tabHeight,true,0);
+         gripClip.copyPixels(bitmap, new Rectangle(bitmap.width-tabHeight,0,tabHeight,tabHeight), new Point(0,0) );
       }
       else
          renderBackground(bitmap);
@@ -198,7 +204,7 @@ class TabRenderer
       gfx.clear();
 
 
-      var x = bitmap.width - 4.0;
+      var x = limit - 4.0;
       if ((inFlags & IS_OVERLAPPED)==0)
       {
          for(b in 0...buts.length)
@@ -433,6 +439,10 @@ class TabRenderer
           }
 
       }
+
+      // Rather than clipping the tab drawing, we will just past the grip back over the top
+      if (gripClip!=null)
+         bitmap.copyPixels(gripClip, new Rectangle(0,0,tabHeight,tabHeight), new Point(bitmap.width-tabHeight,0) );
 
       return new Rectangle(lastTab, 0, right-lastTab, tabHeight);
    }

@@ -258,6 +258,13 @@ class Skin
         "TextPlaceholderAlways" => {
            textAlign: "right",
            },
+        "StatusBar" => {
+           align: Layout.AlignLeft,
+           shape:ShapeRect,
+           fill: FillSolid(guiVeryDark,1),
+           textColor: guiLightText,
+           padding: scale(5),
+           },
         "PanelText" => {
            align: Layout.AlignRight,
            },
