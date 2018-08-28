@@ -340,10 +340,10 @@ class Game
    }
 
 
-   public static function removeTween(inName:String)
+   public static function removeTween(inName:String, inWithCallback = true)
    {
       if (mCurrentScreen!=null)
-         mCurrentScreen.timeline.remove(inName);
+         mCurrentScreen.timeline.remove(inName,inWithCallback);
    }
 
    public static function tween(inName:String,inVal0:Float,inVal1:Float,

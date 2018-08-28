@@ -85,12 +85,14 @@ class Timeline
          {
             if (tween.t1>time)
             {
-               tween.onUpdate( (time-tween.t0)/(tween.t1-tween.t0) );
+               if (tween.onUpdate!=null)
+                  tween.onUpdate( (time-tween.t0)/(tween.t1-tween.t0) );
                tweens.push(tween);
             }
             else
             {
-               tween.onUpdate(1.0);
+               if (tween.onUpdate!=null)
+                  tween.onUpdate(1.0);
                if (tween.onComplete!=null)
                   tween.onComplete();
             }
@@ -107,11 +109,14 @@ class Timeline
                      ?inEasing:Float->Float )
    {
       var tween = new Tween(inName, time, time+inSeconds, null, inOnComplete);
-      if (inEasing==null)
-          tween.onUpdate = function(x:Float) inOnUpdate( inVal0 + x*(inVal1-inVal0) );
-      else
-          tween.onUpdate = function(x:Float) inOnUpdate( inVal0 + inEasing(x)*(inVal1-inVal0) );
-      tween.onUpdate(0);
+      if (inOnUpdate!=null)
+      {
+         if (inEasing==null)
+            tween.onUpdate = function(x:Float) inOnUpdate( inVal0 + x*(inVal1-inVal0) );
+         else
+            tween.onUpdate = function(x:Float) inOnUpdate( inVal0 + inEasing(x)*(inVal1-inVal0) );
+         tween.onUpdate(0);
+      }
       tweens.push(tween);
       checkTimer();
    }

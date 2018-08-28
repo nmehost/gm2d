@@ -36,7 +36,6 @@ class ListControl extends ScrollWidget
    var mOrigItemHeight:Float;
    var mItemHeight:Float;
    var mSelected :Int;
-   var mListContents:Sprite;
    var mWidth:Float;
    var mMinWidth:Float;
    var mMinControlWidth:Float;
@@ -86,9 +85,8 @@ class ListControl extends ScrollWidget
       mStretchCol = null;
       onSelect = inOnSelect;
 
-      mListContents = new Sprite();
-      addChild(mListContents);
-      scrollTarget = mListContents;
+      makeContentContainer();
+
       scrollWheelStep = mOrigItemHeight;
       mControlHeight = 0.0;
 
@@ -126,8 +124,8 @@ class ListControl extends ScrollWidget
       //mWidth = mMinWidth;
       scrollWheelStep = mOrigItemHeight;
       graphics.clear();
-      while(mListContents.numChildren>0)
-         mListContents.removeChildAt(0);
+      while(contents.numChildren>0)
+         contents.removeChildAt(0);
       recalcPos();
    }
 
@@ -340,7 +338,7 @@ class ListControl extends ScrollWidget
             }
 
             row.push(obj);
-            mListContents.addChild(obj);
+            contents.addChild(obj);
          }
          else
             row.push(null);
@@ -588,7 +586,7 @@ class ListControl extends ScrollWidget
 
    public function drawBG()
    {
-      var gfx = mListContents.graphics;
+      var gfx = contents.graphics;
       gfx.clear();
 
       for(i in 0...mRows.length)
@@ -617,8 +615,8 @@ class ListControl extends ScrollWidget
 
    public function layoutList(inX:Float, inY:Float, inW:Float, inH:Float)
    {
-      mListContents.x = inX;
-      mListContents.y = inY;
+      contents.x = inX;
+      contents.y = inY;
       mWidth = inW;
       mHeight = inH;
       recalcPos();

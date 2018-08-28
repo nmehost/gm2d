@@ -25,7 +25,9 @@ class SlideBar extends Sprite implements IDock
    var minSize:Null<Int>;
    var maxSize:Null<Int>;
    var tabPos:Null<Int>;
-   var background:Widget;
+   //var background:Widget;
+   var chrome:Sprite;
+   var bgRect:Rectangle;
    var paneContainer:Sprite;
    var barContainer:Sprite;
    var overlayContainer:Sprite;
@@ -46,6 +48,7 @@ class SlideBar extends Sprite implements IDock
    var children:Array<IDockable>;
    var barDockable:IDockable;
    var tabRenderer:TabRenderer;
+   var renderer:Renderer;
    public var pinned(default,set_pinned):Bool;
    public var onPinned:Bool->Void;
    public var showText = true;
@@ -92,18 +95,26 @@ class SlideBar extends Sprite implements IDock
       pinned = false;
 
 
-      background = new Widget([ line, "Dock"]);
+      chrome = new Sprite();
+      addChild(chrome);
+      renderer = new Renderer(Skin.combineAttribs(["Dock"]));
+
+      /*
+      background = new Widget([ line, "Dock"], pane.frameAttribs);
       background.applyStyles();
       addChild(background);
+      */
+
       paneContainer = new Sprite();
       addChild(paneContainer);
       barContainer = new Sprite();
       addChild(barContainer);
       overlayContainer = new Sprite();
       addChild(overlayContainer);
-      hitBoxes = new HitBoxes(background,onHitBox);
-
-      new DockSizeHandler(background,overlayContainer,hitBoxes);
+      //hitBoxes = new HitBoxes(background,onHitBox);
+      //new DockSizeHandler(background,overlayContainer,hitBoxes);
+      hitBoxes = new HitBoxes(chrome,onHitBox);
+      new DockSizeHandler(chrome,overlayContainer,hitBoxes);
    }
 
    public function onHitBox(inAction:HitAction,inEvent:MouseEvent)
@@ -324,10 +335,7 @@ class SlideBar extends Sprite implements IDock
       }
 
       fullRect = new Rectangle(0,0,size.x,size.y);
-
-      background.getLayout().setRect(fullRect.x, fullRect.y, fullRect.width, fullRect.height+oy);
-      //trace( "Set BG " + fullRect.x +","+ fullRect.y +","+ fullRect.width +","+ fullRect.height+oy);
-
+      bgRect = new Rectangle(fullRect.x, fullRect.y, fullRect.width, fullRect.height+oy);
       chromeDirty = true;
 
       if (slideOver)
@@ -342,9 +350,28 @@ class SlideBar extends Sprite implements IDock
       {
          chromeDirty = false;
          hitBoxes.clear();
-         background.redraw();
-         if (current!=null)
-            current.renderChrome(background.mChrome,hitBoxes);
+
+         var gfx = chrome.graphics;
+         gfx.clear();
+         while(chrome.numChildren>0)
+            chrome.removeChildAt(0);
+
+
+         var fill:FillStyle = null;
+
+         var asPane = current!=null ? current.asPane() : null;
+         if (asPane!=null && bgRect!=null)
+         {
+            fill = Reflect.field(asPane.frameAttribs,"fill");
+            if (fill==null)
+               fill = renderer.getDynamic("fill");
+
+            if (fill!=null && fill!=FillNone)
+               if (Renderer.setFill(gfx,fill,null))
+                  gfx.drawRect(bgRect.x, bgRect.y, bgRect.width, bgRect.height);
+         }
+         else if (current!=null)
+            current.renderChrome(chrome,hitBoxes);
 
          var tallBar = false;
          var barHeight = getBarHeight();
@@ -382,7 +409,7 @@ class SlideBar extends Sprite implements IDock
             }
 
             // tabRect returns the gap after the tabs
-            var gapRect = tabRenderer.renderTabs(background.mChrome, tabRect, children, current,
+            var gapRect = tabRenderer.renderTabs(chrome, tabRect, children, current,
                 hitBoxes,  renderPos, flags, tabPos );
 
             if (barDockable!=null)

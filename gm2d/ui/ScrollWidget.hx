@@ -4,10 +4,12 @@ import nme.events.MouseEvent;
 import nme.events.Event;
 import nme.display.Stage;
 import nme.display.DisplayObject;
+import nme.display.Sprite;
 import nme.geom.Point;
 import nme.geom.Rectangle;
 import gm2d.tween.Tween;
 import gm2d.math.TimeAverage;
+import gm2d.skin.Skin;
 import haxe.Timer;
 
 class ScrollWidget extends Widget //Control
@@ -17,10 +19,17 @@ class ScrollWidget extends Widget //Control
    public var scrollWheelStep:Float;
    public var maxScrollX:Float;
    public var maxScrollY:Float;
+   public var controlW:Float;
+   public var controlH:Float;
    public var windowWidth:Float;
    public var windowHeight:Float;
    public var viscousity:Float;
    public var onScroll:Void->Void;
+   public var virtualScroll:Bool;
+   public var showScrollbarX:Bool;
+   public var showScrollbarY:Bool;
+   public var scrollbarAwake:Bool;
+
    var mScrollX:Float;
    var mScrollY:Float;
    var mDownPos:Point;
@@ -31,7 +40,10 @@ class ScrollWidget extends Widget //Control
    var mDownScrollY:Float;
    var mAutoScrollMouseWatch:MouseWatcher;
    var mAutoScrollTime:Float;
+   var contents:Sprite;
    var scrollTarget:DisplayObject;
+   var scrollbarContainer:Sprite;
+   var scrollbarActive:Bool;
    public var autoScrollRate = 500.0;
 
    // This is for a click, rather than mouse down-move-up
@@ -47,17 +59,120 @@ class ScrollWidget extends Widget //Control
       mEventStage = null;
       maxScrollX = 0;
       maxScrollY = 0;
+      controlW = controlH = 0.0;
       windowWidth = windowHeight = 0.0;
       mScrollX = mScrollY = 0.0;
-      scrollWheelStep = 20.0;
+      scrollWheelStep = Skin.scale(20);
       mScrolling = false;
       viscousity = 2500.0;
       scrollTarget = this;
       speedX = new TimeAverage(0.2);
       speedY = new TimeAverage(0.2);
-      addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+      virtualScroll = false;
+      showScrollbarX = true;
+      showScrollbarY = true;
+      scrollbarAwake = false;
+      scrollbarActive = false;
+      addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown, true);
       addEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
       addEventListener(MouseEvent.CLICK,onScrollClick,true);
+   }
+
+   public function makeContentContainer()
+   {
+      if (contents==null)
+      {
+         contents = new Sprite();
+         addChild(contents);
+         scrollTarget = contents;
+         if (scrollbarContainer!=null)
+             addChild(scrollbarContainer);
+      }
+      return contents;
+   }
+
+   public function updateScrollbars()
+   {
+      if (maxScrollX<=0 && maxScrollY<=0)
+         scrollbarActive = false;
+      var sx = maxScrollX>0 && showScrollbarX && (scrollbarAwake||scrollbarActive);
+      var sy = maxScrollY>0 && showScrollbarY && (scrollbarAwake||scrollbarActive);
+
+      if (sx || sy)
+      {
+         if (scrollbarContainer==null)
+         {
+            scrollbarContainer = new Sprite();
+            addChild(scrollbarContainer);
+            scrollbarContainer.addEventListener(MouseEvent.MOUSE_DOWN, onScrollbarDown);
+         }
+         var gfx  = scrollbarContainer.graphics;
+         gfx.clear();
+         var size = Skin.scale(24);
+         gfx.lineStyle(0,0x00000000);
+         if (sy)
+         {
+            gfx.beginFill(0x808080,0.25);
+            var h = windowHeight - (sx ? size : 0);
+            gfx.drawRect(windowWidth-size,0,size,h);
+            gfx.beginFill(0xffffff,0.75);
+            gfx.drawRect(windowWidth-size, mScrollY/controlH*h, size, windowHeight/controlH*h);
+         }
+
+      }
+      else if (scrollbarContainer!=null)
+      {
+         removeChild(scrollbarContainer);
+         scrollbarContainer = null;
+      }
+   }
+
+   function onScrollbarDragY(e:MouseEvent,offset:Float)
+   {
+      var localPos = scrollbarContainer.globalToLocal(new Point(e.stageX,e.stageY)).y;
+
+      var sx = maxScrollX>0 && showScrollbarX;
+      var size = Skin.scale(24);
+      var h = windowHeight - (sx ? size : 0);
+      if (h>0)
+         set_scrollY( (localPos-offset)*controlH/h );
+   }
+
+   function onScrollbarDown(e:MouseEvent)
+   {
+      e.stopPropagation();
+
+      var sx = maxScrollX>0 && showScrollbarX;
+      var sy = maxScrollY>0 && showScrollbarY;
+
+      var size = Skin.scale(24);
+      if (sy && e.localX>windowWidth-size)
+      {
+         var h = windowHeight - (sx ? size : 0);
+         var thumb0 = mScrollY/controlH*h;
+         var thumbH = windowHeight/controlH*h;
+
+         if (e.localY<thumb0-size/2)
+         {
+            // page-up
+            set_scrollY( Std.int(mScrollY - thumbH*maxScrollY/h) );
+            fadeupScrollbars();
+         }
+         else if (e.localY>thumb0+thumbH+size/2)
+         {
+            // page-down
+            set_scrollY( Std.int(mScrollY + thumbH*maxScrollY/h) );
+            fadeupScrollbars();
+         }
+         else
+         {
+            // drag
+            scrollbarActive = true;
+            var ypos = e.localY - thumb0;
+            MouseWatcher.watchDrag(scrollbarContainer, e.stageX,e.stageY, function(e) onScrollbarDragY(e,ypos),
+              function(_) { scrollbarActive = false; fadeupScrollbars(); } );
+         }
+      }
    }
 
 
@@ -79,21 +194,49 @@ class ScrollWidget extends Widget //Control
       }
    }
 
+   public function setVirtualSize(inControlWidth:Float, inControlHeight:Float)
+   {
+      controlW = inControlWidth;
+      controlH = inControlHeight;
+      if (mRect!=null)
+          setWindowSize( mRect.width, mRect.height );
+   }
+
+
+   public function setWindowSize(inWindowWidth:Float, inWindowHeight:Float)
+   {
+      windowWidth = inWindowWidth;
+      windowHeight = inWindowHeight;
+      maxScrollX = controlW - inWindowWidth;
+      if (maxScrollX<0) maxScrollX = 0;
+      maxScrollY = controlH- inWindowHeight;
+      if (maxScrollY<0) maxScrollY = 0;
+      if (mScrollX>maxScrollX)
+        mScrollX = maxScrollX;
+      if (mScrollY>maxScrollY)
+        mScrollY = maxScrollY;
+
+      if (virtualScroll)
+         scrollTarget.scrollRect = new Rectangle(0,0,windowWidth,windowHeight);
+      else
+         scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
+
+      updateScrollbars();
+   }
 
    public function setScrollRange(inControlWidth:Float, inWindowWidth:Float,
                            inControlHeight:Float, inWindowHeight:Float)
    {
-       windowWidth = inWindowWidth;
-       windowHeight = inWindowHeight;
-       maxScrollX = inControlWidth - inWindowWidth;
-       if (maxScrollX<0) maxScrollX = 0;
-       maxScrollY = inControlHeight - inWindowHeight;
-       if (maxScrollY<0) maxScrollY = 0;
-       if (mScrollX>maxScrollX)
-         mScrollX = maxScrollX;
-       if (mScrollY>maxScrollY)
-         mScrollY = maxScrollY;
-       scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
+      controlW = inControlWidth;
+      controlH = inControlHeight;
+      setWindowSize(inWindowWidth, inWindowHeight);
+   }
+
+   override public function onLayout(x,y,w,h)
+   {
+      super.onLayout(x,y,w,h);
+      //trace('onLayout $x,$y,$w,$h');
+      setWindowSize(w,h);
    }
 
    public function showChild(child:DisplayObject)
@@ -124,9 +267,8 @@ class ScrollWidget extends Widget //Control
    {
       if (maxScrollY>0 && scrollWheelStep>0)
       {
-          set_scrollY(mScrollY - scrollWheelStep * event.delta);
-          if (onScroll!=null)
-             onScroll();
+         set_scrollY(mScrollY - scrollWheelStep * event.delta);
+         fadeupScrollbars();
       }
    }
 
@@ -139,6 +281,9 @@ class ScrollWidget extends Widget //Control
    {
        if (!shouldBeginScroll(ev))
           return;
+       if (scrollbarContainer!=null && ev.target==scrollbarContainer)
+          return;
+       
 
        mLastT = Timer.stamp();
        mEventStage = stage;
@@ -146,6 +291,11 @@ class ScrollWidget extends Widget //Control
        mLastPos = mDownPos;
        mEventStage.addEventListener(MouseEvent.MOUSE_MOVE, onStageDrag);
        mEventStage.addEventListener(MouseEvent.MOUSE_UP, onStageUp);
+       if (mScrolling)
+       {
+          ev.stopPropagation();
+          ev.clickCancelled = true;
+       }
        mScrolling = false;
        //trace("Not scrolling!");
        mDownScrollX= mScrollX;
@@ -218,12 +368,36 @@ class ScrollWidget extends Widget //Control
          onClick(ev);
    }
 
+   public function fadeupScrollbars()
+   {
+      var tname = name + " scrollbar";
+      Game.removeTween(tname,false);
+
+
+      if ( (maxScrollX>0 && showScrollbarX ) || (maxScrollY>0 && showScrollbarY ) )
+       {
+          var seconds = 3;
+          if (!scrollbarAwake)
+          {
+             scrollbarAwake = true;
+             updateScrollbars();
+          }
+          Game.tween(tname,0,1, seconds, null, clearScrollbars  );
+       }
+   }
+
+   public function clearScrollbars()
+   {
+      if (scrollbarAwake)
+      {
+         scrollbarAwake = false;
+         updateScrollbars();
+      }
+   }
+
    public function scrollTo(inX:Float, inY:Float, inSeconds:Float = 0)
    {
       Game.removeTween(name);
-      var x0:Float = get_scrollX();
-      var y0:Float = get_scrollY();
-
 
       if (inSeconds==0)
       {
@@ -232,11 +406,14 @@ class ScrollWidget extends Widget //Control
       }
       else
       {
+         var x0:Float = get_scrollX();
+         var y0:Float = get_scrollY();
          Game.tween(name,0,1, inSeconds,
            function(t) {
               scrollX = Std.int(x0+(inX-x0)*t);
               scrollY = Std.int(y0+(inY-y0)*t);
            },  Tween.DECELERATE );
+          fadeupScrollbars();
        }
    }
 
@@ -251,27 +428,29 @@ class ScrollWidget extends Widget //Control
       else
       {
          Game.removeTween(name);
-         if (speedX.isValid)
+         var doX = speedX.isValid;
+         var doY = speedY.isValid;
+         if (doX || doY)
          {
-            var pixels_per_second = speedX.mean;
-            //trace("pixels_per_second : " + pixels_per_second);
-            var time = Math.abs(pixels_per_second/viscousity);
-            var dest = 0.5*pixels_per_second*time;
+
+            var pixels_per_second_x = speedX.mean;
+            var time_x = doX ? Math.abs(pixels_per_second_x/viscousity) : 0.0;
+            var dest_x = 0.5*pixels_per_second_x*time_x;
+
+            var pixels_per_second_y = speedY.mean;
+            var time_y = doY ? Math.abs(pixels_per_second_y/viscousity) : 0.0;
+            var dest_y = 0.5*pixels_per_second_y*time_y;
     
-            gm2d.Game.tween(name,mScrollX,mScrollX-dest, time,
-                function(x) scrollX = x, finishScroll, Tween.DECELERATE );
+            var x0 = scrollX;
+            var y0 = scrollY;
+
+            gm2d.Game.tween(name,0,1, Math.max(time_x,time_y),
+                function(t) {
+                   if (doX) scrollX = x0 - dest_x * t;
+                   if (doY) scrollY = y0 - dest_y * t;
+                }, finishScroll, Tween.DECELERATE );
          }
-         if (speedY.isValid)
-         {
-            var pixels_per_second = speedY.mean;
-            //trace("pixels_per_second : " + pixels_per_second);
-            var time = Math.abs(pixels_per_second/viscousity);
-            var dest = 0.5*pixels_per_second*time;
-    
-            gm2d.Game.tween(name,mScrollY,mScrollY-dest, time,
-                function(y) scrollY = y, finishScroll, Tween.DECELERATE );
-         }
-         if (!speedX.isValid && !speedY.isValid)
+         else
             finishScroll();
       }
       removeStageListeners();
@@ -284,13 +463,19 @@ class ScrollWidget extends Widget //Control
    public function get_scrollX() : Float{ return mScrollX; }
    public function set_scrollX(val:Float) : Float
    {
-      mScrollX = val;
-      if (mScrollX<0) mScrollX=0;
-      if (mScrollX>maxScrollX) mScrollX = maxScrollX;
-      scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
-      if (onScroll!=null)
-         onScroll();
-      invalidate();
+      var s = val;
+      if (s<0) s=0;
+      if (s>maxScrollX) s=maxScrollX;
+      if (s!=mScrollX)
+      {
+         mScrollX = s;
+         if (!virtualScroll)
+            scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
+         if (onScroll!=null)
+            onScroll();
+         updateScrollbars();
+         invalidate();
+      }
       return mScrollX;
    }
    public function get_scrollY() { return mScrollY; }
@@ -302,11 +487,13 @@ class ScrollWidget extends Widget //Control
       if (s!=mScrollY)
       {
          mScrollY = s;
-         scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
+         if (!virtualScroll)
+            scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
          if (onScroll!=null)
             onScroll();
+         updateScrollbars();
+         invalidate();
       }
-      invalidate();
       return mScrollY;
    }
 
@@ -331,7 +518,8 @@ class ScrollWidget extends Widget //Control
          mScrollY = mDownScrollY - dy;
          if (mScrollY<0) mScrollY = 0;
          if (mScrollY>maxScrollY) mScrollY= maxScrollY;
-         scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
+         if (!virtualScroll)
+            scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
          var plast = scrollTarget.globalToLocal(mLastPos);
          var dt = now-mLastT;
          if (dt>0)
@@ -343,8 +531,11 @@ class ScrollWidget extends Widget //Control
          invalidate();
          if (onScroll!=null)
             onScroll();
+         fadeupScrollbars();
+         updateScrollbars();
       }
       mLastT = now;
    }
+
 }
 
