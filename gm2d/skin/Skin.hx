@@ -302,7 +302,9 @@ class Skin
            },
 
         "Panel" => {
-           padding: scale(3),
+           padding: scale(10),
+           buttonGap: scale(10),
+           buttonSpacing: scale(10),
            },
         "MediumBg" => {
            fill: FillMedium,

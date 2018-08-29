@@ -42,14 +42,16 @@ class Panel extends Widget
       mItemGrid.setSpacing(mRenderer.getDefaultFloat("labelGap", 10),
                            mRenderer.getDefaultFloat("lineGap",10) );
       mButtonLayout = new GridLayout(null,"buttons");
-      mButtonLayout.setSpacing(10,0);
+      mButtonLayout.setSpacing(  mRenderer.getDefaultFloat("buttonSpacing",0) ,0);
       //mButtonLayout.setBorders(0,10,0,10);
-      mGridLayout.add(mItemGrid);
+      mGridLayout.add(mItemGrid.stretch());
       mGridLayout.setRowStretch(0,1);
       mGridLayout.setRowStretch(1,0);
       setItemLayout( mGridLayout );
       //build();
    }
+
+   public function getVerticalLayout() return mGridLayout;
 
    public function setButtonLayout(layout:Layout) mButtonLayout = layout;
 
@@ -106,7 +108,7 @@ class Panel extends Widget
    {
       if (mButtons.length==0)
       {
-         mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",10) );
+         mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",0) );
          mGridLayout.add(mButtonLayout);
       }
 
@@ -129,12 +131,20 @@ class Panel extends Widget
    {
       mLayoutDirty = true;
       addChild(inObj);
-      var layout = new DisplayLayout(inObj);
-      if (inAlign!=null)
-         layout.mAlign = inAlign;
+      if (Std.is(inObj,Widget))
+      {
+         var layout = cast(inObj,Widget).getLayout();
+         mItemGrid.add( layout );
+      }
       else
-         layout.mAlign = Layout.AlignStretch;
-      mItemGrid.add( layout );
+      {
+         var layout = new DisplayLayout(inObj);
+         if (inAlign!=null)
+            layout.mAlign = inAlign;
+         else
+            layout.mAlign = Layout.AlignStretch;
+         mItemGrid.add( layout );
+      }
    }
 
    public function addLabelObj(inLabel:String,inObj:DisplayObject,?inName:String,?inAlign:Null<Int>)
