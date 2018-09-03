@@ -53,6 +53,14 @@ class Dialog extends Window
          gm2d.Game.closeDialog();
    }
 
+   public static function showMessage(title:String, message:String)
+   {
+      var panel = new Panel(title);
+      panel.addLabel(message);
+      panel.addTextButton("Ok", Game.closeDialog );
+      new Dialog(panel.getPane()).show();
+   }
+
 
    public function show(inCentre = true, inAutoClose=true)
    {

@@ -1348,9 +1348,9 @@ class GridLayout extends Layout
 
 class VerticalLayout extends GridLayout
 {
-   public function new(?inRowStretch:Array<Float>,inColStretch = 1.0)
+   public function new(?inRowStretch:Array<Float>,inColStretch = 1.0,inName="VLayout")
    {
-      super(1,"VLayout");
+      super(1,inName);
       if (inRowStretch!=null)
          rowStretch(inRowStretch);
       setColStretch(0,inColStretch);
@@ -1360,9 +1360,9 @@ class VerticalLayout extends GridLayout
 
 class HorizontalLayout extends GridLayout
 {
-   public function new(?inColStretch:Array<Float>,inRowStretch=1.0)
+   public function new(?inColStretch:Array<Float>,inRowStretch=1.0,inName="HLayout")
    {
-      super(null,"HLayout");
+      super(null,inName);
       if (inColStretch!=null)
          colStretch(inColStretch);
       setRowStretch(0,inRowStretch);

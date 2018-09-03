@@ -32,7 +32,8 @@ class DocumentParent extends Sprite implements IDock implements IDockable
    var tabBar:TabBar;
    var mTopLevel:TopLevelDock;
    var mMaximizedPane:IDockable;
-   var mLayout:GridLayout;
+   var mLayout:Layout;
+   var singleDocument:Bool;
    var current:IDockable;
    var properties:Dynamic;
    var flags:Int;
@@ -41,10 +42,12 @@ class DocumentParent extends Sprite implements IDock implements IDockable
    var dockX:Float;
    var dockY:Float;
 
-   public function new()
+   public function new(inSingleDocument:Bool)
    {
       //super(["DocumentParent", "Dock", "Widget"] );
       super();
+
+      singleDocument = inSingleDocument;
 
       clientArea = new Sprite();
       clientArea.name = "Client area";
@@ -52,9 +55,12 @@ class DocumentParent extends Sprite implements IDock implements IDockable
       addChild(clientArea);
 
       mDockables = [];
-      tabBar = new TabBar(mDockables,onHitBox,true);
-      tabBar.applyStyles();
-      addChild(tabBar);
+      if (!singleDocument)
+      {
+         tabBar = new TabBar(mDockables,onHitBox,true);
+         tabBar.applyStyles();
+         addChild(tabBar);
+      }
 
       mChildren = [];
       mMaximizedPane = null;
@@ -64,14 +70,22 @@ class DocumentParent extends Sprite implements IDock implements IDockable
       current = null;
       flags = Dock.RESIZABLE;
 
-      mLayout = new GridLayout(1,"MDI");
-      mLayout.setAlignment(Layout.AlignStretch);
       clientLayout = new DisplayLayout(clientArea, Layout.AlignStretch, clientWidth, clientHeight);
       clientLayout.setAlignment(Layout.AlignStretch);
       clientLayout.onLayout = setClientSize;
-      mLayout.add(tabBar.getLayout());
-      mLayout.add( clientLayout );
-      mLayout.setRowStretch(0,0);
+
+      if (singleDocument)
+      {
+         mLayout =  clientLayout;
+      }
+      else
+      {
+         mLayout = new VerticalLayout([0,1],"MDI");
+         mLayout.setAlignment(Layout.AlignStretch);
+         mLayout.add(tabBar.getLayout());
+         mLayout.add( clientLayout );
+         //mLayout.setRowStretch(0,0);
+      }
       mLayout.setMinSize( Skin.scale(50), Skin.scale(50) );
    }
 
@@ -104,8 +118,10 @@ class DocumentParent extends Sprite implements IDock implements IDockable
       if (inPos!=DOCK_OVER)
          throw "Bad dock position";
       Dock.remove(inChild);
+      if (singleDocument && mDockables.length>0)
+         throw "Too many documents";
       mDockables.push(inChild);
-      if (mMaximizedPane==null && inChild.asPane()!=null)
+      if ( (mMaximizedPane==null && inChild.asPane()!=null) || singleDocument)
       {
          var pane = inChild.asPane();
          addFrame(pane);
@@ -433,7 +449,8 @@ class DocumentParent extends Sprite implements IDock implements IDockable
 
    function redrawTabs()
    {
-      tabBar.setTop(current, mMaximizedPane!=null);
+      if (tabBar!=null)
+         tabBar.setTop(current, mMaximizedPane!=null);
    }
 
 	function showPaneMenu(inX:Float, inY:Float)

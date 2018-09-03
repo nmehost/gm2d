@@ -32,7 +32,7 @@ class App extends Screen
    var statusBar:Widget;
    var statusHeight:Int;
 
-   public function new()
+   public function new(inSingleDocument=false)
    {
       super();
 
@@ -40,7 +40,7 @@ class App extends Screen
 
       //widgets = new WidgetManager();
 
-      docParent = new DocumentParent();
+      docParent = new DocumentParent(inSingleDocument);
 
       dock = new TopLevelDock(this,docParent);
 
