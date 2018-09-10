@@ -4,9 +4,9 @@ import nme.display.DisplayObjectContainer;
 
 class Lib
 {
-   public static var current(get_current,null) : DisplayObjectContainer;
+   public static var current(get,null) : DisplayObjectContainer;
    public static var debug:Bool = false;
-   public static var isOpenGL(get_isOpenGL,null):Bool;
+   public static var isOpenGL(get,null):Bool;
 
 
    static function get_current() : DisplayObjectContainer

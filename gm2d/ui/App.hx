@@ -21,7 +21,7 @@ import nme.net.SharedObject;
 class App extends Screen
 {
    var _menubar:Menubar;
-   public var menubar(get_menubar,null):Menubar;
+   public var menubar(get,null):Menubar;
    var spriteMenuBar:SpriteMenubar;
    var leftSlider:SlideBar;
    var rightSlider:SlideBar;

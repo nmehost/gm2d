@@ -14,8 +14,8 @@ import haxe.Timer;
 
 class ScrollWidget extends Widget //Control
 {
-   public var scrollX(get_scrollX,set_scrollX):Float;
-   public var scrollY(get_scrollY,set_scrollY):Float;
+   public var scrollX(get,set):Float;
+   public var scrollY(get,set):Float;
    public var scrollWheelStep:Float;
    public var maxScrollX:Float;
    public var maxScrollY:Float;

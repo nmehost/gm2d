@@ -584,7 +584,6 @@ class Skin
            }
       ];
 
-      return null;
    }
 
    public static function scaleBitmap(inBmp:BitmapData)

@@ -6,8 +6,8 @@ import nme.geom.Matrix;
 
 class Icon
 {
-   public var width(get_width,null) : Int;
-   public var height(get_height,null) : Int;
+   public var width(get,null) : Int;
+   public var height(get,null) : Int;
 
    function get_width() : Int { return 48; }
    function get_height() : Int { return 48; }

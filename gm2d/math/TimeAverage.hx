@@ -18,8 +18,8 @@ class TimeAverage
 {
    public var window:Float;
    public var samples:Array<TimedValue>;
-   public var mean(get_mean,null):Float;
-   public var isValid(get_isValid,null):Bool;
+   public var mean(get,null):Float;
+   public var isValid(get,null):Bool;
 
    public function new(inWindow:Float)
    {

@@ -33,11 +33,11 @@ class Game
    static public var isResizable = true;
    static public var frameRate = 30.0;
    static public var rotation:Int = 0;
-   static public var showFPS(get_showFPS,set_showFPS):Bool;
-   static public var fpsColor(get_fpsColor,set_fpsColor):Int;
+   static public var showFPS(get,set):Bool;
+   static public var fpsColor(get,set):Int;
    static public var backgroundColor = 0xffffff;
-   static public var title(default,set_title):String;
-   static public var icon(default,set_icon):String;
+   static public var title(default,set):String;
+   static public var icon(default,set):String;
    static public var debugLayout(get,set):Bool;
    static public var pixelAccurate:Bool = false;
    static public var toggleFullscreenOnAltEnter:Bool = false;
@@ -70,7 +70,7 @@ class Game
    static var mKeyDown = new Array<Bool>();
 
    static var screenStack = new Array<Screen>();
-   static public var screen(get_screen,null):Screen;
+   static public var screen(get,null):Screen;
 
 
    static public function create()

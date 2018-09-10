@@ -39,7 +39,7 @@ class Widget extends Sprite
 
    var styled:Bool;
 
-   public var text(get_text,set_text):String;
+   public var text(get,set):String;
 
 
    public var wantFocus:Bool;

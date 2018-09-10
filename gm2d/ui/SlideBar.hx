@@ -49,7 +49,7 @@ class SlideBar extends Sprite implements IDock
    var barDockable:IDockable;
    var tabRenderer:TabRenderer;
    var renderer:Renderer;
-   public var pinned(default,set_pinned):Bool;
+   public var pinned(default,set):Bool;
    public var onPinned:Bool->Void;
    public var showText = true;
    public var showPin = true;
