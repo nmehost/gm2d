@@ -586,10 +586,10 @@ class Skin
 
    }
 
-   public static function scaleBitmap(inBmp:BitmapData)
+   public static function scaleBitmap(inBmp:BitmapData,extraScale:Float=1.0)
    {
-      var w = scale(inBmp.width);
-      var h = scale(inBmp.height);
+      var w = scale(inBmp.width*extraScale);
+      var h = scale(inBmp.height*extraScale);
       var bitmap = new Bitmap(inBmp);
       var mtx = new nme.geom.Matrix(w/inBmp.width,0,0,h/inBmp.height,0,0);
 

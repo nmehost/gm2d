@@ -33,6 +33,9 @@ class KeyboardAccel
                case "Alt" : alt = true;
                case "Shift" : shift = true;
                case "Del" : code = Keyboard.DELETE;
+               case "PgUp" : code = Keyboard.PAGE_UP;
+               case "PgDn" : code = Keyboard.PAGE_DOWN;
+               case "Enter" : code = Keyboard.ENTER;
                default:
                   var upper= part.toUpperCase();
                   if (upper.charCodeAt(0)>='A'.code && upper.charCodeAt(0)<='Z'.code)
@@ -41,7 +44,9 @@ class KeyboardAccel
                   {
                      var f =  Reflect.field(Keyboard,upper);
                      if (Std.is(f,Int))
+                     {
                         code = f;
+                     }
                      else
                         throw "Unknown key : " + part;
                   }

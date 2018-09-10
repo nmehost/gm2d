@@ -23,7 +23,7 @@ class Panel extends Widget
    var mTitle:String;
    var mPane:Pane;
 
-   public function new(inTitle:String = "", ?inLineage:Array<String>, ?inAttribs:{})
+   public function new(inTitle:String = "",?inIcon:Image, ?inLineage:Array<String>, ?inAttribs:{})
    {
       if (inTitle!="")
          inAttribs = Widget.addAttribs(inAttribs, {title:inTitle});
@@ -39,12 +39,26 @@ class Panel extends Widget
       mItemGrid = new GridLayout(2,"items");
       mItemGrid.setColStretch(1,1);
       mItemGrid.setAlignment(Layout.AlignTop);
-      mItemGrid.setSpacing(mRenderer.getDefaultFloat("labelGap", 10),
-                           mRenderer.getDefaultFloat("lineGap",10) );
+      mItemGrid.setSpacing(mRenderer.getDefaultFloat("labelGap", Skin.scale(10)),
+                           mRenderer.getDefaultFloat("lineGap",Skin.scale(10)) );
       mButtonLayout = new GridLayout(null,"buttons");
       mButtonLayout.setSpacing(  mRenderer.getDefaultFloat("buttonSpacing",0) ,0);
       //mButtonLayout.setBorders(0,10,0,10);
-      mGridLayout.add(mItemGrid.stretch());
+
+      if (inIcon!=null)
+      {
+         var hLayout = new HorizontalLayout([0,1]);
+         addChild(inIcon);
+         hLayout.add(inIcon.getLayout());
+         hLayout.add(mItemGrid.stretch());
+         hLayout.setSpacing(mRenderer.getDefaultFloat("labelGap", Skin.scale(10)),
+                           mRenderer.getDefaultFloat("lineGap",Skin.scale(10)) );
+         mGridLayout.add(hLayout.stretch());
+      }
+      else
+      {
+         mGridLayout.add(mItemGrid.stretch());
+      }
       mGridLayout.setRowStretch(0,1);
       mGridLayout.setRowStretch(1,0);
       setItemLayout( mGridLayout );
