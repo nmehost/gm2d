@@ -115,6 +115,11 @@ class Panel extends Widget
    public function addUI(inItem:gm2d.ui.Widget)
    {
       mLayoutDirty = true;
+       if (inItem==null)
+      {
+         mItemGrid.add(null);
+         return;
+      }
       addChild(inItem);
       mItemGrid.add( inItem.getLayout().stretch() );
    }

@@ -299,7 +299,7 @@ class SideDock extends Layout implements IDock implements IDockable
       }
       else
       {
-         var best_total = 0;
+         var best_total = 0.0;
          var min_sizes = new Array<Int>();
          var best_sizes = new Array<Int>();
          var stretch_weight = new Array<Float>();
