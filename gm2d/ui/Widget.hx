@@ -368,6 +368,18 @@ class Widget extends Sprite
    }
 
    
+   public function set(inValue:Dynamic) : Void
+   {
+      if ( (inValue!=null && inValue!="") )
+         setText(inValue);
+   }
+
+   public function get(inValue:Dynamic) : Void
+   {
+      if (Reflect.hasField(inValue,name))
+         Reflect.setField(inValue, name, getText() );
+   }
+
 
    public function setText(inText:String) : Void
    {

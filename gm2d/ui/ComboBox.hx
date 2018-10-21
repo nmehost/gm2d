@@ -99,6 +99,7 @@ class ComboBox extends TextInput
    public var onPopup:ComboBox->Void;
    public var selectOnMove = true;
    public var indexHandler(default,set):AdoHandler<Int>;
+   public var listOnly:Bool;
 
    public function new(inVal="", ?inOptions:Array<String>, ?inDisplay:Array<Dynamic>,
        ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void, ?inLineage:Array<String>, ?inAttribs:{})
@@ -131,6 +132,7 @@ class ComboBox extends TextInput
 
        super(inVal, inOnSelectString, Widget.addLine(inLineage,"ComboBox"), inAttribs);
 
+       listOnly = attribBool("listOnly",false);
        selectOnMove = attribBool("selectOnMove",true);
 
        mOptions = inOptions==null ? null : inOptions.copy();
@@ -138,7 +140,29 @@ class ComboBox extends TextInput
        //addChild(mText);
        addEventListener(MouseEvent.CLICK, onClick );
        updateIndex();
+       if (listOnly && index<0)
+          setText(inVal);
    }
+
+   override public function set(inValue:Dynamic) : Void
+   {
+      if (Std.is(inValue,Int))
+         setIndex(inValue);
+      else
+         setText(inValue);
+   }
+
+   override public function get(inValue:Dynamic) : Void
+   {
+      if (Reflect.hasField(inValue,name))
+      {
+         if (Std.is(Reflect.field(inValue,name),Int))
+            Reflect.setField(inValue, name, index );
+         else
+            Reflect.setField(inValue, name, getText() );
+      }
+   }
+
 
    function onClick(event:MouseEvent)
    {
@@ -224,8 +248,25 @@ class ComboBox extends TextInput
 
    override public function setText(inText:String)
    {
-       mText.text = inText;
-       updateIndex();
+      if (listOnly)
+      {
+         if (mOptions!=null)
+         {
+            index = mOptions.indexOf(inText);
+            if (index<0 && mOptions.length>=1)
+               index = 0;
+            if (index>=0)
+            {
+               mText.text = mOptions[index];
+               checkPlaceholder();
+            }
+         }
+      }
+      else
+      {
+         mText.text = inText;
+         updateIndex();
+      }
    }
 
    function updateIndex()

@@ -28,7 +28,7 @@ class TextLabel extends Widget
        //mText.backgroundColor = 0xffffff;
        addChild(mText);
 
-       isInput = attribBool("isInput",false);
+       isInput = attribBool("isInput",false) && !attribBool("listOnly",false);
        processSpecial = attribBool("processSpecial",false);
 
        if (isInput)

@@ -81,6 +81,45 @@ class Panel extends Widget
       return dlg;
    }
 
+   public function bindOk(data:Dynamic, onOk:Void->Void, addCancel:Bool=false)
+   {
+      set(data);
+      addTextButton("Ok", function() { get(data); if (onOk!=null) onOk(); Game.closeDialog(); } );
+      var layout = getPane().getLayout();
+      var w = Math.max( layout.getBestWidth(), Skin.scale(500) );
+      w = Math.min( w, nme.Lib.current.stage.stageWidth );
+      layout.setMinWidth(w);
+      showDialog();
+   }
+
+
+   override public function get(data:Dynamic)
+   {
+      for(i in 0...numChildren)
+      {
+         var w = getChildAt(i);
+         if (w!=null && Std.is(w,Widget))
+         {
+            var widget:Widget = cast w;
+            widget.get(data);
+         }
+      }
+   }
+
+   override public function set(data:Dynamic)
+   {
+      for(i in 0...numChildren)
+      {
+         var w = getChildAt(i);
+         if (w!=null && Std.is(w,Widget))
+         {
+            var widget:Widget = cast w;
+            if (Reflect.hasField(data,w.name))
+               widget.set( Reflect.field(data,w.name) );
+         }
+      }
+   }
+
 
    public function setStretchX(inItemStretch:Int=33)
    {

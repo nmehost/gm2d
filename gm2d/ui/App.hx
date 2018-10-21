@@ -264,7 +264,7 @@ class App extends Screen
 
    public function setStatus(s:String)
    {
-      if (setStatus==null)
+      if (statusBar==null)
          throw "setStatus - no statusBar";
       statusBar.setText(s);
    }

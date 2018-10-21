@@ -151,6 +151,19 @@ class Slider extends Control
       }
    }
 
+   override public function set(inValue:Dynamic) : Void
+   {
+      setValue(inValue);
+   }
+
+   
+   override public function get(inValue:Dynamic) : Void
+   {
+      if (Reflect.hasField(inValue,name))
+         Reflect.setField(inValue, name, getValue() );
+   }
+
+
    public function setValueQuiet(inPos:Float)
    {
       mValue = inPos;
