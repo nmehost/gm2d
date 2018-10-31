@@ -19,6 +19,8 @@ class ProgressDialog extends Dialog
       if (inOnCancel!=null)
          panel.addButton( Button.TextButton("Cancel", inOnCancel ) );
 
+      panel.setSizeHint(500);
+
       return new ProgressDialog(panel.getPane(),progress);
    }
 

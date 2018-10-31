@@ -81,14 +81,19 @@ class Panel extends Widget
       return dlg;
    }
 
+   public function setSizeHint(pix:Int)
+   {
+      var layout = getPane().getLayout();
+      var w = Math.max( layout.getBestWidth(), Skin.scale(pix) );
+      w = Math.min( w, nme.Lib.current.stage.stageWidth );
+      layout.setMinWidth(w);
+   }
+
    public function bindOk(data:Dynamic, onOk:Void->Void, addCancel:Bool=false)
    {
       set(data);
-      addTextButton("Ok", function() { get(data); if (onOk!=null) onOk(); Game.closeDialog(); } );
-      var layout = getPane().getLayout();
-      var w = Math.max( layout.getBestWidth(), Skin.scale(500) );
-      w = Math.min( w, nme.Lib.current.stage.stageWidth );
-      layout.setMinWidth(w);
+      addTextButton("Ok", function() { get(data); Game.closeDialog(); if (onOk!=null) onOk();} );
+      setSizeHint(500);
       showDialog();
    }
 

@@ -88,6 +88,11 @@ class Ado
       updateText();
    }
 
+   public function hasBegun()
+   {
+      return edit!=null;
+   }
+
    public function updateText()
    {
       var uText:String = edits!=null && edits.length>0 ? edits[edits.length-1].name : null;
