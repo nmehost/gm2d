@@ -1355,6 +1355,16 @@ class VerticalLayout extends GridLayout
          rowStretch(inRowStretch);
       setColStretch(0,inColStretch);
    }
+
+
+   public override function add(inLayout:Layout) : Layout
+   {
+      if (mRowInfo!=null &&  mRowInfo[mPos]!=null)
+         if (mRowInfo[mPos].mStretch>0)
+            inLayout.stretch();
+
+      return super.add(inLayout);
+   }
 }
 
 
@@ -1366,6 +1376,15 @@ class HorizontalLayout extends GridLayout
       if (inColStretch!=null)
          colStretch(inColStretch);
       setRowStretch(0,inRowStretch);
+   }
+
+   public override function add(inLayout:Layout) : Layout
+   {
+      if (mColInfo!=null &&  mColInfo[mPos]!=null)
+         if (mColInfo[mPos].mStretch>0)
+            inLayout.stretch();
+
+      return super.add(inLayout);
    }
 }
 

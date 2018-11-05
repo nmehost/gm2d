@@ -9,6 +9,7 @@ import gm2d.ui.Layout;
 import gm2d.ui.TextLabel;
 import gm2d.skin.Renderer;
 import gm2d.skin.Skin;
+import nme.net.SharedObject;
 
 typedef Hash<T> = haxe.ds.StringMap<T>;
 
@@ -89,10 +90,10 @@ class Panel extends Widget
       layout.setMinWidth(w);
    }
 
-   public function bindOk(data:Dynamic, onOk:Void->Void, addCancel:Bool=false)
+   public function bindOk(data:Dynamic, onOk:Void->Void, addCancel:Bool=false,?rememberKey:String)
    {
-      set(data);
-      addTextButton("Ok", function() { get(data); Game.closeDialog(); if (onOk!=null) onOk();} );
+      setAndRestore(data,rememberKey);
+      addTextButton("Ok", function() { getAndStore(data,rememberKey); Game.closeDialog(); if (onOk!=null) onOk();} );
       setSizeHint(500);
       showDialog();
    }
@@ -109,6 +110,55 @@ class Panel extends Widget
             widget.get(data);
          }
       }
+   }
+
+   public function getAndStore(data:Dynamic,rememberKey:String)
+   {
+      get(data);
+
+      if (rememberKey!=null)
+      {
+         var def = SharedObject.getLocal("panelData");
+         if (def!=null)
+         {
+            var d:Dynamic = { };
+            for(i in 0...numChildren)
+            {
+               var w = getChildAt(i);
+               if (w!=null && Std.is(w,Widget))
+               {
+                  var key = w.name;
+                  Reflect.setField(d, key, Reflect.field(data,key) );
+               }
+            }
+            def.setProperty(rememberKey, d);
+            def.flush();
+         }
+      }
+   }
+
+   public function setAndRestore(data:Dynamic,rememberKey:String)
+   {
+      if (rememberKey!=null)
+      {
+         var def = SharedObject.getLocal("panelData");
+         if (def!=null)
+         {
+            var d = Reflect.field(def,rememberKey);
+            if (d!=null)
+            {
+               for(key in Reflect.fields(d))
+               {
+                  var now = Reflect.field(data,key);
+                  var stored = Reflect.field(d,key);
+                  if ( stored!=null )
+                      Reflect.setField(data, key, stored);
+               }
+            }
+         }
+      }
+
+      set(data);
    }
 
    override public function set(data:Dynamic)
