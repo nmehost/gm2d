@@ -144,15 +144,15 @@ class Panel extends Widget
          var def = SharedObject.getLocal("panelData");
          if (def!=null)
          {
-            var d = Reflect.field(def,rememberKey);
+            var d:Dynamic = Reflect.field(def.data,rememberKey);
             if (d!=null)
             {
-               for(key in Reflect.fields(d))
+               for(key in Reflect.fields(d) )
                {
                   var now = Reflect.field(data,key);
                   var stored = Reflect.field(d,key);
                   if ( stored!=null )
-                      Reflect.setField(data, key, stored);
+                     Reflect.setField(data, key, stored);
                }
             }
          }

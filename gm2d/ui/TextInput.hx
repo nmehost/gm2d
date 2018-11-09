@@ -88,6 +88,13 @@ class TextInput extends TextLabel
       checkPlaceholder();
    }
 
+   override public function set(data:Dynamic)
+   {
+      if (Std.is(data,String) && data!="")
+         setText(data);
+   }
+
+
    override public function redraw()
    {
       super.redraw();
