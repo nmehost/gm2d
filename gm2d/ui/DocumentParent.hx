@@ -130,7 +130,7 @@ class DocumentParent extends Sprite implements IDock implements IDockable
       }
       else
       {
-         inChild.setDock(this,clientArea);
+         inChild.setDock(this,null);
          redrawTabs();
       }
    }

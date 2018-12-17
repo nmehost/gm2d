@@ -95,6 +95,14 @@ class TextInput extends TextLabel
    }
 
 
+   override public function get(inValue:Dynamic) : Void
+   {
+      if (Reflect.hasField(inValue,name))
+         Reflect.setField(inValue, name, getText() );
+   }
+
+
+
    override public function redraw()
    {
       super.redraw();
