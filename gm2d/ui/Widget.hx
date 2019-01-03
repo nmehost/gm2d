@@ -303,6 +303,7 @@ class Widget extends Sprite
       }
       if (mRenderer!=null)
       {
+         mRenderer.layoutWidget(this);
          var tf = getLabel();
          if (tf!=null)
          {
@@ -329,8 +330,6 @@ class Widget extends Sprite
                tf.text = t0;
             }
          }
-
-         mRenderer.layoutWidget(this);
       }
 
       var size = mLayout.getBestSize();
