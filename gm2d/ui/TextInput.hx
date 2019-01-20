@@ -14,15 +14,16 @@ class TextInput extends TextLabel
 {
    public var onTextUpdate:String->Void;
    public var onTextEnter:String->Void;
-   public var textHandler(default,set):AdoHandler<String>;
+   public var onTextPhase:String->Int->Void;
    public var placeholder:String;
    public var placeholderField:TextField;
 
    var isEditing:Bool;
 
-   public function new(inVal="", ?inOnText:String->Void,?inLineage:Array<String>,?inAttribs:Dynamic)
+   public function new(inVal="", ?inOnText:String->Void, ?inOnTextPhase:String->Int->Void, ?inLineage:Array<String>,?inAttribs:Dynamic)
    {
        placeholder = null;
+       onTextPhase = inOnTextPhase;
        super(inVal,Widget.addLine(inLineage,"TextInput"),inAttribs);
        placeholder = attribString("placeholder",null);
        wantFocus = true;
@@ -113,25 +114,18 @@ class TextInput extends TextLabel
    }
 
 
-   function set_textHandler(inHandler:AdoHandler<String>)
-   {
-      textHandler = inHandler;
-      textHandler.updateGui = setText;
-      return textHandler;
-   }
-
    function textUpdate(inValue:String)
    {
       checkPlaceholder();
       if (onTextUpdate!=null)
          onTextUpdate(inValue);
-      if (textHandler!=null)
+      if (onTextPhase!=null)
       {
          var phase = Phase.UPDATE;
          if (!isEditing)
             phase |= Phase.BEGIN;
          isEditing = true;
-         textHandler.onValue(mText.text, phase);
+         onTextPhase(mText.text, phase);
       }
    }
 
@@ -143,13 +137,13 @@ class TextInput extends TextLabel
          if (onTextEnter!=null)
             onTextEnter(mText.text);
 
-         if (textHandler!=null)
+         if (onTextPhase!=null)
          {
             var phase = Phase.END | Phase.UPDATE;
             if (!isEditing)
                phase |= Phase.BEGIN;
             isEditing = false;
-            textHandler.onValue(mText.text, phase);
+            onTextPhase(mText.text, phase);
          }
       }
    }
@@ -159,7 +153,8 @@ class TextInput extends TextLabel
       if (isEditing && !inVal)
       {
          isEditing = false;
-         textHandler.finishEdit();
+         if (onTextPhase!=null)
+            onTextPhase(mText.text, Phase.END );
       }
       return super.set_isCurrent(inVal);
    }

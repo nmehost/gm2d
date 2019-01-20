@@ -51,9 +51,11 @@ class ListControl extends ScrollWidget
    var mHoldUpdates = 0;
 
    public var onSelect:Int->Void;
+   public var onSelectPhase:Int->Int->Void;
    public var onMultiSelect:Array<Bool>->Void;
    public var mXGap:Float;
    public var mTextSelectable:Bool;
+   public var firstSelect = true;
   
    var    evenRenderer:Renderer;
    var    oddRenderer:Renderer;
@@ -482,6 +484,16 @@ class ListControl extends ScrollWidget
                mMultiSelect = null;
                if (onSelect!=null && (inFlags&SELECT_NO_CALLBACK)==0)
                   onSelect(i);
+               if (onSelectPhase!=null && (inFlags&SELECT_NO_CALLBACK)==0 )
+               {
+                  var phase = (inFlags&SELECT_FROM_CLICK)>0 ? Phase.END : firstSelect ? Phase.BEGIN : Phase.UPDATE;
+                  if (firstSelect && phase==Phase.END)
+                     phase = Phase.ALL;
+                  firstSelect = false;
+                  onSelectPhase(i,phase);
+                  if ((inFlags&SELECT_FROM_CLICK)>0)
+                     firstSelect = true;
+               }
             }
 
             if (mHoldUpdates==0)

@@ -228,7 +228,7 @@ class Panel extends Widget
       mLayoutDirty = true;
       addChild(inButton);
       mButtons.push(inButton);
-      mButtonLayout.add( inButton.getLayout() );
+      mButtonLayout.add( inButton.getLayout().stretch() );
    }
 
    public function addTextButton(inText:String, ?inOnClick:Void->Void)

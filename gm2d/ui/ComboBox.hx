@@ -27,7 +27,7 @@ class ComboList extends Window
       mList.addItems(inOptions);
       addChild(mList);
       mList.scrollRect = null;
-      mList.onSelect = onSelect;
+      mList.onSelectPhase = onSelectPhase;
       mList.onClick = function(_)  gm2d.Game.closePopup();
       setItemLayout(mList.getLayout().setMinWidth(inW).stretch());
       //build();
@@ -71,12 +71,21 @@ class ComboList extends Window
       mList.redraw();
    }
 */
-   public function onSelect(idx:Int)
+   public function onSelectPhase(idx:Int,phase:Int)
    {
       if (idx>=0)
-         mCombo.onListSelect(idx);
+         mCombo.onListSelect(idx,phase);
       if (closeLockout==0)
          gm2d.Game.closePopup();
+   }
+   public function onClosePopup()
+   {
+      if (closeLockout==0 && !mList.firstSelect)
+      {
+         var sel = mList.getSelected();
+         if (sel>=0)
+            mCombo.onListSelect(sel, Phase.END);
+      }
    }
 
    override public function destroy()
@@ -100,9 +109,10 @@ class ComboBox extends TextInput
    public var selectOnMove = true;
    public var indexHandler(default,set):AdoHandler<Int>;
    public var listOnly:Bool;
+   public var onItemPhase:Int->Int->Void;
 
    public function new(inVal="", ?inOptions:Array<String>, ?inDisplay:Array<Dynamic>,
-       ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void, ?inLineage:Array<String>, ?inAttribs:{})
+       ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void, ?inOnTextPhase:String->Int->Void, ?inLineage:Array<String>, ?inAttribs:{})
    {
        index = -1;
        onItem = inOnSelectIndex;
@@ -130,7 +140,7 @@ class ComboBox extends TextInput
           mBMP.draw(shape);
        }
 
-       super(inVal, inOnSelectString, Widget.addLine(inLineage,"ComboBox"), inAttribs);
+       super(inVal, inOnSelectString, inOnTextPhase, Widget.addLine(inLineage,"ComboBox"), inAttribs);
 
        listOnly = attribBool("listOnly",false);
        selectOnMove = attribBool("selectOnMove",true);
@@ -193,7 +203,7 @@ class ComboBox extends TextInput
    }
 
 
-   public function onListSelect(inIndex:Int)
+   public function onListSelect(inIndex:Int,phase:Int)
    {
       index = inIndex;
       if (mOptions!=null)
@@ -201,9 +211,13 @@ class ComboBox extends TextInput
          setText(mOptions[inIndex]);
          if (onText!=null)
             onText( mOptions[inIndex]);
+         if (onTextPhase!=null)
+            onTextPhase( mOptions[inIndex], phase);
       }
       if (onItem!=null)
          onItem(inIndex);
+      if (onItemPhase!=null)
+         onItemPhase(inIndex,phase);
    }
 
    function doPopup()
@@ -225,17 +239,17 @@ class ComboBox extends TextInput
       if (h+pos.y+22 < stage.stageHeight)
       {
          pop.getLayout().setRect(pop.x,pop.y,w,h);
-         gm2d.Game.popup(pop,pos.x,pos.y+offset);
+         gm2d.Game.popup(pop,pos.x,pos.y+offset, pop.onClosePopup);
       }
       else if (below>=above)
       {
          pop.getLayout().setRect(pop.x,pop.y,w,below);
-         gm2d.Game.popup(pop,pos.x,pos.y+offset);
+         gm2d.Game.popup(pop,pos.x,pos.y+offset, pop.onClosePopup);
       }
       else
       {
          pop.getLayout().setRect(pop.x,pop.y,w,above);
-         gm2d.Game.popup(pop,pos.x,pos.y-above);
+         gm2d.Game.popup(pop,pos.x,pos.y-above, pop.onClosePopup);
       }
    }
 
