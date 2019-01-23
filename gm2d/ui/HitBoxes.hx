@@ -252,7 +252,10 @@ class HitBoxes
          break;
       }
 
-      var moved = (downPane!=null) && (!mMoved) && (Math.abs(inX-downX)>5 || Math.abs(inY-downY)>5);
+      var dragDist = gm2d.skin.Skin.scale(20);
+      var dx = inX-downX;
+      var dy = inY-downY;
+      var moved = (downPane!=null) && (!mMoved) && ( (dx*dx + dy*dy) > dragDist*dragDist );
       if (moved)
       {
          mMoved = true;

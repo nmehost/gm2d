@@ -35,6 +35,16 @@ class TextInput extends TextLabel
 
        mText.addEventListener(nme.events.Event.CHANGE, function(_) textUpdate(mText.text) );
        mText.addEventListener(KeyboardEvent.KEY_DOWN, keyDown );
+       mText.addEventListener(MouseEvent.RIGHT_CLICK, onContextMenu );
+   }
+
+   function onContextMenu(e:MouseEvent)
+   {
+      var items = new MenuItem("Text");
+      items.add( new MenuItem("Copy", _ -> mText.sendCopy()) );
+      items.add( new MenuItem("Paste", _ -> mText.sendPaste()) );
+
+      Game.popup( new PopupMenu(items), e.stageX, e.stageY );
    }
 
    function alwaysPlaceholder() return mText.text=="";
