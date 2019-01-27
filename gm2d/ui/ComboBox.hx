@@ -53,7 +53,7 @@ class ComboList extends Window
       //if (selectOnMove)
       {
          closeLockout++;
-         var pos = mList.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
+         var pos = mList.toLocal( inEvent.stageX, inEvent.stageY );
          mList.selectByY(pos.y, selectOnMove ? 0 : ListControl.SELECT_NO_CALLBACK );
          closeLockout--;
       }

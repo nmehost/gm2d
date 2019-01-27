@@ -23,6 +23,7 @@ class NumericInput extends TextInput
    public var popupMode:Int;
    public var quantization:Float;
    public var maxBar:Float;
+   public var minBar:Float;
    public var value(get,set):Float;
    public var handler(default,set):AdoHandler<Float>;
 
@@ -40,6 +41,7 @@ class NumericInput extends TextInput
    var newDrag:Bool;
    var textChanged:Bool;
    var dynamicMax:Bool;
+   var dynamicMin:Bool;
    var init:Bool;
    static var SLIDER_W = 22;
 
@@ -50,7 +52,18 @@ class NumericInput extends TextInput
       super(Std.string(inVal),onUpdateText, Widget.addLine(inLineage,"NumericInput"), inAttribs);
 
       isInteger = attribBool("isInteger",false);
-      min = attribFloat("minValue");
+      var minVal:Dynamic = attrib("minValue");
+      if (minVal==null)
+      {
+         max = -1e20;
+         dynamicMin = true;
+      }
+      else
+      {
+         dynamicMin = false;
+         min = minVal;
+      }
+
       var maxVal:Dynamic = attrib("maxValue");
       if (maxVal==null)
       {
@@ -63,6 +76,7 @@ class NumericInput extends TextInput
          max = maxVal;
       }
       maxBar = max;
+      minBar = min;
       fullValue = inVal;
       textChanged = false;
       if (fullValue<min)
@@ -87,8 +101,8 @@ class NumericInput extends TextInput
       init = true;
       if (restrictedValue!=inVal)
          setValue(restrictedValue);
-      if (dynamicMax)
-         updateMax();
+      if (dynamicMax || dynamicMin)
+         updateMinMax();
       else
          redrawBar();
    }
@@ -134,21 +148,28 @@ class NumericInput extends TextInput
       return getValue();
    }
 
-   function updateMax()
+   function updateMinMax()
    {
+      if (dynamicMin)
+      {
+         minBar = restrictedValue>-1 ? -5 : restrictedValue * 5;
+         if (minBar>=max)
+            minBar = max;
+      }
       if (dynamicMax)
       {
          maxBar = restrictedValue<1 ? 5 : restrictedValue * 5;
          if (maxBar<=min)
             maxBar = min + 1;
-         redrawBar();
       }
+
+      redrawBar();
    }
 
    public function set_value(inValue:Float) : Float
    {
       setValue(inValue);
-      updateMax();
+      updateMinMax();
       return restrictedValue;
    }
 
@@ -193,7 +214,7 @@ class NumericInput extends TextInput
       if (textWatcher.wasDragged)
       {
          setTextEditMode(false);
-         var range =maxBar-min;
+         var range =maxBar-minBar;
          if (range>0)
          {
             var x = mText.globalToLocal( new Point(e.stageX, e.stageY) ).x;
@@ -208,7 +229,7 @@ class NumericInput extends TextInput
 
    public function onTextUp(e:MouseEvent)
    {
-      updateMax();
+      updateMinMax();
 
       if (!textWatcher.wasDragged && isInput)
          setTextEditMode(true);
@@ -265,7 +286,7 @@ class NumericInput extends TextInput
       underlay.x = mText.x;
       underlay.y = mText.y;
       var gfx = underlay.graphics;
-      var range = maxBar-min;
+      var range = maxBar-minBar;
       if (range>0)
       {
          gfx.clear();
@@ -311,7 +332,7 @@ class NumericInput extends TextInput
       slider.x = sliderX;
       slider.y = 0;
       sliderWatcher = null;
-      updateMax();
+      updateMinMax();
       if (onEnter!=null)
          onEnter(restrictedValue);
       if (onUpdate!=null)
@@ -362,7 +383,7 @@ class NumericInput extends TextInput
          if (restrictedValue>max)
             restrictedValue = max;
 
-         updateMax();
+         updateMinMax();
          redrawBar();
 
          if (onEnter!=null)

@@ -538,7 +538,7 @@ class ListControl extends ScrollWidget
 
    public function indexFromMouse(ev:MouseEvent):Int
    {
-      var local =  globalToLocal( new Point(ev.stageX,ev.stageY) );
+      var local =  scrollTarget.globalToLocal( new Point(ev.stageX,ev.stageY) );
       if (local.y<=0)
          return -1;
 
@@ -577,6 +577,11 @@ class ListControl extends ScrollWidget
       if (idx<mRowPos.length)
          select(idx,inFlags);
       return -1;
+   }
+
+   public function toLocal(stageX:Float, stageY:Float)
+   {
+      return scrollTarget.globalToLocal( new Point(stageX,stageY) );
    }
 
    override function doClick(inX:Float, inY:Float,ev:MouseEvent)
