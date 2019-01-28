@@ -211,6 +211,11 @@ class RGBHSV
       else if (alpha>255) alpha = 255;
       return (alpha<<24) | (r<<16)|(g<<8)|b;
    }
+   public function getAlpha() : Float
+   {
+      return a;
+   }
+
 
    public function toString() { return "#" + StringTools.hex(getRGBA(),8); }
 

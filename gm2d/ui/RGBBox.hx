@@ -18,12 +18,12 @@ class RGBBox extends Widget
    var mShowAlpha:Bool;
    var rgbDialog:RGBDialog;
 
-   public function new(inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Int->Void, inAttribs:{ })
+   public function new(inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Int->Void, ?inAttribs:{ })
    {
       super(null,inAttribs);
       mShowAlpha = inShowAlpha;
       onColourChange = inOnColour;
-      mColour = inColour.clone();
+      mColour = inColour==null ? new RGBHSV( ) : inColour.clone();
       updateLockout = 0;
 
       var fmt = new nme.text.TextFormat();
@@ -50,6 +50,11 @@ class RGBBox extends Widget
          addEventListener(MouseEvent.CLICK, function(_) showDialog() );
 
       //build();
+   }
+
+   public function setRgba(rgb:Int, a:Float)
+   {
+      mColour = new RGBHSV(rgb,a);
    }
 
    public function showDialog( )
