@@ -1,4 +1,7 @@
 
+* Move some skin classes around, including renaming Style -> Shape
+* Widget states are now sub-attributes rather than their own thing.
+* Bunch of other stuff
 * Added wwx2015 sample
 
 3.4
