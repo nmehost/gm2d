@@ -1,4 +1,9 @@
 
+* Haxe 4 property fixes
+* Propagate activate messages to parents
+
+4.0.21
+-------------
 * Move some skin classes around, including renaming Style -> Shape
 * Widget states are now sub-attributes rather than their own thing.
 * Bunch of other stuff

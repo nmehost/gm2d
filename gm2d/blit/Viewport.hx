@@ -19,8 +19,8 @@ class Viewport extends Sprite
    var mBackground:Int;
    var mDirty:Bool;
 
-   public var originX(default,set_originX):Float;
-   public var originY(default,set_originY):Float;
+   public var originX(default,set):Float;
+   public var originY(default,set):Float;
    public var worldWidth:Float;
    public var worldHeight:Float;
 

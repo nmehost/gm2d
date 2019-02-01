@@ -13,5 +13,6 @@ create-file:
 build-file:
 	haxe -cp ../.. -lib nme -main All -dce no -cpp cpp
 	haxe -cp ../.. -lib nme -main All -dce no -neko t.n
-	haxe -cp ../.. -lib nme -main All -dce no -swf t.swf
+
+#	haxe -cp ../.. -lib nme -main All -dce no -swf t.swf
 

@@ -3,13 +3,13 @@ package gm2d.blit;
 
 class Layer
 {
-   public var offsetX(default,set_offsetX):Float;
-   public var offsetY(default,set_offsetY):Float;
-   public var worldWidth(get_worldWidth,null):Float;
-   public var worldHeight(get_worldHeight,null):Float;
-   public var viewWidth(get_viewWidth,null):Float;
-   public var viewHeight(get_viewHeight,null):Float;
-   public var visible(default,set_visible):Bool;
+   public var offsetX(default,set):Float;
+   public var offsetY(default,set):Float;
+   public var worldWidth(get,null):Float;
+   public var worldHeight(get,null):Float;
+   public var viewWidth(get,null):Float;
+   public var viewHeight(get,null):Float;
+   public var visible(default,set):Bool;
    public var blendAdd:Bool;
  
 

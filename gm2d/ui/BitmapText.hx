@@ -37,7 +37,7 @@ class BitmapText extends Control
    var mTimer:Timer;
 
    // TextField-like API
-   public var type(get_type,set_type) : TextFieldType;
+   public var type(get,set) : TextFieldType;
    public var selectable:Bool;
 
 

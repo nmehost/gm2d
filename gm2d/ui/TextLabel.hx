@@ -102,10 +102,13 @@ class TextLabel extends Widget
 
    override public function activate()
    {
-      super.activate();
-
       if (isInput && stage!=null)
+      {
          stage.focus = mText;
+         activateCallback();
+      }
+      else
+         super.activate();
    }
 
 

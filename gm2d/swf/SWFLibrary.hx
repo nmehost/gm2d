@@ -13,6 +13,7 @@ import nme.text.Font;
 import nme.utils.ByteArray;
 import haxe.Unserializer;
 import nme.Assets;
+import nme.AssetType;
 
 
 @:keep

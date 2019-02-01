@@ -7,7 +7,7 @@ import nme.geom.Point;
 class Tilesheet
 {
    public var gm2dData : BitmapData;
-        public var useAlpha(default,null):Bool;
+   public var useAlpha(default,null):Bool;
    var mAllocX:Int;
    var mAllocY:Int;
    var mAllocHeight:Int;
@@ -15,10 +15,10 @@ class Tilesheet
    var mSmooth:Bool;
    var mSpace:Int;
 
-   public var tileCount(get_tileCount,null):Int;
+   public var tileCount(get,null):Int;
 
-	public var width(get_width,null):Int;
-	public var height(get_height,null):Int;
+	public var width(get,null):Int;
+	public var height(get,null):Int;
 
    static public inline var BORDERS_NONE        = 0x00;
    static public inline var BORDERS_TRANSPARENT = 0x01;

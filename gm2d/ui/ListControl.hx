@@ -211,7 +211,7 @@ class ListControl extends ScrollWidget
       {
          mColPos[i] = pos;
          #if neko if (mColWidths[i]==null) mColWidths[i] = 0; #end
-         #if neko if (mBestWidths[i]==null) mBestWidths[i] = 0; #end
+         #if neko if (mBestColWidths[i]==null) mBestColWidths[i] = 0; #end
          #if neko if (mMinColWidths[i]==null) mMinColWidths[i] = 0; #end
          mColWidths[i] = mBestColWidths[i];
          pos += mColWidths[i];

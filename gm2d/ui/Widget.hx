@@ -514,13 +514,34 @@ class Widget extends Sprite
       return false;
    }
 
+   public function activateCallback() : Bool
+   {
+      var callback : Void->Void = attrib("onEnter");
+      if (callback!=null)
+      {
+         callback();
+         return true;
+      }
+      return false;
+   }
+
    // public function layout(inW:Float,inH:Float):Void { }
 
    public function activate()
    {
-      var callback : Void->Void = attrib("onEnter");
-      if (callback!=null)
-         callback();
+      if (!activateCallback())
+      {
+         var obj:DisplayObject = parent;
+         while(obj!=null)
+         {
+            if (Std.is(obj,Widget))
+            {
+               cast(obj,Widget).activate();
+               return;
+            }
+            obj = obj.parent;
+         }
+      }
    }
 
    public function popup(inPopup:Window,inX:Float,inY:Float)

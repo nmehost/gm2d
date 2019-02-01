@@ -67,6 +67,7 @@ class Slider extends Control
    override public function activate()
    {
       isActive = true;
+      activateCallback();
    }
 
 
