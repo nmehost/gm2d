@@ -305,6 +305,7 @@ class Skin
            padding: scale(10),
            buttonGap: scale(10),
            buttonSpacing: scale(10),
+           buttonAlign: Layout.AlignCenter | Layout.AlignEqual,
            },
         "MediumBg" => {
            fill: FillMedium,

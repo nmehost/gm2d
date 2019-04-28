@@ -19,6 +19,7 @@ class Layout
    public static inline var AlignTop      = 0x0008;
    public static inline var AlignBottom   = 0x0010;
    public static inline var AlignCenterY  = 0x0020;
+   public static inline var AlignEqual    = 0x0040;
    public static var AlignMaskX    = AlignLeft | AlignRight | AlignCenterX;
    public static var AlignMaskY    = AlignTop | AlignBottom | AlignCenterY;
    public static var AlignCenter   = AlignCenterX | AlignCenterY;
@@ -1108,6 +1109,7 @@ class GridLayout extends Layout
       //indent += "  ";
       for(col in mColInfo)
          col.mWidth = col.mMinWidth;
+      var thickest = 0.0;
       for(row in mRowInfo)
       {
          //trace(indent + " cols : "  + row.mCols.length);
@@ -1120,16 +1122,22 @@ class GridLayout extends Layout
                if (w>mColInfo[i].mWidth)
                {
                   mColInfo[i].mWidth = w;
+                  if (w>thickest)
+                     thickest = w;
                   //trace(indent + " -> [" + i + "] = " + w);
                }
             }
          }
       }
+      if ( (mAlign & Layout.AlignEqual)!=0 )
+         for(c in mColInfo)
+            c.mWidth = thickest;
       //indent = oindent;
    }
 
    function BestRowHeights()
    {
+      var tallest = 0.0;
       for(r in 0...mRowInfo.length)
       {
          var row = mRowInfo[r];
@@ -1142,9 +1150,14 @@ class GridLayout extends Layout
                var h = col.getBestHeight(mColInfo[i].mWidth);
                if (h>row.mHeight)
                   row.mHeight = h;
+               if (h>tallest)
+                  tallest = h;
             }
          }
       }
+      if ( (mAlign & Layout.AlignEqual)!=0 )
+         for(r in mRowInfo)
+            r.mHeight = tallest;
    }
 
    override public function getColWidths() : Array<Float>

@@ -44,6 +44,7 @@ class Panel extends Widget
                            mRenderer.getDefaultFloat("lineGap",Skin.scale(10)) );
       mButtonLayout = new GridLayout(null,"buttons");
       mButtonLayout.setSpacing(  mRenderer.getDefaultFloat("buttonSpacing",0) ,0);
+      mButtonLayout.setAlignment( attribInt("buttonAlign", Layout.AlignCenter) );
       //mButtonLayout.setBorders(0,10,0,10);
 
       if (inIcon!=null)
