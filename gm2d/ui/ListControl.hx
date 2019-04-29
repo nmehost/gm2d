@@ -484,6 +484,12 @@ class ListControl extends ScrollWidget
                mMultiSelect = null;
                if (onSelect!=null && (inFlags&SELECT_NO_CALLBACK)==0)
                   onSelect(i);
+               if (onMultiSelect!=null && (inFlags&SELECT_NO_CALLBACK)==0)
+               {
+                  var sel = new Array<Bool>();
+                  sel[i] = true;
+                  onMultiSelect(sel);
+               }
                if (onSelectPhase!=null && (inFlags&SELECT_NO_CALLBACK)==0 )
                {
                   var phase = (inFlags&SELECT_FROM_CLICK)>0 ? Phase.END : firstSelect ? Phase.BEGIN : Phase.UPDATE;

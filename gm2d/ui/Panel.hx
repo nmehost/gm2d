@@ -282,7 +282,7 @@ class Panel extends Widget
          mItemGrid.add(null);
          return;
       }
-      var label = new TextLabel(inText, ["Panel:" + mTitle, "PanelText"]);
+      var label = new TextLabel(inText, ["PanelText"], attribDynamic("panelText",{}) );
       addChild(label);
       mItemGrid.add( label.getLayout() );
 
