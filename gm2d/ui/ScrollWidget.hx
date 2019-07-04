@@ -14,6 +14,8 @@ import haxe.Timer;
 
 class ScrollWidget extends Widget //Control
 {
+   public static var thumbW = 20;
+
    public var scrollX(get,set):Float;
    public var scrollY(get,set):Float;
    public var scrollWheelStep:Float;
@@ -73,6 +75,8 @@ class ScrollWidget extends Widget //Control
       showScrollbarY = true;
       scrollbarAwake = false;
       scrollbarActive = false;
+      addEventListener(MouseEvent.MOUSE_OVER, onMouseEnter, true);
+      addEventListener(MouseEvent.MOUSE_OUT, onMouseLeave, true);
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown, true);
       addEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
       addEventListener(MouseEvent.CLICK,onScrollClick,true);
@@ -89,6 +93,20 @@ class ScrollWidget extends Widget //Control
              addChild(scrollbarContainer);
       }
       return contents;
+   }
+
+   public function getThumbMetrics()
+   {
+      var showX = maxScrollX>0 && showScrollbarX && (scrollbarAwake||scrollbarActive);
+      var size = Skin.scale(thumbW);
+      var displayHeight = windowHeight - (showX ? size : 0);
+      var virtualSize = controlH;
+      var pageSize = Std.int(windowHeight*0.8);
+      var thumbH = Std.int(Math.min(displayHeight,Math.max(size,displayHeight * (windowHeight/virtualSize))));
+      var gap = displayHeight - thumbH;
+      var y = Std.int(gap * mScrollY/maxScrollY);
+
+      return [displayHeight, y, thumbH, pageSize];
    }
 
    public function updateScrollbars()
@@ -108,15 +126,15 @@ class ScrollWidget extends Widget //Control
          }
          var gfx  = scrollbarContainer.graphics;
          gfx.clear();
-         var size = Skin.scale(24);
+         var size = Skin.scale(thumbW);
          gfx.lineStyle(0,0x00000000);
          if (sy)
          {
+            var t = getThumbMetrics();
             gfx.beginFill(0x808080,0.25);
-            var h = windowHeight - (sx ? size : 0);
-            gfx.drawRect(windowWidth-size,0,size,h);
+            gfx.drawRect( Std.int(windowWidth-size)-0.5,-0.5,size,Std.int(t[0]+0.99));
             gfx.beginFill(0xffffff,0.75);
-            gfx.drawRect(windowWidth-size, mScrollY/controlH*h, size, windowHeight/controlH*h);
+            gfx.drawRect( Std.int(windowWidth-size)-0.5, Std.int(t[1])-0.5, size, Std.int(t[2]+0.99));
          }
 
       }
@@ -129,13 +147,13 @@ class ScrollWidget extends Widget //Control
 
    function onScrollbarDragY(e:MouseEvent,offset:Float)
    {
-      var localPos = scrollbarContainer.globalToLocal(new Point(e.stageX,e.stageY)).y;
-
-      var sx = maxScrollX>0 && showScrollbarX;
-      var size = Skin.scale(24);
-      var h = windowHeight - (sx ? size : 0);
-      if (h>0)
-         set_scrollY( (localPos-offset)*controlH/h );
+      var t = getThumbMetrics();
+      var gap = t[0] - t[2];
+      var targetThumb0 = scrollbarContainer.globalToLocal(new Point(e.stageX,e.stageY)).y - offset;
+      // y = (gap * mScrollY/maxScrollY);
+      //  mScrollY = y * maxScrollY / gap
+      if (gap>0)
+         set_scrollY( targetThumb0*maxScrollY/gap );
    }
 
    function onScrollbarDown(e:MouseEvent)
@@ -145,23 +163,24 @@ class ScrollWidget extends Widget //Control
       var sx = maxScrollX>0 && showScrollbarX;
       var sy = maxScrollY>0 && showScrollbarY;
 
-      var size = Skin.scale(24);
+      var size = Skin.scale(thumbW);
       if (sy && e.localX>windowWidth-size)
       {
-         var h = windowHeight - (sx ? size : 0);
-         var thumb0 = mScrollY/controlH*h;
-         var thumbH = windowHeight/controlH*h;
+         var t = getThumbMetrics();
 
-         if (e.localY<thumb0-size/2)
+         var thumb0 = t[1];
+         var thumbH = t[2];
+
+         if (e.localY<thumb0)
          {
             // page-up
-            set_scrollY( Std.int(mScrollY - thumbH*maxScrollY/h) );
+            set_scrollY( Std.int(mScrollY - t[3]) );
             fadeupScrollbars();
          }
-         else if (e.localY>thumb0+thumbH+size/2)
+         else if (e.localY>thumb0+thumbH)
          {
             // page-down
-            set_scrollY( Std.int(mScrollY + thumbH*maxScrollY/h) );
+            set_scrollY( Std.int(mScrollY + t[3]) );
             fadeupScrollbars();
          }
          else
@@ -276,6 +295,15 @@ class ScrollWidget extends Widget //Control
    {
       return true;
    }
+   function onMouseEnter(ev:MouseEvent)
+   {
+      fadeupScrollbars();
+   }
+
+   function onMouseLeave(ev:MouseEvent)
+   {
+   }
+
 
    function onMouseDown(ev:MouseEvent)
    {
