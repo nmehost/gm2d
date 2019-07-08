@@ -26,6 +26,7 @@ import nme.events.MouseEvent;
 import nme.geom.Point;
 import nme.geom.Rectangle;
 import nme.geom.Matrix;
+import nme.Assets;
 import gm2d.ui.Layout;
 import gm2d.ui.Slider;
 import gm2d.ui.Widget;
@@ -1382,6 +1383,33 @@ class Skin
 
        return null;
    }
+
+   public static function createBitmapData(inResoName:String,inWidth:Int) : BitmapData
+   {
+      var bmp:BitmapData = null;
+      if (Assets.hasBitmapData(inResoName))
+      {
+         bmp = Assets.getBitmapData(inResoName);
+
+         var extraScale = inWidth/bmp.width;
+         return scaleBitmap(bmp,extraScale);
+      }
+      else
+      {
+         var svg = new SvgRenderer(gm2d.reso.Resources.loadSvg(inResoName));
+         var size = Skin.scale(inWidth);
+         var bmp = new BitmapData(size,size,true, gm2d.RGB.CLEAR );
+
+         var shape = svg.createShape();
+         var scaled = new Sprite();
+         scaled.addChild(shape);
+         shape.scaleX = shape.scaleY = size/svg.width;
+         bmp.draw(scaled);
+         return bmp;
+      }
+   }
+
+
 }
 
 

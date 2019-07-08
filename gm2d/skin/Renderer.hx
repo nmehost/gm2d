@@ -527,7 +527,11 @@ class Renderer
       {
          //label.autoSize = TextFieldAutoSize.LEFT;
          label.autoSize = TextFieldAutoSize.NONE;
-         label.selectable = false;
+         if (map.exists("selectable"))
+            label.selectable = map.get("selectable");
+         else
+            label.selectable = false;
+
       }
    }
 

@@ -33,12 +33,12 @@ class TextLabel extends Widget
 
        if (isInput)
           mText.type = nme.text.TextFieldType.INPUT;
-       else
-          mText.mouseEnabled = false;
+
        if (mRenderer.getDefaultBool("multiline",false))
           mText.multiline = true;
        mText.text = inVal;
        mRenderer.renderLabel(mText);
+
        mText.x = 0;
        mText.y = 0;
        //mText.border = true;
