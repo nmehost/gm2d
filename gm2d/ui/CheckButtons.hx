@@ -20,5 +20,21 @@ class CheckButtons extends Button
 
    public function setChecked(inCheck:Bool)
       down = inCheck;
+
+
+
+   override public function set(inValue:Dynamic) : Void
+   {
+      if ( (inValue!=null && inValue!="") )
+         setChecked(inValue);
+   }
+
+   override public function get(inValue:Dynamic) : Void
+   {
+      if (Reflect.hasField(inValue,name))
+         Reflect.setField(inValue, name, down );
+   }
+
+
 }
 

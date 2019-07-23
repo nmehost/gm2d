@@ -112,10 +112,11 @@ class Button extends Control
 
    override public function redraw()
    {
+      var bmpName = attribString("bitmapId",name);
       if (mStateBitmap!=null)
-         mStateBitmap.bitmapData = mRenderer.getBitmap(name,state);
+         mStateBitmap.bitmapData = mRenderer.getBitmap(bmpName,state);
       else if (iconWidget!=null)
-         iconWidget.bitmapData = mRenderer.getBitmap(name,state);
+         iconWidget.bitmapData = mRenderer.getBitmap(bmpName,state);
       super.redraw();
    }
 

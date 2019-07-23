@@ -359,7 +359,7 @@ class Skin
            itemAlign: Layout.AlignLeft,
            padding: null,
            toggle: true,
-           id:"#checkbox",
+           bitmapId:"#checkbox",
            bitmap: BitmapFactory(DefaultBitmaps.factory),
            },
         "DockItem" => {
@@ -410,7 +410,7 @@ class Skin
            chromeFilters: shadowFilters,
            fill: FillLight,
            /*
-           chromeButtons: [ {id:Resize,
+           chromeButtons: [ {bitmapId:Resize,
               align:Layout.AlignRight|Layout.AlignBottom|Layout.AlignOverlap,
               margin:new Rectangle(0,0,0,0),
               wantsFocus:false,
