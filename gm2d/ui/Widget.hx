@@ -256,13 +256,14 @@ class Widget extends Sprite
       if (bitmapStyle==null)
          return null;
 
+      var bmpName = attribString("bitmapId",name);
       switch(bitmapStyle)
       {
          case BitmapBitmap(bmBitmapData):
             // TODO - disable
             return bmBitmapData;
          case BitmapFactory(factory):
-            return factory(name,inState);
+            return factory(bmpName,inState);
          case BitmapAndDisable(bmp,bmpDisabled):
             return ( (inState&Widget.DISABLED>0) ? bmpDisabled : bmp );
       }
