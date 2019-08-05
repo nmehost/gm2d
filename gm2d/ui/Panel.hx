@@ -91,10 +91,13 @@ class Panel extends Widget
       layout.setMinWidth(w);
    }
 
-   public function bindOk(data:Dynamic, onOk:Void->Void, addCancel:Bool=false,?rememberKey:String)
+   public function bindOk(data:Dynamic, onOk:Void->Void, addCancel:Bool=false,?rememberKey:String,
+       okText="Ok", cancelText="Cancel" )
    {
       setAndRestore(data,rememberKey);
-      addTextButton("Ok", function() { getAndStore(data,rememberKey); Game.closeDialog(); if (onOk!=null) onOk();} );
+      addTextButton(okText, function() { getAndStore(data,rememberKey); Game.closeDialog(); if (onOk!=null) onOk();} );
+      if (addCancel)
+         addTextButton(cancelText, Game.closeDialog );
       setSizeHint(500);
       showDialog();
    }
