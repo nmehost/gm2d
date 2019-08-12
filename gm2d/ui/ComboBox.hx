@@ -110,6 +110,7 @@ class ComboBox extends TextInput
    public var indexHandler(default,set):AdoHandler<Int>;
    public var listOnly:Bool;
    public var onItemPhase:Int->Int->Void;
+   public var lastExplicit:String;
 
    public function new(inVal="", ?inOptions:Array<String>, ?inDisplay:Array<Dynamic>,
        ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void, ?inOnTextPhase:String->Int->Void, ?inLineage:Array<String>, ?inAttribs:{})
@@ -147,11 +148,14 @@ class ComboBox extends TextInput
 
        mOptions = inOptions==null ? null : inOptions.copy();
        mDisplay = inDisplay==null ? null : inDisplay.copy();
+       if (listOnly && mOptions==null)
+          mOptions = [];
        //addChild(mText);
        addEventListener(MouseEvent.CLICK, onClick );
        updateIndex();
        if (listOnly && index<0)
           setText(inVal);
+       lastExplicit = inVal;
    }
 
    override public function set(inValue:Dynamic) : Void
@@ -159,7 +163,10 @@ class ComboBox extends TextInput
       if (Std.is(inValue,Int))
          setIndex(inValue);
       else
+      {
          setText(inValue);
+         lastExplicit = inValue;
+      }
    }
 
    override public function get(inValue:Dynamic) : Void
@@ -177,7 +184,7 @@ class ComboBox extends TextInput
    function onClick(event:MouseEvent)
    {
       // TODO - position
-      if (event.target==this || event.target==mChrome)
+      if (event.target==this || event.target==mChrome || (listOnly && event.target==mText) )
           doPopup();
    }
 
@@ -200,19 +207,36 @@ class ComboBox extends TextInput
    {
       mOptions = inOptions==null ? null : inOptions.copy();
       mDisplay = inDisplay==null ? null : inDisplay.copy();
+      if (listOnly)
+      {
+         if (mOptions==null)
+            mOptions = [];
+         var idx = mOptions.indexOf(lastExplicit);
+         if (idx>=0)
+            setText(lastExplicit);
+         else
+            setText( getText() );
+      }
    }
 
+   override public function setList(id:String, values:Array<String>, display:Array<Dynamic>)
+   {
+      if (id==attribString("optionsId",name) )
+         setOptions(values, display);
+   }
 
    public function onListSelect(inIndex:Int,phase:Int)
    {
       index = inIndex;
       if (mOptions!=null)
       {
-         setText(mOptions[inIndex]);
+         setText(lastExplicit = mOptions[inIndex]);
          if (onText!=null)
             onText( mOptions[inIndex]);
          if (onTextPhase!=null)
             onTextPhase( mOptions[inIndex], phase);
+         if (onTextEnter!=null)
+            onTextEnter(mOptions[inIndex]);
       }
       if (onItem!=null)
          onItem(inIndex);
@@ -266,10 +290,18 @@ class ComboBox extends TextInput
       {
          if (mOptions!=null)
          {
-            index = mOptions.indexOf(inText);
-            if (index<0 && mOptions.length>=1)
+            var index = mOptions.indexOf(inText);
+            if (index<0)
+               index = mOptions.indexOf(lastExplicit);
+            else
+            {
+               lastExplicit = inText;
+            }
+
+            if (index<0)
                index = 0;
-            if (index>=0)
+
+            if (mOptions.length>0)
             {
                mText.text = mOptions[index];
                checkPlaceholder();

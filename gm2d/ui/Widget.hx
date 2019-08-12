@@ -367,7 +367,8 @@ class Widget extends Sprite
       return inState;
    }
 
-   
+   public function setList(id:String, values:Array<String>, display:Array<Dynamic>) { }
+
    public function set(inValue:Dynamic) : Void
    {
       if ( (inValue!=null && inValue!="") )

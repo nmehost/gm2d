@@ -28,6 +28,9 @@ class TextInput extends TextLabel
        placeholder = attribString("placeholder",null);
        wantFocus = true;
        onTextUpdate = inOnText;
+       if (onTextUpdate==null)
+          onTextUpdate = attribDynamic("onUpdate",null);
+       onTextEnter = attribDynamic("onTextEnter",null);
        isEditing = false;
 
        if (placeholder!=null && mText.text=="")
@@ -129,14 +132,14 @@ class TextInput extends TextLabel
       checkPlaceholder();
       if (onTextUpdate!=null)
          onTextUpdate(inValue);
+
+      var phase = Phase.UPDATE;
+      if (!isEditing)
+         phase |= Phase.BEGIN;
+      isEditing = true;
+
       if (onTextPhase!=null)
-      {
-         var phase = Phase.UPDATE;
-         if (!isEditing)
-            phase |= Phase.BEGIN;
-         isEditing = true;
          onTextPhase(mText.text, phase);
-      }
    }
 
    function keyDown(e:KeyboardEvent)
@@ -147,14 +150,13 @@ class TextInput extends TextLabel
          if (onTextEnter!=null)
             onTextEnter(mText.text);
 
+         var phase = Phase.END | Phase.UPDATE;
+         if (!isEditing)
+            phase |= Phase.BEGIN;
+         isEditing = false;
+
          if (onTextPhase!=null)
-         {
-            var phase = Phase.END | Phase.UPDATE;
-            if (!isEditing)
-               phase |= Phase.BEGIN;
-            isEditing = false;
             onTextPhase(mText.text, phase);
-         }
       }
    }
 
@@ -165,6 +167,8 @@ class TextInput extends TextLabel
          isEditing = false;
          if (onTextPhase!=null)
             onTextPhase(mText.text, Phase.END );
+         if (onTextEnter!=null)
+            onTextEnter(mText.text);
       }
       return super.set_isCurrent(inVal);
    }

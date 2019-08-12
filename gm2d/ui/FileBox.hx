@@ -23,29 +23,42 @@ class FileBox extends TextInput
        isDir = attribBool("directory",false);
        if (inVal=="" || inVal==null)
        {
-          var rememberKey = attribString("id");
+          var rememberKey = attribString("dir_id");
           if (rememberKey!=null)
           {
              var def = nme.system.Dialog.getDefaultPath(rememberKey);
              setText( def );
+          }
+          else
+          {
+             setText( inVal );
           }
        }
    }
 
    function onBrowse()
    {
-      var title = attribString("browseTitle","Selete Directory");
-      var rememberKey = attribString("id");
+      var title = attribString("browseTitle",isDir ? "Select Directory" : "Select File");
+      // remembered in panel
+      var rememberKey = attribString("dir_id");
+      var flags = attribInt("browseFlags",0);
       if (isDir)
       {
-         nme.system.Dialog.getDirectory(title,"Directory", function(f) if (f!=null) setText(f),rememberKey );
+         nme.system.Dialog.getDirectory(title,"Directory", function(f) if (f!=null) setTextEnter(f),rememberKey );
       }
       else
       {
          var ext = attribString("browseFilter","All Files|*.*");
          nme.system.Dialog.fileDialog(title,"File", getText(), ext,
-             function(f) if (f!=null) setText(f), rememberKey,0 );
+             function(f) if (f!=null) setTextEnter(f), rememberKey,0 );
       }
+   }
+
+   function setTextEnter(val:String)
+   {
+      setText(val);
+      if (onTextEnter!=null)
+         onTextEnter(val);
    }
 
    override public function createExtraWidgetLayout() : Layout

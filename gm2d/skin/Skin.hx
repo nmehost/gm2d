@@ -562,6 +562,7 @@ class Skin
 
         "ChoiceBox" => {
            isInput: false,
+           listOnly: true,
            },
 
         "WidgetDrawer" => {

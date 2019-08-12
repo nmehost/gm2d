@@ -179,6 +179,20 @@ class Panel extends Widget
       }
    }
 
+   override public function setList(id:String, values:Array<String>, display:Array<Dynamic>)
+   {
+      for(i in 0...numChildren)
+      {
+         var w = getChildAt(i);
+         if (w!=null && Std.is(w,Widget))
+         {
+            var widget:Widget = cast w;
+            widget.setList(id,values,display);
+         }
+      }
+   }
+
+
 
    public function setStretchX(inItemStretch:Int=33)
    {
