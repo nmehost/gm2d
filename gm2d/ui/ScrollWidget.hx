@@ -304,14 +304,12 @@ class ScrollWidget extends Widget //Control
    {
    }
 
-
    function onMouseDown(ev:MouseEvent)
    {
        if (!shouldBeginScroll(ev))
           return;
        if (scrollbarContainer!=null && ev.target==scrollbarContainer)
           return;
-       
 
        mLastT = Timer.stamp();
        mEventStage = stage;
@@ -332,6 +330,7 @@ class ScrollWidget extends Widget //Control
        speedY.clear();
        gm2d.Game.removeTween(name);
    }
+
    function removeStageListeners()
    {
       if (mEventStage!=null)

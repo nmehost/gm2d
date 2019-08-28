@@ -49,6 +49,7 @@ class ListControl extends ScrollWidget
    var mMultiSelect:Array<Bool>;
    var mControlHeight:Float;
    var mHoldUpdates = 0;
+   var dragHandler:IListDrag;
 
    public var onSelect:Int->Void;
    public var onSelectPhase:Int->Int->Void;
@@ -143,6 +144,33 @@ class ListControl extends ScrollWidget
    {
       mStretchCol = inCol;
       recalcPos();
+   }
+
+   public function onListDrag(ev:MouseEvent)
+   {
+      var idx = indexFromMouse(ev);
+      // TODO
+   }
+   public function onDragFinish(ev:MouseEvent)
+   {
+      var idx = indexFromMouse(ev);
+      // TODO
+   }
+
+
+   public function setDragHandler(handler:IListDrag)
+   {
+      dragHandler = handler;
+
+      shouldBeginScroll = function(ev:MouseEvent) {
+         var idx = indexFromMouse(ev);
+         var drag = dragHandler.listShouldDrag(idx,ev);
+         if (!drag)
+            return true;
+         var mw = MouseWatcher.watchDrag(this, ev.stageX,ev.stageY, onListDrag, onDragFinish);
+         mw.minDragDistance = mItemHeight*0.5;
+         return false;
+      }
    }
 
    public function getRowCount() return mRows.length;
