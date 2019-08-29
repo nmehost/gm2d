@@ -12,6 +12,7 @@ import nme.text.TextFieldAutoSize;
 import gm2d.skin.Skin;
 import gm2d.skin.Renderer;
 import gm2d.ui.Layout;
+import gm2d.ui.IListDrag;
 
 class ListControlRow
 {
@@ -50,6 +51,8 @@ class ListControl extends ScrollWidget
    var mControlHeight:Float;
    var mHoldUpdates = 0;
    var dragHandler:IListDrag;
+   var overlay:nme.display.Shape;
+   var draggingIndex:Int;
 
    public var onSelect:Int->Void;
    public var onSelectPhase:Int->Int->Void;
@@ -73,6 +76,7 @@ class ListControl extends ScrollWidget
       mWidth = mMinWidth;
       mOrigItemHeight = mHeight = attribFloat("itemHeight",0);
       mItemHeight = mOrigItemHeight;
+      draggingIndex = -1;
 
       var rowLineage = hasAttrib("rowLineage") ? [Std.string(attrib("rowLineage")),"ListRow"] : ["ListRow"];
       var attribs = attrib("rowAttribs");
@@ -149,26 +153,85 @@ class ListControl extends ScrollWidget
    public function onListDrag(ev:MouseEvent)
    {
       var idx = indexFromMouse(ev);
+      var gfx = overlay.graphics;
+      gfx.clear();
+      if (idx>=0 && idx!=draggingIndex)
+      {
+         var y0 = mRowPos[idx];
+         var y1 = mRowPos[idx+1];
+         var dy = y1-y0;
+         var my = contents.globalToLocal( new Point(ev.stageX, ev.stageY) ).y - y0;
+         var pos = PosOver;
+         var by = y0-mScrollY;
+
+         if (my<dy*0.25)
+         {
+            pos = PosAbove;
+            dy *= 0.25;
+         }
+         else if (my>dy*0.75)
+         {
+            pos = PosBelow;
+            by += dy*0.75;
+            dy *= 0.25;
+         }
+         else
+         {
+            by += dy*0.2;
+            dy *= 0.6;
+         }
+
+         if ( dragHandler.listCanDrop(draggingIndex, idx, pos, ev))
+         {
+            gfx.beginFill(0xff0000,0.3);
+            gfx.lineStyle(0,0xff0000);
+            gfx.drawRect(0,by,mWidth,dy);
+         }
+      }
       // TODO
    }
    public function onDragFinish(ev:MouseEvent)
    {
       var idx = indexFromMouse(ev);
-      // TODO
+      if (idx>=0 && idx!=draggingIndex)
+      {
+         var y0 = mRowPos[idx];
+         var y1 = mRowPos[idx+1];
+         var dy = y1-y0;
+         var my = contents.globalToLocal( new Point(ev.stageX, ev.stageY) ).y - y0;
+         var pos = PosOver;
+         if (my<dy*0.25)
+            pos = PosAbove;
+         else if (my>dy*0.75)
+            pos = PosBelow;
+
+         if (dragHandler.listCanDrop(draggingIndex, idx, pos, ev))
+            dragHandler.listDoDrop(draggingIndex, idx, pos, ev);
+      }
+
+      overlay.visible = false;
+      draggingIndex = -1;
    }
 
 
    public function setDragHandler(handler:IListDrag)
    {
       dragHandler = handler;
+      if (overlay==null)
+      {
+         overlay = new nme.display.Shape();
+         addChild(overlay);
+      }
 
       shouldBeginScroll = function(ev:MouseEvent) {
          var idx = indexFromMouse(ev);
-         var drag = dragHandler.listShouldDrag(idx,ev);
+         var drag = idx>=0 && dragHandler.listShouldDrag(idx,ev);
          if (!drag)
             return true;
+         draggingIndex = idx;
          var mw = MouseWatcher.watchDrag(this, ev.stageX,ev.stageY, onListDrag, onDragFinish);
          mw.minDragDistance = mItemHeight*0.5;
+         overlay.visible = true;
          return false;
       }
    }
