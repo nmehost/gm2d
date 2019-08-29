@@ -190,27 +190,37 @@ class ListControl extends ScrollWidget
       }
       // TODO
    }
-   public function onDragFinish(ev:MouseEvent)
+   public function onDragFinish(watch:MouseWatcher, ev:MouseEvent)
    {
-      var idx = indexFromMouse(ev);
-      if (idx>=0 && idx!=draggingIndex)
+      overlay.visible = false;
+      overlay.graphics.clear();
+      if (!watch.wasDragged)
       {
-         var y0 = mRowPos[idx];
-         var y1 = mRowPos[idx+1];
-         var dy = y1-y0;
-         var my = contents.globalToLocal( new Point(ev.stageX, ev.stageY) ).y - y0;
-         var pos = PosOver;
-         if (my<dy*0.25)
-            pos = PosAbove;
-         else if (my>dy*0.75)
-            pos = PosBelow;
+         draggingIndex = -1;
+         var local = scrollTarget.globalToLocal(watch.downPos);
+         doClick(local.x,local.y,ev);
+      }
+      else
+      {
+         var idx = indexFromMouse(ev);
+         if (idx>=0 && idx!=draggingIndex)
+         {
+            var y0 = mRowPos[idx];
+            var y1 = mRowPos[idx+1];
+            var dy = y1-y0;
+            var my = contents.globalToLocal( new Point(ev.stageX, ev.stageY) ).y - y0;
+            var pos = PosOver;
+            if (my<dy*0.25)
+               pos = PosAbove;
+            else if (my>dy*0.75)
+               pos = PosBelow;
 
-         if (dragHandler.listCanDrop(draggingIndex, idx, pos, ev))
-            dragHandler.listDoDrop(draggingIndex, idx, pos, ev);
+            if (dragHandler.listCanDrop(draggingIndex, idx, pos, ev))
+               dragHandler.listDoDrop(draggingIndex, idx, pos, ev);
+         }
+         draggingIndex = -1;
       }
 
-      overlay.visible = false;
-      draggingIndex = -1;
    }
 
 
@@ -229,7 +239,8 @@ class ListControl extends ScrollWidget
          if (!drag)
             return true;
          draggingIndex = idx;
-         var mw = MouseWatcher.watchDrag(this, ev.stageX,ev.stageY, onListDrag, onDragFinish);
+         var mw:MouseWatcher = null;
+         mw = MouseWatcher.watchDrag(this, ev.stageX,ev.stageY, onListDrag, e -> onDragFinish(mw,e) );
          mw.minDragDistance = mItemHeight*0.5;
          overlay.visible = true;
          return false;
@@ -681,7 +692,7 @@ class ListControl extends ScrollWidget
       return scrollTarget.globalToLocal( new Point(stageX,stageY) );
    }
 
-   override function doClick(inX:Float, inY:Float,ev:MouseEvent)
+   public function selectByMousePos(inX:Float, inY:Float,ev:MouseEvent)
    {
       var flags = SELECT_FROM_CLICK;
       if (onMultiSelect!=null)
@@ -692,7 +703,14 @@ class ListControl extends ScrollWidget
            flags |= SELECT_RANGE;
       }
       selectByY(inY,flags);
-      super.doClick(inX,inY,ev);
+   }
+
+   override function doClick(inX:Float, inY:Float,ev:MouseEvent)
+   {
+      if (onClick!=null)
+         onClick(ev);
+      else
+         selectByMousePos(inX,inY,ev);
    }
 
    public function getSelected() return mSelected;
