@@ -214,6 +214,7 @@ class Button extends Control
    {
       var bmp = new Bitmap(inBitmapData);
       var result = new Button(bmp,inOnClick,Widget.addLine(inLineage,"BitmapButton"), inAttribs);
+      bmp.smoothing = result.attribBool("smooth",false);
       return result;
    }
 
@@ -221,6 +222,7 @@ class Button extends Control
    {
       var bmp = new Bitmap(inBitmapData);
       var result = new Button(bmp,inOnClick, Widget.addLine(inLineage,"BitmapButton"), inAttribs);
+      bmp.smoothing = result.attribBool("smooth",false);
       return result;
    }
 
