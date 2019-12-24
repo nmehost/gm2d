@@ -19,6 +19,7 @@ class Dialog extends Window
    var mPane:Pane;
    var mSize:Size;
    var mouseWatcher:MouseWatcher;
+   var dragStage:nme.display.Stage;
    public var shouldConsumeEvent : MouseEvent -> Bool;
 
 
@@ -90,13 +91,14 @@ class Dialog extends Window
    function doneDrag(_)
    {
       stopDrag();
-      stage.removeEventListener(nme.events.MouseEvent.MOUSE_UP, doneDrag);
+      dragStage.removeEventListener(nme.events.MouseEvent.MOUSE_UP, doneDrag);
    }
 
    function doDrag(_)
    {
       startDrag();
-      stage.addEventListener(nme.events.MouseEvent.MOUSE_UP, doneDrag);
+      dragStage = stage;
+      dragStage.addEventListener(nme.events.MouseEvent.MOUSE_UP, doneDrag);
    }
 
    public function goBack()

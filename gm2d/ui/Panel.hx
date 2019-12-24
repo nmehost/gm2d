@@ -83,6 +83,13 @@ class Panel extends Widget
       return dlg;
    }
 
+   public function showOkDialog(onOk:Void->Void, okText="Ok", inCentre=true,inAutoClose=true,?inAttribs:{}, ?inLineage:Array<String>)
+   {
+      addTextButton(okText, function() { Game.closeDialog(); onOk();} );
+      showDialog(inCentre, inAutoClose, inAttribs, inLineage );
+   }
+
+
    public function setSizeHint(pix:Int)
    {
       var layout = getPane().getLayout();
