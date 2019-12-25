@@ -272,7 +272,7 @@ class Panel extends Widget
       if (Std.is(inObj,Widget))
       {
          var layout = cast(inObj,Widget).getLayout();
-         mItemGrid.add( layout );
+         mItemGrid.add( layout.stretch() );
       }
       else
       {

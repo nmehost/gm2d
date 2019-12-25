@@ -81,6 +81,34 @@ class RGBBox extends Widget
       return mColour.clone();
    }
 
+   override public function set(data:Dynamic)
+   {
+      if (Std.is(data,String) && data!="")
+         setColour( RGBHSV.fromHex(data,mShowAlpha) );
+      else if (Std.is(data,RGBHSV) )
+         setColour( data );
+      else if (Std.is(data,Int) )
+      {
+         var col:Int = data;
+         setColour( new RGBHSV(col,mShowAlpha ? (col>>24)/255.0 : 1.0 ) );
+      }
+   }
+
+   override public function get(inValue:Dynamic) : Void
+   {
+      if (Reflect.hasField(inValue,name))
+      {
+         var t = Reflect.field(inValue,name);
+         if (Std.is(t,Int))
+            Reflect.setField(inValue, name, mColour.getRGBA() );
+         else if (Std.is(t,String))
+            Reflect.setField(inValue, name, mColour.getHex() );
+         else
+            Reflect.setField(inValue, name, mColour.clone() );
+      }
+   }
+
+
    public function setColour(inCol:RGBHSV)
    {
       updateLockout++;

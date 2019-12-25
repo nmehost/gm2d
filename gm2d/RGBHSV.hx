@@ -217,6 +217,13 @@ class RGBHSV
    }
 
 
+   public static function fromHex(inHex:String,alphaToo = true) {
+      var val = Std.parseInt(inHex);
+      return new RGBHSV( val & 0xffffff, alphaToo ? (val>>24)/255.0 : 1.0 );
+  }
+
+   public function getHex() { return "0x" + StringTools.hex(getRGBA(),8); }
+
    public function toString() { return "#" + StringTools.hex(getRGBA(),8); }
 
    public static function getSpectrum()

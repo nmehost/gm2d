@@ -45,7 +45,7 @@ class FileOpenScreen extends Screen
    var docIcon:BitmapData;
    var dirButtonContainer:DisplayObjectContainer;
    var dirButtons:Layout;
-   var screenLayout:Layout;
+   var layout:Layout;
    //var list:ListControl;
    var list:TileControl;
    var message:String;
@@ -194,7 +194,7 @@ class FileOpenScreen extends Screen
 
       top.setBorders(5,5,5,5).setSpacing(0,5);
 
-      screenLayout = top;
+      layout = top;
 
       Game.pushScreen(this);
       #end
@@ -434,7 +434,7 @@ class FileOpenScreen extends Screen
       #end
       list.holdUpdates(false);
       if (inRelayout)
-         screenLayout.setRect(0,0, stage.stageWidth, stage.stageHeight);
+         layout.setRect(0,0, stage.stageWidth, stage.stageHeight);
    }
 
    public function onNewDir()
@@ -460,7 +460,7 @@ class FileOpenScreen extends Screen
       gfx.clear();
       gfx.beginFill(Skin.panelColor);
       gfx.drawRect(0,0, stage.stageWidth, stage.stageHeight);
-      screenLayout.setRect(0,0, stage.stageWidth, stage.stageHeight);
+      layout.setRect(0,0, stage.stageWidth, stage.stageHeight);
    }
 
 
