@@ -174,8 +174,8 @@ class FileOpenScreen extends Screen
 
       addChild(list);
 
-      var layout = list.getLayout().stretch();
-      top.add(layout);
+      var listLayout = list.getLayout().stretch();
+      top.add(listLayout);
 
       var buttons = new HorizontalLayout();
       buttons.setSpacing(10,0);
