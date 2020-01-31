@@ -798,6 +798,12 @@ class Game
        mPopupParent.addChild(inPopup);
        var w = inPopup.getWindowWidth();
        var h = inPopup.getWindowHeight();
+       var rect = inPopup.getLayout().getRect();
+       if (rect!=null)
+       {
+          w = rect.width;
+          h = rect.height;
+       }
        if (inX==null)
           inX = Std.int( (stageWidth()-w) * 0.5 );
        if (inY==null)
@@ -805,10 +811,11 @@ class Game
 
        var asPopup:PopupMenu = cast inPopup;
 
-       var pos = mPopupParent.localToGlobal( new Point(inX+w,inY+h) );
-       if (pos.x>mPopupParent.stage.stageWidth)
-          inX -= (pos.x-stageWidth()) / mPopupParent.scaleX;
-       var clipY = pos.y-mPopupParent.stage.stageHeight;
+       var bottomRight = mPopupParent.localToGlobal( new Point(inX+w,inY+h) );
+       if (bottomRight.x>mPopupParent.stage.stageWidth)
+          inX -= (bottomRight.x-stageWidth()) / mPopupParent.scaleX;
+
+       var clipY = bottomRight.y-mPopupParent.stage.stageHeight;
        if (clipY>0)
        {
           if (asPopup!=null)

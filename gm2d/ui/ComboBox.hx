@@ -272,7 +272,7 @@ class ComboBox extends TextInput
       }
       else
       {
-         pop.getLayout().setRect(pop.x,pop.y,w,above);
+         pop.getLayout().setRect(pop.x,pop.y-above,w,above);
          gm2d.Game.popup(pop,pos.x,pos.y-above, pop.onClosePopup);
       }
    }

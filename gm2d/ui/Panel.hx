@@ -110,19 +110,6 @@ class Panel extends Widget
    }
 
 
-   override public function get(data:Dynamic)
-   {
-      for(i in 0...numChildren)
-      {
-         var w = getChildAt(i);
-         if (w!=null && Std.is(w,Widget))
-         {
-            var widget:Widget = cast w;
-            widget.get(data);
-         }
-      }
-   }
-
    public function getAndStore(data:Dynamic,rememberKey:String)
    {
       get(data);
@@ -170,6 +157,19 @@ class Panel extends Widget
       }
 
       set(data);
+   }
+
+   override public function get(data:Dynamic)
+   {
+      for(i in 0...numChildren)
+      {
+         var w = getChildAt(i);
+         if (w!=null && Std.is(w,Widget))
+         {
+            var widget:Widget = cast w;
+            widget.get(data);
+         }
+      }
    }
 
    override public function set(data:Dynamic)

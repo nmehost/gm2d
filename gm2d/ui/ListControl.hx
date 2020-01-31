@@ -31,6 +31,8 @@ class ListControlRow
 
 class ListControl extends ScrollWidget
 {
+   var mTitleRow:Array<Widget>;
+   var mTitleHeight:Float;
    var mRows:Array<ListControlRow>;
    var mRowPos:Array<Float>;
    var mStretchCol:Null<Int>;
@@ -41,6 +43,7 @@ class ListControl extends ScrollWidget
    var mMinWidth:Float;
    var mMinControlWidth:Float;
    var mHeight:Float;
+   var mListHeight:Float;
    var mChildrenClean :Int;
    var mColWidths:Array<Float>;
    var mBestColWidths:Array<Float>;
@@ -74,7 +77,7 @@ class ListControl extends ScrollWidget
 
       mMinControlWidth = mMinWidth = attribFloat("width",0);
       mWidth = mMinWidth;
-      mOrigItemHeight = mHeight = attribFloat("itemHeight",0);
+      mOrigItemHeight = mHeight = mListHeight = attribFloat("itemHeight",0);
       mItemHeight = mOrigItemHeight;
       draggingIndex = -1;
 
@@ -96,6 +99,7 @@ class ListControl extends ScrollWidget
 
       scrollWheelStep = mOrigItemHeight;
       mControlHeight = 0.0;
+      mTitleHeight = 0.0;
 
 
       mRows = [];
@@ -358,9 +362,11 @@ class ListControl extends ScrollWidget
 
    function updateHeight()
    {
-      mControlHeight = mRowPos[mRows.length];
+      contents.y = mTitleHeight;
+      var h = mRowPos[mRows.length];
+      mControlHeight = h + mTitleHeight;
       getItemLayout().setMinSize( mMinControlWidth, mControlHeight );
-      setScrollRange(mWidth,mWidth,mControlHeight,mHeight);
+      setScrollRange(mWidth,mWidth,h,mListHeight);
    }
 
    public function stringToItem(inString:String) : DisplayObject
@@ -379,6 +385,39 @@ class ListControl extends ScrollWidget
    public function bitmapDataToItem(inData:BitmapData) : DisplayObject
    {
       return new Bitmap(inData);
+   }
+
+   public function setTitleRow(inTitle:Array<Widget>)
+   {
+      if (mTitleRow!=null)
+         for(t in mTitleRow)
+            if (t!=null)
+               removeChild(t);
+      mTitleRow = inTitle;
+      mTitleHeight = 0;
+      if (mTitleRow!=null)
+         for(i in 0...mTitleRow.length)
+         {
+            var w = mTitleRow[i];
+            if (w!=null)
+            {
+               var l = w.getLayout();
+               var width = l.getBestWidth();
+               if (mBestColWidths[i]<width)
+                   mBestColWidths[i] = width;
+               var height = l.getBestHeight( mBestColWidths[i]);
+               if (height>mTitleHeight)
+                  mTitleHeight = height;
+               addChild(w);
+            }
+         }
+      mListHeight = mHeight - mTitleHeight;
+
+      if (mHoldUpdates==0)
+      {
+         recalcPos();
+         redraw();
+      }
    }
 
    public function addRow(inRow:Array<Dynamic>,?inHeight:Null<Float>,
@@ -527,14 +566,14 @@ class ListControl extends ScrollWidget
       {
          recalcPos();
          var top = mRowPos[idx];
-         //trace("Show item " + idx + ":" + top + " / " + mScrollY + "/" + mHeight);
+         //trace("Show item " + idx + ":" + top + " / " + mScrollY + "/" + mListHeight);
          // If above, put on top row ...
          if (top<=mScrollY)
             set_scrollY(top);
 
          // if below, raise to bottom line
-         else if (mHeight>0 && top-mScrollY > mHeight-mRows[idx].height)
-            set_scrollY(mRowPos[idx+1]-mHeight);
+         else if (mListHeight>0 && top-mScrollY > mListHeight-mRows[idx].height)
+            set_scrollY(mRowPos[idx+1]-mListHeight);
       }
       else
          set_scrollY(0);
@@ -728,9 +767,10 @@ class ListControl extends ScrollWidget
          renderer.renderRect(null, gfx, new Rectangle(0,mRowPos[i],mWidth,mRows[i].height) );
       }
 
-      if (mControlHeight<mHeight)
+      var boxHeight = mControlHeight - mTitleHeight;
+      if (boxHeight<mHeight)
       {
-         evenRenderer.renderRect(null, gfx, new Rectangle(0,mControlHeight,mWidth,mHeight-mControlHeight));
+         evenRenderer.renderRect(null, gfx, new Rectangle(0,boxHeight,mWidth,mHeight-boxHeight));
       }
    }
 
@@ -751,6 +791,7 @@ class ListControl extends ScrollWidget
       contents.y = inY;
       mWidth = inW;
       mHeight = inH;
+      mListHeight = mHeight - mTitleHeight;
       recalcPos();
       redraw();
    }
@@ -766,6 +807,16 @@ class ListControl extends ScrollWidget
    override public function redraw()
    {
       super.redraw();
+      if (mTitleRow!=null)
+      {
+         for(row_idx in 0...mTitleRow.length)
+         {
+            var widget = mTitleRow[row_idx];
+            if (widget!=null)
+               widget.align(mColPos[row_idx], 0, mColWidths[row_idx], mTitleHeight );
+         }
+      }
+
       for(row_idx in mChildrenClean...mRows.length)
       {
          var row = mRows[row_idx];
@@ -829,6 +880,69 @@ class ListControl extends ScrollWidget
    {
       return getLayout().getBestSize().x;
    }
+
+
+   override public function get(data:Dynamic)
+   {
+      var me:Array<Dynamic> = Reflect.field(data, name);
+      if (!Std.is(me,Array))
+         Reflect.setField(data,name,me=new Array<Dynamic>());
+
+      for(i in 0...mRows.length)
+      {
+         var row = mRows[i];
+         if (me[i]!=null)
+            for(o in 0...row.objs.length)
+            {
+               var obj = row.objs[o];
+               if (obj!=null && Std.is(obj,Widget))
+               {
+                  var widget:Widget = cast obj;
+                  widget.get(data);
+               }
+            }
+      }
+      if (me.length>mRows.length)
+         me.splice(mRows.length, me.length);
+   }
+
+   override public function set(data:Dynamic)
+   {
+      var me:Array<Dynamic> = data;
+      if (me!=null)
+      {
+         for(i in 0...mRows.length)
+         {
+            var row = mRows[i];
+            if (me[i]!=null)
+               for(o in 0...row.objs.length)
+               {
+                  var obj = row.objs[o];
+                  if (obj!=null && Std.is(obj,Widget))
+                  {
+                     var widget:Widget = cast obj;
+                     if (Reflect.hasField(me[i],widget.name))
+                         widget.set( Reflect.field(me[i],widget.name) );
+                  }
+               }
+         }
+      }
+   }
+
+   override public function setList(id:String, values:Array<String>, display:Array<Dynamic>)
+   {
+      for(row in mRows)
+         for(obj in row.objs)
+         {
+            if (obj!=null && Std.is(obj,Widget))
+            {
+               var widget:Widget = cast obj;
+               widget.setList(id, values, display);
+            }
+         }
+   }
+
+
 }
 
 

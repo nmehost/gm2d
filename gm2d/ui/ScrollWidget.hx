@@ -124,6 +124,11 @@ class ScrollWidget extends Widget //Control
             addChild(scrollbarContainer);
             scrollbarContainer.addEventListener(MouseEvent.MOUSE_DOWN, onScrollbarDown);
          }
+         if (contents!=null)
+         {
+            scrollbarContainer.x = contents.x;
+            scrollbarContainer.y = contents.y;
+         }
          var gfx  = scrollbarContainer.graphics;
          gfx.clear();
          var size = Skin.scale(thumbW);
