@@ -32,7 +32,7 @@ class GradSwatchBox extends Widget
       control = inControl;
       swatch = inSwatch;
       var gfx = graphics;
-      gfx.beginBitmapFill(swatch.bitmapData);
+      gfx.beginBitmapFill(swatch.bitmapData, new Matrix(inSize/16,0,0,inSize/16) );
       gfx.lineStyle(1,0x000000);
       gfx.drawRect(0.5,0.5,inSize,inSize);
       addEventListener(MouseEvent.MOUSE_DOWN, function(_) inControl.setGradient(inSwatch.gradient) );

@@ -72,7 +72,6 @@ class Dialog extends Window
    {
       if (inId==Skin.Resize)
       {
-         //trace("Resize");
          return false;
       }
       if (inEvent.type == MouseEvent.CLICK)
@@ -94,8 +93,11 @@ class Dialog extends Window
       dragStage.removeEventListener(nme.events.MouseEvent.MOUSE_UP, doneDrag);
    }
 
-   function doDrag(_)
+   function doDrag(me:MouseEvent)
    {
+      if ( (mPane.getFlags() & Dock.RESIZABLE) !=0)
+      {
+      }
       startDrag();
       dragStage = stage;
       dragStage.addEventListener(nme.events.MouseEvent.MOUSE_UP, doneDrag);

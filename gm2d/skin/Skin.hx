@@ -565,6 +565,13 @@ class Skin
            listOnly: true,
            },
 
+        "ChoiceButton" => {
+           stateDown: {
+              shape: ShapeRect,
+              line: LineBorder,
+              },
+           },
+
         "WidgetDrawer" => {
            filters: null,
            fill: FillSolid(0xffffff,1),
