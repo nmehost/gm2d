@@ -242,6 +242,12 @@ class Panel extends Widget
       addChild(inItem);
       mItemGrid.add( inItem.getLayout().stretch() );
    }
+   public function addRow(inLayout:Layout)
+   {
+      mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",0) );
+      mGridLayout.add(inLayout);
+   }
+
    public function addButton(inButton:gm2d.ui.Widget)
    {
       if (mButtons.length==0)
