@@ -11,9 +11,9 @@ import gm2d.ui.WidgetState;
 
 class CheckButtons extends Button
 {
-   public function new(inValue:Bool, inCheck:Bool->Void,?inLineage:Array<String>,?inAttribs:Dynamic)
+   public function new(inValue:Bool, ?inCheck:Bool->Void,?inLineage:Array<String>,?inAttribs:Dynamic)
    {
-      super(null,function() inCheck(down),Widget.addLines(inLineage,["CheckButton"]),inAttribs);
+      super(null,inCheck==null ? null : () -> inCheck(down),Widget.addLines(inLineage,["CheckButton"]),inAttribs);
       setChecked(inValue);
       //build();
    }
