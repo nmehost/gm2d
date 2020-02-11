@@ -14,7 +14,7 @@ import gm2d.skin.Skin;
 import gm2d.skin.Renderer;
 
 
-class Dialog extends Window
+class Dialog extends Window implements IDialog
 {
    var mPane:Pane;
    var mSize:Size;
@@ -46,6 +46,14 @@ class Dialog extends Window
 
       //if (gm2d.Lib.isOpenGL)
       //   cacheAsBitmap = true;
+   }
+
+   public function asDialog():Dialog return this;
+   public function closeFrame():Void
+   {
+      onClose();
+      if (parent!=null)
+         parent.removeChild(this);
    }
 
    public function close()

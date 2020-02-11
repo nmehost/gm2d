@@ -76,8 +76,14 @@ class Panel extends Widget
        mItemGrid.setMinColWidth(1,inSize);
    }
 
-   public function showDialog(inCentre=true,inAutoClose=true,?inAttribs:{}, ?inLineage:Array<String>)
+   public function showDialog(inCentre=true,inAutoClose=true,?inAttribs:{}, ?inLineage:Array<String>) : IDialog
    {
+      #if waxe
+      var dlg = new WaxeDialog(getPane(), inAttribs, inLineage);
+      Game.doShowDialog(dlg,false,false);
+      dlg.show(inAutoClose);
+      return dlg;
+      #end
       var dlg = new gm2d.ui.Dialog(getPane(),inAttribs, inLineage);
       dlg.show(inCentre,inAutoClose);
       return dlg;

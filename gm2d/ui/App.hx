@@ -182,7 +182,6 @@ class App extends Screen
          y0 += menu_h;
          h -= menu_h;
       }
-
       if (statusBar!=null)
       {
          statusBar.setRect(0,h-statusHeight,w,statusHeight);
@@ -191,7 +190,6 @@ class App extends Screen
 
       var bottomX = x0;
 
- 
       if (spriteMenuBar!=null)
       {
          var topMenuHeight = spriteMenuBar.layout(w);

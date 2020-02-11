@@ -248,13 +248,27 @@ class WxMenubar implements Menubar
          }
          else
          {
+            var text = child.text;
+            if (child.shortcut!=null)
+                text += "\t" + child.shortcut;
+            var bmp:wx.Bitmap = null;
+            if (child.icon!=null)
+               bmp = wx.Bitmap.fromBytes( child.icon.encode(BitmapData.PNG) );
+
             if (child.onSelect!=null)
             {
                if (child.wxId<0)
                   child.wxId = wx.Lib.nextID();
                ApplicationMain.frame.handle(child.wxId, function(_) child.onSelect(child) );
             }
-            inMenu.append(child.wxId, child.text);
+            if (child.checkable)
+            {
+               inMenu.append(child.wxId, text, Menu.CHECK, bmp);
+               if (child.checked)
+                  inMenu.check(child.wxId, true);
+            }
+            else
+               inMenu.append(child.wxId, text, bmp);
          }
       }
    }

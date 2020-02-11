@@ -10,6 +10,7 @@ import nme.events.KeyboardEvent;
 import nme.events.MouseEvent;
 import nme.text.TextField;
 import gm2d.ui.Dialog;
+import gm2d.ui.IDialog;
 import nme.geom.Point;
 import gm2d.ui.PopupMenu;
 import gm2d.ui.Window;
@@ -47,7 +48,7 @@ class Game
    static public var gapReplace = 0.1;
 
    static var mCurrentScreen:Screen;
-   public static var mCurrentDialog(default,null):Dialog;
+   public static var mCurrentDialog(default,null):IDialog;
    public static var mCurrentPopup(default,null):Window;
 
    static var mScreenParent:Sprite;
@@ -237,8 +238,9 @@ class Game
 
    static function getCurrentWindow() : Window
    {
+      var sd = getSpriteDialog();
       return  mCurrentPopup!=null ? mCurrentPopup :
-              mCurrentDialog!=null ? mCurrentDialog :
+              sd!=null ? sd :
               mCurrentScreen;
    }
 
@@ -271,20 +273,21 @@ class Game
             inEvent.stopImmediatePropagation();
          }
       }
-      else if (mCurrentDialog!=null)
+      else if (getSpriteDialog()!=null)
       {
+         var sd = getSpriteDialog();
          var target:DisplayObject = inEvent.target;
          var found = false;
          while(target!=null && !found)
          {
-            found = target==mCurrentDialog;
+            found = target==sd;
             target = target.parent;
          }
 
          if (!found)
          {
-            if (mCurrentDialog.shouldConsumeEvent==null ||
-                 mCurrentDialog.shouldConsumeEvent(inEvent))
+            if (sd.shouldConsumeEvent==null ||
+                 sd.shouldConsumeEvent(inEvent))
             {
                if (inCloseIfNeeded && mAutoCloseDialog)
                   closeDialog();
@@ -635,8 +638,12 @@ class Game
       if (mCurrentPopup!=null)
           used = mCurrentPopup.onKeyDown(event);
 
-      if (!used && mCurrentDialog!=null)
-          used = mCurrentDialog.onKeyDown(event);
+      if (!used)
+      {
+         var sd = getSpriteDialog();
+         if (sd!=null)
+            used = sd.onKeyDown(event);
+      }
 
       if (!used && mCurrentScreen!=null)
          used = mCurrentScreen.onKeyDown(event);
@@ -658,9 +665,9 @@ class Game
             event.stopPropagation();
             return;
          }
-         else if (mCurrentDialog!=null && mAutoCloseDialog)
+         else if (getSpriteDialog()!=null && mAutoCloseDialog)
          {
-            mCurrentDialog.goBack();
+            getSpriteDialog().goBack();
             event.stopPropagation();
             return;
          }
@@ -733,20 +740,32 @@ class Game
       doShowDialog(null,false);
    }
 
-   static public function doShowDialog(inDialog:Dialog,inCenter:Bool, inAutoClose = true)
+   public static function getSpriteDialog() : Dialog
+   {
+      return mCurrentDialog==null ? null : mCurrentDialog.asDialog();
+   }
+
+   static public function doShowDialog(inDialog:IDialog,inCenter:Bool, inAutoClose = true)
    {
       closePopup();
       mAutoCloseDialog = inAutoClose;
+      var spriteDialog = getSpriteDialog();
       if (mCurrentDialog!=null)
       {
-         mCurrentDialog.onClose();
-         mDialogParent.removeChild(mCurrentDialog);
+         var dlg = mCurrentDialog;
          mCurrentDialog = null;
          if (mCurrentScreen!=null && inDialog==null)
             mCurrentScreen.setRunning(true);
          mScreenParent.mouseEnabled = true;
          mDialogGrey.visible = false;
+         dlg.closeFrame();
       }
+      if (spriteDialog!=null)
+      {
+         spriteDialog.onClose();
+         mDialogParent.removeChild(spriteDialog);
+      }
+
 
       mCurrentDialog = inDialog;
 
@@ -754,16 +773,21 @@ class Game
       {
          if (mCurrentScreen!=null)
             mCurrentScreen.setRunning(false);
-         mScreenParent.mouseEnabled = false;
-         mDialogParent.addChild(mCurrentDialog);
-         mCurrentDialog.onAdded();
-         //mCurrentDialog.doLayout();
-         if (inCenter)
-            mCurrentDialog.center(initWidth,initHeight);
       }
 
-      mDialogParent.visible = mCurrentDialog!=null;
-      mDialogGrey.visible = mCurrentDialog!=null;
+      var spriteDialog = getSpriteDialog();
+      if (spriteDialog!=null)
+      {
+         mScreenParent.mouseEnabled = false;
+         mDialogParent.addChild(spriteDialog);
+         spriteDialog.onAdded();
+         //mCurrentDialog.doLayout();
+         if (inCenter)
+            spriteDialog.center(initWidth,initHeight);
+      }
+
+      mDialogParent.visible = spriteDialog!=null;
+      mDialogGrey.visible = spriteDialog!=null;
       updateDialogGrey();
    }
 

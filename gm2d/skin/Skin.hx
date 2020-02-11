@@ -72,6 +72,7 @@ class Skin
    public static var labelColor = 0x000000;
    public static var panelColor = guiMedium;
    public static var controlColor = guiLight;
+   public static var dialogColor = guiLight;
    public static var disableColor = 0x808080;
    public static var resizeBarColor = 0x00ff00;
    public static var tabGradientColor = 0x909080;
