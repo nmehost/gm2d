@@ -52,6 +52,23 @@ class Button extends Control
       {
          var layout:Layout = null;
          addChild(mDisplayObj);
+         var objSize:Dynamic = attrib("objectSize");
+         if (objSize!=null)
+         {
+            if (Std.is(objSize,Float))
+            {
+                mDisplayObj.width = mDisplayObj.height = (objSize:Float);
+            }
+            else
+            {
+               var s:Size = cast objSize;
+               if (s!=null)
+               {
+                  mDisplayObj.width = s.x;
+                  mDisplayObj.height = s.y;
+               }
+            }
+         }
          if ( Std.is(mDisplayObj,TextField))
          {
             var tf = cast mDisplayObj;
@@ -198,6 +215,11 @@ class Button extends Control
             parent.addChild(this);
       }
       return inDown;
+   }
+
+   public function scaleDisplayObject(scale:Float)
+   {
+      mDisplayObj.scaleX = mDisplayObj.scaleY = scale;
    }
 
    public function setIcon(inBmp:BitmapData)

@@ -177,7 +177,7 @@ class Skin
            wantsFocus: true,
            stateCurrent: {
               filters: currentFilters!=null && currentFilters.length==0 ? null : currentFilters,
-              //line: LineHighlight,
+              line: LineHighlight,
               },
            },
         "Button" => {
