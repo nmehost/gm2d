@@ -94,15 +94,28 @@ class Window extends Widget
       var code = event.keyCode;
       var dx = 0;
       var dy = 0;
+      var dir:String = null;
 
       if (code == Keyboard.DOWN)
+      {
          dy = 1;
+         dir = "Down";
+      }
       else if (code == Keyboard.UP)
+      {
+         dir = "Up";
          dy = -1;
+      }
       else if (code == Keyboard.LEFT)
+      {
+         dir="Left";
          dx = -1;
+      }
       else if (code == Keyboard.RIGHT)
+      {
+         dir = "Right";
          dx = 1;
+      }
 
       if (dx!=0 || dy!=0)
       {
@@ -114,41 +127,43 @@ class Window extends Widget
          }
          else
          {
-            var p00 = new nme.geom.Point(0,0);
-            var pos = focusWidget.localToGlobal(p00);
-
-            var nextCurrent:Widget = null;
-
-            var commonParent = focusWidget.parent;
-            var closest = 0.0;
-
-            while(commonParent != null)
+            var nextCurrent:Widget = focusWidget.attrib("next"+dir);
+            if (nextCurrent==null)
             {
-               for(widget in getWidgetList(commonParent))
-               {
-                  if (widget==focusWidget || !widget.wantsFocus())
-                     continue;
-                  var p = widget.localToGlobal(p00);
-                  var dpx = p.x-pos.x;
-                  var dpy = p.y-pos.y;
+               var p00 = new nme.geom.Point(0,0);
+               var pos = focusWidget.localToGlobal(p00);
 
-                  if (dpx*dx>=0 && dpy*dy>=0 && ( dpx*dx>0 || dpy*dy>0 ) )
+               var commonParent = focusWidget.parent;
+               var closest = 0.0;
+
+               while(commonParent != null)
+               {
+                  for(widget in getWidgetList(commonParent))
                   {
-                     var dist = Math.sqrt(dpx*dpx*(Math.abs(dx)+0.001) +
-                                          dpy*dpy*(Math.abs(dy)+0.001));
-                     if (nextCurrent==null || dist<closest)
+                     if (widget==focusWidget || !widget.wantsFocus())
+                        continue;
+                     var p = widget.localToGlobal(p00);
+                     var dpx = p.x-pos.x;
+                     var dpy = p.y-pos.y;
+   
+                     if (dpx*dx>=0 && dpy*dy>=0 && ( dpx*dx>0 || dpy*dy>0 ) )
                      {
-                        nextCurrent = widget;
-                        closest = dist;
+                        var dist = Math.sqrt(dpx*dpx*(Math.abs(dx)+0.5) +
+                                             dpy*dpy*(Math.abs(dy)+0.5));
+                        if (nextCurrent==null || dist<closest)
+                        {
+                           nextCurrent = widget;
+                           closest = dist;
+                        }
                      }
                   }
-               }
 
-               if (nextCurrent!=null)
-                  break;
-               if (commonParent==this)
-                  break;
-               commonParent = commonParent.parent;
+                  if (nextCurrent!=null)
+                     break;
+                  if (commonParent==this)
+                     break;
+                  commonParent = commonParent.parent;
+               }
             }
 
             if (nextCurrent!=null)
