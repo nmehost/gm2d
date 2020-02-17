@@ -128,6 +128,8 @@ class ListControl extends ScrollWidget
       mColWidths = mMinColWidths.copy();
       mBestColWidths = mMinColWidths.copy();
       mColPos = [0.0];
+
+
       mRowPos = [0.0];
       mChildrenClean = 0;
       mSelected = -1;
@@ -319,10 +321,19 @@ class ListControl extends ScrollWidget
          #if neko if (mColWidths[i]==null) mColWidths[i] = 0; #end
          #if neko if (mBestColWidths[i]==null) mBestColWidths[i] = 0; #end
          #if neko if (mMinColWidths[i]==null) mMinColWidths[i] = 0; #end
-         mColWidths[i] = mBestColWidths[i];
+         var tw = 0.0;
+         if (mTitleRow!=null)
+         {
+            var w = mTitleRow[i];
+            if (w!=null)
+               tw = w.getLayout().getBestWidth();
+         }
+
+         var best =Math.max(tw,mBestColWidths[i]);
+         mColWidths[i] = best;
          pos += mColWidths[i];
-         mMinControlWidth += mMinColWidths[i];
-         bestWidth += mBestColWidths[i];
+         mMinControlWidth += Math.max(tw,mMinColWidths[i]);
+         bestWidth += best;
          if (i!=mColWidths.length-1)
          {
             mMinControlWidth += mXGap;
@@ -444,10 +455,10 @@ class ListControl extends ScrollWidget
             var layout:Layout = null;
             if (Std.is(item,DisplayObject))
                obj = item;
-            else if (Std.is(item,String))
-               obj = stringToItem(item);
             else if (Std.is(item,BitmapData))
                obj = bitmapDataToItem(item);
+            else
+               obj = stringToItem(item);
 
             var h = obj.height;
             var w = obj.width;
