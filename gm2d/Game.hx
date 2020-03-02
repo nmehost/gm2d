@@ -460,15 +460,38 @@ class Game
       return isRotated() ?  s.stageWidth : s.stageHeight;
    }
 
-   static function updateDialogGrey()
+   static function updateDialogSize()
    {
       var s = mCurrentScreen.stage;
       if (s!=null && mDialogGrey.visible)
       {
+         var sw = s.stageWidth;
+         var sh = s.stageHeight;
+
          var gfx = mDialogGrey.graphics;
          gfx.clear();
          gfx.beginFill(0x000000,0.25);
-         gfx.drawRect(0,0,s.stageWidth, s.stageHeight);
+         gfx.drawRect(0,0,sw,sh);
+
+         var sd = getSpriteDialog();
+         if (sd!=null)
+         {
+            sd.scaleX = 1.0;
+            sd.scaleY = 1.0;
+            var dw = sd.width;
+            var dh = sd.height;
+            var scale = Math.min( sw/sd.width, sh/sd.height );
+            if (scale<1)
+            {
+               scale *= 0.95;
+               sd.scaleX = sd.scaleY = scale;
+            }
+
+            var screenPos = new Point( Std.int(0.5*(sw-sd.width)), Std.int(0.5*(sh-sd.height)));
+            var local = mDialogParent.globalToLocal(screenPos);
+            sd.x = local.x;
+            sd.y = local.y;
+         }
       }
    }
 
@@ -788,7 +811,7 @@ class Game
 
       mDialogParent.visible = spriteDialog!=null;
       mDialogGrey.visible = spriteDialog!=null;
-      updateDialogGrey();
+      updateDialogSize();
    }
 
    public static function messageBox( inData:{title:String,label:String }, ?inAttribs:{} )
@@ -946,7 +969,7 @@ class Game
    {
       setStageTransform();
       updateScale();
-      updateDialogGrey();
+      updateDialogSize();
    }
 
 
