@@ -237,6 +237,12 @@ class Panel extends Widget
       mGridLayout.setBorders(inL,inT,inR,inB);
    }
 
+   public function addLayout(inLayout:Layout)
+   {
+      mLayoutDirty = true;
+      mItemGrid.add( inLayout.stretch() );
+   }
+
    public function addUI(inItem:gm2d.ui.Widget)
    {
       mLayoutDirty = true;
