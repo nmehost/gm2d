@@ -41,6 +41,7 @@ class Svg extends Group
     static var mRotate1Match = ~/rotate\((.+)\)/;
     static var mScaleMatch = ~/scale\((.*)\)/;
     static var mMatrixMatch = ~/matrix\((.+)[,\s]+(.+)[,\s]+(.+)[,\s]+(.+)[,\s]+(.+)[,\s]+(.+)\)/;
+    static var mViewBoxMatch = ~/(\S+)\s*(\S+)\s*(\S+)\s*(\S+)/;
 
 
     inline static var PATH   = 0;
@@ -67,8 +68,20 @@ class Svg extends Group
        width = loadFloatStyle("width",null,0.0, svg);
        height = loadFloatStyle("height",null,0.0, svg);
        if (width==0 && height==0)
+       {
           width = height = 400;
-       else if (width==0)
+          var viewBox = svg.get('viewBox');
+          if (viewBox!=null && mViewBoxMatch.match(viewBox))
+          {
+             var x0 = Std.parseFloat( mViewBoxMatch.matched(1) );
+             var y0 = Std.parseFloat( mViewBoxMatch.matched(2) );
+             var w = Std.parseFloat( mViewBoxMatch.matched(3) );
+             var h = Std.parseFloat( mViewBoxMatch.matched(4) );
+             width = Math.max(0,x0) + Math.abs(w);
+             height = Math.max(0,y0) + Math.abs(h);
+          }
+       }
+       if (width==0)
           width = height;
        else if (height==0)
           height = width;
