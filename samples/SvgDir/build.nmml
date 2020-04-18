@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+  <app
+     file="SvgDir"
+     title="GM2D SVG Directory Test"
+     package="com.gm2d.svgdir"
+     version="1.0"
+     company="GM2D" 
+     main="Svg"
+  />
+
+  <icon name="../icon.svg" />
+
+  <window
+      width="800"
+      height="600"
+      orientation="landscape"
+      fps="0"
+      background="0xffffff"
+      resizeable="true"
+      hardware="true"
+   />
+
+  
+  <haxelib name="gm2d" />
+  <haxelib name="nme" />
+
+</project>

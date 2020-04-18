@@ -67,6 +67,7 @@ class DrawSegment extends PathSegment
    }
 
    override public function getType() : Int { return PathSegment.DRAW; }
+   public function toString() { return 'DrawSegment($x,$y)';}
 }
 
 class QuadraticSegment extends PathSegment
@@ -92,6 +93,7 @@ class QuadraticSegment extends PathSegment
    }
 
    override public function getType() : Int { return PathSegment.CURVE; }
+   public function toString() { return 'QuadraticSegment($cx,$cy,$x,$y)';}
 }
 
 class CubicSegment extends PathSegment
