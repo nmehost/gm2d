@@ -291,14 +291,14 @@ class ArcSegment extends PathSegment
   
          // See:  http://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
          var p = phi*Math.PI/180.0;
-         var cos = Math.cos(p);
-         var sin = Math.sin(p);
+         var xDir = Math.cos(p);
+         var yDir = Math.sin(p);
   
          // Step 1, compute x', y'
          var dx = (x1-x)*0.5;
          var dy = (y1-y)*0.5;
-         var x1_ = cos*dx + sin*dy;
-         var y1_ = -sin*dx + cos*dy;
+         var x1_ = xDir*dx + yDir*dy;
+         var y1_ = -yDir*dx + xDir*dy;
   
          // Step 2, compute cx', cy'
          var rx2 = rx*rx;
@@ -323,8 +323,8 @@ class ArcSegment extends PathSegment
          var xm = (x1+x)*0.5;
          var ym = (y1+y)*0.5;
   
-         var cx = cos*cx_ - sin*cy_ + xm;
-         var cy = sin*cx_ + cos*cy_ + ym;
+         var cx = xDir*cx_ - yDir*cy_ + xm;
+         var cy = yDir*cx_ + xDir*cy_ + ym;
   
          var theta = Math.atan2( (y1_-cy_)/ry, (x1_-cx_)/rx );
          var dtheta = Math.atan2( (-y1_-cy_)/ry, (-x1_-cx_)/rx ) - theta;
@@ -341,36 +341,42 @@ class ArcSegment extends PathSegment
          }
          else
          {
-            var Txc = rx;
-            var Tx0 = cx;
-            var Tys = ry;
-            var Ty0 = cy;
- 
             dtheta /= quartics;
             var p0x = tx0;
             var p0y = ty0;
 
-            var dDx0 = Math.sin(theta)*Txc;
-            var dDy0 = -Math.cos(theta)*Tys;
+            // Perpendicular direction at t0 ...
+            var c = Math.cos(theta);
+            var s = Math.sin(theta);
+            var dDx0 = -xDir*rx*s - yDir*ry*c;
+            var dDy0 = -yDir*rx*s + xDir*ry*c;
+
+
             for(q in 0...quartics)
             {
                theta+=dtheta;
 
-               var p1x = Txc*Math.cos(theta) + Tx0;
-               var p1y = Tys*Math.sin(theta) + Ty0;
-               var dDx1 = Math.sin(theta)*Txc;
-               var dDy1 = -Math.cos(theta)*Tys;
+               var c = Math.cos(theta);
+               var s = Math.sin(theta);
+               var px = cx + xDir*rx*c - yDir*ry*s;
+               var py = cy + yDir*rx*c + xDir*ry*s;
+
+
+               // Perpendicular direction at t1 ...
+               var dDx1 = -xDir*rx*s - yDir*ry*c;
+               var dDy1 = -yDir*rx*s + xDir*ry*c;
 
                // Intersection of (p0 + a*dD0 = p1 + b*dD1 )
-               //   (p0x-p1x) + a.dDx0 = b.dDx1
-               //   (p0y-p1y) + a.dDy0 = b.dDy1
-               //  (p0x-p1x)*dDy0 - (p0y-p1y)*dDx0 = b*(dDx1*dDy0-dDy1*dDx0)
-               var b = ( (p0x-p1x)*dDy0 - (p0y-p1y)*dDx0 ) / (dDx1*dDy0 - dDy1*dDx0);
+               //   (p0x-px) + a.dDx0 = b.dDx1
+               //   (p0y-py) + a.dDy0 = b.dDy1
+               //  (p0x-px)*dDy0 - (p0y-py)*dDx0 = b*(dDx1*dDy0-dDy1*dDx0)
+               var b = ( (p0x-px)*dDy0 - (p0y-py)*dDx0 ) / (dDx1*dDy0 - dDy1*dDx0);
 
-               result.push( new QuadraticSegment( p1x+b*dDx1, p1y+b*dDy1, p1x,p1y) );
+               result.push( new QuadraticSegment( px+b*dDx1, py+b*dDy1, px,py) );
+               //result.push( new DrawSegment( px,py) );
 
-               p0x = p1x;
-               p0y = p1y;
+               p0x = px;
+               p0y = py;
                dDx0 = dDx1;
                dDy0 = dDy1;
             }
@@ -399,14 +405,14 @@ class ArcSegment extends PathSegment
 
        // See:  http://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
        var p = phi*Math.PI/180.0;
-       var cos = Math.cos(p);
-       var sin = Math.sin(p);
+       var xDir = Math.cos(p);
+       var yDir = Math.sin(p);
 
        // Step 1, compute x', y'
        var dx = (x1-x)*0.5;
        var dy = (y1-y)*0.5;
-       var x1_ = cos*dx + sin*dy;
-       var y1_ = -sin*dx + cos*dy;
+       var x1_ = xDir*dx + yDir*dy;
+       var y1_ = -yDir*dx + xDir*dy;
 
        // Step 2, compute cx', cy'
        var rx2 = rx*rx;
@@ -431,8 +437,8 @@ class ArcSegment extends PathSegment
        var xm = (x1+x)*0.5;
        var ym = (y1+y)*0.5;
 
-       var cx = cos*cx_ - sin*cy_ + xm;
-       var cy = sin*cx_ + cos*cy_ + ym;
+       var cx = xDir*cx_ - yDir*cy_ + xm;
+       var cy = yDir*cx_ + xDir*cy_ + ym;
 
        var theta = Math.atan2( (y1_-cy_)/ry, (x1_-cx_)/rx );
        var dtheta = Math.atan2( (-y1_-cy_)/ry, (-x1_-cx_)/rx ) - theta;
@@ -461,8 +467,8 @@ class ArcSegment extends PathSegment
              var c = Math.cos(theta)*rx;
              var s = Math.sin(theta)*ry;
              theta+=dtheta;
-             var px = cx + cos*c - sin*s;
-             var py = cy + sin*c + cos*s;
+             var px = cx + xDir*c - yDir*s;
+             var py = cy + yDir*c + xDir*s;
              if (m==null)
                 inGfx.lineTo(px,py);
              else

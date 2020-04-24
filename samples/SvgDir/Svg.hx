@@ -60,11 +60,13 @@ class Svg extends Sprite
          var file = sys.io.File.getContent(filename);
 
          var xml:Xml = Xml.parse(file);
-         var svg = new gm2d.svg.Svg(xml);
+         var svg = new gm2d.svg.Svg(xml,true);
          var renderer = new SvgRenderer(svg);
          var shape = renderer.createShape();
-         var scale = Math.min( stage.stageWidth/shape.width, stage.stageHeight/shape.height);
+         var scale = Math.min( stage.stageWidth/svg.width, stage.stageHeight/svg.height);
          shape.scaleX = shape.scaleY = scale;
+         shape.x = (stage.stageWidth-svg.width*scale)*0.5;
+         shape.y = (stage.stageHeight-svg.height*scale)*0.5;
          addChild(shape);
          Sys.println(filename);
       }
