@@ -468,8 +468,8 @@ class SvgRenderer
               inRect==null ? 0 : -inRect.x*inScale,
               inRect==null ? 0 : -inRect.y*inScale);
 
-       var w = Std.int(Math.ceil( inRect==null ? width : inRect.width*inScale ));
-       var h = Std.int(Math.ceil( inRect==null ? width : inRect.height*inScale ));
+       var w = Std.int(Math.ceil( inRect==null ? width*inScale : inRect.width ));
+       var h = Std.int(Math.ceil( inRect==null ? height*inScale : inRect.height ));
 
        var bmp = new nme.display.BitmapData(w,h,true,gm2d.RGB.CLEAR );
 
