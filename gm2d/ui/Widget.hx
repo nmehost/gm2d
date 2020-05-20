@@ -28,6 +28,9 @@ class Widget extends Sprite
    var mLayout:BorderLayout;
    var mItemLayout:Layout;
 
+   public static var showCurrent = true;
+   public static var autoShowCurrent = true;
+
    public var state(default,set) : Int;
    public var disabled(get,set) : Bool;
    public var enabled(get,set) : Bool;
@@ -351,18 +354,26 @@ class Widget extends Sprite
       layout.setRect(inX,inY,size.x,size.y);
    }
 
+   function rebuildState(?wasCurrent:Bool)
+   {
+      if (wasCurrent==null)
+         wasCurrent = isCurrent;
+      var renderState = showCurrent ? state : (state & ~CURRENT);
+      combinedAttribs = Skin.combineAttribs(mLineage, renderState, mAttribs);
+      mRenderer = new Renderer(combinedAttribs);
+      //trace(combinedAttribs + ":" + isCurrent);
+      redraw();
+      if (isCurrent && !wasCurrent && attribBool("raiseCurrent",true) && parent!=null)
+         parent.setChildIndex(this, parent.numChildren-1 );
+   }
+
    public function set_state(inState:Int) : Int
    {
       if (inState!=state)
       {
          var wasCurrent = isCurrent;
          state = inState;
-         combinedAttribs = Skin.combineAttribs(mLineage, state, mAttribs);
-         mRenderer = new Renderer(combinedAttribs);
-         //trace(combinedAttribs + ":" + isCurrent);
-         redraw();
-         if (isCurrent && !wasCurrent && attribBool("raiseCurrent",true) && parent!=null)
-            parent.setChildIndex(this, parent.numChildren-1 );
+         rebuildState(wasCurrent);
       }
       return inState;
    }
