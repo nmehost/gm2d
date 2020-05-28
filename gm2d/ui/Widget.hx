@@ -239,6 +239,9 @@ class Widget extends Sprite
       return val==null ? inDefault : val;
    }
 
+   public function setBitmap(inBmp:BitmapData)  { }
+
+
    public function getBitmap(inState:Int=0) : BitmapData
    {
       var bitmapData:BitmapData = attrib("bitmapData");

@@ -222,12 +222,22 @@ class Button extends Control
       mDisplayObj.scaleX = mDisplayObj.scaleY = scale;
    }
 
+   override public function setBitmap(inBmp:BitmapData)
+   {
+      setIcon(inBmp);
+   }
+
    public function setIcon(inBmp:BitmapData)
    {
       if (Std.is(mDisplayObj,Bitmap))
       {
          var bitmap : Bitmap = cast mDisplayObj;
          bitmap.bitmapData = inBmp;
+      }
+      else
+      {
+         setAttrib("icon",inBmp);
+         redraw();
       }
    }
 
