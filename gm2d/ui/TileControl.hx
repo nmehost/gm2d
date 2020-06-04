@@ -11,6 +11,8 @@ class TileControl extends ScrollWidget
    var holdUpdateCount:Int;
    var items:Array<Widget>;
 
+   public var count(get,null):Int;
+
    public function new(?inLineage:Array<String>,?inAttribs:{})
    {
       super(Widget.addLine(inLineage,"TileControl"), inAttribs);
@@ -32,6 +34,36 @@ class TileControl extends ScrollWidget
       setItemLayout(internalLayout);
       setScrollRange(width,width,height,height);
       //build();
+   }
+
+
+   function get_count() return items.length;
+
+   public function isDown(idx:Int)
+   {
+      return idx>=0 && items[idx]!=null && items[idx].down;
+   }
+
+   public function getDownWidgets()
+   {
+      var result = new Array<Widget>();
+      for(i in items)
+         if (i.down)
+            result.push(i);
+      return result;
+   }
+
+   public function setDownInclusive(t0:Int, t1:Int, inDown=true)
+   {
+     if (t1<t0)
+     {
+        var t = t0;
+        t0 = t1;
+        t1 = t;
+     }
+     if (t0>=0 && t1<items.length)
+        for(t in t0...t1+1)
+           items[t].down = inDown;
    }
 
 

@@ -115,12 +115,15 @@ class FileOpen
    public static inline var CHECK_OVERWRITE   = 0x0004;
 
    public static function load(inMessage:String,
-            onResult:String->ByteArray->Void,
+            ?onResult:String->ByteArray->Void,
+            ?onResults:Array<String>->Void,
             ?inFilter:String,
             ?inDefaultPath:String,
             inFlags:Int = 0)
    {
       #if waxe
+      if (onResults==null)
+      {
         var dialog = new wx.FileDialog(null,inMessage);
         if (inFilter!=null)
         {
@@ -135,6 +138,7 @@ class FileOpen
         }
         else
            onResult(null,null);
+      }
       #elseif flash
 
         var ref = new FileReference( );
@@ -162,7 +166,7 @@ class FileOpen
          path="";
       else if (path!="" && sys.FileSystem.exists(path) && !sys.FileSystem.isDirectory(path))
          path = haxe.io.Path.directory(path);
-      new gm2d.ui.FileOpenScreen(inMessage, path, onResult, inFilter, inFlags);
+      new gm2d.ui.FileOpenScreen(inMessage, path, onResult, onResults, inFilter, inFlags);
 
       #end
    }

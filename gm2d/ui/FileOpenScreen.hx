@@ -7,6 +7,7 @@ import gm2d.ScreenScaleMode;
 import gm2d.ui.HitBoxes;
 import nme.display.Sprite;
 import gm2d.skin.Skin;
+import gm2d.skin.FillStyle;
 
 import nme.display.Graphics;
 import nme.display.Bitmap;
@@ -16,6 +17,7 @@ import nme.net.FileFilter;
 import nme.display.BitmapData;
 import nme.display.Bitmap;
 import nme.display.DisplayObjectContainer;
+import nme.events.MouseEvent;
 
 import haxe.io.Path;
 import nme.utils.ByteArray;
@@ -58,6 +60,8 @@ class FileOpenScreen extends Screen
    var files:Array<String>;
    var allButtons:Array<Widget>;
    var onResult:String->ByteArray->Void;
+   var onFiles:Array<String>->Void;
+   var buttonAttribs:Dynamic;
    public var onSaveResult:String->Void;
    public var onError:String->Void;
    public var saveName:String;
@@ -65,11 +69,15 @@ class FileOpenScreen extends Screen
    var isSave:Bool;
    var saveTextInput:TextInput;
    var thumbSize:Size;
+   var multiSelect : Bool;
+   var lastDown = -1;
+
    public static var thumbnailFactory:String->Widget->Size->Void;
 
    public function new(inMessage:String,
          inDir:String,
-         inOnResult:String->ByteArray->Void,
+         ?inOnResult:String->ByteArray->Void,
+         ?inOnFiles:Array<String>->Void,
          inFilter:String,
          inFlags:Int = 0,
          inSaveName="",
@@ -108,6 +116,12 @@ class FileOpenScreen extends Screen
       }
 
       onResult = inOnResult;
+      trace(onResult);
+      onFiles = inOnFiles;
+      multiSelect = onFiles!=null;
+      if (multiSelect)
+         buttonAttribs = { toggle:true, stateDown: { fill: FillMedium } };
+
       folderIcon = new gm2d.icons.Folder().toBitmap(Skin.dpiScale);
       docIcon = new gm2d.icons.Document().toBitmap(Skin.dpiScale);
       thumbSize = new Size(docIcon.width<24 ? 24 : docIcon.width,
@@ -180,7 +194,7 @@ class FileOpenScreen extends Screen
       var buttons = new HorizontalLayout();
       buttons.setSpacing(10,0);
 
-      if (isSave)
+      if (isSave || multiSelect)
       {
          var button = Button.TextButton("Ok", function() onSave() );
          addChild(button);
@@ -229,34 +243,52 @@ class FileOpenScreen extends Screen
          def.flush();
       }
 
-      var name = saveName;
-      if (name.indexOf(".")<0 && currentFilter!=null)
+      if (multiSelect)
       {
-         name += currentFilter.getBestExtension();
-      }
-      var start = name.substr(0,1);
-      var isAbsolute = start=='/' || start=='\\' || name.substr(1,1)==':';
-      if (!isAbsolute)
-         name = baseDir + "/" + name;
-
-      if ( (flags & FileOpen.CHECK_OVERWRITE)!=0 && FileSource.exists(name) )
-      {
-         var panel = new Panel("Confirm Overwrite");
-         panel.addLabel("File " + name + " already exists.  Do you want ot overwrite?");
-         panel.addTextButton( "Ok", function()
+         Game.popScreen();
+         var selected = list.getDownWidgets();
+         var files = new Array<String>();
+         for(s in selected)
+         {
+            var f = s.attribString("file");
+            if (f!=null)
             {
-               Game.closeDialog();
-               onSaveResult(name);
-               Game.popScreen();
-            } );
-         panel.addTextButton( "Cancel", Game.closeDialog );
-         var dialog = new Dialog(panel.getPane());
-         Game.doShowDialog(dialog,true);
+               files.push(baseDir + "/" + f);
+            }
+         }
+         onFiles(files);
       }
       else
       {
-         onSaveResult(name);
-         Game.popScreen();
+         var name = saveName;
+         if (name.indexOf(".")<0 && currentFilter!=null)
+         {
+            name += currentFilter.getBestExtension();
+         }
+         var start = name.substr(0,1);
+         var isAbsolute = start=='/' || start=='\\' || name.substr(1,1)==':';
+         if (!isAbsolute)
+            name = baseDir + "/" + name;
+
+         if ( (flags & FileOpen.CHECK_OVERWRITE)!=0 && FileSource.exists(name) )
+         {
+            var panel = new Panel("Confirm Overwrite");
+            panel.addLabel("File " + name + " already exists.  Do you want ot overwrite?");
+            panel.addTextButton( "Ok", function()
+               {
+                  Game.closeDialog();
+                  onSaveResult(name);
+                  Game.popScreen();
+               } );
+            panel.addTextButton( "Cancel", Game.closeDialog );
+            var dialog = new Dialog(panel.getPane());
+            Game.doShowDialog(dialog,true);
+         }
+         else
+         {
+            onSaveResult(name);
+            Game.popScreen();
+         }
       }
       #end
    }
@@ -265,18 +297,26 @@ class FileOpenScreen extends Screen
    {
      if (onResult!=null)
         onResult(null,null);
+     if (onFiles!=null)
+        onFiles(null);
      Game.popScreen();
    }
 
    function setResult(inFile:String)
    {
+      trace("setResult " + inFile);
       #if flash
       throw "Not supported";
       #else
       Game.popScreen();
       //trace("Selected file: " + inFile);
       if (inFile=="")
-        onResult(null,null);
+      {
+        if (onResult!=null)
+           onResult(null,null);
+        else if (onFiles!=null)
+           onFiles(null);
+      }
       else
       {
          var def = SharedObject.getLocal("fileOpen");
@@ -306,12 +346,39 @@ class FileOpenScreen extends Screen
       dirButtonContainer.addChild(button);
       dirButtons.add(button.getLayout());
    }
+
+   function selectFile(file:String)
+   {
+      //trace("Select " + file);
+   }
+
+   function onMultSelectHandler(idx:Int, mouseEvent:MouseEvent)
+   {
+      if (mouseEvent.type == MouseEvent.MOUSE_UP && mouseEvent.shiftKey && lastDown>=0)
+      {
+         list.setDownInclusive(idx, lastDown, list.isDown(lastDown));
+         return false;
+      }
+      if (!mouseEvent.shiftKey)
+         lastDown = idx;
+
+      return true;
+   }
    
    function addItem(icon:BitmapData, name:String, dir:String, ?file:String)
    {
-      var widget =  Button.BMPTextButton(icon,name, dir!=null ? function() onDir(dir) : function() onFile(file), ["SimpleTile"] );
+      buttonAttribs.file = file;
+      var widget =  Button.BMPTextButton(icon,name, dir!=null ? function() onDir(dir) :
+                                          multiSelect ? () -> selectFile(file) :
+                                          function() onFile(file), ["SimpleTile"], buttonAttribs  );
       widget.getItemLayout().setAlignment( Layout.AlignLeft | Layout.AlignCenterY );
       widget.getLayout().stretch();
+
+      if (multiSelect)
+      {
+         var c = list.count;
+         widget.mouseHandler = (_,e) -> onMultSelectHandler(c,e);
+      }
       list.add(widget);
 
       if (icon!=folderIcon && thumbnailFactory!=null)
@@ -323,6 +390,7 @@ class FileOpenScreen extends Screen
 
    public function setDir(inDir:String,inRelayout=true)
    {
+      lastDown = -1;
       list.holdUpdates(true);
       if (allButtons!=null)
       {

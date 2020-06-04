@@ -128,7 +128,7 @@ class Widget extends Sprite
       for(field in Reflect.fields(inAttribs0))
          Reflect.setField(result, field, Reflect.field(inAttribs0,field));
       for(field in Reflect.fields(inAttribs1))
-         Reflect.setField(result, field, Reflect.field(inAttribs0,field));
+         Reflect.setField(result, field, Reflect.field(inAttribs1,field));
 
       return result;
    }
