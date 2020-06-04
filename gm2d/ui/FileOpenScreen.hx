@@ -116,7 +116,6 @@ class FileOpenScreen extends Screen
       }
 
       onResult = inOnResult;
-      trace(onResult);
       onFiles = inOnFiles;
       multiSelect = onFiles!=null;
       if (multiSelect)
@@ -367,7 +366,8 @@ class FileOpenScreen extends Screen
    
    function addItem(icon:BitmapData, name:String, dir:String, ?file:String)
    {
-      buttonAttribs.file = file;
+      if (buttonAttribs!=null)
+         buttonAttribs.file = file;
       var widget =  Button.BMPTextButton(icon,name, dir!=null ? function() onDir(dir) :
                                           multiSelect ? () -> selectFile(file) :
                                           function() onFile(file), ["SimpleTile"], buttonAttribs  );
