@@ -326,7 +326,7 @@ class Renderer
       if (label!=null)
          renderLabel(label);
       inWidget.filters = filters;
-      if (map.exists("chromeFilters"))
+      if (map!=null && map.exists("chromeFilters"))
           inWidget.mChrome.filters = map.get("chromeFilters");
       else
           inWidget.mChrome.filters = null;
