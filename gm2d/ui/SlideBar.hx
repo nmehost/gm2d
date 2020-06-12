@@ -115,6 +115,7 @@ class SlideBar extends Sprite implements IDock
       //new DockSizeHandler(background,overlayContainer,hitBoxes);
       hitBoxes = new HitBoxes(chrome,onHitBox);
       new DockSizeHandler(chrome,overlayContainer,hitBoxes);
+      paneContainer.visible = showing>0;
    }
 
    public function onHitBox(inAction:HitAction,inEvent:MouseEvent)
@@ -291,15 +292,25 @@ class SlideBar extends Sprite implements IDock
       paneContainer.y = oy;
       barContainer.y = oy;
 
-      var size = new Size(horizontal ? 0 : w,horizontal ? h : 0);
+      var size = new Size(horizontal ? showing : w,horizontal ? h : showing);
+      var pullFromRight = false;
+      var clipped = false;
       if (current!=null)
       {
          size = horizontal ? 
              current.getLayoutSize(showing,h,false) :
              current.getLayoutSize(w,showing,true);
+         clipped = horizontal ? size.x>showing : size.y>showing;
          current.getLayout().setRect(0,0,size.x,size.y);
       }
-      //paneContainer.scrollRect = new Rectangle(0,0,size.x,size.y);
+      if ( !pullFromRight && (pos==DOCK_LEFT || pos==DOCK_TOP) && clipped)
+      {
+         paneContainer.scrollRect = new Rectangle(0,0,horizontal ? showing : size.x,
+                                                      horizontal ? size.y : showing );
+      }
+      else
+         paneContainer.scrollRect = null;
+
 
 
       if (horizontal)
@@ -316,7 +327,13 @@ class SlideBar extends Sprite implements IDock
       switch(pos)
       {
          case DOCK_LEFT:
-            this.x = showing - size.x;
+            if (pullFromRight)
+               this.x = showing - size.x;
+            else
+            {
+               size.x = showing;
+               this.x = 0;
+            }
             this.y = y;
 
          case DOCK_RIGHT:
@@ -329,7 +346,13 @@ class SlideBar extends Sprite implements IDock
 
          case DOCK_TOP:
             this.x = x;
-            this.y = showing - size.y - oy;
+            if (pullFromRight)
+               this.y = showing - size.y - oy;
+            else
+            {
+               size.y = showing;
+               this.y = oy;
+            }
 
          default:
       }
