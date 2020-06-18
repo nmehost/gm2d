@@ -78,6 +78,10 @@ class Window extends Widget
          focusWidget = inItem;
          if (focusWidget!=null)
             focusWidget.isCurrent = true;
+        if (stage!=null)
+           stage.invalidate();
+        //if (focusWidget!=null)
+        //  trace(this + " setCurrentItem -> " + focusWidget );
       }
    }
 
@@ -138,7 +142,9 @@ class Window extends Widget
          {
             var items = getWidgetList();
             if (items.length>0)
+            {
                setCurrentItem( items[0] );
+            }
          }
          else
          {
@@ -160,6 +166,14 @@ class Window extends Widget
                      var p = widget.localToGlobal(p00);
                      var dpx = p.x-pos.x;
                      var dpy = p.y-pos.y;
+
+                     // Same Y and moving left/right...
+                     if (dpy==0 && dy==0 )
+                        dpx *= 0.01; 
+
+                     // Same X and moving up/down
+                     else if (dpx==0 && dx==0 )
+                        dpy *= 0.01; 
    
                      if (dpx*dx>=0 && dpy*dy>=0 && ( dpx*dx>0 || dpy*dy>0 ) )
                      {

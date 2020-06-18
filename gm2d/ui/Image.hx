@@ -22,6 +22,9 @@ class Image extends Widget
       {
          bitmap = new Bitmap(bmp, nme.display.PixelSnapping.AUTO, attribBool("smooth", true));
          addChild(bitmap);
+         var bmpScale = attribFloat("bmpScale",1.0);
+         if (bmpScale!=1.0)
+            bitmap.scaleX = bitmap.scaleY = bmpScale;
          setItemLayout( new DisplayLayout(bitmap) );
       }
       applyStyles();

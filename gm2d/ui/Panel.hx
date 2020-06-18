@@ -217,6 +217,22 @@ class Panel extends Widget
       return this;
    }
 
+   override public function wantsFocus()
+   {
+      return false;
+   }
+
+   public function getDefaultWidget()
+   {
+      if (mButtons!=null)
+          for(b in mButtons)
+             if (b.wantsFocus())
+                return b;
+      var outList  = new  Array<Widget>();
+      Widget.getWidgetsRecurse(this,outList);
+      return outList[0];
+   }
+
    override public function getPane()
    {
       if (mPane==null)
@@ -228,6 +244,7 @@ class Panel extends Widget
          mPane.setMinSize(w,h);
          mPane.itemLayout = getLayout();
          mPane.setFlags( mPane.getFlags() | Dock.RESIZABLE );
+         mPane.getDefaultWidget = getDefaultWidget;
       }
       return mPane;
    }

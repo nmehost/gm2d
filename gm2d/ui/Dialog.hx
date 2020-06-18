@@ -32,6 +32,7 @@ class Dialog extends Window implements IDialog
       var vlayout = new VerticalLayout([0,1]);
 
       var title = new TextLabel(inPane.title, ["DialogTitle"]);
+      name = "Dialog(" + inPane.title + ")";
       addChild(title);
       vlayout.add(title.getLayout().stretch());
 
@@ -60,6 +61,13 @@ class Dialog extends Window implements IDialog
    {
       if (gm2d.Game.mCurrentDialog==this)
          gm2d.Game.closeDialog();
+   }
+
+   public function setDefaultFocus()
+   {
+      var w = mPane!=null && mPane.getDefaultWidget!=null ? mPane.getDefaultWidget() : null;
+      if (w!=null)
+         setCurrentItem(w);
    }
 
    public static function showMessage(title:String, message:String)

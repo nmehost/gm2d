@@ -171,6 +171,7 @@ class Game
       stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp );
       stage.removeEventListener(Event.RESIZE, onSize);
       stage.removeEventListener(Event.ENTER_FRAME, onEnter);
+      stage.removeEventListener(Event.RENDER, onEnter);
 
       stage.removeEventListener(MouseEvent.MOUSE_MOVE, onPreMouseMove, true);
       stage.removeEventListener(MouseEvent.MOUSE_DOWN, onPreMouseDown, true);
@@ -796,6 +797,9 @@ class Game
       {
          if (mCurrentScreen!=null)
             mCurrentScreen.setRunning(false);
+         var dlg = mCurrentDialog.asDialog();
+         if (dlg!=null)
+            dlg.setDefaultFocus();
       }
 
       var spriteDialog = getSpriteDialog();

@@ -39,6 +39,7 @@ class Pane implements IDockable
    var flags:Int;
    public var posX(default,null):Float;
    public var posY(default,null):Float;
+   public var getDefaultWidget:Void->Widget;
 
    public function new(inObj:DisplayObject, inTitle:String, inFlags:Int, ?inShortTitle:String,
        ?inItemLayout:Layout)
@@ -82,6 +83,7 @@ class Pane implements IDockable
       if (dock!=null)
          dock.setDirty(true,true);
    }
+
 
    static public function allPanes() { return sPanes.copy(); }
 

@@ -466,6 +466,8 @@ class Widget extends Sprite
       for(i in 0...inParent.numChildren)
       {
          var child = inParent.getChildAt(i);
+         if (!child.visible)
+            continue;
          if (Std.is(child,Widget))
          {
             var child:Widget = cast child;
