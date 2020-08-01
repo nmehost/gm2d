@@ -98,11 +98,16 @@ class Game
       mAutoCloseDialog = true;
 
       mScreenParent = new Sprite();
+      mScreenParent.name = "ScreenParent";
       mDialogGrey = new Shape();
       mDialogGrey.visible = false;
+      mDialogGrey.name = "DialogGrey";
       mDialogParent = new Sprite();
+      mDialogParent.name = "DialogParent";
       mPopupParent = new Sprite();
+      mPopupParent.name = "PopupParent";
       mDebugOverlay = new Shape();
+      mDebugOverlay.name = "DebugOverlay";
       mDebugOverlay.visible = false;
       mDialogParent.visible = true;
 
@@ -116,6 +121,7 @@ class Game
       mFPSControl.textColor = mFPSColor;
 
       var parent = nme.Lib.current;
+      parent.name = "nme.Lib.current";
       parent.addChildAt(mScreenParent,0);
       parent.addChildAt(mDialogGrey,1);
       parent.addChildAt(mDialogParent,2);
@@ -542,8 +548,10 @@ class Game
          #if flash
          var dlgScale = 1.0;
          #else
-         var dlgScale = mCurrentScreen.stage.dpiScale;
+         //var dlgScale = mCurrentScreen.stage.dpiScale;
+         var dlgScale = 1.0;
          #end
+
          mDialogParent.x = Std.int( (stage_width  - initWidth*dlgScale)/2);
          mDialogParent.y = Std.int( (stage_height - initHeight*dlgScale)/2);
          mDialogParent.scaleX = dlgScale;
