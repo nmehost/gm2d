@@ -382,6 +382,8 @@ class ListControl extends ScrollWidget
 
    public function stringToItem(inString:String) : DisplayObject
    {
+      return new TextLabel(inString,["ListText"]);
+      /*
       var t = new TextField();
       mRenderer.renderLabel(t);
       t.text = inString;
@@ -392,6 +394,7 @@ class ListControl extends ScrollWidget
          t.mouseEnabled = false;
       t.height = 20;
       return t;
+      */
    }
    public function bitmapDataToItem(inData:BitmapData) : DisplayObject
    {

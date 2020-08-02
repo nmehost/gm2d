@@ -128,6 +128,7 @@ class ComboBox extends TextInput
           gfx.drawRect(Skin.scale(-2),Skin.scale(-2),Skin.scale(28),Skin.scale(28));
 
           gfx.beginFill(0xf0f0f0);
+          //gfx.lineStyle();
           gfx.lineStyle(1,0x808080);
           gfx.drawRoundRect(0.5,0.5,Skin.scale(22)-1,Skin.scale(22)-1,3);
           gfx.lineStyle();
@@ -260,19 +261,20 @@ class ComboBox extends TextInput
       var max = Std.int(stage.stageHeight/2);
       var below = Math.min(max,stage.stageHeight - (pos.y+offset));
       var above = Math.min(max,pos.y);
-      if (h+pos.y+22 < stage.stageHeight)
+
+      if (h+pos.y+offset < stage.stageHeight)
       {
-         pop.getLayout().setRect(pop.x,pop.y,w,h);
+         pop.getLayout().setRect(0,0,w,h);
          gm2d.Game.popup(pop,pos.x,pos.y+offset, pop.onClosePopup);
       }
-      else if (below>=above)
+      else if (above>h)
       {
-         pop.getLayout().setRect(pop.x,pop.y,w,below);
-         gm2d.Game.popup(pop,pos.x,pos.y+offset, pop.onClosePopup);
+         pop.getLayout().setRect(0,0,w,h);
+         gm2d.Game.popup(pop,pos.x,pos.y-h, pop.onClosePopup);
       }
       else
       {
-         pop.getLayout().setRect(pop.x,pop.y-above,w,above);
+         pop.getLayout().setRect(0,0,w,above);
          gm2d.Game.popup(pop,pos.x,pos.y-above, pop.onClosePopup);
       }
    }

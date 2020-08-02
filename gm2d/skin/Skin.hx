@@ -254,6 +254,9 @@ class Skin
         "TextLabel" => {
            align: Layout.AlignLeft,
            },
+        "ListText" => {
+           padding:scale(5),
+           },
         "TextPlaceholder" => {
            textColor: 0xa0a0a0,
            },
