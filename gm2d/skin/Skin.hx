@@ -144,11 +144,13 @@ class Skin
 
       if (shadowFilters==null)
       {
-         shadowFilters = [ new DropShadowFilter(3,45,0,0.8,3,3,1) ];
+         var s = scale(3);
+         shadowFilters = [ new DropShadowFilter(s,45,0,0.5,s,s,3) ];
       }
       if (currentFilters==null)
       {
-         var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, 3, 3, 3, 3, false, false);
+         var s = scale(3);
+         var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, s, s, 2, 1, false, false);
          currentFilters = [ glow ];
       }
 
