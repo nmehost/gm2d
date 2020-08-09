@@ -28,7 +28,10 @@ class ComboList extends Window
       addChild(mList);
       mList.scrollRect = null;
       mList.onSelectPhase = onSelectPhase;
-      mList.onClick = function(_)  gm2d.Game.closePopup();
+      mList.onClick = function(e:MouseEvent) {
+         windowMouseMove(e);
+         gm2d.Game.closePopup();
+      }
       setItemLayout(mList.getLayout().setMinWidth(inW).stretch());
       //build();
    }

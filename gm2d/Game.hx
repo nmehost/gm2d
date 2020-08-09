@@ -276,7 +276,9 @@ class Game
          if (!found)
          {
             if (inCloseIfNeeded)
+            {
                closePopup();
+            }
             inEvent.stopImmediatePropagation();
          }
       }
