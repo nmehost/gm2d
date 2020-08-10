@@ -196,6 +196,7 @@ class MouseWatcher
       onPendingDrag();
 
       removeStageListeners();
+      isDown = false;
       if (onUp!=null)
       {
          onUp(ev);
