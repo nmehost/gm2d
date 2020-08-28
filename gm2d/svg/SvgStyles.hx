@@ -7,11 +7,12 @@ using StringTools;
 class SvgStyles
 {
    var defaultFill = FillSolid(0x000000);
-   var urlMatch = ~/url\(#(.*)\)/;
+   var urlMatch = ~/url\(#(.*?)\)/;
    var rgbMatch = ~/rgb\((.*),(.*),(.*)\)/;
 
    var stack : Array<Map<String,String>>;
    var gradients:GradHash;
+
 
    public function new(inGradients:GradHash)
    {
@@ -54,7 +55,7 @@ class SvgStyles
       return Std.parseFloat(s);
    }
 
-   static function parseRgbComp(s:String) : Int
+   public static function parseRgbComp(s:String) : Int
    {
       var result = 0;
       s = s.trim();
@@ -102,6 +103,9 @@ class SvgStyles
              ( (i&0xf00) * 0x1100 ) ;
    }
 
+
+
+
    public function getMarker(inKey:String,inLinks:Map<String,DisplayElement>) : Marker
    {
       var s = get(inKey,"");
@@ -122,6 +126,27 @@ class SvgStyles
       return null;
    }
 
+   public function getFilterSet(filterMap:Map<String,FilterSet>) : FilterSet
+   {
+      var s = get("filter","");
+      if (s=="")
+         return null;
+      if (s=="none")
+         return null;
+
+      if (urlMatch.match(s))
+      {
+         var url = urlMatch.matched(1);
+         var set = filterMap.get(url);
+         if (set==null)
+            throw "Unknown filters " + url;
+         return set;
+      }
+      throw("Unknown filter string:" + s);
+      return null;
+   }
+
+
    public function getFill(inKey:String)
    {
       var s = get(inKey,"");
@@ -139,13 +164,6 @@ class SvgStyles
       if (s=="none")
          return FillNone;
 
-      if (rgbMatch.match(s))
-      {
-         return FillSolid( (parseRgbComp(rgbMatch.matched(1))<<16 ) |
-                           (parseRgbComp(rgbMatch.matched(2))<<8 ) |
-                           (parseRgbComp(rgbMatch.matched(3))) );
-      }
-
       if (urlMatch.match(s))
       {
          var url = urlMatch.matched(1);
@@ -153,8 +171,17 @@ class SvgStyles
          if (grad!=null)
             return FillGrad(grad);
 
-         throw("Unknown url:" + url);
+         trace("Warning: unknown url:" + url);
+         //throw("Unknown url:" + url);
       }
+
+      if (rgbMatch.match(s))
+      {
+         return FillSolid( (parseRgbComp(rgbMatch.matched(1))<<16 ) |
+                           (parseRgbComp(rgbMatch.matched(2))<<8 ) |
+                           (parseRgbComp(rgbMatch.matched(3))) );
+      }
+
 
       var col = gm2d.RGB.resolve(s);
       if (col!=null)

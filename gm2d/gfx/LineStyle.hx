@@ -8,6 +8,7 @@ class LineStyle
 {
    public var thickness:Float;
    public var color:Int;
+   public var gradient:Gradient;
    public var alpha:Float;
    public var pixelHinting:Bool;
    public var scaleMode:LineScaleMode;
@@ -19,6 +20,7 @@ class LineStyle
    {
       thickness = 1.0;
       color = 0x000000;
+      gradient = null;
       alpha = 1.0;
       pixelHinting = false;
       scaleMode = LineScaleMode.NORMAL;

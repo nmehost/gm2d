@@ -33,6 +33,7 @@ class SvgRenderer
 {
    public var width(default,null):Float;
    public var height(default,null):Float;
+   var urlMatch = ~/url\(#(.*?)\)/;
 
    var mSvg:Svg;
    var mRoot:Group;
@@ -182,10 +183,32 @@ class SvgRenderer
        mGfx.renderText(inText,mMatrix,textStyle);
     }
 
+    public function createTextObj(inText:Text)
+    {
+       var shape = new Shape();
+       mGfx = new gm2d.gfx.GfxGraphics(shape.graphics);
+       renderText(inText);
+       mGfx = null;
+       return shape;
+    }
+
+    public function createPathObj(inPath:Path) : Shape
+    {
+       if (inPath.segments.length==0)
+           return null;
+
+       var shape = new Shape();
+       mGfx = new gm2d.gfx.GfxGraphics(shape.graphics);
+       renderPath(inPath);
+       mGfx = null;
+       return shape;
+    }
+
+
     public function renderPath(inPath:Path)
     {
        if (mFilter!=null && !mFilter(inPath.name,mGroupPath))
-          return;
+          return null;
 
        if (inPath.segments.length==0 || mGfx==null)
            return;
@@ -218,17 +241,30 @@ class SvgRenderer
           }
 
 
-          var stroke_colour=styles.getStroke("stroke");
-          if (stroke_colour!=null)
+          var strokeFill=styles.getFill("stroke");
+
+          if (strokeFill!=null && strokeFill!=FillNone)
           {
+
              lineStyle = new gm2d.gfx.LineStyle();
              strokeScale = mMatrix==null ? 1.0 : Math.sqrt(mMatrix.a*mMatrix.a + mMatrix.c*mMatrix.c);
              lineStyle.thickness = styles.getFloat("stroke-width",1)*strokeScale;
              lineStyle.alpha = styles.getFloat("stroke-opacity",1)*opacity;
-             lineStyle.color = stroke_colour;
+             lineStyle.color = 0;
              lineStyle.capsStyle = CapsStyle.ROUND;
              lineStyle.jointStyle = JointStyle.ROUND;
              lineStyle.miterLimit = styles.getFloat("stroke-miterlimit",3.0);
+
+             switch(styles.getFill("fill"))
+             {
+                case FillGrad(grad):
+                   lineStyle.gradient = grad;
+                case FillSolid(colour):
+                   lineStyle.color = colour;
+
+                case FillNone:
+                   //mGfx.endFill();
+             }
              mGfx.lineStyle(lineStyle);
           }
        }
@@ -361,6 +397,112 @@ class SvgRenderer
        return inGfx;
     }
 
+   public function getMask(style:Map<String,String>) : Group
+   {
+      if (style==null)
+         return null;
+      var s = style.get("mask");
+      if (s==null || s=="" || s=="none")
+         return null;
+
+      if (urlMatch.match(s))
+      {
+         var url = urlMatch.matched(1);
+         var mask = mSvg.mMasks.get(url);
+         if (mask==null)
+            throw "Unknown mask " + url;
+         return mask;
+      }
+      throw("Unknown marker string:" + s);
+      return null;
+   }
+
+    public function renderDisplayTreeGroup(inParent:Sprite, group:Group)
+    {
+       if (group.matrix!=null)
+          inParent.transform.matrix = group.matrix;
+
+       var mask = getMask(group.style);
+       if (mask!=null)
+       {
+          var m = new Sprite();
+          renderDisplayTreeGroup(m,mask);
+          inParent.addChild(m);
+          inParent.mask = m;
+       }
+
+       var doPop = pushStyle(group.style);
+       for(child in group.children)
+       {
+          if (child.style!=null && child.style.get("display")=="none")
+             continue;
+
+          var g = child.asGroup();
+          if (g!=null)
+          {
+             var c = new Sprite();
+             inParent.addChild(c);
+             renderDisplayTreeGroup(c,g);
+          }
+          else
+          {
+             var obj:DisplayObject = null;
+
+             var doPop = pushStyle(child.style);
+             while(child.asLink()!=null)
+             {
+                var link = child.asLink();
+                if (link==null || link.link==null)
+                   break;
+                var linked = mSvg.findLink(link.link);
+                if (linked==null)
+                {
+                   trace("Could not find " +link.link);
+                   break;
+                }
+
+                var lg = linked.asGroup();
+                if (lg!=null)
+                {
+                   var sprite = new Sprite();
+                   renderDisplayTreeGroup(sprite,lg);
+                   obj = sprite;
+                   break;
+                }
+                else
+                {
+                   child = linked;
+                }
+             }
+
+             if (child.asPath()!=null)
+                obj = createPathObj(child.asPath());
+             else if (child.asText()!=null)
+                obj = createTextObj(child.asText());
+
+
+             if (obj!=null)
+             {
+                var filters = styles.getFilterSet(mSvg.mFilters);
+                if (filters!=null)
+                   obj.filters = filters.filters;
+
+                if (child.matrix!=null)
+                    obj.transform.matrix = child.matrix;
+                inParent.addChild(obj);
+             }
+
+             if (doPop)
+                popStyle();
+          }
+       }
+       var filters = styles.getFilterSet(mSvg.mFilters);
+       if (filters!=null)
+          inParent.filters = filters.filters;
+       if (doPop)
+          popStyle();
+    }
+
 
     public function render(inGfx:Graphics,?inMatrix:Matrix, ?inFilter:ObjectFilter, ?inScaleRect:Rectangle,?inScaleW:Float, ?inScaleH:Float )
     {
@@ -433,15 +575,6 @@ class SvgRenderer
                     ?inMatrix:Matrix,?inFilter:ObjectFilter,?inScale9:Rectangle)
     {
        render(inGfx,inMatrix,inFilter,inScale9);
-       var rect = getExtent(inMatrix, function(_,groups) { return groups[1]==".scale9"; } );
-		 // TODO:
-		 /*
-       if (rect!=null)
-          inObj.scale9Grid = rect;
-       #if !flash
-       inObj.cacheAsBitmap = neash.Lib.IsOpenGL();
-       #end
-		 */
     }
 
     public function renderSprite(inObj:Sprite, ?inMatrix:Matrix,?inFilter:ObjectFilter, ?inScale9:Rectangle)
@@ -455,6 +588,15 @@ class SvgRenderer
        renderObject(shape,shape.graphics,inMatrix,inFilter,inScale9);
        return shape;
     }
+
+    public function createDisplayTree() : Sprite
+    {
+       var sprite = new Sprite();
+       mMatrix = null;
+       renderDisplayTreeGroup(sprite,mRoot);
+       return sprite;
+    }
+
 
     public function namedShape(inName:String) : Shape
     {

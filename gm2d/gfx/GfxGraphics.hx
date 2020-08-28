@@ -38,6 +38,11 @@ class GfxGraphics extends Gfx
    override public function lineStyle(style:LineStyle)
    {
       graphics.lineStyle(style.thickness,style.color,style.alpha,style.pixelHinting,style.scaleMode,style.capsStyle,style.jointStyle,style.miterLimit);
+      if (style.gradient!=null)
+      {
+         var grad = style.gradient;
+         graphics.lineGradientStyle(grad.type,grad.colors,grad.alphas,grad.ratios,grad.matrix,grad.spread,grad.interp,grad.focus);
+      }
    }
    override public function endLineStyle() { graphics.lineStyle(); }
 

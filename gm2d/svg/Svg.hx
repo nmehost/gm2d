@@ -9,12 +9,12 @@ import nme.display.GradientType;
 import nme.display.SpreadMethod;
 import nme.display.CapsStyle;
 import nme.display.JointStyle;
+import nme.filters.*;
 
 import gm2d.svg.Grad;
 import gm2d.svg.Group;
 import gm2d.svg.FillType;
 import gm2d.svg.DisplayElement;
-
 
 
 
@@ -29,6 +29,10 @@ class Svg extends Group
     var mGrads : GradHash;
     var mPathParser: PathParser;
     var mLinks:Map<String, DisplayElement>;
+    public var mFilters:Map<String, FilterSet>;
+    public var mMasks : Map<String,Group>;
+    var rgbMatch = ~/rgb\((.*),(.*),(.*)\)/;
+
 
     static var SIN45:Float = 0.70710678118654752440084436210485;
     static var TAN22:Float = 0.4142135623730950488016887242097;
@@ -58,6 +62,10 @@ class Svg extends Group
           throw "Not an SVG file (" + (svg==null ? "null" : svg.nodeName) + ")";
 
        mGrads = new GradHash();
+
+       mMasks = new Map();
+
+       mFilters = new Map<String, FilterSet>();
 
        mPathParser = new PathParser();
 
@@ -119,6 +127,36 @@ class Svg extends Group
        marker.refX = getFloat(inMarker, "refX", 0.0);
        marker.refY = getFloat(inMarker, "refY", 0.0);
        return marker;
+    }
+
+    function loadMask(inMask:Xml)
+    {
+       var mask = loadGroup(new Group(), inMask);
+       mMasks.set(mask.name,mask);
+    }
+
+
+    function loadFilter(inFilterSet:Xml)
+    {
+       var name = inFilterSet.get("id");
+       var filterSet = new FilterSet();
+
+       for(f in inFilterSet.elements())
+       {
+          var name = f.nodeName;
+          if (name.substr(0,4)=="svg:")
+             name = name.substr(4);
+          switch(name)
+          {
+             case 'feGaussianBlur':
+                var std = getFloat(f,"stdDeviation",1.0);
+                filterSet.filters.push( new BlurFilter(std,std,1) );
+             case other:
+                trace('Unknown filter type : $name');
+          }
+       }
+
+       mFilters.set(name,filterSet);
     }
 
     function loadGradient(inGrad:Xml,inType:GradientType,inCrossLink:Bool)
@@ -204,6 +242,10 @@ class Svg extends Group
                 loadGradient(def,GradientType.RADIAL,pass==1);
              else if (name=="marker" && pass==0)
                 loadMarker(def);
+             else if (name=="mask" && pass==0)
+                loadMask(def);
+             else if (name=="filter" && pass==0)
+                loadFilter(def);
              else if (pass==0)
              {
                 var el = loadNode(def);
@@ -353,6 +395,17 @@ class Svg extends Group
          return inDefault;
       if (s.charAt(0)=='#')
          return Std.parseInt( "0x" + s.substr(1) );
+      if (rgbMatch.match(s))
+      {
+         return  (SvgStyles.parseRgbComp(rgbMatch.matched(1))<<16 ) +
+                 (SvgStyles.parseRgbComp(rgbMatch.matched(2))<<8 ) +
+                 (SvgStyles.parseRgbComp(rgbMatch.matched(3)));
+      }
+
+      var col = gm2d.RGB.resolve(s);
+      if (col!=null)
+         return col;
+
       return Std.parseInt(s);
    }
 
@@ -487,15 +540,15 @@ class Svg extends Group
 
     public function loadElement(e:DisplayElement, xml:Xml )
     {
-       if (xml.exists("transform"))
-          e.matrix = createTransform(xml.get("transform"));
-
        if (xml.exists("id"))
        {
           e.id = xml.get("id");
           mLinks.set(e.id, e);
           e.name = e.id;
        }
+
+       if (xml.exists("transform"))
+          e.matrix = createTransform(xml.get("transform"));
 
        if (xml.exists("inkscape:label"))
           e.name = xml.get("inkscape:label");
