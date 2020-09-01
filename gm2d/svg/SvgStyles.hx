@@ -151,7 +151,7 @@ class SvgStyles
    {
       var s = get(inKey,"");
       if (s=="")
-         return defaultFill;
+         return FillNone;
 
       if (s.charAt(0)=='#')
       {

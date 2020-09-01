@@ -255,7 +255,7 @@ class SvgRenderer
              lineStyle.jointStyle = JointStyle.ROUND;
              lineStyle.miterLimit = styles.getFloat("stroke-miterlimit",3.0);
 
-             switch(styles.getFill("fill"))
+             switch(strokeFill)
              {
                 case FillGrad(grad):
                    lineStyle.gradient = grad;
