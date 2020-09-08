@@ -27,6 +27,9 @@ class Gfx
    public function moveTo(inX:Float, inY:Float) { }
    public function lineTo(inX:Float, inY:Float) { }
    public function curveTo(inCX:Float, inCY:Float,inX:Float,inY:Float) { }
+   public function cubicTo(inCx0:Float, inCy0:Float,inCx1:Float, inCy1:Float, inX:Float,inY:Float) {
+      return false;
+   }
 
    public function renderText(text:Text,matrix:Matrix,style:TextStyle) { }
 

@@ -132,8 +132,11 @@ class CubicSegment extends PathSegment
       var ty2 = ioContext.transY(cx2,cy2);
 
       ioContext.setLast(x,y);
+
       var tx3 = ioContext.lastX;
       var ty3 = ioContext.lastY;
+      if (inGfx.cubicTo(tx1,ty1,tx2,ty2,tx3,ty3))
+         return;
 
       // from http://www.timotheegroleau.com/Flash/articles/cubic_bezier/bezier_lib.as
 

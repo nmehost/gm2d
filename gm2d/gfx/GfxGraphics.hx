@@ -50,6 +50,12 @@ class GfxGraphics extends Gfx
    override public function lineTo(inX:Float, inY:Float) { graphics.lineTo(inX,inY); }
    override public function curveTo(inCX:Float, inCY:Float,inX:Float,inY:Float)
      { graphics.curveTo(inCX,inCY,inX,inY); }
+
+   #if nme_cubics
+   override public function cubicTo(inCx0:Float, inCy0:Float,inCx1:Float, inCy1:Float, inX:Float,inY:Float)
+     { graphics.cubicTo(inCx0,inCy0,inCx1,inCy1,inX,inY);  return true; }
+   #end
+
    override public function renderText(text:Text, m:Matrix, style:TextStyle)
    {
       switch(style.fill)
