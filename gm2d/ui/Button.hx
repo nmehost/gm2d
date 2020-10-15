@@ -46,6 +46,7 @@ class Button extends Control
       mouseChildren = false;
       isToggle = attribBool("toggle",false);
       addEventListener(MouseEvent.MOUSE_DOWN, onDown );
+      addEventListener(MouseEvent.MOUSE_OUT, onOut );
       addEventListener(MouseEvent.MOUSE_UP, onUp );
 
       if (mDisplayObj!=null)
@@ -153,6 +154,12 @@ class Button extends Control
    }
 
 
+   function onOut(e:MouseEvent)
+   {
+      if (!isToggle)
+         set_down(false);
+   }
+
    function onDown(e:MouseEvent)
    {
       if (mouseHandler!=null && !mouseHandler(name,e))
@@ -170,6 +177,12 @@ class Button extends Control
    }
    function onUp(e:MouseEvent)
    {
+      // Mouse left, and came back
+      if (!isToggle && !get_down())
+      {
+         e.stopImmediatePropagation();
+         return;
+      }
       if (mouseHandler!=null && !mouseHandler(name,e))
          return;
       if (!isToggle)

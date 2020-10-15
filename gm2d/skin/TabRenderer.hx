@@ -98,10 +98,11 @@ class TabRenderer
 
    public function createTabButton(inId:String, forTab = false,?pane:Pane,hitBoxes:HitBoxes)
    {
-      var but =  Button.create([forTab ? "TabButton" : "TabBarButton","ChromeButton"], { id:inId });
       var cb = hitBoxes.mCallback;
-      but.addEventListener(MouseEvent.MOUSE_DOWN, function(e) cb( HitAction.BUTTON(pane,inId), e) );
-      but.addEventListener(MouseEvent.MOUSE_UP, function(e) cb( HitAction.BUTTON(pane,inId), e) );
+      var but =  Button.create([forTab ? "TabButton" : "TabBarButton","ChromeButton"], { id:inId },
+                    () ->  cb( HitAction.BUTTON(pane,inId), null) );
+      //but.addEventListener(MouseEvent.MOUSE_DOWN, function(e) cb( HitAction.BUTTON(pane,inId), e) );
+      //but.addEventListener(MouseEvent.MOUSE_UP, function(e) cb( HitAction.BUTTON(pane,inId), e) );
       buts.push(but);
       return but;
    }
