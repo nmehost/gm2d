@@ -40,7 +40,6 @@ class Svg extends Sprite
             }
          }
       }
-
       Sys.println("Found " + allSvgs.length + " files");
       if (allSvgs.length>0)
       {
@@ -61,7 +60,7 @@ class Svg extends Sprite
 
          var xml:Xml = Xml.parse(file);
          var svg = new gm2d.svg.Svg(xml,true);
-         var renderer = new SvgRenderer(svg);
+         var renderer = new SvgRenderer(svg,0x000040);
          var shape = renderer.createShape();
          var scale = Math.min( stage.stageWidth/svg.width, stage.stageHeight/svg.height);
          shape.scaleX = shape.scaleY = scale;

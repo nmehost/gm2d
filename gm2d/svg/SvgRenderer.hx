@@ -47,6 +47,8 @@ class SvgRenderer
    public var lastY(default,null):Float;
    public var firstX:Float;
    public var firstY:Float;
+   public var currentColor = 0x000000;
+   public var forceCurrentColour = true;
    var rectW:Float;
    var rectH:Float;
 
@@ -59,7 +61,7 @@ class SvgRenderer
    var mMatrix : Matrix;
    var mMarkerLockout:Bool;
 
-   public function new(inSvg:Group,?inLayer:String)
+   public function new(inSvg:Group,?inLayer:String,?inCurrentColour:Int, ?inForceCurrent:Bool)
    {
        mRoot = inSvg;
        mMarkerLockout = false;
@@ -79,6 +81,9 @@ class SvgRenderer
        }
 
        styles = new SvgStyles(mSvg==null ? null : mSvg.getGradients());
+       if (inCurrentColour!=null)
+          currentColor = inCurrentColour;
+       forceCurrentColour = inForceCurrent==null ? inCurrentColour!=null : forceCurrentColour;
 
        if (inLayer!=null)
        {
@@ -176,7 +181,7 @@ class SvgRenderer
           return;
 
        var textStyle = new TextStyle();
-       textStyle.fill = styles.getFill("fill");
+       textStyle.fill = styles.getFill("fill",false);
        textStyle.size = styles.getFloat("font-size",14);
        textStyle.family = styles.get("font-family","");
        textStyle.weight = styles.get("font-weight","");
@@ -228,20 +233,22 @@ class SvgRenderer
           //  4. continue with "real" drawing
           inPath.segments[0].toGfx(mGfx, this);
           var opacity = styles.getFloat("opacity",1.0);
-          switch(styles.getFill("fill"))
+          switch(styles.getFill("fill",forceCurrentColour))
           {
              case FillGrad(grad):
                 grad.updateMatrix(mMatrix);
                 mGfx.beginGradientFill(grad);
              case FillSolid(colour):
                 mGfx.beginFill(colour,styles.getFloat("fill-opacity",1.0)*opacity);
+             case FillCurrentColor:
+                mGfx.beginFill(currentColor,styles.getFloat("fill-opacity",1.0)*opacity);
 
              case FillNone:
                 //mGfx.endFill();
           }
 
 
-          var strokeFill=styles.getFill("stroke");
+          var strokeFill=styles.getFill("stroke",false);
 
           if (strokeFill!=null && strokeFill!=FillNone)
           {
@@ -261,6 +268,8 @@ class SvgRenderer
                    lineStyle.gradient = grad;
                 case FillSolid(colour):
                    lineStyle.color = colour;
+                case FillCurrentColor:
+                   lineStyle.color = currentColor;
 
                 case FillNone:
                    //mGfx.endFill();

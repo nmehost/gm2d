@@ -73,26 +73,29 @@ class Svg extends Group
 
        mLinks = new Map<String, DisplayElement>();
 
-       width = loadFloatStyle("width",null,0.0, svg);
-       height = loadFloatStyle("height",null,0.0, svg);
-       if (width==0 && height==0)
+       var viewBox = svg.get('viewBox');
+       if (viewBox!=null && mViewBoxMatch.match(viewBox))
        {
-          width = height = 400;
-          var viewBox = svg.get('viewBox');
-          if (viewBox!=null && mViewBoxMatch.match(viewBox))
-          {
-             var x0 = Std.parseFloat( mViewBoxMatch.matched(1) );
-             var y0 = Std.parseFloat( mViewBoxMatch.matched(2) );
-             var w = Std.parseFloat( mViewBoxMatch.matched(3) );
-             var h = Std.parseFloat( mViewBoxMatch.matched(4) );
-             width = Math.max(0,x0) + Math.abs(w);
-             height = Math.max(0,y0) + Math.abs(h);
-          }
+          var x0 = Std.parseFloat( mViewBoxMatch.matched(1) );
+          var y0 = Std.parseFloat( mViewBoxMatch.matched(2) );
+          var w = Std.parseFloat( mViewBoxMatch.matched(3) );
+          var h = Std.parseFloat( mViewBoxMatch.matched(4) );
+          width = Math.max(0,x0) + Math.abs(w);
+          height = Math.max(0,y0) + Math.abs(h);
        }
+       else
+       {
+          width = loadFloatStyle("width",null,0.0, svg);
+          height = loadFloatStyle("height",null,0.0, svg);
+       }
+
+
        if (width==0)
           width = height;
        else if (height==0)
           height = width;
+       if (width==0)
+          width = height = 32;
 
        loadGroup(this,svg);
 
@@ -100,6 +103,8 @@ class Svg extends Group
        //for(g in roots)
           //dumpGroup(g,"");
     }
+
+    override public function toString() return 'Svg($width'+'x$height)';
 
 
     function dumpGroup(g:Group,indent:String)

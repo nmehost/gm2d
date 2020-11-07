@@ -147,11 +147,17 @@ class SvgStyles
    }
 
 
-   public function getFill(inKey:String)
+   public function getFill(inKey:String, forceCurrent:Bool)
    {
       var s = get(inKey,"");
-      if (s=="")
+      if (s=="" && forceCurrent)
+         return FillCurrentColor;
+
+      if (s=="" || s=="none")
          return FillNone;
+
+      if (s=="currentColor")
+         return FillCurrentColor;
 
       if (s.charAt(0)=='#')
       {
@@ -160,9 +166,6 @@ class SvgStyles
          else
             return FillSolid( Std.parseInt( "0x" + s.substr(1) ) );
       }
- 
-      if (s=="none")
-         return FillNone;
 
       if (urlMatch.match(s))
       {
