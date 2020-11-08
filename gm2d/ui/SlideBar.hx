@@ -208,7 +208,7 @@ class SlideBar extends Sprite implements IDock
    public function set_pinned(inPinned:Bool):Bool
    {
       pinned = inPinned;
-      tabRenderer = showTabs ? Skin.tabRenderer( [pinned ? "Pinned" : "Unpinned", "Tabs","TabRenderer"] ) : null;
+      tabRenderer = showTabs ? Skin.createTabRenderer( [pinned ? "Pinned" : "Unpinned", "Tabs","TabRenderer"] ) : null;
       setDirty(true,true);
       if (onPinned!=null)
          onPinned(inPinned);

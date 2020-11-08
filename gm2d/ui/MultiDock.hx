@@ -39,7 +39,7 @@ class MultiDock extends Widget implements IDock implements IDockable
       flags = 0;
       mDockables = [];
       bestSize = [];
-      tabRenderer = Skin.tabRenderer( ["MultiDock","Tabs","TabRenderer"] );
+      tabRenderer = Skin.createTabRenderer( ["MultiDock","Tabs","TabRenderer"] );
       hitBoxes = new HitBoxes(mChrome, onHitBox);
       properties = {};
 

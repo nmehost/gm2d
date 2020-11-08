@@ -159,7 +159,6 @@ class HitBoxes
       for(r in rects)
          if (r.rect.contains(inX,inY))
          {
-            //trace("Hit " + r.action);
             inEvent.stopImmediatePropagation();
             switch(r.action)
             {
