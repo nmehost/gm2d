@@ -48,7 +48,7 @@ typedef AttribSet = Map<String,Dynamic>;
 class Skin
 {
    // You can use these to set the defaults before you create a Widget
-   public static var roundRectRad = 6.0;
+   public static var roundRectRad = 4.0;
    public static var guiLight = 0xf0f0f0;
    public static var guiMedium = 0xe0e0e0;
    public static var guiButton = guiMedium;
@@ -154,11 +154,6 @@ class Skin
          currentFilters = [ glow ];
       }
 
-      if (sliderRenderer==null)
-         sliderRenderer = createSliderRenderer();
-
-      if (defaultTabRenderer==null)
-         defaultTabRenderer = createTabRenderer();
 
       initGfx();
 
@@ -388,9 +383,11 @@ class Skin
            },
 
         "Tabs" => {
-           shape: ShapeRect,
-           //line: LineBorder,
-           line: null,
+           tab : {
+              shape: ShapeRoundRect,
+              //line: LineBorder,
+              line: null,
+              }
            },
 
         "TabBox" => {
@@ -600,6 +597,11 @@ class Skin
            }
       ];
 
+      if (sliderRenderer==null)
+         sliderRenderer = createSliderRenderer();
+
+      if (defaultTabRenderer==null)
+         defaultTabRenderer = createTabRenderer(["Tabs", "TabRenderer"],{});
    }
 
    public static function scaleBitmap(inBmp:BitmapData,extraScale:Float=1.0)
@@ -706,7 +708,7 @@ class Skin
       return new DockRenderer(hasLineage(inLineage,"VariableWidth"));
    }
 
-   public static function tabRenderer(inLineage:Array<String>, ?inAttribs:Dynamic) : TabRenderer
+   public static function tabRenderer() : TabRenderer
    {
       init();
       return defaultTabRenderer;
@@ -775,9 +777,9 @@ class Skin
       result.onRender = onRenderSlider;
       return result;
    }
-   public static function createTabRenderer()
+   public static function createTabRenderer(inLineage:Array<String>, ?inAttribs:Dynamic) : TabRenderer
    {
-      var result = new TabRenderer();
+      var result = new TabRenderer(inLineage, inAttribs);
       return result;
    }
 

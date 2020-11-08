@@ -6,6 +6,7 @@ import nme.display.Graphics;
 import nme.display.BitmapData;
 import nme.display.CapsStyle;
 import nme.display.GradientType;
+import nme.display.JointStyle;
 import nme.filters.BitmapFilter;
 import nme.text.TextField;
 import nme.text.TextFieldAutoSize;
@@ -264,29 +265,31 @@ class Renderer
       return 0.0;
    }
 
-   public static function setLine(inGraphics:Graphics,inLineStyle:LineStyle):Float
+   public static function setLine(inGraphics:Graphics,inLineStyle:LineStyle, square=false):Float
    {
       if (inLineStyle!=null)
       {
+         var joint = square ? JointStyle.MITER : JointStyle.ROUND;
+         joint = JointStyle.MITER;
          switch(inLineStyle)
          {
             case LineNone:
                return 0.0;
 
             case LineBorder:
-               inGraphics.lineStyle(0, Skin.guiBorder);
+               inGraphics.lineStyle(0, Skin.guiBorder, joint);
                return 0.5;
 
             case LineTrim:
-               inGraphics.lineStyle(0, Skin.guiTrim);
+               inGraphics.lineStyle(0, Skin.guiTrim, joint);
                return 0.5;
 
             case LineHighlight:
-               inGraphics.lineStyle(0, Skin.guiHighlight);
+               inGraphics.lineStyle(0, Skin.guiHighlight, joint);
                return 0.5;
 
             case LineSolid( width, rgb, a ):
-               inGraphics.lineStyle(width, rgb,a, false, CapsStyle.SQUARE);
+               inGraphics.lineStyle(width, rgb,a, false, CapsStyle.SQUARE, joint);
                return width*0.5;
 
             default:
@@ -421,7 +424,7 @@ class Renderer
       {
          case ShapeNone:
          case ShapeRect:
-            lineOffset = setLine(gfx,lineStyle);
+            lineOffset = setLine(gfx,lineStyle,true);
             filled = setFill(gfx,fillStyle,widget);
             if (lineOffset>0 || filled)
                gfx.drawRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2);
@@ -441,7 +444,7 @@ class Renderer
                gfx.drawRect(r.x, r.y, r.width, r.height);
                gfx.endFill();
             }
-            lineOffset = setLine(gfx,lineStyle);
+            lineOffset = setLine(gfx,lineStyle,true);
             if (lineOffset>0)
             {
                gfx.moveTo(r.x+lineOffset, r.y+r.height-lineOffset);

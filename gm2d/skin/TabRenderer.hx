@@ -4,6 +4,7 @@ import nme.text.TextField;
 import nme.text.TextFormat;
 import gm2d.ui.Layout;
 
+import nme.display.Shape;
 import gm2d.ui.HitBoxes;
 import gm2d.ui.Button;
 import gm2d.ui.IDockable;
@@ -12,7 +13,6 @@ import gm2d.ui.Pane;
 import nme.display.Sprite;
 import nme.display.BitmapData;
 import nme.display.Bitmap;
-import nme.display.Shape;
 import nme.display.Graphics;
 import nme.events.MouseEvent;
 import nme.text.TextField;
@@ -30,7 +30,6 @@ class TabRenderer
    public static inline var RIGHT = 2;
    public static inline var BOTTOM = 3;
 
-   public function new() { }
 
    public static inline var SHOW_RESTORE  = 0x0001;
    public static inline var SHOW_TEXT     = 0x0002;
@@ -44,7 +43,17 @@ class TabRenderer
 
    static var gripBmp:BitmapData = null;
 
+   var attribs:Map<String,Dynamic>;
+   var currentAttribs:Map<String,Dynamic>;
+
    var buts:Array<Widget>;
+
+   public function new(inLineage:Array<String>, inAttribs:{})
+   {
+      attribs = Skin.combineAttribs(inLineage, 0, inAttribs);
+      currentAttribs = Skin.combineAttribs(inLineage, Widget.CURRENT, inAttribs);
+   }
+
 
    public dynamic function renderBackground(bitmap:BitmapData)
    {
@@ -304,6 +313,9 @@ class TabRenderer
       }
       var lastTab = trans.tx;
 
+      var tabs = attribs.get("tab");
+      var tabShape = tabs==null ? null:tabs.shape;
+      var round = tabShape!=gm2d.skin.Shape.ShapeRect;
       if (inCurrent!=null)
       {
          if (inCurrent!=inPanes[0])
@@ -342,15 +354,25 @@ class TabRenderer
          trans.tx = 0;
 
 
+         var rad0 = Skin.roundRectRad;
+         var rad1 = rad0 * 0.55228;
          gfx.clear();
          gfx.lineStyle(1,0x404040);
          gfx.beginFill(Skin.guiMedium);
          gfx.moveTo(-1,tabHeight-4);
          gfx.lineTo(cx,tabHeight-4);
-         gfx.lineTo(cx,6);
-         gfx.curveTo(cx,2,cx+5,1);
-         gfx.lineTo(cx+tw-5,1);
-         gfx.curveTo(cx+tw,1,cx+tw,6);
+         if (round)
+         {
+            gfx.lineTo(cx,1+rad0);
+            gfx.cubicTo(cx,1+rad0-rad1, cx+rad1,1, cx+rad0,1);
+            gfx.lineTo(cx+tw-rad0,1);
+            gfx.cubicTo(cx+tw-rad0+rad1,1, cx+tw,1+rad1, cx+tw,1+rad0);
+         }
+         else
+         {
+            gfx.lineTo(cx,1);
+            gfx.lineTo(cx+tw,1);
+         }
          gfx.lineTo(cx+tw,tabHeight-4);
          gfx.lineTo(w+2,tabHeight-4);
          gfx.lineTo(w+2,tabHeight);
