@@ -131,7 +131,7 @@ class SlideBar extends Sprite implements IDock
               Dock.minimize(pane);
          */
          case TITLE(pane):
-            if (inEvent.type==MouseEvent.MOUSE_DOWN)
+            if (inEvent.type==MouseEvent.MOUSE_UP)
             {
                popOnUp = pane == current;
                Dock.raise(pane);
