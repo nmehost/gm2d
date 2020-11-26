@@ -24,6 +24,7 @@ class Widget extends Sprite
    public static inline var DISABLED   = 0x0004;
    public static inline var MULTIVALUE = 0x0008;
    public static inline var ALTERNATE  = 0x0010;
+   public static inline var SELECTED   = 0x0020;
 
    var mLayout:BorderLayout;
    var mItemLayout:Layout;
@@ -34,6 +35,7 @@ class Widget extends Sprite
    public var state(default,set) : Int;
    public var disabled(get,set) : Bool;
    public var enabled(get,set) : Bool;
+   public var selected(get,set) : Bool;
    public var down(get,set):Bool;
    public var isCurrent(get,set):Bool;
    public var layoutWidth(get,null):Int;
@@ -364,7 +366,6 @@ class Widget extends Sprite
       var renderState = showCurrent ? state : (state & ~CURRENT);
       combinedAttribs = Skin.combineAttribs(mLineage, renderState, mAttribs);
       mRenderer = new Renderer(combinedAttribs);
-      //trace(combinedAttribs + ":" + isCurrent);
       redraw();
       if (isCurrent && !wasCurrent && attribBool("raiseCurrent",true) && parent!=null)
          parent.setChildIndex(this, parent.numChildren-1 );
@@ -576,6 +577,15 @@ class Widget extends Sprite
          state = state ^ DISABLED;
       return inVal;
    }
+
+   public function get_selected() return (state & SELECTED) > 0;
+   public function set_selected(inVal:Bool)
+   {
+      if (selected != inVal)
+         state = state ^ SELECTED;
+      return inVal;
+   }
+
 
 
    public function get_disabled() return (state & DISABLED) > 0;

@@ -730,6 +730,9 @@ class Skin
 
       if ( (inState & Widget.DISABLED)!=0)
          mergeAttribMap( map, Reflect.field(attrib,"stateDisabled") );
+
+      if ( (inState & Widget.SELECTED)!=0)
+         mergeAttribMap( map, Reflect.field(attrib,"stateSelected") );
    }
 
 
