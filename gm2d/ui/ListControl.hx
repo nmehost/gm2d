@@ -417,6 +417,13 @@ class ListControl extends ScrollWidget
             {
                var l = w.getLayout();
                var width = l.getBestWidth();
+               if (mBestColWidths.length<=i)
+               {
+                  if (mMinColWidths.length<=i)
+                     mMinColWidths.push(0);
+                  mColWidths.push(mMinColWidths[i]);
+                  mBestColWidths.push(mMinColWidths[i]);
+               }
                if (mBestColWidths[i]<width)
                    mBestColWidths[i] = width;
                var height = l.getBestHeight( mBestColWidths[i]);
@@ -493,7 +500,6 @@ class ListControl extends ScrollWidget
                mBestColWidths[i] = w;
                needRecalcPos = true;
             }
-
             row.push(obj);
             contents.addChild(obj);
          }
@@ -782,9 +788,9 @@ class ListControl extends ScrollWidget
       }
 
       var boxHeight = mControlHeight - mTitleHeight;
-      if (boxHeight<mHeight)
+      if (boxHeight<mListHeight)
       {
-         evenRenderer.renderRect(null, gfx, new Rectangle(0,boxHeight,mWidth,mHeight-boxHeight));
+         evenRenderer.renderRect(null, gfx, new Rectangle(0,boxHeight,mWidth,mListHeight-boxHeight));
       }
    }
 
