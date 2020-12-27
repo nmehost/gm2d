@@ -84,6 +84,16 @@ class Panel extends Widget
       dlg.show(inAutoClose);
       return dlg;
       #end
+      #if (nme_api_level>=611)
+      if (nme.app.Window.supportsSecondary && attribBool("supportsSecondary"))
+      {
+         var dlg = new SecondaryWindowDialog(getPane(),inAttribs,inLineage);
+         Game.doShowDialog(dlg,false,false);
+         return dlg;
+
+      }
+      #end
+
       var dlg = new gm2d.ui.Dialog(getPane(),inAttribs, inLineage);
       dlg.show(inCentre,inAutoClose);
       return dlg;
