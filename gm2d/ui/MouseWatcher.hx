@@ -10,7 +10,7 @@ import haxe.Timer;
 class MouseWatcher
 {
    var mWatch:DisplayObject;
-   var mEventStage:Stage;
+   public var mEventStage:Stage;
 
    var mCombineTime:Float;
    var mLastCombineRenderTime:Float;
@@ -29,6 +29,7 @@ class MouseWatcher
    public var prevPos:Point;
    public var pos:Point;
    public var downPos:Point;
+   public var stage(get,never):Stage;
 
    public function new(inWatch:DisplayObject,
                 inOnDown:MouseEvent->Void,
@@ -67,6 +68,8 @@ class MouseWatcher
          mEventStage.addEventListener(MouseEvent.MOUSE_UP, onStageUp);
       }
    }
+
+   inline public function get_stage() return mEventStage;
 
 
    public static function create(inWatch:DisplayObject,

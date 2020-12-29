@@ -34,11 +34,32 @@ class SecondaryWin extends DocumentParent implements IDock
          });
       stage.onCloseRequest = onClose;
       stage.current.addChild(this);
+      setClientSize(0,0,stage.stageWidth, stage.stageHeight);
    }
 
    public function onClose()
    {
-      trace("Bye!");
+      getCurrent().closeRequest(true);
+   }
+
+   function onDrag()
+   {
+      var mouse = window.globalMouseState;
+      window.setPosition(mouse.x-20,mouse.y-4);
+   }
+
+   public function continueDrag(watcher:MouseWatcher)
+   {
+      onDrag();
+      watcher.onDrag = (_) -> onDrag();
+   }
+
+   override public function removeDockable(inPane:IDockable):IDockable
+   {
+      super.removeDockable(inPane);
+      if (mDockables.length==0)
+         window.close();
+      return this;
    }
 
 }
