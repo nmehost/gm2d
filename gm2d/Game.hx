@@ -483,7 +483,7 @@ class Game
          gfx.drawRect(0,0,sw,sh);
 
          var sd = getSpriteDialog();
-         if (sd!=null)
+         if (sd!=null && sd.stage==mDialogGrey.stage)
          {
             sd.scaleX = 1.0;
             sd.scaleY = 1.0;

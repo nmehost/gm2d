@@ -131,7 +131,7 @@ class TopLevelDock implements IDock
 
    public function onHitBox(inAction:HitAction,inEvent:MouseEvent)
    {
-      trace("onHitBox " + inAction);
+      //trace("onHitBox " + inAction);
       switch(inAction)
       {
          case DRAG(p):
@@ -170,23 +170,24 @@ class TopLevelDock implements IDock
       overlayContainer.y = 0;
       while(overlayContainer.numChildren>0)
          overlayContainer.removeChildAt(0);
+      if (container.stage!=null)
+         container.stage.invalidate();
+      dockZones = null;
    }
 
    public function finishDockDrag(inPane:Pane, inEvent:MouseEvent)
    {
-      clearOverlay();
-      if (dockZones!=null)
+      if (dockZones!=null && inEvent!=null)
       {
          var dropped = dockZones.test(inEvent.stageX, inEvent.stageY, inPane );
          //trace("Dropped : " + dropped );
       }
-      dockZones = null;
+      clearOverlay();
    }
 
    public function showDockZones(inEvent:MouseEvent)
    {
       clearOverlay();
-      dockZones = null;
       if (root!=null)
       {
          dockZones = new DockZones(inEvent.stageX, inEvent.stageY, overlayContainer);
