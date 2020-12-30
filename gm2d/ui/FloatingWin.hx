@@ -78,7 +78,6 @@ class FloatingWin extends DockFrame implements IDock
       if (nme.app.Window.supportsSecondary)
       {
          dragStage = stage;
-         trace("set captureMouse");
          dragStage.captureMouse = true;
       }
       #end

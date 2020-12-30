@@ -14,10 +14,14 @@ import nme.events.MouseEvent;
 class SecondaryWin extends DocumentParent implements IDock
 {
    var window:nme.app.Window;
+   var dragOx:Int;
+   var dragOy:Int;
 
    public function new(?pane:Pane,inW:Float, inH:Float)
    {
       super(true);
+
+      dragOx = dragOy = 0;
 
       var title = pane==null ? nme.Lib.title : pane.getTitle();
       var fps = 0.0;
@@ -30,7 +34,6 @@ class SecondaryWin extends DocumentParent implements IDock
       stage.scaleMode = nme.display.StageScaleMode.NO_SCALE;
       stage.addEventListener( Event.RESIZE, (_) -> {
          mLayout.setRect(0,0, stage.stageWidth, stage.stageHeight);
-         trace("Layout..." + stage.stageWidth + "," + stage.stageHeight );
          });
       stage.onCloseRequest = onClose;
       stage.current.addChild(this);
@@ -42,23 +45,43 @@ class SecondaryWin extends DocumentParent implements IDock
       getCurrent().closeRequest(true);
    }
 
-   function onDrag()
+   function trackMouse()
    {
-      var mouse = window.globalMouseState;
-      window.setPosition(mouse.x-20,mouse.y-4);
+      var timer = new haxe.Timer(10);
+      timer.run = () -> {
+         var state = window.globalMouseState;
+         if (state.getButton(0))
+         {
+            window.setPosition(state.x + dragOx,state.y + dragOy);
+            DocumentParent.showGlobalDockZones(state.x,state.y, this);
+         }
+         else
+         {
+            timer.stop();
+            var pane = current.asPane();
+            if (pane!=null)
+               DocumentParent.dropGlobalDockZones(pane,state.x,state.y, this);
+            DocumentParent.hideGlobalDropZones();
+         }
+      };
    }
 
    public function continueDrag(watcher:MouseWatcher)
    {
-      onDrag();
-      watcher.onDrag = (_) -> onDrag();
+      dragOx = -5;
+      dragOy = 20;
+      watcher.onDrag = null;
+      trackMouse();
    }
 
    override public function removeDockable(inPane:IDockable):IDockable
    {
       super.removeDockable(inPane);
       if (mDockables.length==0)
+      {
+         unregister();
          window.close();
+      }
       return this;
    }
 

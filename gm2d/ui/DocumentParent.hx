@@ -22,6 +22,7 @@ import gm2d.ui.Layout;
 
 class DocumentParent extends Sprite implements IDock implements IDockable
 {
+   static var allParents:Array<DocumentParent>;
    var parentDock:IDock;
    var mChildren:Array<DockFrame>;
    var mDockables:Array<IDockable>;
@@ -46,6 +47,11 @@ class DocumentParent extends Sprite implements IDock implements IDockable
    {
       //super(["DocumentParent", "Dock", "Widget"] );
       super();
+
+      if (allParents==null)
+         allParents = [this];
+      else
+         allParents.push(this);
 
       singleDocument = inSingleDocument;
 
@@ -88,6 +94,75 @@ class DocumentParent extends Sprite implements IDock implements IDockable
       }
       mLayout.setMinSize( Skin.scale(50), Skin.scale(50) );
    }
+
+   function unregister()
+   {
+      allParents.remove(this);
+   }
+
+   public static function showGlobalDockZones(gx:Int, gy:Int, ignoreDock:DocumentParent)
+   {
+      var found = false;
+      for(dock in allParents)
+      {
+         if (dock.mTopLevel==null)
+            continue;
+         if (dock==ignoreDock || found)
+            dock.mTopLevel.clearOverlay();
+         else
+         {
+            var s = dock.stage;
+            var win = s.window;
+            var wx = win.x;
+            var w =  s.stageWidth;
+            var wy = win.y;
+            var h =  s.stageHeight;
+
+            if (gx>=wx && gx<wx+w && gy>wy && gy<wy+h)
+            {
+               dock.mTopLevel.showDockZonesAt(gx-wx, gy-wy);
+               found = true;
+            }
+            else
+               dock.mTopLevel.clearOverlay();
+         }
+      }
+   }
+
+   public static function dropGlobalDockZones(pane:Pane,gx:Int, gy:Int, ignoreDock:DocumentParent)
+   {
+      for(dock in allParents)
+      {
+         if (dock.mTopLevel!=null && dock!=ignoreDock)
+         {
+            var s = dock.stage;
+            var win = s.window;
+            var wx = win.x;
+            var w =  s.stageWidth;
+            var wy = win.y;
+            var h =  s.stageHeight;
+
+            if (gx>=wx && gx<wx+w && gy>wy && gy<wy+h)
+            {
+               dock.mTopLevel.finishDockDragAt(pane,gx-wx, gy-wy);
+               break;
+            }
+         }
+      }
+   }
+
+
+   public static function hideGlobalDropZones()
+   {
+      for(d in allParents)
+      {
+         if (d.mTopLevel==null)
+            continue;
+         d.mTopLevel.clearOverlay();
+      }
+   }
+
+
 
    public function setTopLevel(inTopLevel:TopLevelDock)
    {

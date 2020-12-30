@@ -163,7 +163,7 @@ class TopLevelDock implements IDock
       setDirty(false,true);
    }
 
-   function clearOverlay(?_:Dynamic)
+   public function clearOverlay()
    {
       overlayContainer.graphics.clear();
       overlayContainer.x = 0;
@@ -175,22 +175,30 @@ class TopLevelDock implements IDock
       dockZones = null;
    }
 
-   public function finishDockDrag(inPane:Pane, inEvent:MouseEvent)
+   public function finishDockDragAt(inPane:Pane, x:Float, y:Float)
    {
-      if (dockZones!=null && inEvent!=null)
+      if (dockZones!=null)
       {
-         var dropped = dockZones.test(inEvent.stageX, inEvent.stageY, inPane );
+         var dropped = dockZones.test(x, y, inPane );
          //trace("Dropped : " + dropped );
       }
       clearOverlay();
    }
 
-   public function showDockZones(inEvent:MouseEvent)
+
+   public function finishDockDrag(inPane:Pane, inEvent:MouseEvent)
+   {
+      if (inEvent!=null)
+         finishDockDragAt(inPane, inEvent.stageX, inEvent.stageY );
+      clearOverlay();
+   }
+
+   public function showDockZonesAt(x:Float, y:Float)
    {
       clearOverlay();
       if (root!=null)
       {
-         dockZones = new DockZones(inEvent.stageX, inEvent.stageY, overlayContainer);
+         dockZones = new DockZones(x, y, overlayContainer);
          root.addDockZones(dockZones);
          Skin.renderDropZone(size,dockZones,DOCK_LEFT, false,   function(d) addDockable(d,DOCK_LEFT,0) );
          Skin.renderDropZone(size,dockZones,DOCK_RIGHT, false,  function(d) addDockable(d,DOCK_RIGHT,0));
@@ -198,6 +206,12 @@ class TopLevelDock implements IDock
          Skin.renderDropZone(size,dockZones,DOCK_BOTTOM, false, function(d) addDockable(d,DOCK_BOTTOM,0) );
       }
    }
+   public function showDockZones(inEvent:MouseEvent)
+   {
+      showDockZonesAt(inEvent.stageX, inEvent.stageY);
+   }
+
+
 
    public function showPaneMenu(dockables:Array<IDockable>,inX:Float, inY:Float)
    {
