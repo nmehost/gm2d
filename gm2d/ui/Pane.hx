@@ -59,7 +59,7 @@ class Pane implements IDockable
       itemLayout = inItemLayout;
       clipped = true;
 
-      if (itemLayout==null && Std.is(inObj,Widget))
+      if (itemLayout==null && Std.isOfType(inObj,Widget))
          itemLayout = cast(inObj,Widget).getLayout();
 
       if (itemLayout==null)

@@ -75,7 +75,7 @@ class TopLevelDock implements IDock
             break;
          topDock = dock;
       }
-      if (!Std.is(topDock, TopLevelDock))
+      if (!Std.isOfType(topDock, TopLevelDock))
       {
          throw('Not top level $topDock');
       }
@@ -328,7 +328,7 @@ class TopLevelDock implements IDock
    }
    public function removeDockable(child:IDockable):IDockable
    {
-      if (Std.is(child.getDock(), FloatingWin))
+      if (Std.isOfType(child.getDock(), FloatingWin))
       {
          var win:FloatingWin = cast child.getDock();
          if (floatingWins.remove(win))

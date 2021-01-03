@@ -56,7 +56,7 @@ class Button extends Control
          var objSize:Dynamic = attrib("objectSize");
          if (objSize!=null)
          {
-            if (Std.is(objSize,Float))
+            if (Std.isOfType(objSize,Float))
             {
                 mDisplayObj.width = mDisplayObj.height = (objSize:Float);
             }
@@ -70,7 +70,7 @@ class Button extends Control
                }
             }
          }
-         if ( Std.is(mDisplayObj,TextField))
+         if ( Std.isOfType(mDisplayObj,TextField))
          {
             var tf = cast mDisplayObj;
             layout = new AutoTextLayout(tf);
@@ -197,7 +197,7 @@ class Button extends Control
 
    override public function getLabel() : TextField
    { 
-      if (mDisplayObj!=null && Std.is(mDisplayObj,TextField))
+      if (mDisplayObj!=null && Std.isOfType(mDisplayObj,TextField))
          return cast mDisplayObj;
       return null;
    }
@@ -242,7 +242,7 @@ class Button extends Control
 
    public function setIcon(inBmp:BitmapData)
    {
-      if (Std.is(mDisplayObj,Bitmap))
+      if (Std.isOfType(mDisplayObj,Bitmap))
       {
          var bitmap : Bitmap = cast mDisplayObj;
          bitmap.bitmapData = inBmp;

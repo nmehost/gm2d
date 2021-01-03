@@ -60,7 +60,7 @@ class KeyboardAccel
                   else
                   {
                      var f =  Reflect.field(Keyboard,upper);
-                     if (Std.is(f,Int))
+                     if (Std.isOfType(f,Int))
                      {
                         code = f;
                      }

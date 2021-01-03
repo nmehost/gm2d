@@ -51,7 +51,7 @@ class Window extends Widget
       var target:nme.display.DisplayObject = inEvent.target;
       while(target!=null && target!=this)
       {
-         if (Std.is(target,Widget))
+         if (Std.isOfType(target,Widget))
          {
              var widget:Widget = cast target;
              if (widget.wantsFocus())

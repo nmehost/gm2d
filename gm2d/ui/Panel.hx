@@ -139,7 +139,7 @@ class Panel extends Widget
             for(i in 0...numChildren)
             {
                var w = getChildAt(i);
-               if (w!=null && Std.is(w,Widget))
+               if (w!=null && Std.isOfType(w,Widget))
                {
                   var key = w.name;
                   Reflect.setField(d, key, Reflect.field(data,key) );
@@ -180,7 +180,7 @@ class Panel extends Widget
       for(i in 0...numChildren)
       {
          var w = getChildAt(i);
-         if (w!=null && Std.is(w,Widget))
+         if (w!=null && Std.isOfType(w,Widget))
          {
             var widget:Widget = cast w;
             widget.get(data);
@@ -193,7 +193,7 @@ class Panel extends Widget
       for(i in 0...numChildren)
       {
          var w = getChildAt(i);
-         if (w!=null && Std.is(w,Widget))
+         if (w!=null && Std.isOfType(w,Widget))
          {
             var widget:Widget = cast w;
             if (Reflect.hasField(data,w.name))
@@ -207,7 +207,7 @@ class Panel extends Widget
       for(i in 0...numChildren)
       {
          var w = getChildAt(i);
-         if (w!=null && Std.is(w,Widget))
+         if (w!=null && Std.isOfType(w,Widget))
          {
             var widget:Widget = cast w;
             widget.setList(id,values,display);
@@ -314,7 +314,7 @@ class Panel extends Widget
    {
       mLayoutDirty = true;
       addChild(inObj);
-      if (Std.is(inObj,Widget))
+      if (Std.isOfType(inObj,Widget))
       {
          var layout = cast(inObj,Widget).getLayout();
          mItemGrid.add( layout.stretch() );

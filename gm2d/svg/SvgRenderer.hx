@@ -66,7 +66,7 @@ class SvgRenderer
        mRoot = inSvg;
        mMarkerLockout = false;
 
-       if (Std.is(inSvg,Svg))
+       if (Std.isOfType(inSvg,Svg))
        {
           mSvg = cast inSvg;
           width = mSvg.width;

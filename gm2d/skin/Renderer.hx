@@ -66,7 +66,7 @@ class Renderer
             var p = map.get("padding");
             if (p==null)
                padding = null;
-            else if (Std.is(p,Rectangle))
+            else if (Std.isOfType(p,Rectangle))
                padding = p;
             else
                padding = new Rectangle(p,p,p*2,p*2);
@@ -76,7 +76,7 @@ class Renderer
             var m = map.get("margin");
             if (m==null)
                margin = null;
-            else if (Std.is(m,Rectangle))
+            else if (Std.isOfType(m,Rectangle))
                margin = m;
             else
                margin = new Rectangle(m,m,m*2,m*2);

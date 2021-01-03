@@ -463,22 +463,22 @@ class ListControl extends ScrollWidget
          {
             var obj:DisplayObject = null;
             var layout:Layout = null;
-            if (Std.is(item,DisplayObject))
+            if (Std.isOfType(item,DisplayObject))
                obj = item;
-            else if (Std.is(item,BitmapData))
+            else if (Std.isOfType(item,BitmapData))
                obj = bitmapDataToItem(item);
             else
                obj = stringToItem(item);
 
             var h = obj.height;
             var w = obj.width;
-            if (Std.is(obj,TextField))
+            if (Std.isOfType(obj,TextField))
             {
                var tf:TextField = cast obj;
                w = tf.textWidth;
                h = tf.textHeight;
             }
-            else if (Std.is(obj,Widget))
+            else if (Std.isOfType(obj,Widget))
             {
                var widget:Widget = cast obj;
                var size = widget.getLayout().getBestSize();
@@ -571,7 +571,7 @@ class ListControl extends ScrollWidget
       holdUpdates(true);
       for(item in inItems)
       {
-         if (Std.is(item,Array))
+         if (Std.isOfType(item,Array))
             addRow(item);
          else
             addRow([item]);
@@ -850,7 +850,7 @@ class ListControl extends ScrollWidget
                var h = item.height;
                var x = mColPos[i] + indent;
 
-               if (Std.is(item,Widget))
+               if (Std.isOfType(item,Widget))
                {
                   var widget:Widget = cast item;
                   widget.align(x, mRowPos[row_idx],
@@ -905,7 +905,7 @@ class ListControl extends ScrollWidget
    override public function get(data:Dynamic)
    {
       var me:Array<Dynamic> = Reflect.field(data, name);
-      if (!Std.is(me,Array))
+      if (!Std.isOfType(me,Array))
          Reflect.setField(data,name,me=new Array<Dynamic>());
 
       for(i in 0...mRows.length)
@@ -915,7 +915,7 @@ class ListControl extends ScrollWidget
             for(o in 0...row.objs.length)
             {
                var obj = row.objs[o];
-               if (obj!=null && Std.is(obj,Widget))
+               if (obj!=null && Std.isOfType(obj,Widget))
                {
                   var widget:Widget = cast obj;
                   widget.get(data);
@@ -938,7 +938,7 @@ class ListControl extends ScrollWidget
                for(o in 0...row.objs.length)
                {
                   var obj = row.objs[o];
-                  if (obj!=null && Std.is(obj,Widget))
+                  if (obj!=null && Std.isOfType(obj,Widget))
                   {
                      var widget:Widget = cast obj;
                      if (Reflect.hasField(me[i],widget.name))
@@ -954,7 +954,7 @@ class ListControl extends ScrollWidget
       for(row in mRows)
          for(obj in row.objs)
          {
-            if (obj!=null && Std.is(obj,Widget))
+            if (obj!=null && Std.isOfType(obj,Widget))
             {
                var widget:Widget = cast obj;
                widget.setList(id, values, display);

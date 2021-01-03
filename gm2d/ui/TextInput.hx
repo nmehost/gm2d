@@ -104,7 +104,7 @@ class TextInput extends TextLabel
 
    override public function set(data:Dynamic)
    {
-      if (Std.is(data,String) && data!="")
+      if (Std.isOfType(data,String) && data!="")
          setText(data);
    }
 

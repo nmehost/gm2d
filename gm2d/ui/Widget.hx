@@ -104,7 +104,7 @@ class Widget extends Sprite
       var obj:DisplayObject = parent;
       while(obj!=null)
       {
-         if (Std.is(obj,Widget))
+         if (Std.isOfType(obj,Widget))
          {
             cast(obj,Widget).onChildLayoutChanged();
             return;
@@ -327,7 +327,7 @@ class Widget extends Sprite
                var t0 = tf.text;
                var w = tf.width;
 
-               var strs:Array<String> = Std.is(alternate,Array) ? alternate :
+               var strs:Array<String> = Std.isOfType(alternate,Array) ? alternate :
                         [ Std.string(alternate) ];
                for(str in strs)
                {
@@ -469,13 +469,13 @@ class Widget extends Sprite
          var child = inParent.getChildAt(i);
          if (!child.visible)
             continue;
-         if (Std.is(child,Widget))
+         if (Std.isOfType(child,Widget))
          {
             var child:Widget = cast child;
             if (child.wantsFocus())
                outList.push(child);
          }
-         if (Std.is(child,DisplayObjectContainer))
+         if (Std.isOfType(child,DisplayObjectContainer))
            getWidgetsRecurse(cast child, outList);
       }
    }
@@ -491,7 +491,7 @@ class Widget extends Sprite
       var p = parent;
       while(p!=null)
       {
-         if (Std.is(p,Widget))
+         if (Std.isOfType(p,Widget))
          {
             var widget : Widget = cast p;
             return widget.onChromeMouse(inId,inEvent);
@@ -509,7 +509,7 @@ class Widget extends Sprite
       var p = parent;
       while(p!=null)
       {
-         if (Std.is(p,Widget))
+         if (Std.isOfType(p,Widget))
          {
             var widget : Widget = cast p;
             return widget.getHitBoxes();
@@ -553,7 +553,7 @@ class Widget extends Sprite
          var obj:DisplayObject = parent;
          while(obj!=null)
          {
-            if (Std.is(obj,Widget))
+            if (Std.isOfType(obj,Widget))
             {
                cast(obj,Widget).activate();
                return;
@@ -615,20 +615,20 @@ class Widget extends Sprite
          var p = parent;
          while(p!=null)
          {
-            if (Std.is(p,ScrollWidget))
+            if (Std.isOfType(p,ScrollWidget))
             {
                var scroll : ScrollWidget = cast p;
                scroll.showChild( lastChild );
             }
 
-            if (Std.is(p,Window))
+            if (Std.isOfType(p,Window))
             {
                var window : Window = cast p;
                window.setCurrentItem( inVal ? this : null );
                return inVal;
             }
 
-            if (Std.is(p,Widget))
+            if (Std.isOfType(p,Widget))
                lastChild = cast p;
 
             p = p.parent;
