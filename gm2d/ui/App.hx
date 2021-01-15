@@ -255,7 +255,7 @@ class App extends Screen
    override public function onKeyDown(event:KeyboardEvent ) : Bool
    {
       var focusElem = stage.focus;
-      if (focusElem==null && !Std.is(focusElem,TextField))
+      if (focusElem==null && !Std.isOfType(focusElem,TextField))
          return sendMenuKey(event);
       return false;
    }

@@ -715,7 +715,7 @@ class ColourControl extends Widget
          stage.removeChild(dragShape);
          dragShape = null;
       }
-      var swbox:SwatchBox = Std.is(e.target,SwatchBox) ? e.target : null;
+      var swbox:SwatchBox = Std.isOfType(e.target,SwatchBox) ? e.target : null;
       if (swbox!=null)
          swbox.dropColour(mColour);
    }

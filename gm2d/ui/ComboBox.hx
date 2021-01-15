@@ -164,7 +164,7 @@ class ComboBox extends TextInput
 
    override public function set(inValue:Dynamic) : Void
    {
-      if (Std.is(inValue,Int))
+      if (Std.isOfType(inValue,Int))
          setIndex(inValue);
       else
       {
@@ -177,7 +177,7 @@ class ComboBox extends TextInput
    {
       if (Reflect.hasField(inValue,name))
       {
-         if (Std.is(Reflect.field(inValue,name),Int))
+         if (Std.isOfType(Reflect.field(inValue,name),Int))
             Reflect.setField(inValue, name, index );
          else
             Reflect.setField(inValue, name, getText() );

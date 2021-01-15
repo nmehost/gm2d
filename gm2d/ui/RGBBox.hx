@@ -83,11 +83,11 @@ class RGBBox extends Widget
 
    override public function set(data:Dynamic)
    {
-      if (Std.is(data,String) && data!="")
+      if (Std.isOfType(data,String) && data!="")
          setColour( RGBHSV.fromHex(data,mShowAlpha) );
-      else if (Std.is(data,RGBHSV) )
+      else if (Std.isOfType(data,RGBHSV) )
          setColour( data );
-      else if (Std.is(data,Int) )
+      else if (Std.isOfType(data,Int) )
       {
          var col:Int = data;
          setColour( new RGBHSV(col,mShowAlpha ? (col>>24)/255.0 : 1.0 ) );
@@ -99,9 +99,9 @@ class RGBBox extends Widget
       if (Reflect.hasField(inValue,name))
       {
          var t = Reflect.field(inValue,name);
-         if (Std.is(t,Int))
+         if (Std.isOfType(t,Int))
             Reflect.setField(inValue, name, mColour.getRGBA() );
-         else if (Std.is(t,String))
+         else if (Std.isOfType(t,String))
             Reflect.setField(inValue, name, mColour.getHex() );
          else
             Reflect.setField(inValue, name, mColour.clone() );
