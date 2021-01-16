@@ -6,6 +6,7 @@ import nme.display.DisplayObjectContainer;
 import gm2d.ui.DockPosition;
 import gm2d.ui.MouseWatcher;
 import nme.display.Sprite;
+import nme.display.Stage;
 import gm2d.ui.HitBoxes;
 import nme.events.MouseEvent;
 import gm2d.skin.TabRenderer;
@@ -42,7 +43,8 @@ class SlideBar extends Sprite implements IDock
    var mouseWatcher:MouseWatcher;
    var beginShowPos:Float;
    var showTabs:Bool;
-   
+   var dragStage:Stage;
+   var dragPane:Pane;
 
    var current:IDockable;
    var children:Array<IDockable>;
@@ -120,6 +122,7 @@ class SlideBar extends Sprite implements IDock
 
    public function onHitBox(inAction:HitAction,inEvent:MouseEvent)
    {
+      dragPane = null;
       popOnUp = false;
       switch(inAction)
       {
@@ -135,11 +138,15 @@ class SlideBar extends Sprite implements IDock
             {
                popOnUp = pane == current;
                Dock.raise(pane);
-               beginScroll(inEvent);
+               //beginScroll(inEvent);
             }
+         case DRAG(pane):
+            Dock.raise(pane);
+            dragPane = pane.asPane();
+            beginScroll(inEvent,0);
          case GRIP:
-             popOnUp = true;
-            beginScroll(inEvent);
+            popOnUp = true;
+            beginScroll(inEvent,0);
 
          case BUTTON(_,but):
             if (but==MiniButton.PIN)
@@ -152,6 +159,14 @@ class SlideBar extends Sprite implements IDock
 
    function onUp(_)
    {
+      #if (nme_api_level>=611)
+      if (dragStage!=null)
+      {
+         dragStage.captureMouse = false;
+         dragStage = null;
+      }
+      #end
+
       if (mouseWatcher!=null && !mouseWatcher.wasDragged)
       {
          if (showing<=0)
@@ -171,6 +186,27 @@ class SlideBar extends Sprite implements IDock
    }
    function onScroll(e:MouseEvent)
    {
+      #if (nme_api_level>=611)
+      if (dragStage!=null && dragPane!=null)
+      {
+         var tx = e.stageX;
+         var ty = e.stageY;
+         if (tx<0 || ty<0 || tx>dragStage.stageWidth || ty>dragStage.stageHeight)
+         {
+            //var win = new SecondaryWin(dragPane,origRect.width, origRect.height);
+            var win = new SecondaryWin(dragPane,dragPane.getLayout().getBestWidth(), dragPane.getLayout().getBestHeight());
+            //removeDockable(dragPane);
+            win.addDockable(dragPane,DOCK_OVER,0);
+            win.continueDrag(mouseWatcher);
+            dragStage.captureMouse = false;
+            dragStage = null;
+            dragPane = null;
+            mouseWatcher = null;
+            return;
+         }
+      }
+      #end
+
       var delta = 0.0;
       if (horizontal)
          delta = e.stageX - mouseWatcher.downPos.x;
@@ -182,11 +218,19 @@ class SlideBar extends Sprite implements IDock
       setShowing( Std.int(beginShowPos + delta) );
    }
 
-   public function beginScroll(e)
+   public function beginScroll(e,dist=10.0)
    {
       mouseWatcher = new MouseWatcher(this, null, onScroll, onUp, e.stageX, e.stageY, false);
-      mouseWatcher.minDragDistance = 10.0;
+      mouseWatcher.minDragDistance = dist;
       beginShowPos = showing;
+
+      #if (nme_api_level>=611)
+      if (nme.app.Window.supportsSecondary && dragPane!=null)
+      {
+         dragStage = stage;
+         dragStage.captureMouse = true;
+      }
+      #end
    }
 
    public function setShowing(inShowing:Float)
@@ -492,7 +536,7 @@ class SlideBar extends Sprite implements IDock
 
 
    // IDock....
-   public function getDock():IDock { return this; }
+   public function getDock():IDock { return null; }
    public function canAddDockable(inPos:DockPosition):Bool
    {
       return inPos==DOCK_OVER || inPos==DOCK_BAR;
@@ -524,6 +568,15 @@ class SlideBar extends Sprite implements IDock
    {
       if (child==barDockable)
          barDockable = null;
+      children.remove(child);
+      if (child==current)
+      {
+         if (children.length>0)
+            setCurrent(children[0]);
+         else
+            setCurrent(null);
+      }
+      setDirty(true,true);
       return null;
    }
    public function raiseDockable(child:IDockable):Bool
