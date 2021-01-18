@@ -376,7 +376,8 @@ class ListControl extends ScrollWidget
       contents.y = mTitleHeight;
       var h = mRowPos[mRows.length];
       mControlHeight = h + mTitleHeight;
-      getItemLayout().setMinSize( mMinControlWidth, mControlHeight );
+      //getItemLayout().setMinSize( mMinControlWidth, mControlHeight );
+      getItemLayout().setBestSize( mMinControlWidth, mControlHeight );
       setScrollRange(mWidth,mWidth,h,mListHeight);
    }
 
