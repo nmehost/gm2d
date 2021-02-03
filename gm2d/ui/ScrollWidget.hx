@@ -222,8 +222,8 @@ class ScrollWidget extends Widget //Control
    {
       controlW = inControlWidth;
       controlH = inControlHeight;
-      if (mRect!=null)
-          setWindowSize( mRect.width, mRect.height );
+      if (windowWidth>0 && windowHeight>0)
+          setWindowSize( windowWidth, windowHeight);
    }
 
 
@@ -259,7 +259,6 @@ class ScrollWidget extends Widget //Control
    override public function onLayout(x,y,w,h)
    {
       super.onLayout(x,y,w,h);
-      //trace('onLayout $x,$y,$w,$h');
       setWindowSize(w,h);
    }
 
@@ -328,7 +327,6 @@ class ScrollWidget extends Widget //Control
           ev.clickCancelled = true;
        }
        mScrolling = false;
-       //trace("Not scrolling!");
        mDownScrollX= mScrollX;
        mDownScrollY= mScrollY;
        speedX.clear();
@@ -489,7 +487,6 @@ class ScrollWidget extends Widget //Control
    }
    public function finishScroll()
    {
-      // if (mScrolling) trace("Scrolling done");
       mScrolling = false;
    }
    public function get_scrollX() : Float{ return mScrollX; }
@@ -550,6 +547,7 @@ class ScrollWidget extends Widget //Control
          mScrollY = mDownScrollY - dy;
          if (mScrollY<0) mScrollY = 0;
          if (mScrollY>maxScrollY) mScrollY= maxScrollY;
+
          if (!virtualScroll)
             scrollTarget.scrollRect = new Rectangle(mScrollX,mScrollY,windowWidth,windowHeight);
          var plast = scrollTarget.globalToLocal(mLastPos);

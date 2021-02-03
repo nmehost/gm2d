@@ -345,8 +345,20 @@ class SlideBar extends Sprite implements IDock
              current.getLayoutSize(showing,h,false) :
              current.getLayoutSize(w,showing,true);
          clipped = horizontal ? size.x>showing : size.y>showing;
+         if (horizontal && size.y>h)
+         {
+            clipped = true;
+            size.y = h;
+         }
+         else if (!horizontal && size.x>w)
+         {
+            clipped = true;
+            size.x = w;
+         }
          current.getLayout().setRect(0,0,size.x,size.y);
       }
+
+
       if ( !pullFromRight && (pos==DOCK_LEFT || pos==DOCK_TOP) && clipped)
       {
          paneContainer.scrollRect = new Rectangle(0,0,horizontal ? showing : size.x,

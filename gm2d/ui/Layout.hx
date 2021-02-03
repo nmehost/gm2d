@@ -768,6 +768,21 @@ class StackLayout extends Layout
    }
 
 
+   public override function getMinSize() : Size
+   {
+      var w:Float = minWidth;
+      var h:Float = minHeight;
+      for(c in mChildren)
+      {
+         var s = c.getMinSize();
+         if (s.x>w)
+            w = s.x;
+         if (s.y>h)
+            h = s.y;
+      }
+      return new Size( w, h );
+   }
+
 
    public override function getBestWidth(?inHeight:Null<Float>) : Float
    {

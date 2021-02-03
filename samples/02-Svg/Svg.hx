@@ -15,10 +15,11 @@ class Svg extends Screen
    {
       super();
 
-      var svg = new SvgRenderer(Resources.loadSvg("tiger.svg"));
-      var shape = svg.createShape();
-      shape.scaleX = shape.scaleY = 0.5;
-      shape.cacheAsBitmap = true;
+      var svg = new SvgRenderer(Resources.loadSvg("test.svg"));
+      //var shape = svg.createShape();
+      var shape = svg.createDisplayTree();
+      shape.scaleX = shape.scaleY = 0.25;
+      //shape.cacheAsBitmap = true;
       addChild(shape);
       makeCurrent();
    }

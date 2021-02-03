@@ -64,6 +64,14 @@ class Pane implements IDockable
 
       if (itemLayout==null)
          itemLayout = new DisplayLayout(inObj);
+      var scroll:ScrollWidget = cast inObj;
+      if (scroll!=null)
+      {
+         var l = getLayout();
+         var s = l.getMinSize();
+         scroll.setVirtualSize(s.x, s.y);
+         scroll.shouldBeginScroll = (e) -> return e.target == scroll.mChrome;
+      }
    }
 
    public function setTitle(inTitle:String, ?inShortTitle:String)
