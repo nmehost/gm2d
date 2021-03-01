@@ -41,16 +41,16 @@ class FileBox extends TextInput
       var title = attribString("browseTitle",isDir ? "Select Directory" : "Select File");
       // remembered in panel
       var rememberKey = attribString("dir_id");
-      var flags = attribInt("browseFlags",0);
       if (isDir)
       {
          nme.system.Dialog.getDirectory(title,"Directory", function(f) if (f!=null) setTextEnter(f),rememberKey );
       }
       else
       {
+         var flags = attribInt("browseFlags",0);
          var ext = attribString("browseFilter","All Files|*.*");
          nme.system.Dialog.fileDialog(title,"File", getText(), ext,
-             function(f) if (f!=null) setTextEnter(f), rememberKey,0 );
+             function(f) if (f!=null) setTextEnter(f), rememberKey, flags );
       }
    }
 
