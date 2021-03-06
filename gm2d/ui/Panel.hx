@@ -13,6 +13,8 @@ import nme.net.SharedObject;
 
 typedef Hash<T> = haxe.ds.StringMap<T>;
 
+
+
 class Panel extends Widget
 {
    var mGridLayout:GridLayout;
@@ -76,8 +78,14 @@ class Panel extends Widget
        mItemGrid.setMinColWidth(1,inSize);
    }
 
-   public function showDialog(inCentre=true,inAutoClose=true,?inAttribs:{}, ?inLineage:Array<String>) : IDialog
+   public function showDialog(inCentre=true,inAutoClose=true,inAsScreen=false,?inAttribs:{}, ?inLineage:Array<String>) : IDialog
    {
+      if (inAsScreen)
+      {
+         var screen = new DialogScreen(getPane(),inAttribs,inLineage);
+         Game.pushScreen(screen);
+         return screen;
+      }
       #if waxe
       var dlg = new WaxeDialog(getPane(), inAttribs, inLineage);
       Game.doShowDialog(dlg,false,false);
@@ -115,14 +123,14 @@ class Panel extends Widget
    }
 
    public function bindOk(data:Dynamic, onOk:Void->Void, addCancel:Bool=false,?rememberKey:String,
-       okText="Ok", cancelText="Cancel" )
+       okText="Ok", cancelText="Cancel", inAsScreen = false )
    {
       setAndRestore(data,rememberKey);
       addTextButton(okText, function() { getAndStore(data,rememberKey); Game.closeDialog(); if (onOk!=null) onOk();} );
       if (addCancel)
          addTextButton(cancelText, Game.closeDialog );
       setSizeHint(500);
-      showDialog();
+      showDialog(true,true,inAsScreen);
    }
 
 

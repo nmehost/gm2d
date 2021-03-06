@@ -69,6 +69,7 @@ class Screen extends gm2d.ui.Window
          return 0.0;
       return timeline.time;
    }
+   public function closeIfDialog() { }
 
    public function getScaleMode() : ScreenScaleMode { return ScreenScaleMode.TOPLEFT_UNSCALED; }
 

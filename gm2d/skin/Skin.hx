@@ -421,6 +421,11 @@ class Skin
               lineage:["NoChrome"] } ],
            */
            },
+        "DialogScreen" => {
+           shape: ShapeRect,
+           fill: FillLight,
+           line: LineHighlight,
+        },
 
         "Line" => {
            fill: FillDark,

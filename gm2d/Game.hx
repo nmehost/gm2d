@@ -794,6 +794,11 @@ class Game
          mDialogGrey.visible = false;
          dlg.closeFrame();
       }
+      else if (mCurrentScreen!=null)
+      {
+         mCurrentScreen.closeIfDialog();
+      }
+
       if (spriteDialog!=null)
       {
          spriteDialog.onClose();
