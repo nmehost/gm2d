@@ -17,7 +17,7 @@ class RadioGroup<Key>
       keys = new Array<Key>();
       current = null;
    }
-   public function setState(inKey:Key)
+   public function setState(inKey:Key, andCallback = true)
    {
       current = inKey;
       for(i in 0...keys.length)
@@ -27,9 +27,10 @@ class RadioGroup<Key>
              onItem(i);
       }
    }
-   public function setIndex(inIndex:Int)
+
+   public function setIndex(inIndex:Int, andCallback = true)
    {
-      setState(keys[inIndex]);
+      setState(keys[inIndex],andCallback);
    }
 
    public function add(inButton:Button, inKey:Key) : Button
