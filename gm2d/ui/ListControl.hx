@@ -919,7 +919,7 @@ class ListControl extends ScrollWidget
                if (obj!=null && Std.isOfType(obj,Widget))
                {
                   var widget:Widget = cast obj;
-                  widget.get(data);
+                  widget.get(me[i]);
                }
             }
       }
