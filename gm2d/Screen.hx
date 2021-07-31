@@ -8,11 +8,14 @@ import nme.events.MouseEvent;
 import nme.events.KeyboardEvent;
 import nme.ui.Keyboard;
 import gm2d.tween.Timeline;
+import gm2d.input.Input;
 
 class Screen extends gm2d.ui.Window
 {
    var mPaused:Bool;
    public var timeline(default,null):Timeline;
+   public var controller(default,set):Input;
+
 
    public function new(?inLineage:Array<String>, ?inAttribs:Dynamic )
    {
@@ -29,13 +32,45 @@ class Screen extends gm2d.ui.Window
       relayout();
    }
 
-   public function screenLayout(w:Int, h:Int) { }
+   public function screenLayout(w:Int, h:Int)
+   {
+      if (controller!=null)
+         controller.layout(w,h);
+   }
 
    override public function relayout()
    {
       super.relayout();
       if (stage!=null)
+      {
          screenLayout( stage.stageWidth, stage.stageHeight );
+      }
+   }
+
+   public function set_controller(inController:Input)
+   {
+      if (controller!=null)
+      {
+         removeChild(controller);
+         if (Game.screen==this)
+         {
+            controller.onActivate(this,false);
+            controller.setRunning(false);
+         }
+      }
+
+      controller = inController;
+
+      if (controller!=null)
+      {
+         addChild(controller);
+         if (Game.screen==this)
+         {
+            controller.setRunning(true);
+            controller.onActivate(this,true);
+         }
+      }
+      return inController;
    }
 
 
@@ -46,8 +81,17 @@ class Screen extends gm2d.ui.Window
    }
    public function isPaused() { return mPaused; }
 
-   public function onActivate(inActive:Bool) { }
+   public function onActivate(inActive:Bool)
+   {
+      if (controller!=null)
+         controller.onActivate(this,inActive);
+   }
    public function getUpdateFrequency() { return 0.0; }
+   public function onUpdated()
+   {
+      if (controller!=null)
+         controller.onUpdated();
+   }
    public function updateTimeline(inDT:Float)
    {
       if (!mPaused)
@@ -97,6 +141,9 @@ class Screen extends gm2d.ui.Window
       if (stage!=null)
          screenLayout( stage.stageWidth, stage.stageHeight );
    }
+
+   
+
 
 }
 

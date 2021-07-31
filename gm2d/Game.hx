@@ -608,6 +608,7 @@ class Game
          if (freq<=0)
          {
             mCurrentScreen.updateDelta(now-mLastEnter);
+            mCurrentScreen.onUpdated();
             mLastEnter = now;
             mCurrentScreen.render(0.0);
          }
@@ -630,6 +631,7 @@ class Game
 
             for(i in 0...steps)
                mCurrentScreen.updateFixed();
+            mCurrentScreen.onUpdated();
 
             var fractional_step = (now-mLastStep) * freq;
 
