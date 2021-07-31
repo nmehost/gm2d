@@ -1,6 +1,7 @@
 package gm2d.input;
 
 import gm2d.Screen;
+import gm2d.ui.Layout;
 import nme.display.*;
 
 class Input extends Sprite
@@ -9,6 +10,7 @@ class Input extends Sprite
    var active:Bool;
    var running:Bool;
    var eventStage:Stage;
+   var controlLayout:Layout;
 
    public function new()
    {
@@ -19,6 +21,8 @@ class Input extends Sprite
 
    public function layout(w:Int, h:Int)
    {
+      if (controlLayout!=null)
+         controlLayout.setRect(0,0,w,h);
    }
 
 

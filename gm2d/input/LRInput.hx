@@ -1,6 +1,9 @@
 package gm2d.input;
 
 import gm2d.Screen;
+import gm2d.ui.*;
+import gm2d.ui.Layout;
+import gm2d.skin.Shape;
 import nme.display.*;
 import nme.events.*;
 
@@ -16,49 +19,68 @@ class LRInput extends Input
    public var onLeft:Void->Void;
    public var onRight:Void->Void;
 
-   var leftButton:Sprite;
-   var rightButton:Sprite;
+   var leftButton:Widget;
+   var rightButton:Widget;
 
    public function new(inAutoKeyboard=true )
    {
       super();
       autoRepeatDirection = 0.0;
       autoKeyboard = inAutoKeyboard;
-      createButtons();
-      addChild(leftButton);
-      leftButton.addEventListener(MouseEvent.CLICK,(_) -> leftJustDown = true );
-      addChild(rightButton);
-      rightButton.addEventListener(MouseEvent.CLICK,(_) -> leftJustDown = true );
+      controlLayout = createButtons();
    }
+
+   function onLeftDown()
+   {
+      leftJustDown = true;
+      if (onLeft!=null)
+         onLeft();
+   }
+
+   function onRightDown()
+   {
+      rightJustDown = true;
+      if (onRight!=null)
+         onRight();
+   }
+
 
    public function createButtons()
    {
+      var layout = new StackLayout();
+
       var s = gm2d.skin.Skin.dpiScale;
-      var rad = s * 20;
+      var rad = s * 30;
 
-      leftButton = new Sprite();
-      var gfx = leftButton.graphics;
+      var d = new Sprite();
+      var gfx = d.graphics;
       gfx.lineStyle(s*2,0xff0000);
       gfx.beginFill(0xff0000,0.5);
       gfx.drawCircle(rad,rad,rad);
-      rightButton = new Sprite();
-      var gfx = rightButton.graphics;
+      leftButton = new Button(d, onLeftDown, {
+         shape:ShapeNone,
+         itemAlign: Layout.AlignLeft | Layout.AlignBottom,
+         onState:(s) -> leftDown = (s & Widget.DOWN)!= 0,
+      });
+      addChild(leftButton);
+      layout.add(leftButton.getLayout().stretch());
+
+      var d = new Sprite();
+      var gfx = d.graphics;
       gfx.lineStyle(s*2,0xff0000);
       gfx.beginFill(0xff0000,0.5);
       gfx.drawCircle(rad,rad,rad);
+      rightButton = new Button(d, onRightDown, {
+         shape:ShapeNone,
+         itemAlign: Layout.AlignRight | Layout.AlignBottom,
+         onState:(s) -> rightDown = (s & Widget.DOWN)!= 0,
+      });
+      addChild(rightButton);
+      layout.add(rightButton.getLayout().stretch());
+
+      return layout;
    }
 
-   override public function layout(w:Int, h:Int)
-   {
-      var border = 10;
-      leftButton.x = border;
-      leftButton.y = h - border - leftButton.height;
-
-      rightButton.x = w - border - rightButton.width;
-      rightButton.y = h - border - rightButton.height;
-   }
-
-    
    override public function onUpdated()
    {
       leftJustDown = false;

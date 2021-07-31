@@ -33,6 +33,7 @@ class Widget extends Sprite
    public static var autoShowCurrent = true;
 
    public var state(default,set) : Int;
+   public var onState:Int->Void;
    public var disabled(get,set) : Bool;
    public var enabled(get,set) : Bool;
    public var selected(get,set) : Bool;
@@ -76,6 +77,7 @@ class Widget extends Sprite
       wantFocus = attribBool("wantsFocus",false);
       mRect = new Rectangle(0,0,0,0);
       addEventListener( MouseEvent.CLICK, widgetClick );
+      onState = attribDynamic("onState",null);
    }
 
    function widgetClick(e:MouseEvent)
@@ -377,6 +379,8 @@ class Widget extends Sprite
       {
          var wasCurrent = isCurrent;
          state = inState;
+         if (onState!=null)
+            onState(state);
          rebuildState(wasCurrent);
       }
       return inState;
