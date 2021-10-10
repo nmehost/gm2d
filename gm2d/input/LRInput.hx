@@ -6,6 +6,7 @@ import gm2d.ui.Layout;
 import gm2d.skin.Shape;
 import nme.display.*;
 import nme.events.*;
+import nme.ui.Keyboard;
 
 class LRInput extends Input
 {
@@ -61,6 +62,7 @@ class LRInput extends Input
          shape:ShapeNone,
          itemAlign: Layout.AlignLeft | Layout.AlignBottom,
          onState:(s) -> leftDown = (s & Widget.DOWN)!= 0,
+         wantsFocus : false,
       });
       addChild(leftButton);
       layout.add(leftButton.getLayout().stretch());
@@ -74,6 +76,7 @@ class LRInput extends Input
          shape:ShapeNone,
          itemAlign: Layout.AlignRight | Layout.AlignBottom,
          onState:(s) -> rightDown = (s & Widget.DOWN)!= 0,
+         wantsFocus : false,
       });
       addChild(rightButton);
       layout.add(rightButton.getLayout().stretch());
@@ -87,12 +90,36 @@ class LRInput extends Input
       rightJustDown = false;
    }
 
+   public function showButtons(show:Bool)
+   {
+      leftButton.visible = show;
+      rightButton.visible = show;
+   }
+
    function onKeyDown(ev:KeyboardEvent)
    {
+      if (ev.keyCode==Keyboard.LEFT)
+      {
+         onLeftDown();
+         if (autoKeyboard)
+            showButtons(false);
+      }
+      else if (ev.keyCode==Keyboard.RIGHT)
+      {
+         onRightDown();
+         if (autoKeyboard)
+            showButtons(false);
+      }
    }
 
    function onKeyUp(ev:KeyboardEvent)
    {
+   }
+
+   function onMouseMove(m:MouseEvent)
+   {
+      if (autoKeyboard)
+         showButtons(true);
    }
 
    override public function addEventListeners()
@@ -101,6 +128,7 @@ class LRInput extends Input
       {
          eventStage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
          eventStage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+         eventStage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
       }
    }
 
@@ -110,6 +138,7 @@ class LRInput extends Input
       {
          eventStage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
          eventStage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+         eventStage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
       }
    }
 

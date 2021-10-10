@@ -228,12 +228,12 @@ class Layout
       mDebug = mDebugObject==null ? null : mDebugObject.graphics;
    }
 
-   public function setPadding(inX:Float, inY:Float) : Layout
+   public function setPadding(inX:Float, ?inY:Float) : Layout
    {
       mBLeft = inX;
-      mBTop = inY;
+      mBTop = inY==null ? inX : inY;
       mBRight = inX;
-      mBBottom = inY;
+      mBBottom = inY==null ? inX : inY;
       return this;
    }
    public function setIndent(inL:Float) : Layout
