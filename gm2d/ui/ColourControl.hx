@@ -33,11 +33,12 @@ class ColourSlider extends Widget
    public static var markerBitmap:BitmapData;
    var marker:Bitmap;
 
-   static var minHeight = Skin.scale(20);
+   var minHeight:Int;
 
    public function new(inMode:Int,inVertical:Bool)
    {
       super();
+      minHeight = Skin.scale(20);
       if (markerBitmap==null)
       {
          markerBitmap = new BitmapData(Skin.scale(28),minHeight>>1,true,gm2d.RGB.CLEAR);
