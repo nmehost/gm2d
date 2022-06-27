@@ -137,7 +137,11 @@ class Panel extends Widget
    public function getAndStore(data:Dynamic,rememberKey:String)
    {
       get(data);
+      store(data, rememberKey);
+   }
 
+   public function store(data:Dynamic, rememberKey:String)
+   {
       if (rememberKey!=null)
       {
          var def = SharedObject.getLocal("panelData");
@@ -159,7 +163,7 @@ class Panel extends Widget
       }
    }
 
-   public function setAndRestore(data:Dynamic,rememberKey:String)
+   public static function restore(data:Dynamic,rememberKey:String)
    {
       if (rememberKey!=null)
       {
@@ -179,7 +183,11 @@ class Panel extends Widget
             }
          }
       }
+   }
 
+   public function setAndRestore(data:Dynamic,rememberKey:String)
+   {
+      restore(data,rememberKey);
       set(data);
    }
 
