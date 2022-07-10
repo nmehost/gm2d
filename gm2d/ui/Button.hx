@@ -275,7 +275,7 @@ class Button extends Control
    public static function TextButton(inText:String,inOnClick:Void->Void,?inLineage:Array<String>, ?inArrtibs:Dynamic)
    {
       var lin = Widget.addLines(inLineage,["ButtonText","Button","StaticText","Text"]);
-      var renderer = Skin.renderer(Widget.addLines(inLineage,["ButtonText","Button","StaticText","Text"]));
+      var renderer = Skin.renderer(Widget.addLines(inLineage,["ButtonText","Button","StaticText","Text"]),0,inArrtibs);
       var label = new TextField();
       label.text = inText;
       renderer.renderLabel(label);
