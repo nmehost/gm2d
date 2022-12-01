@@ -85,13 +85,13 @@ class Window extends Widget
       }
    }
 
-   public function checkCurrentMode(inKeys:Bool)
+   public function checkCurrentMode(inFromClick:Bool)
    {
       if (Widget.autoShowCurrent)
       {
-         if (inKeys!=Widget.showCurrent)
+         if (inFromClick!=Widget.showCurrent)
          {
-            Widget.showCurrent = inKeys;
+            Widget.showCurrent = inFromClick;
             if (focusWidget!=null)
                focusWidget.rebuildState( );
          }

@@ -39,9 +39,17 @@ class BitmapText extends Control
    // TextField-like API
    public var type(get,set) : TextFieldType;
    public var selectable:Bool;
+   public var borderColour:Int;
+   public var backgroundColour:Int;
+   public var centre:Bool;
+   public var backgroundAlpha:Float;
 
 
-   public function new(inFont:BitmapFont, inVal="", ?onUpdate:String->Void)
+   public function new(inFont:BitmapFont, inVal="", ?onUpdate:String->Void, 
+           inBackgroundColour:Int = 0xffffff,
+           inBorderColour:Int = 0x808080,
+           inCentre = false,
+           inBackgroundAlpha=1.0)
    {
       super();
       mViewport = Viewport.create(50,50, Viewport.BG_TRANSPARENT, 0xffffff, false );
@@ -53,6 +61,10 @@ class BitmapText extends Control
       mSelStart = mSelEnd = 0;
       selectable = true;
       mScrollPos = 0;
+      backgroundColour = inBackgroundColour;
+      borderColour = inBorderColour;
+      centre = inCentre;
+      backgroundAlpha = inBackgroundAlpha;
 
       addChild(mViewport);
 
@@ -325,7 +337,7 @@ class BitmapText extends Control
    function RebuildText(inScrollToEnd:Bool = false)
    {
       mLayer.clear();
-      var x = 0.0;
+      var x = 2.0;
       mCharPos = [];
       for(i in 0...mText.length)
       {
@@ -341,7 +353,10 @@ class BitmapText extends Control
       var edge = w/8;
 
       if (x<=w)
-         mScrollPos = 0;
+      {
+         if (centre)
+            mScrollPos = -Std.int( (w-x)/2 );
+      }
       else if (mScrollPos>x-w)
          mScrollPos = x-w;
       else if (inScrollToEnd)
@@ -357,7 +372,10 @@ class BitmapText extends Control
       if ( selected || mInput )
       {
          if (x<w)
-            mScrollPos = 0;
+         {
+            if (mScrollPos>0)
+               mScrollPos = 0;
+         }
          else
          {
             var show = selected ? (mSelStart==mSelectionAnchor ? mSelEnd : mSelStart) : mInsertPos;
@@ -427,10 +445,15 @@ class BitmapText extends Control
        RebuildText();
        var gfx = graphics;
        gfx.clear();
-       gfx.lineStyle(1,0x808080);
-       gfx.beginFill(0xffffff);
-       gfx.drawRect(0.5,0.5,inW-1,inH);
-       gfx.lineStyle();
+       if (borderColour>=0 || backgroundColour>=0)
+       {
+          if (borderColour>=0)
+             gfx.lineStyle(1,borderColour);
+          if (backgroundColour>=0)
+             gfx.beginFill(backgroundColour, backgroundAlpha);
+          gfx.drawRect(0.5,0.5,inW-1,inH);
+          gfx.lineStyle();
+       }
    }
 
 }

@@ -97,6 +97,22 @@ class BitmapFont extends gm2d.blit.Tilesheets
             }
          } );
    }
+
+
+   public static function createSolid(inFont:String, inHeight:Float=12, colour:Int, borderCol:Int)
+   {
+      var filters:Array<BitmapFilter> = [];
+      filters.push( new GlowFilter(borderCol,1,3,3,3) );
+
+      var h = Std.int( Math.ceil(inHeight) );
+      var bmp:BitmapData = null;
+      bmp  = new BitmapData(h,Std.int(h*1.5),true, colour | 0xff000000);
+
+      return createFilters(inFont,inHeight,borderCol,false,filters, bmp);
+   }
+
+
+
    public static function create(inFont:String, inHeight:Float=12, inCol=0x000000, inLeftToRight:Bool=true)
    {
       var filters:Array<BitmapFilter> = [];
