@@ -588,6 +588,10 @@ class Skin
            shape: ShapeShadowRect(3,0),
            },
 
+        "FileBox" => {
+           showRight: true,
+           },
+
 
         "NoFilters" => {
            filters: null,

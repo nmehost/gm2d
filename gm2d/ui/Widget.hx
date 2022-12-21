@@ -407,6 +407,7 @@ class Widget extends Sprite
       if (label!=null)
          label.text = inText;
    }
+
    function set_text(inText:String) : String
    {
       setText(inText);
@@ -423,6 +424,18 @@ class Widget extends Sprite
    inline function get_text() : String
    {
       return getText();
+   }
+
+   public function showTextEnd()
+   {
+      var text = getLabel();
+      if (text!=null && !text.multiline)
+      {
+         text.scrollH = 0;
+         var t = text.text;
+         text.caretIndex = t.length;
+         //text.scrollH = text.maxScrollH;
+      }
    }
 
    public function onLayout(inX:Float, inY:Float, inW:Float, inH:Float)

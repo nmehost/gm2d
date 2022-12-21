@@ -98,7 +98,7 @@ class TextInput extends TextLabel
 
    override public function setText(inText:String) : Void
    {
-      mText.text = inText;
+      super.setText(inText);
       checkPlaceholder();
    }
 

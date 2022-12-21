@@ -1,10 +1,6 @@
 package gm2d.ui;
 
 import nme.text.TextField;
-import nme.display.BitmapData;
-import nme.display.Bitmap;
-import nme.events.MouseEvent;
-import nme.geom.Point;
 import gm2d.ui.Button;
 import gm2d.ui.Layout;
 import gm2d.skin.Skin;
@@ -16,6 +12,7 @@ class FileBox extends TextInput
    var mButtonX:Float;
    var onText:String->Void;
    var isDir:Bool;
+   var rightAlign = true;
 
    public function new(inVal="", ?inLineage:Array<String>, ?inAttribs:{})
    {

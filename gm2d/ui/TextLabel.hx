@@ -12,6 +12,7 @@ class TextLabel extends Widget
 {
    var mText:TextField;
    var mTextLayout:Layout;
+   var showRight:Bool;
    public var isInput(default,null):Bool;
    public var processSpecial:Bool;
 
@@ -29,6 +30,7 @@ class TextLabel extends Widget
        addChild(mText);
 
        isInput = attribBool("isInput",false) && !attribBool("listOnly",false);
+       showRight = attribBool("showRight",false);
        processSpecial = attribBool("processSpecial",false);
 
        if (isInput)
@@ -74,6 +76,8 @@ class TextLabel extends Widget
    override public function setText(inText:String) : Void
    {
       mText.text = inText;
+      if (showRight)
+         showTextEnd();
    }
 
    public function createUnderlay() { }
@@ -138,11 +142,12 @@ class TextLabel extends Widget
 
 
 
-   /*
    public override function redraw()
    {
+      super.redraw();
+      if (showRight)
+         showTextEnd();
    }
-   */
 
 }
 

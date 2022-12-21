@@ -64,7 +64,7 @@ class Pane implements IDockable
 
       if (itemLayout==null)
          itemLayout = new DisplayLayout(inObj);
-      if (Std.is(inObj,ScrollWidget))
+      if (Std.isOfType(inObj,ScrollWidget))
       {
          var scroll:ScrollWidget = cast inObj;
          if (scroll!=null)
