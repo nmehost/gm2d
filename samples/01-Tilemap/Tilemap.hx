@@ -114,6 +114,8 @@ class Tilemap extends Screen
       stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouse);
       stage.addEventListener(MouseEvent.MOUSE_UP, onMouse);
       stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouse);
+
+      controller = new gm2d.input.LRInput();
       makeCurrent();
    }
 

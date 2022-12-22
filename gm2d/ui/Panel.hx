@@ -123,12 +123,21 @@ class Panel extends Widget
    }
 
    public function bindOk(data:Dynamic, onOk:Void->Void, addCancel:Bool=false,?rememberKey:String,
-       okText="Ok", cancelText="Cancel", inAsScreen = false )
+       okText="Ok", cancelText="Cancel", inAsScreen = false, ?onCancel:Void->Void )
    {
       setAndRestore(data,rememberKey);
-      addTextButton(okText, function() { getAndStore(data,rememberKey); Game.closeDialog(); if (onOk!=null) onOk();} );
+      addTextButton(okText, () -> {
+         getAndStore(data,rememberKey);
+         Game.closeDialog();
+         if (onOk!=null)
+             onOk();
+      } );
       if (addCancel)
-         addTextButton(cancelText, Game.closeDialog );
+         addTextButton(cancelText, () -> {
+            Game.closeDialog();
+            if (onCancel!=null)
+               onCancel();
+         });
       setSizeHint(500);
       showDialog(true,true,inAsScreen);
    }
@@ -352,7 +361,6 @@ class Panel extends Widget
       addObj(inObj,inAlign);
    }
 
-   
    public function addLabelUI(inLabel:String,inObj:Widget,?inAlign:Null<Int>)
    {
       addLabel(inLabel,null,inAlign);
@@ -382,7 +390,6 @@ class Panel extends Widget
    {
       mLabelLookup.get(inName).text = inValue;
    }
-
-
-
 }
+
+

@@ -835,11 +835,15 @@ class Game
       updateDialogSize();
    }
 
-   public static function messageBox( inData:{title:String,label:String }, ?inAttribs:{} )
+   public static function messageBox( inData:{title:String,label:String }, ?inAttribs:{}, ?onClose:Void->Void )
    {
       var panel = new gm2d.ui.Panel(inData.title);
       panel.addLabel(inData.label);
-      panel.addTextButton("Ok", Game.closeDialog );
+      panel.addTextButton("Ok", () -> {
+         Game.closeDialog();
+         if (onClose!=null)
+            onClose();
+      } );
       var dialog = new Dialog(panel.getPane(),inAttribs);
       doShowDialog(dialog,true);
    }
