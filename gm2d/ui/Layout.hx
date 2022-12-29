@@ -33,8 +33,8 @@ class Layout
    public static inline var AlignKeepAspect= 0x0400;
    public static inline var AlignOverlap   = 0x0800;
 
-   public var bestWidth:Null<Float>;
-   public var bestHeight:Null<Float>;
+   public var bestWidth(default,null):Null<Float>;
+   public var bestHeight(default,null):Null<Float>;
 
    public var mBLeft:Float;
    public var mBTop:Float;
@@ -93,6 +93,15 @@ class Layout
    {
       mAlign = (mAlign & ~AlignMaskX) | (inAlign & AlignMaskX);
       return this;
+   }
+
+   function makeBest(ioSize:Size) : Size
+   {
+      if (bestWidth!=null)
+         ioSize.x = bestWidth;
+      if (bestHeight!=null)
+         ioSize.y = bestHeight;
+      return ioSize;
    }
 
 
@@ -177,7 +186,7 @@ class Layout
    public function getMinSize()
    {
       //trace('  $this (specified) -> $minWidth, $minHeight');
-      return new Size(minWidth,minHeight);
+      return makeBest(new Size(minWidth,minHeight));
    }
 
    public function findTextLayout() : TextLayout  { return null; }
@@ -489,7 +498,7 @@ class BorderLayout extends Layout
       //trace(' border min $mBase ->' + s);
       s.x += mBLeft + mBRight;
       s.y += mBTop + mBBottom;
-      return s;
+      return makeBest(s);
    }
 
 }
@@ -536,7 +545,7 @@ class DisplayLayout extends Layout
  
    public override function getMinSize() : Size
    {
-      return new Size(mOWidth>minWidth ? mOWidth:minWidth, mOHeight>minHeight ? mOHeight:minHeight );
+      return makeBest(new Size(mOWidth>minWidth ? mOWidth:minWidth, mOHeight>minHeight ? mOHeight:minHeight ));
    }
 
    public override function setBestSize(inW:Float,inH:Float)
@@ -780,7 +789,7 @@ class StackLayout extends Layout
          if (s.y>h)
             h = s.y;
       }
-      return new Size( w, h );
+      return makeBest(new Size( w, h ));
    }
 
 
@@ -1327,7 +1336,7 @@ class GridLayout extends Layout
       for(m in minY) sy+= m;
       if (sy<minHeight)
          sy = minHeight;
-      return new Size( sx, sy );
+      return makeBest(new Size( sx, sy ));
    }
 
 

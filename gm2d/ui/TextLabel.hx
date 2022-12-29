@@ -37,7 +37,11 @@ class TextLabel extends Widget
           mText.type = nme.text.TextFieldType.INPUT;
 
        if (mRenderer.getDefaultBool("multiline",false))
+       {
           mText.multiline = true;
+          if (mRenderer.getDefaultBool("wordWrap",false))
+             mText.wordWrap = true;
+       }
        mText.text = inVal;
        mRenderer.renderLabel(mText);
 

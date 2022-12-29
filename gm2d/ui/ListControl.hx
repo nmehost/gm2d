@@ -57,6 +57,8 @@ class ListControl extends ScrollWidget
    var overlay:nme.display.Shape;
    var draggingIndex:Int;
 
+   public var maxHeight:Null<Float>;
+
    public var onSelect:Int->Void;
    public var onSelectPhase:Int->Int->Void;
    public var onMultiSelect:Array<Bool>->Void;
@@ -79,6 +81,7 @@ class ListControl extends ScrollWidget
       mWidth = mMinWidth;
       mOrigItemHeight = mHeight = mListHeight = attribFloat("itemHeight",0);
       mItemHeight = mOrigItemHeight;
+      maxHeight = attrib("maxHeight");
       draggingIndex = -1;
 
       var rowLineage = hasAttrib("rowLineage") ? [Std.string(attrib("rowLineage")),"ListRow"] : ["ListRow"];
@@ -371,14 +374,25 @@ class ListControl extends ScrollWidget
       updateHeight();
    }
 
+   override public function onLayout(inX:Float,inY:Float,inW:Float,inH:Float)
+   {
+      x = inX;
+      y = inY;
+      mRect = new Rectangle(0,0,inW,inH);
+   }
+
    function updateHeight()
    {
       contents.y = mTitleHeight;
       var h = mRowPos[mRows.length];
       mControlHeight = h + mTitleHeight;
       //getItemLayout().setMinSize( mMinControlWidth, mControlHeight );
-      getItemLayout().setBestSize( mMinControlWidth, mControlHeight );
-      setScrollRange(mWidth,mWidth,h,mListHeight);
+      var windowH = mControlHeight;
+      if (maxHeight!=null && windowH>maxHeight)
+         windowH = maxHeight;
+      getItemLayout().setBestSize( mMinControlWidth, windowH );
+      //getItemLayout().setBestSize( mMinControlWidth, mControlHeight );
+      setScrollRange(mWidth,mWidth,mControlHeight-mTitleHeight,mListHeight);
    }
 
    public function stringToItem(inString:String) : DisplayObject

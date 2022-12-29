@@ -30,16 +30,18 @@ class Dialog extends Window implements IDialog
       mPane = inPane;
 
       var vlayout = new VerticalLayout([0,1]);
+      vlayout.name = "Dialog VLayout";
 
       var title = new TextLabel(inPane.title, ["DialogTitle"]);
       name = "Dialog(" + inPane.title + ")";
+
       addChild(title);
       vlayout.add(title.getLayout().stretch());
 
       inPane.setDock(null,this);
       vlayout.add(inPane.itemLayout.stretch());
       setItemLayout(vlayout.stretch());
- 
+
       build();
 
       title.addEventListener(nme.events.MouseEvent.MOUSE_DOWN, doDrag);

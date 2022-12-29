@@ -39,7 +39,9 @@ class Panel extends Widget
       mGridLayout = new GridLayout(1,"vertical");
       mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",0) );
       mGridLayout.stretch();
+      mGridLayout.name = "Panel Grid " + inTitle;
       mItemGrid = new GridLayout(2,"items");
+      mItemGrid.name = "ItemGrid " + inTitle;
       mItemGrid.setColStretch(1,1);
       mItemGrid.setAlignment(Layout.AlignTop);
       mItemGrid.setSpacing(mRenderer.getDefaultFloat("labelGap", Skin.scale(10)),
@@ -292,7 +294,7 @@ class Panel extends Widget
    public function addLayout(inLayout:Layout)
    {
       mLayoutDirty = true;
-      mItemGrid.add( inLayout.stretch() );
+      mItemGrid.add( inLayout );
    }
 
    public function addUI(inItem:gm2d.ui.Widget)

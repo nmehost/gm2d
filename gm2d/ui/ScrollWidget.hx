@@ -68,6 +68,7 @@ class ScrollWidget extends Widget //Control
       mScrolling = false;
       viscousity = 2500.0;
       scrollTarget = this;
+      Reflect.setProperty(this,"respectScrollRectExtent",true);
       speedX = new TimeAverage(0.2);
       speedY = new TimeAverage(0.2);
       virtualScroll = false;
@@ -89,6 +90,7 @@ class ScrollWidget extends Widget //Control
          contents = new Sprite();
          addChild(contents);
          scrollTarget = contents;
+         Reflect.setProperty(scrollTarget,"respectScrollRectExtent",true);
          if (scrollbarContainer!=null)
              addChild(scrollbarContainer);
       }
