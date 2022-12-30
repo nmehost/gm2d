@@ -278,6 +278,7 @@ class MovieClip extends MovieClipBase
       mSWF = inSprite.mSWF;
       mFrames= inSprite.mFrames;
       mActive = new ActiveObjects();
+      name = inSprite.mName;
 
       gotoAndPlay(1);
    }

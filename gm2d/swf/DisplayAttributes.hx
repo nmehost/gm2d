@@ -33,7 +33,7 @@ class DisplayAttributes
       if (mMatrix!=null)
          inObj.transform.matrix = mMatrix.clone();
 
-      if (mRatio!=null && Std.is(inObj,MorphObject))
+      if (mRatio!=null && Std.isOfType(inObj,MorphObject))
       {
          var morph:MorphObject = untyped inObj;
          return morph.SetRatio(mRatio);

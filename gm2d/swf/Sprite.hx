@@ -17,10 +17,10 @@ class Sprite
 {
    public var mSWF(default,null) : SWF;
    public var mFrames(default,null):Frames;
+   public var mName(default,null):String;
    var mFrameCount : Int;
    var mFrame:Frame;
    var mFrameLabels:FrameLabels;
-   var mName:String;
    var mClassName:String;
    var mBlendMode:BlendMode;
    var mCacheAsBitmap:Bool;
