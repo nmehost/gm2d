@@ -29,6 +29,8 @@ class DepthSlot
       mCharacter = inCharacter;
    }
 
+   public function toString() return 'DepthSlot($mID:$mAttribs,$mCharacter)';
+
    public function Move(inFrame:Int,
                   inMatrix:Matrix, inColTx:ColorTransform,
                   inRatio:Null<Int>)

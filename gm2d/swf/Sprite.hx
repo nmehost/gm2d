@@ -19,14 +19,14 @@ class Sprite
    public var mFrames(default,null):Frames;
    public var mName(default,null):String;
    var mFrameCount : Int;
-   var mFrame:Frame;
+   public var mFrame:Frame;
    var mFrameLabels:FrameLabels;
    var mClassName:String;
    var mBlendMode:BlendMode;
    var mCacheAsBitmap:Bool;
    var mFilters:Array<BitmapFilter>;
 
-   public function new(inSWF:SWF,inID:Int,inFrameCount:Int)
+   public function new(inSWF:SWF,inID:Int,inFrameCount:Int,?inName:String)
    {
       mSWF = inSWF;
       mFrameCount = inFrameCount;
@@ -35,14 +35,17 @@ class Sprite
       mFilters = null;
       mFrame = new Frame();
       mFrameLabels = new FrameLabels();
-      mName = "Sprite " + inID;
+      mName = inName!=null ? inName : "Sprite" + inID;
       mCacheAsBitmap = false;
    }
+
+   public function toString() return 'Sprite($mName x $mFrameCount)';
 
    public function GetFrameCount() { return mFrameCount; }
 
    public function LabelFrame(inName:String)
    {
+      trace("LabelFrame:" + inName);
       mFrameLabels.set(inName,mFrame.GetFrame());
    }
 
@@ -60,7 +63,7 @@ class Sprite
       mFrame.Remove(depth);
    }
 
-   public function PlaceObject(inStream:SWFStream,inVersion : Int)
+   public function PlaceObject(inStream:SWFStream,inVersion : Int, indent:String)
    {
       if (inVersion==1)
       {
@@ -70,7 +73,7 @@ class Sprite
          var matrix = inStream.ReadMatrix();
          var col_tx:ColorTransform = inStream.BytesLeft()>0 ?
                  inStream.ReadColorTransform(false) : null;
-         mFrame.Place(id,chr,depth,matrix,col_tx,null);
+         mFrame.Place(id,chr,depth,matrix,col_tx,null,null);
       }
       else if (inVersion==2 || inVersion==3)
       {
@@ -113,8 +116,11 @@ class Sprite
 
          var ratio:Null<Int> = has_ratio ? inStream.ReadUI16() : null;
 
+         var name:String = null;
          if (has_name || (has_image && has_character) )
-           mName = inStream.ReadString();
+         {
+           name = inStream.ReadString();
+         }
 
 
          var clip_depth = has_clip_depth ? inStream.ReadDepth() : 0;
@@ -179,17 +185,20 @@ class Sprite
          {
             if (has_character)
             {
+               //Sys.println(indent + "replace:" + cid + "("+mSWF.GetCharacter(cid)+")" + name);
                mFrame.Remove(depth);
-               mFrame.Place(cid,mSWF.GetCharacter(cid),depth,matrix,col_tx,ratio);
+               mFrame.Place(cid,mSWF.GetCharacter(cid),depth,matrix,col_tx,ratio,name);
             }
             else
             {
+               //Sys.println(indent + "move:" + name);
                mFrame.Move(depth,matrix,col_tx,ratio);
             }
          }
          else
          {
-            mFrame.Place(cid,mSWF.GetCharacter(cid),depth,matrix,col_tx,ratio);
+            //Sys.println(indent + "place:" + cid + "("+mSWF.GetCharacter(cid)+")" + name);
+            mFrame.Place(cid,mSWF.GetCharacter(cid),depth,matrix,col_tx,ratio,name);
          }
       }
       else

@@ -172,12 +172,12 @@ class MovieClip extends MovieClipBase
                       case charSprite(_sprite):
                          var clip:gm2d.swf.MovieClip = untyped disp_object;
                          clip.gotoAndPlay(1);
-
                       default:
+                         // no need to do anything
                    }
                }
                else
-               {               
+               {
                    //trace(count++);
                    switch(slot.mCharacter)
                    {
@@ -208,7 +208,7 @@ class MovieClip extends MovieClipBase
                          var t = new TextField();
                          text.Apply(t);
                          disp_object = t;
-                         
+
                       case charBitmap(_shape):
                          throw("Adding bitmap?");
 
@@ -281,6 +281,7 @@ class MovieClip extends MovieClipBase
       name = inSprite.mName;
 
       gotoAndPlay(1);
+      //gotoAndStop(1);
    }
 }
 

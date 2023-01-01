@@ -37,7 +37,7 @@ class SWF
    var mDataMap:DataMap;
 
 
-   public function new(inStream:ByteArray)
+   public function new(inStream:ByteArray,?inName:String)
    {
       mStream = new SWFStream(inStream);
 
@@ -48,10 +48,9 @@ class SWF
       mDataMap = new DataMap();
       mSymbols = new SymbolMap();
 
-      mMain = new Sprite(this,0,count);
+      mMain = new Sprite(this,0,count,inName);
 
       mABC = [];
-
 
       var count:Array<Int> = [];
       for(i in 0...Tags.LAST)
@@ -62,7 +61,7 @@ class SWF
       var tag = 0;
       while( (tag=mStream.BeginTag())!=0 )
       {
-         //trace( Tags.string(tag) + "  x  " + mStream.mTagSize );
+         //Sys.println( Tags.string(tag) );
          count[tag]++;
          switch(tag)
          {
@@ -87,11 +86,11 @@ class SWF
                DefineSprite();
 
             case Tags.PlaceObject:
-               mMain.PlaceObject(mStream,1);
+               mMain.PlaceObject(mStream,1,"   ");
             case Tags.PlaceObject2:
-               mMain.PlaceObject(mStream,2);
+               mMain.PlaceObject(mStream,2,"   ");
             case Tags.PlaceObject3:
-               mMain.PlaceObject(mStream,3);
+               mMain.PlaceObject(mStream,3,"   ");
 
             case Tags.RemoveObject:
                mMain.RemoveObject(mStream,1);
@@ -205,6 +204,7 @@ class SWF
       {
          case charSprite(sprite) :
             var result = new gm2d.swf.MovieClip();
+            result.name = inName;
             result.CreateFromSWF(sprite);
             return result;
 
@@ -341,9 +341,10 @@ class SWF
    public function DefineSprite()
    {
       var id = mStream.ReadID();
-      //trace("Define sprite " + id);
       var frames = mStream.Frames();
       mStream.PushTag();
+
+      //Sys.println("  DefineSprite:" + id + " x" + frames);
 
       var sprite = new Sprite(this,id,frames);
 
@@ -357,15 +358,15 @@ class SWF
             case Tags.FrameLabel:
                sprite.LabelFrame(mStream.ReadString());
             case Tags.ShowFrame:
-               //trace(" frame:" + (fid++));
+               //Sys.println("  frame:" + (fid++) );
                sprite.ShowFrame();
 
             case Tags.PlaceObject:
-               sprite.PlaceObject(mStream,1);
+               sprite.PlaceObject(mStream,1,"     ");
             case Tags.PlaceObject2:
-               sprite.PlaceObject(mStream,2);
+               sprite.PlaceObject(mStream,2,"     ");
             case Tags.PlaceObject3:
-               sprite.PlaceObject(mStream,3);
+               sprite.PlaceObject(mStream,3,"     ");
 
             case Tags.RemoveObject:
                sprite.RemoveObject(mStream,1);

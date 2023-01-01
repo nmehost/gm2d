@@ -28,8 +28,13 @@ class DisplayAttributes
       return n;
    }
 
+   public function toString()  return 'DisplayAttributes($mFrame: $mName)';
+
    public function Apply(inObj:DisplayObject)
    {
+      if (mName!=null)
+         inObj.name = mName;
+
       if (mMatrix!=null)
          inObj.transform.matrix = mMatrix.clone();
 
