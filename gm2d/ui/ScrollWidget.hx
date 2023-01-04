@@ -258,7 +258,7 @@ class ScrollWidget extends Widget //Control
       setWindowSize(inWindowWidth, inWindowHeight);
    }
 
-   override public function onLayout(x,y,w,h)
+   override public function onLayout(x:Float,y:Float,w:Float,h:Float)
    {
       super.onLayout(x,y,w,h);
       setWindowSize(w,h);

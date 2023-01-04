@@ -379,6 +379,7 @@ class ListControl extends ScrollWidget
       x = inX;
       y = inY;
       mRect = new Rectangle(0,0,inW,inH);
+      redraw();
    }
 
    function updateHeight()
