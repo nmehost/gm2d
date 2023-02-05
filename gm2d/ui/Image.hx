@@ -30,6 +30,14 @@ class Image extends Widget
       applyStyles();
    }
 
+   override public function onWidgetDrawn() {
+      if (bitmap!=null)
+      {
+         bitmap.width = mRect.width;
+         bitmap.height = mRect.height;
+      }
+   }
+
    public static function fromSvg(resoName:String, inScale = 1.0,?inLineage:Array<String>, ?inAttribs:{})
    {
       var svg = new SvgRenderer(gm2d.reso.Resources.loadSvg(resoName));
