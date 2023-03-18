@@ -476,7 +476,6 @@ class Widget extends Sprite
       //getLayout().setBorderRect( mRect.x, mRect.y, mRect.width, mRect.height );
    }
 
-
    static public function getWidgetsRecurse(inParent:DisplayObjectContainer,outList : Array<Widget>)
    {
       if (!inParent.mouseEnabled || !inParent.visible) return;

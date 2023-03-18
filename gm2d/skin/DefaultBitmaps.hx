@@ -30,10 +30,18 @@ class DefaultBitmaps
          sizeX = Skin.scale(48);
       }
 
+      if (inButton==Skin.ComboPopup)
+      {
+         sizeY = Skin.scale(22);
+         sizeX = Skin.scale(22);
+      }
+
+
       var invert = true;
 
       var bmp = new BitmapData(sizeX,sizeY,true, 0x00000000 );
       var shape = new nme.display.Shape();
+      shape.pixelSnapping = nme.display.PixelSnapping.NEVER;
       var gfx = shape.graphics;
 
       gfx.lineStyle( Skin.scale(1),lineCol );
@@ -147,25 +155,34 @@ class DefaultBitmaps
       else if (inButton==Skin.Checkbox)
       {
          effects = false;
-         gfx.lineStyle(1,0x000000);
+         gfx.lineStyle(1,Skin.guiTrim);
          gfx.beginFill(Skin.guiMedium);
-         gfx.drawRoundRect(0,0,sizeX-1,sizeY-1,s12,s12);
+         var r = (sizeY-1)*0.5;
+         gfx.drawRoundRect(0,0,sizeX-1,sizeY-1,r*2,r*2);
+         gfx.lineStyle(1,Skin.guiTrim);
          gfx.beginFill(Skin.guiLight);
-         gfx.drawCircle(down ? Skin.scale(36) : s11 + 0.5, s11 + 0.5, s10 );
+         gfx.drawCircle(down ? sizeX-1-r : r, r,  r );
          gfx.endFill();
-         gfx.lineStyle(2,Skin.guiLight);
-         if (down)
+         for(pass in 0...2)
          {
-            gfx.moveTo(s6,s12);
-            gfx.lineTo(s11,s17);
-            gfx.lineTo(s17,s6);
-         }
-         else
-         {
-            gfx.moveTo(s32,s8);
-            gfx.lineTo(s40,s16);
-            gfx.moveTo(s32,s16);
-            gfx.lineTo(s40,s8);
+            var o = pass==0 ? -0.5 : 0;
+            if (pass==0)
+               gfx.lineStyle(3,Skin.guiDark, 0.2);
+            else
+               gfx.lineStyle(2,Skin.guiLight);
+            if (down)
+            {
+               gfx.moveTo(s6+o,s12+o);
+               gfx.lineTo(s11+o,s17+o);
+               gfx.lineTo(s17+o,s6+o);
+            }
+            else
+            {
+               gfx.moveTo(s32+o,s8+o);
+               gfx.lineTo(s40+o,s16+o);
+               gfx.moveTo(s32+o,s16+o);
+               gfx.lineTo(s40+o,s8+o);
+            }
          }
       }
       else if (inButton==Skin.Grip)
@@ -176,6 +193,17 @@ class DefaultBitmaps
          gfx.drawRect(s2,s7, s14-s2, s9-s7);
          gfx.drawRect(s2,s12, s14-s2, s14-s12);
       }
+      else if (inButton==Skin.ComboPopup)
+      {
+          effects = false;
+          gfx.lineStyle();
+          gfx.beginFill(Skin.guiTrim);
+          gfx.moveTo(s8,s8);
+          gfx.lineTo(s16,s8);
+          gfx.lineTo(s12,s14);
+          gfx.lineTo(s8,s8);
+       }
+
 
       if (down && effects)
          matrix.tx = matrix.ty = 1.5;

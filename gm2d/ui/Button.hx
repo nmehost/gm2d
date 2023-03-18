@@ -173,7 +173,7 @@ class Button extends Control
       else
          set_down(true);
 
-     e.stopImmediatePropagation();
+     //e.stopImmediatePropagation();
    }
    function onUp(e:MouseEvent)
    {
@@ -181,6 +181,7 @@ class Button extends Control
       if (!isToggle && !get_down())
       {
          e.stopImmediatePropagation();
+         e.cancelClick = true;
          return;
       }
       if (mouseHandler!=null && !mouseHandler(name,e))

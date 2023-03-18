@@ -122,30 +122,9 @@ class ComboBox extends TextInput
        onItem = inOnSelectIndex;
        onText = inOnSelectString;
 
-       if (mBMP==null)
-       {
-          mBMP = new BitmapData(Skin.scale(22),Skin.scale(22));
-          var shape = new nme.display.Shape();
-          var gfx = shape.graphics;
-          gfx.beginFill(0xffffff);
-          gfx.drawRect(Skin.scale(-2),Skin.scale(-2),Skin.scale(28),Skin.scale(28));
-
-          gfx.beginFill(0xf0f0f0);
-          //gfx.lineStyle();
-          gfx.lineStyle(1,0x808080);
-          gfx.drawRoundRect(0.5,0.5,Skin.scale(22)-1,Skin.scale(22)-1,3);
-          gfx.lineStyle();
-
-          gfx.beginFill(0x000000);
-          gfx.moveTo(Skin.scale(8),Skin.scale(8));
-          gfx.lineTo(Skin.scale(8),Skin.scale(8));
-          gfx.lineTo(Skin.scale(16),Skin.scale(8));
-          gfx.lineTo(Skin.scale(12),Skin.scale(14));
-          gfx.lineTo(Skin.scale(8),Skin.scale(8));
-          mBMP.draw(shape);
-       }
-
        super(inVal, inOnSelectString, inOnTextPhase, Widget.addLine(inLineage,"ComboBox"), inAttribs);
+
+       mBMP = getBitmap();
 
        listOnly = attribBool("listOnly",false);
        selectOnMove = attribBool("selectOnMove",true);

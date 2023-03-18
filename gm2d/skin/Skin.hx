@@ -120,9 +120,11 @@ class Skin
    public static inline var Remove   = "#remove";
    public static inline var Resize   = "#resize";
    public static inline var Grip     = "#grip";
+
  
    // Other Buttons
    public static inline var Checkbox   = "#checkbox";
+   public static inline var ComboPopup = "#combopopup";
 
 
    public static function init(inForce:Bool = false)
@@ -322,7 +324,7 @@ class Skin
         "GroupBox" => {
            margin: 10,
            padding: new Rectangle(0,scale(20),0,scale(20)),
-           line:LineBorder,
+           line:LineTrim,
            fill: FillLight,
            shape:ShapeRoundRect
            },
@@ -333,11 +335,11 @@ class Skin
            },
         "TextInput" => {
            parent:"Control",
-           shape: ShapeRect,
+           shape: ShapeRoundRectRad(1.5),
            align: Layout.AlignLeft,
            isInput: true,
            minItemSize : new Size(scale(100),1),
-           line: LineBorder,
+           line: LineTrim,
            fill: FillSolid(0xffffff,1),
            },
         "Dock" => {
@@ -573,6 +575,11 @@ class Skin
            isInput: false,
            listOnly: true,
            },
+
+        "ComboBox" => {
+           bitmap: BitmapFactory(DefaultBitmaps.factory),
+           bitmapId: ComboPopup,
+        },
 
         "ChoiceButton" => {
            stateDown: {

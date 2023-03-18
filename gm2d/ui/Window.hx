@@ -98,7 +98,6 @@ class Window extends Widget
       }
    }
 
-
    public override function onKeyDown(event:nme.events.KeyboardEvent ) : Bool
    {
       if (focusWidget!=null)

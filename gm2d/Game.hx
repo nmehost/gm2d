@@ -72,6 +72,7 @@ class Game
 
    static var screenStack = new Array<Screen>();
    static public var screen(get,null):Screen;
+   static var lastWindowDown:Window = null;
 
 
    static public function create()
@@ -330,14 +331,24 @@ class Game
          var pos = window.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
          window.onMouseDown(pos.x,pos.y);
       }
+      lastWindowDown = window;
    }
 
    public static function onMouseUp(inEvent)
    {
       if (mCurrentScreen!=null)
       {
-         var pos = mCurrentScreen.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
-         mCurrentScreen.onMouseUp(pos.x,pos.y);
+         var window = getCurrentWindow();
+         if (window==lastWindowDown)
+         {
+            var pos = mCurrentScreen.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
+            mCurrentScreen.onMouseUp(pos.x,pos.y);
+         }
+         else
+         {
+            inEvent.stopImmediatePropagation();
+            inEvent.cancelClick = true;
+         }
       }
    }
 
@@ -346,8 +357,16 @@ class Game
    {
       if (mCurrentScreen!=null)
       {
-         var pos = mCurrentScreen.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
-         mCurrentScreen.onMouseClick(pos.x,pos.y);
+         var window = getCurrentWindow();
+         if (window==lastWindowDown)
+         {
+            var pos = mCurrentScreen.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
+            mCurrentScreen.onMouseClick(pos.x,pos.y);
+         }
+         else
+         {
+            inEvent.stopImmediatePropagation();
+         }
       }
    }
 
@@ -864,6 +883,8 @@ class Game
    public static function popup(inPopup:Window,?inX:Float,?inY:Float, ?inOnClosePopup:Void->Void)
    {
        closePopup();
+
+       lastWindowDown = null;
 
        onClosePopup = inOnClosePopup;
        mCurrentPopup = inPopup;
