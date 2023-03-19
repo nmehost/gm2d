@@ -8,9 +8,9 @@ import gm2d.skin.Skin;
 
 class Control extends Widget
 {
-   public function new(?inLineage:Array<String>, ?inAttribs:Dynamic)
+   public function new(?inSkin:Skin,?inLineage:Array<String>, ?inAttribs:Dynamic)
    {
-      super(Widget.addLine(inLineage,"Control"),inAttribs);
+      super(skin,Widget.addLine(inLineage,"Control"),inAttribs);
    }
 }
 

@@ -38,17 +38,17 @@ class ColourSlider extends Widget
    public function new(inMode:Int,inVertical:Bool)
    {
       super();
-      minHeight = Skin.scale(20);
+      minHeight = skin.scale(20);
       if (markerBitmap==null)
       {
-         markerBitmap = new BitmapData(Skin.scale(28),minHeight>>1,true,gm2d.RGB.CLEAR);
+         markerBitmap = new BitmapData(skin.scale(28),minHeight>>1,true,gm2d.RGB.CLEAR);
          var s = new Shape();
          var gfx = s.graphics;
-         gfx.lineStyle(Skin.scale(4),0xffffff);
-         var off = Skin.scale(2.5);
-         gfx.drawRect(off,off,Skin.scale(24),Skin.scale(6));
-         gfx.lineStyle(Skin.scale(2),0x000000);
-         gfx.drawRect(off,off,Skin.scale(24),Skin.scale(6));
+         gfx.lineStyle(skin.scale(4),0xffffff);
+         var off = skin.scale(2.5);
+         gfx.drawRect(off,off,skin.scale(24),skin.scale(6));
+         gfx.lineStyle(skin.scale(2),0x000000);
+         gfx.drawRect(off,off,skin.scale(24),skin.scale(6));
          markerBitmap.draw(s);
       }
       marker = new Bitmap(markerBitmap);
@@ -253,13 +253,14 @@ class ColourWheel extends Widget
 
    var watcher:MouseWatcher;
    var marker:Bitmap;
-   var markerSize = Skin.scale(15);
+   var markerSize:Int;
 
    public static var markerBitmap:BitmapData;
 
    public function new(inColour:RGBHSV)
    {
       super();
+      markerSize = skin.scale(15);
       if (markerBitmap==null)
       {
          markerBitmap = emptyBmp(markerSize,markerSize);
@@ -284,11 +285,11 @@ class ColourWheel extends Widget
       mContainer.addChild(bitmap);
       marker = new Bitmap(markerBitmap);
       mContainer.addChild(marker);
-      mWidth = Skin.scale(100);
-      mHeight = Skin.scale(100);
+      mWidth = skin.scale(100);
+      mHeight = skin.scale(100);
       var layout = new Layout();
-      layout.minWidth = Skin.scale(32);
-      layout.minHeight = Skin.scale(32);
+      layout.minWidth = skin.scale(32);
+      layout.minHeight = skin.scale(32);
       layout.mAlign = Layout.AlignKeepAspect | Layout.AlignStretch;
       layout.name = "colour";
       layout.onLayout = onBmpLayout;
@@ -631,15 +632,15 @@ class ColourControl extends Widget
       all.add(mainSlider.getLayout());
 
       wheel = new ColourWheel(mColour);
-      wheel.getLayout().setBestSize( Skin.scale(140),Skin.scale(140) );
+      wheel.getLayout().setBestSize( skin.scale(140),skin.scale(140) );
       wheel.onChange = onWheel;
       addChild(wheel);
-      all.add(wheel.getLayout().setBorders(0,0,Skin.scale(6),0));
+      all.add(wheel.getLayout().setBorders(0,0,skin.scale(6),0));
 
       box = new RGBBox(mColour,true, false, null, mRenderer.getDynamic("rgbBox"));
       addChild(box);
       new MouseWatcher(box,null,onRGBDrag,onRGBDrop,0,0,true);
-      var b = Skin.scale(2);
+      var b = skin.scale(2);
       all.add(box.getLayout().setAlignment( Layout.AlignStretch).setBorders(b,b,b,b));
       all.setAlignment( Layout.AlignStretch);
 
@@ -659,7 +660,7 @@ class ColourControl extends Widget
 
       var swatches = new GridLayout(10,"Swatches");
       swatches.setSpacing(4,4);
-      var swatchSize = Skin.scale(16);
+      var swatchSize = skin.scale(16);
       for(i in 0...20)
       {
          var swatch = new Swatch(i,20);

@@ -14,19 +14,21 @@ class SecondaryWindowDialog implements IDialog
       var fps = 0.0;
       var layout = pane.getLayout();
       var size = layout.getBestSize();
+      //var skin = pane.skin;
+      var skin = Skin.getSkin();
 
       var bgCol = 0xffffff;
-      var combined = Skin.combineAttribs(["Dialog"], 0, inAttribs);
+      var combined = skin.combineAttribs(["Dialog"], 0, inAttribs);
       var bg:FillStyle = combined.get("fill");
       if (bg!=null)
          switch(bg)
          {
             case FillSolid(c,a) : bgCol = c;
-            case FillLight: bgCol = Skin.guiLight;
-            case FillMedium: bgCol = Skin.guiMedium;
-            case FillButton: bgCol = Skin.guiButton;
-            case FillDark: bgCol = Skin.guiDark;
-            case FillHighlight: bgCol = Skin.guiHighlight;
+            case FillLight: bgCol = skin.guiLight;
+            case FillMedium: bgCol = skin.guiMedium;
+            case FillButton: bgCol = skin.guiButton;
+            case FillDark: bgCol = skin.guiDark;
+            case FillHighlight: bgCol = skin.guiHighlight;
             default:
          }
 

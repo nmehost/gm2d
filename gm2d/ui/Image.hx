@@ -14,9 +14,9 @@ class Image extends Widget
    public var bitmapData(get,set):BitmapData;
    var bitmap:Bitmap;
 
-   public function new(?inBmp:BitmapData, ?inLineage:Array<String>, ?inAttribs:{})
+   public function new(?skin:Skin, ?inBmp:BitmapData, ?inLineage:Array<String>, ?inAttribs:{})
    {
-      super(inLineage,inAttribs);
+      super(skin,inLineage,inAttribs);
       var bmp = inBmp != null ? inBmp : getBitmap();
       if (bmp!=null)
       {
@@ -38,12 +38,14 @@ class Image extends Widget
       }
    }
 
-   public static function fromSvg(resoName:String, inScale = 1.0,?inLineage:Array<String>, ?inAttribs:{})
+   public static function fromSvg(?skin:Skin,resoName:String, inScale = 1.0,?inLineage:Array<String>, ?inAttribs:{})
    {
+      if (skin==null)
+         skin = Skin.getSkin();
       var svg = new SvgRenderer(gm2d.reso.Resources.loadSvg(resoName));
 
-      var w = Skin.scale(svg.width*inScale);
-      var h = Skin.scale(svg.height*inScale);
+      var w = skin.scale(svg.width*inScale);
+      var h = skin.scale(svg.height*inScale);
       var bmp = new BitmapData(w,h,true, gm2d.RGB.CLEAR );
 
       var shape = svg.createShape();
@@ -53,7 +55,7 @@ class Image extends Widget
       shape.scaleY = h/svg.height;
       bmp.draw(scaled);
 
-      return new Image(bmp, inLineage, inAttribs);
+      return new Image(skin, bmp, inLineage, inAttribs);
    }
 
    function get_bitmapData() return bitmap==null ? null : bitmap.bitmapData;

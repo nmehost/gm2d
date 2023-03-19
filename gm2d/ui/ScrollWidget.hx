@@ -55,16 +55,16 @@ class ScrollWidget extends Widget //Control
    var speedY:TimeAverage;
    var mLastT:Float;
 
-   public function new(?inLineage:Array<String>,?inAttribs:{})
+   public function new(?inSkin:Skin, ?inLineage:Array<String>,?inAttribs:{})
    {
-      super(Widget.addLine(inLineage,"Scroll"), inAttribs);
+      super(inSkin, Widget.addLine(inLineage,"Scroll"), inAttribs);
       mEventStage = null;
       maxScrollX = 0;
       maxScrollY = 0;
       controlW = controlH = 0.0;
       windowWidth = windowHeight = 0.0;
       mScrollX = mScrollY = 0.0;
-      scrollWheelStep = Skin.scale(20);
+      scrollWheelStep = skin.scale(20);
       mScrolling = false;
       viscousity = 2500.0;
       scrollTarget = this;
@@ -100,7 +100,7 @@ class ScrollWidget extends Widget //Control
    public function getThumbMetrics()
    {
       var showX = maxScrollX>0 && showScrollbarX && (scrollbarAwake||scrollbarActive);
-      var size = Skin.scale(thumbW);
+      var size = skin.scale(thumbW);
       var displayHeight = windowHeight - (showX ? size : 0);
       var virtualSize = controlH;
       var pageSize = Std.int(windowHeight*0.8);
@@ -133,7 +133,7 @@ class ScrollWidget extends Widget //Control
          }
          var gfx  = scrollbarContainer.graphics;
          gfx.clear();
-         var size = Skin.scale(thumbW);
+         var size = skin.scale(thumbW);
          gfx.lineStyle(0,0x00000000);
          if (sy)
          {
@@ -170,7 +170,7 @@ class ScrollWidget extends Widget //Control
       var sx = maxScrollX>0 && showScrollbarX;
       var sy = maxScrollY>0 && showScrollbarY;
 
-      var size = Skin.scale(thumbW);
+      var size = skin.scale(thumbW);
       if (sy && e.localX>windowWidth-size)
       {
          var t = getThumbMetrics();
@@ -536,7 +536,7 @@ class ScrollWidget extends Widget //Control
       var p1 = scrollTarget.globalToLocal(pos);
       var dx = p1.x-p0.x;
       var dy = p1.y-p0.y;
-      var close = gm2d.skin.Skin.scale(10.0);
+      var close = skin.scale(10.0);
       if (!mScrolling && (Math.abs(dx)>close || Math.abs(dy)>close))
       {
          mScrolling = true;

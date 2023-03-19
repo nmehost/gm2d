@@ -26,11 +26,11 @@ class Panel extends Widget
    var mTitle:String;
    var mPane:Pane;
 
-   public function new(inTitle:String = "",?inIcon:Image, ?inLineage:Array<String>, ?inAttribs:{})
+   public function new(?inSkin:Skin, inTitle:String = "",?inIcon:Image, ?inLineage:Array<String>, ?inAttribs:{})
    {
       if (inTitle!="")
          inAttribs = Widget.addAttribs(inAttribs, {title:inTitle});
-      super(Widget.addLine(inLineage,"Panel"),inAttribs);
+      super(inSkin,Widget.addLine(inLineage,"Panel"),inAttribs);
 
       mButtons = [];
       mLayoutDirty = true;
@@ -44,8 +44,8 @@ class Panel extends Widget
       mItemGrid.name = "ItemGrid " + inTitle;
       mItemGrid.setColStretch(1,1);
       mItemGrid.setAlignment(Layout.AlignTop);
-      mItemGrid.setSpacing(mRenderer.getDefaultFloat("labelGap", Skin.scale(10)),
-                           mRenderer.getDefaultFloat("lineGap",Skin.scale(10)) );
+      mItemGrid.setSpacing(mRenderer.getDefaultFloat("labelGap", skin.scale(10)),
+                           mRenderer.getDefaultFloat("lineGap",skin.scale(10)) );
       mButtonLayout = new GridLayout(null,"buttons");
       mButtonLayout.setSpacing(  mRenderer.getDefaultFloat("buttonSpacing",0) ,0);
       mButtonLayout.setAlignment( attribInt("buttonAlign", Layout.AlignCenter) );
@@ -57,8 +57,8 @@ class Panel extends Widget
          addChild(inIcon);
          hLayout.add(inIcon.getLayout());
          hLayout.add(mItemGrid.stretch());
-         hLayout.setSpacing(mRenderer.getDefaultFloat("labelGap", Skin.scale(10)),
-                           mRenderer.getDefaultFloat("lineGap",Skin.scale(10)) );
+         hLayout.setSpacing(mRenderer.getDefaultFloat("labelGap", skin.scale(10)),
+                           mRenderer.getDefaultFloat("lineGap",skin.scale(10)) );
          mGridLayout.add(hLayout.stretch());
       }
       else
@@ -119,7 +119,7 @@ class Panel extends Widget
    public function setSizeHint(pix:Int)
    {
       var layout = getPane().getLayout();
-      var w = Math.max( layout.getBestWidth(), Skin.scale(pix) );
+      var w = Math.max( layout.getBestWidth(), skin.scale(pix) );
       w = Math.min( w, nme.Lib.current.stage.stageWidth );
       layout.setMinWidth(w);
    }

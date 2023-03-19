@@ -17,7 +17,7 @@ class ShadowCache
    static var instances = new Array<ShadowInstance>();
    static var drawing:Sprite;
 
-   static public function create(lineStyle:LineStyle, fillStyle:FillStyle, depth:Float,flags:Int,rad:Float)
+   static public function create(skin:Skin, lineStyle:LineStyle, fillStyle:FillStyle, depth:Float,flags:Int,rad:Float)
    {
       var result:ShadowInstance = null;
       for(i in instances)
@@ -35,8 +35,8 @@ class ShadowCache
          drawing.addChild(child);
 
          var gfx = child.graphics;
-         Renderer.setFill(gfx,fillStyle,null);
-         Renderer.setLine(gfx,lineStyle);
+         Renderer.setFill(skin,gfx,fillStyle,null);
+         Renderer.setLine(skin,gfx,lineStyle);
 
          var lw = Renderer.getLineWidth(lineStyle)*0.5;
          var rectMode =  (flags & EdgeFlags.Rect) > 0;

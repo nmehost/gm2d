@@ -33,17 +33,18 @@ class DockFrame extends Widget
    var mSizeX0:Int;
    var mSizeY0:Int;
 
-   public function new(inPane:IDockable, parentDock:IDock, callbacks:DockCallbacks, ?inAttribs:{ })
+   public function new(?inSkin:Skin,inPane:IDockable, parentDock:IDock, callbacks:DockCallbacks, ?inAttribs:{ })
    {
+      var skin = Skin.getSkin(inSkin);
       var p = inPane.asPane();
       if (p!=null)
       {
          if (inAttribs==null)
             inAttribs = p.frameAttribs;
          else if (p.frameAttribs!=null)
-            inAttribs = Skin.mergeAttribs(p.frameAttribs,inAttribs);
+            inAttribs = skin.mergeAttribs(p.frameAttribs,inAttribs);
       }
-      super(["DocumentFrame","Dock"],inAttribs);
+      super(skin,["DocumentFrame","Dock"],inAttribs);
 
       this.name = "DockFrame";
 

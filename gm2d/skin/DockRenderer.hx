@@ -14,33 +14,35 @@ class DockRenderer
 {
    public var gripperTop:Bool;
    public var variableWidths:Bool;
+   var skin:Skin;
 
-   public function new(inVariableWidths:Bool)
+   public function new(inSkin:Skin, inVariableWidths:Bool)
    {
+      skin = inSkin;
       variableWidths = inVariableWidths;
       gripperTop = inVariableWidths;
    }
 
-   public function getResizeBarWidth() : Float { return Skin.getResizeBarWidth(); }
+   public function getResizeBarWidth() : Float { return skin.getResizeBarWidth(); }
    public function getChromeRect(inDocked:IDockable) : Rectangle
    {
-      return Skin.getChromeRect(inDocked,gripperTop);
+      return skin.getChromeRect(inDocked,gripperTop);
    }
    public function renderResizeBar(outDisplay:Sprite, inRect:Rectangle)
    {
       var gfx = outDisplay.graphics;
-      gfx.beginFill(Skin.resizeBarColor);
+      gfx.beginFill(skin.resizeBarColor);
       gfx.drawRect(inRect.x, inRect.y,inRect.width,inRect.height);
    }
    public function renderPaneChrome(outDisplay:Sprite, inPane:Pane, inRect:Rectangle,
                 outHitBoxes:HitBoxes )
    {
-      Skin.renderPaneChrome(inPane,outDisplay,outHitBoxes,inRect,
+      skin.renderPaneChrome(inPane,outDisplay,outHitBoxes,inRect,
               gripperTop?Skin.TOOLBAR_GRIP_TOP:0);
    }
    public function renderToolbarGap(outDisplay:Sprite, x:Float, y:Float, w:Float, h:Float)
    {
-      Skin.renderToolbarGap(outDisplay,x,y,w,h);
+      skin.renderToolbarGap(outDisplay,x,y,w,h);
    }
 
 }

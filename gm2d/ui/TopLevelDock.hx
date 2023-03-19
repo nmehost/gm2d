@@ -25,12 +25,14 @@ class TopLevelDock implements IDock
    var hitBoxes:HitBoxes;
    var chromeDirty:Bool;
    var layoutDirty:Bool;
+   public var skin:Skin;
 
    var size:Rectangle;
    var dockZones:DockZones;
 
-   public function new(inContainer:Sprite,?inDocParent:DocumentParent)
+   public function new(?inSkin:Skin, inContainer:Sprite,?inDocParent:DocumentParent)
    {
+      skin = Skin.getSkin(inSkin);
       inContainer.name = "TopLevelDock.container";
       docParent = inDocParent;
       if (docParent!=null)
@@ -52,7 +54,7 @@ class TopLevelDock implements IDock
 
       chromeDirty = true;
       layoutDirty = true;
-      hitBoxes = new HitBoxes(backgroundContainer,onHitBox);
+      hitBoxes = new HitBoxes(skin, backgroundContainer,onHitBox);
       new DockSizeHandler(container,overlayContainer,hitBoxes);
 
       if (inDocParent!=null)
@@ -200,10 +202,10 @@ class TopLevelDock implements IDock
       {
          dockZones = new DockZones(x, y, overlayContainer);
          root.addDockZones(dockZones);
-         Skin.renderDropZone(size,dockZones,DOCK_LEFT, false,   function(d) addDockable(d,DOCK_LEFT,0) );
-         Skin.renderDropZone(size,dockZones,DOCK_RIGHT, false,  function(d) addDockable(d,DOCK_RIGHT,0));
-         Skin.renderDropZone(size,dockZones,DOCK_TOP, false,    function(d) addDockable(d,DOCK_TOP,0) );
-         Skin.renderDropZone(size,dockZones,DOCK_BOTTOM, false, function(d) addDockable(d,DOCK_BOTTOM,0) );
+         skin.renderDropZone(size,dockZones,DOCK_LEFT, false,   function(d) addDockable(d,DOCK_LEFT,0) );
+         skin.renderDropZone(size,dockZones,DOCK_RIGHT, false,  function(d) addDockable(d,DOCK_RIGHT,0));
+         skin.renderDropZone(size,dockZones,DOCK_TOP, false,    function(d) addDockable(d,DOCK_TOP,0) );
+         skin.renderDropZone(size,dockZones,DOCK_BOTTOM, false, function(d) addDockable(d,DOCK_BOTTOM,0) );
       }
    }
    public function showDockZones(inEvent:MouseEvent)
@@ -252,7 +254,7 @@ class TopLevelDock implements IDock
       return { floating:floating, root:root==null ? null : root.getLayoutInfo() }
    }
 
-   public function setLayoutInfo(inInfo:Dynamic)
+   public function setLayoutInfo(skin:Skin, inInfo:Dynamic)
    {
       var panes = Pane.allPanes();
       for(pane in panes)
@@ -271,7 +273,7 @@ class TopLevelDock implements IDock
             }
       }
 
-      root = Dock.loadLayout(inInfo.root,panes,docParent);
+      root = Dock.loadLayout(skin, inInfo.root,panes,docParent);
       if (root!=null)
         root.setDock(this,paneContainer);
    }

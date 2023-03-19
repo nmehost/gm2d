@@ -32,12 +32,12 @@ class TabBar extends Widget
    var tabRenderer:TabRenderer;
    var allowRestore:Bool;
 
-   public function new(inDockables:Array<IDockable>, inOnHitBox: HitAction->MouseEvent->Void, inAllowRestore:Bool)
+   public function new(?inSkin:Skin, inDockables:Array<IDockable>, inOnHitBox: HitAction->MouseEvent->Void, inAllowRestore:Bool)
    {
-      super(["TabBar"] );
+      super(inSkin,["TabBar"] );
       mDockables = inDockables;
-      tabRenderer = Skin.tabRenderer();
-      mHitBoxes = new HitBoxes(this,inOnHitBox);
+      tabRenderer = skin.tabRenderer();
+      mHitBoxes = new HitBoxes(skin,this,inOnHitBox);
       var layout = new Layout();
       layout.setAlignment(Layout.AlignStretch);
       layout.onLayout = layoutTabs;

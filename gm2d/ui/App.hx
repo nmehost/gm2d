@@ -36,19 +36,26 @@ class App extends Screen
    {
       super();
 
+      var skin = createSkin();
+
       slideBorders = 0;
 
       //widgets = new WidgetManager();
 
-      docParent = new DocumentParent(inSingleDocument);
+      docParent = new DocumentParent(skin, inSingleDocument);
 
-      dock = new TopLevelDock(this,docParent);
+      dock = new TopLevelDock(skin, this,docParent);
 
       makeCurrent();
 
       addEventListener(nme.events.Event.RENDER, checkSliderLayouts);
 
       relayout();
+   }
+
+   public function createSkin()
+   {
+      return Skin.getSkin();
    }
 
    override public function goBack( ) :Bool
@@ -163,7 +170,7 @@ class App extends Screen
          var layout = Reflect.field(def.data,inKey);
          if (layout!=null)
          {
-            dock.setLayoutInfo(layout);
+            dock.setLayoutInfo( Skin.getSkin(), layout);
          }
       }
    }

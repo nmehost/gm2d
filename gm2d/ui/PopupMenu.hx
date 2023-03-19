@@ -17,9 +17,9 @@ class PopupMenu extends Window
    var mList:ListControl;
    var mRowIdx:Array<Int>;
    
-   public function new(inItem:MenuItem,inBar:Menubar=null)
+   public function new(?inSkin:Skin, inItem:MenuItem,inBar:Menubar=null)
    {
-      super(["PopupMenu"] );
+      super(inSkin, ["PopupMenu"] );
 
       mItem = inItem;
       mBar = inBar;
@@ -89,7 +89,7 @@ class PopupMenu extends Window
                }
                else if (item.id!=null)
                {
-                  var icon:BitmapData = Skin.getIdAttrib(item.id,"icon");
+                  var icon:BitmapData = skin.getIdAttrib(item.id,"icon");
                   if (icon!=null)
                   {
                      // TODO widget instead

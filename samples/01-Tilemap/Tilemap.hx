@@ -139,7 +139,8 @@ class Tilemap extends Screen
    {
       var popup = new gm2d.ui.Window(["SimpleTile"]);
       popup.setItemLayout( new gm2d.ui.VerticalLayout() );
-      popup.addWidget(new gm2d.ui.TextLabel("Winner!", { fontSize:gm2d.skin.Skin.scale(48) } ));
+      var skin = gm2d.skin.Skin.getSkin();
+      popup.addWidget(new gm2d.ui.TextLabel("Winner!", { fontSize:skin.scale(48) } ));
       var button = gm2d.ui.Button.TextButton("Restart", Game.closePopup, ["SimpleTile"] );
       popup.addWidget(button);
       popup.build();

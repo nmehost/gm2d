@@ -1,6 +1,7 @@
 package gm2d.ui;
 
 import nme.display.Sprite;
+import gm2d.skin.Skin;
 
 class TileControl extends ScrollWidget
 {
@@ -13,9 +14,9 @@ class TileControl extends ScrollWidget
 
    public var count(get,null):Int;
 
-   public function new(?inLineage:Array<String>,?inAttribs:{})
+   public function new(?inSkin:Skin, ?inLineage:Array<String>,?inAttribs:{})
    {
-      super(Widget.addLine(inLineage,"TileControl"), inAttribs);
+      super(inSkin, Widget.addLine(inLineage,"TileControl"), inAttribs);
       columns = attribInt("columns",0);
 
 
@@ -72,7 +73,7 @@ class TileControl extends ScrollWidget
       var columnWidth = attribFloat("columnWidth",0);
       if (columnWidth>0)
       {
-         columns = Std.int( controlWidth/gm2d.skin.Skin.scale(columnWidth) );
+         columns = Std.int( controlWidth/skin.scale(columnWidth) );
          if (columns<1)
             columns = 1;
       }

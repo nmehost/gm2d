@@ -40,10 +40,12 @@ class Pane implements IDockable
    public var posX(default,null):Float;
    public var posY(default,null):Float;
    public var getDefaultWidget:Void->Widget;
+   var skin:Skin;
 
-   public function new(inObj:DisplayObject, inTitle:String, inFlags:Int, ?inShortTitle:String,
+   public function new(?inSkin:Skin, inObj:DisplayObject, inTitle:String, inFlags:Int, ?inShortTitle:String,
        ?inItemLayout:Layout)
    {
+      skin = Skin.getSkin(inSkin);
       sPanes.push(this);
       scrollX = scrollY = 0.0;
       displayObject = inObj;
@@ -303,11 +305,11 @@ class Pane implements IDockable
       if (rect.contains(outZones.x,outZones.y))
       {
          var dock = getDock();
-         Skin.renderDropZone(rect,outZones,DOCK_LEFT,true,   function(d) dock.addSibling(this,d,DOCK_LEFT) );
-         Skin.renderDropZone(rect,outZones,DOCK_RIGHT,true,  function(d) dock.addSibling(this,d,DOCK_RIGHT));
-         Skin.renderDropZone(rect,outZones,DOCK_TOP,true,    function(d) dock.addSibling(this,d,DOCK_TOP) );
-         Skin.renderDropZone(rect,outZones,DOCK_BOTTOM,true, function(d) dock.addSibling(this,d,DOCK_BOTTOM) );
-         Skin.renderDropZone(rect,outZones,DOCK_OVER,true,   function(d) dock.addSibling(this,d,DOCK_OVER) );
+         skin.renderDropZone(rect,outZones,DOCK_LEFT,true,   function(d) dock.addSibling(this,d,DOCK_LEFT) );
+         skin.renderDropZone(rect,outZones,DOCK_RIGHT,true,  function(d) dock.addSibling(this,d,DOCK_RIGHT));
+         skin.renderDropZone(rect,outZones,DOCK_TOP,true,    function(d) dock.addSibling(this,d,DOCK_TOP) );
+         skin.renderDropZone(rect,outZones,DOCK_BOTTOM,true, function(d) dock.addSibling(this,d,DOCK_BOTTOM) );
+         skin.renderDropZone(rect,outZones,DOCK_OVER,true,   function(d) dock.addSibling(this,d,DOCK_OVER) );
       }
    }
 

@@ -13,27 +13,23 @@ class DefaultBitmaps
 {
    static var cache = new Map<String, BitmapData>();
 
-   public static function createBitmap(inButton:String, inState:Int, lineCol:Int, fillCol:Int ) : BitmapData
+   public static function createBitmap(skin:Skin, inButton:String, inState:Int, lineCol:Int, fillCol:Int ) : BitmapData
    {
-      var key = '$inButton:$inState:$lineCol:$fillCol';
-      if (cache.exists(key))
-         return cache.get(key);
-
       var down = (inState & Widget.DOWN) > 0;
-      var sizeX = Skin.scale(16);
-      var sizeY = Skin.scale(16);
+      var sizeX = skin.scale(16);
+      var sizeY = skin.scale(16);
       var effects = true;
 
       if (inButton==Skin.Checkbox)
       {
-         sizeY = Skin.scale(24);
-         sizeX = Skin.scale(48);
+         sizeY = skin.scale(24);
+         sizeX = skin.scale(48);
       }
 
       if (inButton==Skin.ComboPopup)
       {
-         sizeY = Skin.scale(22);
-         sizeX = Skin.scale(22);
+         sizeY = skin.scale(22);
+         sizeX = skin.scale(22);
       }
 
 
@@ -44,7 +40,7 @@ class DefaultBitmaps
       shape.pixelSnapping = nme.display.PixelSnapping.NEVER;
       var gfx = shape.graphics;
 
-      gfx.lineStyle( Skin.scale(1),lineCol );
+      gfx.lineStyle( skin.scale(1),lineCol );
       switch(inButton)
       {
          case Skin.Maximize, Skin.Popup, Skin.Restore:
@@ -53,24 +49,24 @@ class DefaultBitmaps
       }
       var matrix = new Matrix();
 
-      var s1 = Skin.scale(1);
-      var s2 = Skin.scale(2);
-      var s3 = Skin.scale(3);
-      var s4 = Skin.scale(4);
-      var s5 = Skin.scale(5);
-      var s6 = Skin.scale(6);
-      var s7 = Skin.scale(7);
-      var s8 = Skin.scale(8);
-      var s9 = Skin.scale(9);
-      var s10 = Skin.scale(10);
-      var s11 = Skin.scale(11);
-      var s12 = Skin.scale(12);
-      var s14 = Skin.scale(14);
-      var s15 = Skin.scale(15);
-      var s16 = Skin.scale(16);
-      var s17 = Skin.scale(17);
-      var s32 = Skin.scale(32);
-      var s40 = Skin.scale(40);
+      var s1 = skin.scale(1);
+      var s2 = skin.scale(2);
+      var s3 = skin.scale(3);
+      var s4 = skin.scale(4);
+      var s5 = skin.scale(5);
+      var s6 = skin.scale(6);
+      var s7 = skin.scale(7);
+      var s8 = skin.scale(8);
+      var s9 = skin.scale(9);
+      var s10 = skin.scale(10);
+      var s11 = skin.scale(11);
+      var s12 = skin.scale(12);
+      var s14 = skin.scale(14);
+      var s15 = skin.scale(15);
+      var s16 = skin.scale(16);
+      var s17 = skin.scale(17);
+      var s32 = skin.scale(32);
+      var s40 = skin.scale(40);
 
       if (inButton==Skin.Close)
       {
@@ -143,8 +139,8 @@ class DefaultBitmaps
       }
       else if (inButton==Skin.Resize)
       {
-         var w = Skin.scale(16);
-         var h = Skin.scale(16);
+         var w = skin.scale(16);
+         var h = skin.scale(16);
          for(o in 0...4)
          {
             var dx = (o+2)*3;
@@ -155,21 +151,21 @@ class DefaultBitmaps
       else if (inButton==Skin.Checkbox)
       {
          effects = false;
-         gfx.lineStyle(1,Skin.guiTrim);
-         gfx.beginFill(Skin.guiMedium);
+         gfx.lineStyle(1,skin.guiTrim);
+         gfx.beginFill(skin.guiMedium);
          var r = (sizeY-1)*0.5;
          gfx.drawRoundRect(0,0,sizeX-1,sizeY-1,r*2,r*2);
-         gfx.lineStyle(1,Skin.guiTrim);
-         gfx.beginFill(Skin.guiLight);
+         gfx.lineStyle(1,skin.guiTrim);
+         gfx.beginFill(skin.guiLight);
          gfx.drawCircle(down ? sizeX-1-r : r, r,  r );
          gfx.endFill();
          for(pass in 0...2)
          {
             var o = pass==0 ? -0.5 : 0;
             if (pass==0)
-               gfx.lineStyle(3,Skin.guiDark, 0.2);
+               gfx.lineStyle(3,skin.guiDark, 0.2);
             else
-               gfx.lineStyle(2,Skin.guiLight);
+               gfx.lineStyle(2,skin.guiLight);
             if (down)
             {
                gfx.moveTo(s6+o,s12+o);
@@ -188,7 +184,7 @@ class DefaultBitmaps
       else if (inButton==Skin.Grip)
       {
          effects = false;
-         gfx.beginFill(Skin.guiLight);
+         gfx.beginFill(skin.guiLight);
          gfx.drawRect(s2,s2, s14-s2, s4-s2);
          gfx.drawRect(s2,s7, s14-s2, s9-s7);
          gfx.drawRect(s2,s12, s14-s2, s14-s12);
@@ -197,7 +193,7 @@ class DefaultBitmaps
       {
           effects = false;
           gfx.lineStyle();
-          gfx.beginFill(Skin.guiTrim);
+          gfx.beginFill(skin.guiTrim);
           gfx.moveTo(s8,s8);
           gfx.lineTo(s16,s8);
           gfx.lineTo(s12,s14);
@@ -220,20 +216,9 @@ class DefaultBitmaps
 
       bmp.draw(shape,matrix,null);
 
-      cache.set(key,bmp);
-
       return bmp;
    }
 
-   public static function factory(inButton:String, inState:Int) : BitmapData
-   {
-      return createBitmap(inButton, inState, Skin.guiDark, Skin.guiLight);
-   }
-
-   public static function darkFactory(inButton:String, inState:Int) : BitmapData
-   {
-      return createBitmap(inButton, inState, Skin.guiLight, Skin.guiDark);
-   }
 
 }
 

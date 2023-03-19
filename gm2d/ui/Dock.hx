@@ -1,5 +1,6 @@
 package gm2d.ui;
 
+import gm2d.skin.Skin;
 import gm2d.ui.DockPosition;
 
 class Dock
@@ -58,7 +59,7 @@ class Dock
    }
 
 
-   static function loadChildren(inDockables:Dynamic, panes:Array<Pane>,inDocParent:DocumentParent ):Array<IDockable>
+   static function loadChildren(skin:Skin, inDockables:Dynamic, panes:Array<Pane>,inDocParent:DocumentParent ):Array<IDockable>
    {
       var children = new Array<IDockable>();
       var dockables:Array<Dynamic> = inDockables;
@@ -66,7 +67,7 @@ class Dock
       {
          for(d in dockables)
          {
-            var child = loadLayout(d, panes, inDocParent);
+            var child = loadLayout(skin, d, panes, inDocParent);
             if (child!=null)
                children.push(child);
          }
@@ -74,7 +75,7 @@ class Dock
       return children;
    }
 
-   public static function loadLayout(inInfo:Dynamic, panes:Array<Pane>,inDocParent:DocumentParent ):IDockable
+   public static function loadLayout(skin:Skin, inInfo:Dynamic, panes:Array<Pane>,inDocParent:DocumentParent ):IDockable
    {
       if (inInfo==null)
          return null;
@@ -116,13 +117,13 @@ class Dock
 
 
          case "SideDock" :
-            var children = loadChildren(inInfo.dockables,panes,inDocParent);
+            var children = loadChildren(skin, inInfo.dockables,panes,inDocParent);
             if (children.length==0)
                return null;
             if (children.length==1)
                return children[0];
             var horizontal = inInfo.horizontal ? DOCK_LEFT:DOCK_TOP;
-            var side = new SideDock(horizontal);
+            var side = new SideDock(skin, horizontal);
             side.loadLayout(inInfo);
             var idx = 0;
             for(child in children)
@@ -130,7 +131,7 @@ class Dock
             return side;
 
          case "MultiDock" :
-            var children = loadChildren(inInfo.dockables,panes,inDocParent);
+            var children = loadChildren(skin, inInfo.dockables,panes,inDocParent);
             if (children.length==0)
                return null;
             if (children.length==1)

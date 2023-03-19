@@ -47,66 +47,9 @@ typedef AttribSet = Map<String,Dynamic>;
 
 class Skin
 {
-   // You can use these to set the defaults before you create a Widget
-   public static var roundRectRad = 4.0;
-   public static var guiLight = 0xf0f0f0;
-   public static var guiMedium = 0xe0e0e0;
-   public static var guiButton = guiMedium;
-   public static var guiTrim = 0xadadad;
-   public static var guiHighlight = 0x1883d7;
-   public static var guiDark = 0x606060;
-   public static var guiVeryDark = 0x404040;
+   public static var dpiScale(get,null):Float;
 
-   public static var guiLightText = 0xffffff;
-
-   public static var guiDisabled = 0x808080;
-   public static var guiBorder = 0x000000;
-   public static var textFormat:nme.text.TextFormat;
-
-
-   public static var controlBorder = 0x000000;
-   public static var centerTitle = true;
-   public static var buttonBorderX = 10;
-   public static var buttonBorderY = 2;
-   public static var mdiBGColor = 0x404040;
-   public static var labelColor = 0x000000;
-   public static var panelColor = guiMedium;
-   public static var controlColor = guiLight;
-   public static var dialogColor = guiLight;
-   public static var disableColor = 0x808080;
-   public static var resizeBarColor = 0x00ff00;
-   public static var tabGradientColor = 0x909080;
-   public static var menuHeight:Float = 32;
-
-   public static var rowSelectColour = 0xffd0d0f0;
-   public static var rowEvenColour   = 0xffffffff;
-   public static var rowOddColour    = 0xfff0f0ff;
-
-
-   public static var shadowFilters:Array<BitmapFilter>;
-   public static var currentFilters:Array<BitmapFilter>;
-   public static var sliderRenderer:SliderRenderer;
-   public static var defaultTabRenderer:TabRenderer;
-
-   public static var tabHeight:Int = 24;
-   public static var title_h:Int = 22;
-   public static var borders:Int = 3;
-
-   public static var mDrawing:Sprite;
-   public static var mText:TextField;
-
-   public static inline var TOOLBAR_GRIP_TOP = 0x0001;
-   public static inline var SHOW_COLLAPSE    = 0x0002;
-   public static inline var SHOW_EXPAND      = 0x0004;
-
-   public static var attribSet:Map<String,Dynamic>;
-   public static var cachedIdAttribs:Map<String,Dynamic>;
-   public static var resolveAttribs: String->Dynamic = defaultResolveAttribs;
-
-   public static var tabSize = 32;
-   public static var dpiScale:Float = 0.0;
-   public static var isInit:Bool = false;
-
+   public var uiScale:Float;
 
    // Chrome Buttons
    public static inline var Close    = "#close";
@@ -121,21 +64,101 @@ class Skin
    public static inline var Resize   = "#resize";
    public static inline var Grip     = "#grip";
 
- 
    // Other Buttons
    public static inline var Checkbox   = "#checkbox";
    public static inline var ComboPopup = "#combopopup";
 
 
-   public static function init(inForce:Bool = false)
+   public static inline var TOOLBAR_GRIP_TOP = 0x0001;
+   public static inline var SHOW_COLLAPSE    = 0x0002;
+   public static inline var SHOW_EXPAND      = 0x0004;
+
+
+   public static var theSkin:Skin;
+
+
+
+   // You can use these to set the defaults before you create a Widget
+   public var roundRectRad = 4.0;
+   public var guiLight = 0xf0f0f0;
+   public var guiMedium = 0xe0e0e0;
+   public var guiTrim = 0xadadad;
+   public var guiHighlight = 0x1883d7;
+   public var guiDark = 0x606060;
+   public var guiVeryDark = 0x404040;
+   public var guiLightText = 0xffffff;
+   public var panelColor = 0xe0e0e0;
+   public var controlColor = 0xf0f0f0;
+   public var dialogColor = 0xf0f0f0;
+   public var guiButton = 0xe0e0e0;
+
+   public var guiDisabled = 0x808080;
+   public var guiBorder = 0x000000;
+   public var textFormat:nme.text.TextFormat;
+
+
+   public var controlBorder = 0x000000;
+   public var centerTitle = true;
+   public var buttonBorderX = 10;
+   public var buttonBorderY = 2;
+   public var mdiBGColor = 0x404040;
+   public var labelColor = 0x000000;
+   public var disableColor = 0x808080;
+   public var resizeBarColor = 0x00ff00;
+   public var tabGradientColor = 0x909080;
+   public var menuHeight:Float = 32;
+   public var tabSize = 32;
+
+   public var rowSelectColour = 0xffd0d0f0;
+   public var rowEvenColour   = 0xffffffff;
+   public var rowOddColour    = 0xfff0f0ff;
+
+
+   public var shadowFilters:Array<BitmapFilter>;
+   public var currentFilters:Array<BitmapFilter>;
+   public var sliderRenderer:SliderRenderer;
+   public var defaultTabRenderer:TabRenderer;
+   public var bmpCache = new Map<String, BitmapData>();
+
+
+   public var tabHeight:Int = 24;
+   public var title_h:Int = 22;
+   public var borders:Int = 3;
+
+   public var mDrawing:Sprite;
+   public var mText:TextField;
+
+   public var attribSet:Map<String,Dynamic>;
+   public var cachedIdAttribs:Map<String,Dynamic>;
+   public var resolveAttribs: String->Dynamic;
+
+
+
+   public function new(andInit=true)
    {
-      if (isInit && !inForce)
-         return;
+      uiScale = nme.ui.Scale.getFontScale();
+      resolveAttribs = defaultResolveAttribs;
 
-      isInit = true;
-      if (dpiScale==0.0)
-         dpiScale = nme.ui.Scale.getFontScale();
+      if (andInit)
+         init();
+   }
 
+   public static function getSkin(?inSkin:Skin)
+   {
+      if (inSkin!=null)
+         return inSkin;
+      if (theSkin==null)
+         theSkin = new Skin();
+      return theSkin;
+   }
+
+   public static function get_dpiScale()
+   {
+      return getSkin().uiScale;
+   }
+
+   public function init()
+   {
       if (textFormat==null)
       {
          textFormat = new TextFormat();
@@ -248,7 +271,7 @@ class Skin
            align:Layout.AlignRight|Layout.AlignCenterY,
            margin:new Rectangle(5,0,10,0),
            itemAlign:Layout.AlignCenter,
-           bitmap: BitmapFactory(DefaultBitmaps.factory),
+           bitmap: BitmapFactory(createDefaultBitmap),
            },
         "TextLabel" => {
            align: Layout.AlignLeft,
@@ -349,12 +372,12 @@ class Skin
            padding: null,
            },
         "BitmapFromId" => {
-           bitmap: BitmapFactory(DefaultBitmaps.factory),
+           bitmap: BitmapFactory(createDefaultBitmap),
            },
 
         "UiButton" => {
            shape: ShapeNone,
-           bitmap: BitmapFactory(DefaultBitmaps.factory),
+           bitmap: BitmapFactory(createDefaultBitmap),
            padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
            },
         "CheckButton" => {
@@ -364,7 +387,7 @@ class Skin
            padding: null,
            toggle: true,
            bitmapId:"#checkbox",
-           bitmap: BitmapFactory(DefaultBitmaps.factory),
+           bitmap: BitmapFactory(createDefaultBitmap),
            },
         "DockItem" => {
            align: Layout.AlignStretch,
@@ -404,7 +427,7 @@ class Skin
            },
 
         "TabBarButton" => {
-           bitmap: BitmapFactory(DefaultBitmaps.darkFactory),
+           bitmap: BitmapFactory(createDefaultDarkBitmap),
            fill: FillDark,
            },
 
@@ -577,7 +600,7 @@ class Skin
            },
 
         "ComboBox" => {
-           bitmap: BitmapFactory(DefaultBitmaps.factory),
+           bitmap: BitmapFactory(createDefaultBitmap),
            bitmapId: ComboPopup,
         },
 
@@ -621,10 +644,34 @@ class Skin
          defaultTabRenderer = createTabRenderer(["Tabs", "TabRenderer"],{});
    }
 
+   public function createDefaultBitmap( inButton:String, inState:Int) : BitmapData
+   {
+      var key = inButton + "::" + inState;
+      if (bmpCache.exists(key))
+          return  bmpCache.get(key);
+      var bmp = DefaultBitmaps.createBitmap(this, inButton, inState, guiDark, guiLight);
+      bmpCache[key] = bmp;
+      return bmp;
+   }
+
+   public function createDefaultDarkBitmap( inButton:String, inState:Int) : BitmapData
+   {
+      var key = "dark::" + inButton + "::" + inState;
+      if (bmpCache.exists(key))
+          return  bmpCache.get(key);
+
+      var bmp = DefaultBitmaps.createBitmap(this, inButton, inState,  guiLight, guiDark);
+      bmpCache[key] = bmp;
+      return bmp;
+   }
+
+
+
    public static function scaleBitmap(inBmp:BitmapData,extraScale:Float=1.0)
    {
-      var w = scale(inBmp.width*extraScale);
-      var h = scale(inBmp.height*extraScale);
+      var skin = getSkin();
+      var w = skin.scale(inBmp.width*extraScale);
+      var h = skin.scale(inBmp.height*extraScale);
       var bitmap = new Bitmap(inBmp);
       var mtx = new nme.geom.Matrix(w/inBmp.width,0,0,h/inBmp.height,0,0);
 
@@ -632,15 +679,13 @@ class Skin
       result.draw(bitmap, mtx);
       return result;
    }
-   public static function size(inX:Float,inY:Float) return new Size( scale(inX), scale(inY) );
-   public static function scale(inVal:Float):Int
+   public function size(inX:Float,inY:Float) return new Size( scale(inX), scale(inY) );
+   public function scale(inVal:Float):Int
    {
-      if (dpiScale==0)
-         dpiScale = nme.ui.Scale.getFontScale();
-      return Std.int(inVal*dpiScale);
+      return Std.int(inVal*uiScale);
    }
 
-   public static function addId(inId:String, inAttribs:{ })
+   public function addId(inId:String, inAttribs:{ })
    {
       var attribs = cachedIdAttribs.get(inId);
       if (attribs==null)
@@ -651,7 +696,7 @@ class Skin
    }
 
 
-   public static function getIdAttribs(inId:String) : Dynamic
+   public function getIdAttribs(inId:String) : Dynamic
    {
       if (cachedIdAttribs.exists(inId))
          return cachedIdAttribs.get(inId);
@@ -663,7 +708,7 @@ class Skin
     }
   
 
-   public static function getIdAttrib(inId:String, inName:String) : Dynamic
+   public function getIdAttrib(inId:String, inName:String) : Dynamic
    {
       var attribs = getIdAttribs(inId);
       if (attribs==null)
@@ -676,7 +721,7 @@ class Skin
    }
 
 
-   public static function addAttribs(inLine:String, inAttribs:Dynamic)
+   public function addAttribs(inLine:String, inAttribs:Dynamic)
    {
       var oldAttribs = attribSet.get(inLine);
       if (oldAttribs!=null)
@@ -688,12 +733,12 @@ class Skin
          attribSet.set( inLine, inAttribs );
    }
 
-   public static function removeAttribs(inLine:String)
+   public function removeAttribs(inLine:String)
    {
       attribSet.remove(inLine);
    }
 
-   public static function replaceAttribs(inLine:String, inAttribs:Dynamic)
+   public function replaceAttribs(inLine:String, inAttribs:Dynamic)
    {
       if (inLine==null)
          inLine = "*";
@@ -719,19 +764,17 @@ class Skin
       return false;
    }
 
-   public static function dockRenderer(inLineage:Array<String>, ?inAttribs:Dynamic) : DockRenderer
+   public function dockRenderer(inLineage:Array<String>, ?inAttribs:Dynamic) : DockRenderer
    {
-      init();
-      return new DockRenderer(hasLineage(inLineage,"VariableWidth"));
+      return new DockRenderer(this,hasLineage(inLineage,"VariableWidth"));
    }
 
-   public static function tabRenderer() : TabRenderer
+   public function tabRenderer() : TabRenderer
    {
-      init();
       return defaultTabRenderer;
    }
 
-   static function mergeAttribMapState(map, attrib:Dynamic, inState:Int)
+   function mergeAttribMapState(map, attrib:Dynamic, inState:Int)
    {
       if (attrib==null)
          return;
@@ -753,9 +796,8 @@ class Skin
    }
 
 
-   public static function combineAttribs(inLineage:Array<String>,inState:Int=0, ?inAttribs:{}) : Map<String,Dynamic>
+   public function combineAttribs(inLineage:Array<String>,inState:Int=0, ?inAttribs:{}) : Map<String,Dynamic>
    {
-       init();
        var map = new Map<String,Dynamic>();
        var last = inLineage.length;
        var stateAttribs:Array<Dynamic> = null;
@@ -783,30 +825,28 @@ class Skin
        return map;
    }
 
-   public static function renderer(inLineage:Array<String>,inState:Int=0, ?inAttribs:{}) : Renderer
+   public function renderer(inLineage:Array<String>,inState:Int=0, ?inAttribs:{}) : Renderer
    {
-      init();
-      return new Renderer(combineAttribs(inLineage,inState,inAttribs));
+      return new Renderer(this,combineAttribs(inLineage,inState,inAttribs));
    }
 
 
-   public static function createSliderRenderer()
+   public function createSliderRenderer()
    {
       var result = new SliderRenderer();
       result.onCreate = onCreateSlider;
       result.onRender = onRenderSlider;
       return result;
    }
-   public static function createTabRenderer(inLineage:Array<String>, ?inAttribs:Dynamic) : TabRenderer
+   public function createTabRenderer(inLineage:Array<String>, ?inAttribs:Dynamic) : TabRenderer
    {
-      var result = new TabRenderer(inLineage, inAttribs);
+      var result = new TabRenderer(this, inLineage, inAttribs);
       return result;
    }
 
 
-   public static function onCreateSlider(inSlider:Slider):Void
+   public function onCreateSlider(inSlider:Slider):Void
    {
-      init();
       var layout = inSlider.getItemLayout();
       layout.setMinSize(120,20);
 
@@ -822,7 +862,7 @@ class Skin
       };
    }
 
-   public static function onRenderSlider(inSlider:Slider, inRect:Rectangle):Void
+   public function onRenderSlider(inSlider:Slider, inRect:Rectangle):Void
    {
       inSlider.mX0 = 10;
       inSlider.mX1 = inRect.width-10;
@@ -841,12 +881,11 @@ class Skin
    }
 
 
-   public static function fromSvg(inSvg:Svg)
+   public function fromSvg(inSvg:Svg)
    {
-      init();
       if (inSvg.hasGroup("dialog"))
       {
-         var frameRenderer = SvgSkin.createFrameRenderer(inSvg,"dialog");
+         var frameRenderer = SvgSkin.createFrameRenderer(this, inSvg,"dialog");
          addAttribs("Dialog", frameRenderer);
 
          var title = inSvg.findGroup("dialog").findGroup(".title");
@@ -862,7 +901,7 @@ class Skin
    }
 
 
-   public static function getTextFormat()
+   public function getTextFormat()
    {
       var fmt = new TextFormat();
       fmt.size = textFormat.size;
@@ -872,7 +911,7 @@ class Skin
    }
 
 
-   public static function renderMenubar(widget:Widget)
+   public function renderMenubar(widget:Widget)
    {
       var gfx = widget.graphics;
       gfx.clear();
@@ -887,7 +926,7 @@ class Skin
    }
 
 
-   public static function styleLabel(label:TextField)
+   public function styleLabel(label:TextField)
    {
       init();
       label.defaultTextFormat = textFormat;
@@ -901,12 +940,12 @@ class Skin
    }
 
 
-   public static function styleText(inText:nme.text.TextField)
+   public function styleText(inText:nme.text.TextField)
    {
       inText.defaultTextFormat = textFormat;
    }
 
-   public static function getChromeRect(inDocked:IDockable,inTopGrip:Bool) : Rectangle
+   public function getChromeRect(inDocked:IDockable,inTopGrip:Bool) : Rectangle
    {
       var pane = inDocked.asPane();
       if (pane!=null)
@@ -924,13 +963,13 @@ class Skin
       return new Rectangle(0,0,0,0);
    }
 
-   public static function getMultiDockChromePadding(inN:Int,tabStyle:Bool) : Size
+   public function getMultiDockChromePadding(inN:Int,tabStyle:Bool) : Size
    {
       return new Size(0,tabStyle ? scale(tabHeight) : inN*24);
    }
 
 
-   public static function renderToolbarGap(inContainer:Sprite,inX:Float, inY:Float, inW:Float, inH:Float)
+   public function renderToolbarGap(inContainer:Sprite,inX:Float, inY:Float, inW:Float, inH:Float)
    {
       var gfx = inContainer.graphics;
       gfx.lineStyle();
@@ -939,7 +978,7 @@ class Skin
       gfx.endFill();
    }
 
-   public static function renderPaneChrome(inPane:Pane,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inFlags:Int):Void
+   public function renderPaneChrome(inPane:Pane,inContainer:Sprite,outHitBoxes:HitBoxes,inRect:Rectangle,inFlags:Int):Void
    {
       var gfx = inContainer.graphics;
       gfx.lineStyle();
@@ -1034,7 +1073,7 @@ class Skin
    }
 
 
-   public static function addResizeDockZones(outZones:DockZones,inRect:Rectangle,inHorizontal:Bool,inSizes:Array<Float>, inOnDock:IDockable->Int->Void ):Void
+   public function addResizeDockZones(outZones:DockZones,inRect:Rectangle,inHorizontal:Bool,inSizes:Array<Float>, inOnDock:IDockable->Int->Void ):Void
    {
       var gfx = outZones.container.graphics;
       //gfx.lineStyle();
@@ -1098,7 +1137,7 @@ class Skin
          outSprite.removeChildAt(0);
    }
 
-    public static function renderProgressBar(inGfx:Graphics, inWidth:Float, inHeight:Float, inFraction:Float)
+    public function renderProgressBar(inGfx:Graphics, inWidth:Float, inHeight:Float, inFraction:Float)
    {
       inGfx.clear();
       inGfx.beginFill(0xffffff);
@@ -1123,30 +1162,30 @@ class Skin
    }
 */
 
-   public static function getFrameClientOffset() : Point
+   public function getFrameClientOffset() : Point
    {
       return new Point(borders,borders+title_h);
    }
-   public static function getMiniWinClientOffset() : Point
+   public function getMiniWinClientOffset() : Point
    {
       return new Point(borders,borders);
    }
-   public static function getMinFrameWidth() : Float
+   public function getMinFrameWidth() : Float
    {
       return 80;
    }
-   public static function getResizeBarWidth() : Float
+   public function getResizeBarWidth() : Float
    {
       return scale(3);
    }
-   public static function getSideBorder() : Float
+   public function getSideBorder() : Float
    {
       return 0;
    }
 
 
 
-   public static function renderText(inText:String, inAltText:String,inWidth:Float, inHeight:Float)
+   public function renderText(inText:String, inAltText:String,inWidth:Float, inHeight:Float)
    {
       mText.text = inText;
       var text_size = mText.textWidth;
@@ -1207,7 +1246,7 @@ class Skin
    }
 
 
-   public static function renderMiniWin(outChrome:Sprite, pane:Pane, inRect:Rectangle,outHitBoxes:HitBoxes,inFull:Bool)
+   public function renderMiniWin(outChrome:Sprite, pane:Pane, inRect:Rectangle,outHitBoxes:HitBoxes,inFull:Bool)
    {
       var gfx = outChrome.graphics;
       gfx.clear();
@@ -1260,7 +1299,7 @@ class Skin
 
 
 
-   static function initGfx()
+   function initGfx()
    {
       if (mText==null)
       {
@@ -1279,11 +1318,11 @@ class Skin
       return mDrawing.graphics;
    }
 
-   public static function getMDIClientChrome() { return new Rectangle(0,scale(tabHeight), 0, scale(tabHeight)); }
+   public function getMDIClientChrome() { return new Rectangle(0,scale(tabHeight), 0, scale(tabHeight)); }
 
   
 
-   public static function renderDropZone(inRect:Rectangle, outZones:DockZones, inPosition:DockPosition,
+   public function renderDropZone(inRect:Rectangle, outZones:DockZones, inPosition:DockPosition,
       inCentred:Bool, onDock:IDockable->Void):Void
    {
       var r:Rectangle = null;
@@ -1356,7 +1395,7 @@ class Skin
 
 
 
-   public static function mergeAttribs(a0:{}, aover:{}) : {}
+   public function mergeAttribs(a0:{}, aover:{}) : {}
    {
       var result = {};
       for(k in Reflect.fields(a0))
@@ -1366,7 +1405,7 @@ class Skin
       return result;
    }
 
-   public static function mergeAttribMap(map:Map<String,Dynamic>, inAttribs:Dynamic,maxDepth=10)
+   public function mergeAttribMap(map:Map<String,Dynamic>, inAttribs:Dynamic,maxDepth=10)
    {
       if (inAttribs!=null)
       {
@@ -1380,7 +1419,6 @@ class Skin
    }
 
 
-
    static function createAttribMap(inAttribs:Dynamic) : Map<String, Dynamic>
    {
       var result = new Map<String,Dynamic>();
@@ -1391,7 +1429,7 @@ class Skin
    }
 
 
-   public static function defaultResolveAttribs(inId) : Dynamic
+   public function defaultResolveAttribs(inId) : Dynamic
    {
       switch(inId)
       {
@@ -1420,7 +1458,7 @@ class Skin
        return null;
    }
 
-   public static function createBitmapData(inResoName:String,inWidth:Int) : BitmapData
+   public function createBitmapData(inResoName:String,inWidth:Int) : BitmapData
    {
       var bmp:BitmapData = null;
       if (Assets.hasBitmapData(inResoName))
@@ -1433,7 +1471,7 @@ class Skin
       else
       {
          var svg = new SvgRenderer(gm2d.reso.Resources.loadSvg(inResoName));
-         var size = Skin.scale(inWidth);
+         var size = scale(inWidth);
          var bmp = new BitmapData(size,size,true, gm2d.RGB.CLEAR );
 
          var shape = svg.createShape();

@@ -51,6 +51,8 @@ class SlideBar extends Sprite implements IDock
    var barDockable:IDockable;
    var tabRenderer:TabRenderer;
    var renderer:Renderer;
+   var skin:Skin;
+
    public var pinned(default,set):Bool;
    public var onPinned:Bool->Void;
    public var showText = true;
@@ -58,12 +60,13 @@ class SlideBar extends Sprite implements IDock
    public var tabGap = false;
    public var showGrip = false;
 
-   public function new(inParent:DisplayObjectContainer,inPos:DockPosition,
+   public function new(?inSkin:Skin, inParent:DisplayObjectContainer,inPos:DockPosition,
              inMinSize:Null<Int>, inMaxSize:Null<Int>,
              inSlideOver:Bool, inShowTab:Bool,
              inOffset:Null<Int>, inTabPos:Null<Int>)
    {
       super();
+      skin = Skin.getSkin(inSkin);
       pos = inPos;
       container = inParent;
       horizontal = pos==DOCK_LEFT || pos==DOCK_RIGHT;
@@ -99,7 +102,7 @@ class SlideBar extends Sprite implements IDock
 
       chrome = new Sprite();
       addChild(chrome);
-      renderer = new Renderer(Skin.combineAttribs(["Dock"]));
+      renderer = new Renderer(skin,skin.combineAttribs(["Dock"]));
 
       /*
       background = new Widget([ line, "Dock"], pane.frameAttribs);
@@ -115,7 +118,7 @@ class SlideBar extends Sprite implements IDock
       addChild(overlayContainer);
       //hitBoxes = new HitBoxes(background,onHitBox);
       //new DockSizeHandler(background,overlayContainer,hitBoxes);
-      hitBoxes = new HitBoxes(chrome,onHitBox);
+      hitBoxes = new HitBoxes(skin, chrome,onHitBox);
       new DockSizeHandler(chrome,overlayContainer,hitBoxes);
       paneContainer.visible = showing>0;
    }
@@ -252,7 +255,7 @@ class SlideBar extends Sprite implements IDock
    public function set_pinned(inPinned:Bool):Bool
    {
       pinned = inPinned;
-      tabRenderer = showTabs ? Skin.createTabRenderer( [pinned ? "Pinned" : "Unpinned", "Tabs","TabRenderer"] ) : null;
+      tabRenderer = showTabs ? skin.createTabRenderer( [pinned ? "Pinned" : "Unpinned", "Tabs","TabRenderer"] ) : null;
       setDirty(true,true);
       if (onPinned!=null)
          onPinned(inPinned);
@@ -446,7 +449,7 @@ class SlideBar extends Sprite implements IDock
                fill = renderer.getDynamic("fill");
 
             if (fill!=null && fill!=FillNone)
-               if (Renderer.setFill(gfx,fill,null))
+               if (Renderer.setFill(skin, gfx,fill,null))
                   gfx.drawRect(bgRect.x, bgRect.y, bgRect.width, bgRect.height);
          }
          else if (current!=null)

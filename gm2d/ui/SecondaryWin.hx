@@ -17,9 +17,9 @@ class SecondaryWin extends DocumentParent implements IDock
    var dragOx:Int;
    var dragOy:Int;
 
-   public function new(?pane:Pane,inW:Float, inH:Float)
+   public function new(?inSkin:Skin, ?pane:Pane,inW:Float, inH:Float)
    {
-      super(true);
+      super(inSkin,true);
 
       dragOx = dragOy = 0;
 

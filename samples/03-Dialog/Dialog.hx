@@ -24,17 +24,17 @@ class Dialog extends Screen
 
       Game.setCurrentScreen(this);
 
-      Skin.fromSvg(Resources.loadSvg("skin.svg"));
+      skin.fromSvg(Resources.loadSvg("skin.svg"));
 
       var panel = new gm2d.ui.Panel("Settings");
       panel.addLabelUI("Music Volume", new Slider(0,100,50,OnMusic) );
       panel.addTextButton("Ok", function() { Game.closeDialog(); } );
       panel.addTextButton("Cancel");
-      var dlg = panel.showDialog();
+      panel.showDialog();
 
       stage.addEventListener( MouseEvent.MOUSE_UP, function (e:MouseEvent) {
          if (e.target == stage)
-            dlg.show();
+            panel.showDialog();
       } );
    }
 

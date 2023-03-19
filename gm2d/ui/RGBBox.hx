@@ -18,9 +18,9 @@ class RGBBox extends Widget
    var mShowAlpha:Bool;
    var rgbDialog:RGBDialog;
 
-   public function new(inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Int->Void, ?inAttribs:{ })
+   public function new(?inSkin:Skin, inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Int->Void, ?inAttribs:{ })
    {
-      super(null,inAttribs);
+      super(inSkin,inAttribs);
       mShowAlpha = inShowAlpha;
       onColourChange = inOnColour;
       mColour = inColour==null ? new RGBHSV( ) : inColour.clone();
@@ -28,7 +28,7 @@ class RGBBox extends Widget
 
       var fmt = new nme.text.TextFormat();
       fmt.align = nme.text.TextFormatAlign.CENTER;
-      fmt.size = Skin.scale(14);
+      fmt.size = skin.scale(14);
 
       textField = new TextField( );
       textField.text = "FFFFFFFF";

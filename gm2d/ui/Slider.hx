@@ -28,16 +28,16 @@ class Slider extends Control
    public var isActive:Bool;
    var removeStage:DisplayObject;
 
-   public function new(inMin:Float,inMax:Float,inPos:Float,inOnChange:Float->Void )
+   public function new(?inSkin:Skin,inMin:Float,inMax:Float,inPos:Float,inOnChange:Float->Void )
    {
-      super("Slider");
+      super(inSkin,"Slider");
       name = "Slider";
       mCallback = inOnChange;
       mMax = inMax;
       mMin = inMin;
       mX0 = 0;
       mX1 = 1;
-      mSliderRenderer = Skin.sliderRenderer;
+      mSliderRenderer = skin.sliderRenderer;
 
       mTrack = new Sprite();
       addChild(mTrack);

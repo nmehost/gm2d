@@ -43,12 +43,14 @@ class Renderer
    public var bitmapStyle:BitmapStyle;
    public var map:Map<String,Dynamic>;
    public var chromeButtons:Array<Button>;
+   var skin:Skin;
 
 
-   public function new(?inMap:Map<String,Dynamic>)
+   public function new(inSkin:Skin, ?inMap:Map<String,Dynamic>)
    {
+      skin = inSkin;
       shape = Shape.ShapeNone;
-      textFormat = Skin.getTextFormat();
+      textFormat = skin.getTextFormat();
       offset = new Point(0,0);
       align = null;
       map = inMap;
@@ -176,7 +178,7 @@ class Renderer
    }
 
 
-   public static function setFill(inGraphics:Graphics,inFillStyle:FillStyle,widget:Widget):Bool
+   public static function setFill(skin:Skin,inGraphics:Graphics,inFillStyle:FillStyle,widget:Widget):Bool
    {
       var filled = false;
 
@@ -186,31 +188,31 @@ class Renderer
           switch(inFillStyle)
           {
              case FillStyle.FillLight:
-                inGraphics.beginFill(Skin.guiLight);
+                inGraphics.beginFill(skin.guiLight);
 
              case FillStyle.FillMedium:
-                inGraphics.beginFill(Skin.guiMedium);
+                inGraphics.beginFill(skin.guiMedium);
 
              case FillStyle.FillButton:
-                inGraphics.beginFill(Skin.guiButton);
+                inGraphics.beginFill(skin.guiButton);
 
              case FillStyle.FillDark:
-                inGraphics.beginFill(Skin.guiDark);
+                inGraphics.beginFill(skin.guiDark);
 
              case FillStyle.FillHighlight:
-                inGraphics.beginFill(Skin.guiHighlight);
+                inGraphics.beginFill(skin.guiHighlight);
 
              case FillStyle.FillDisabled:
-                inGraphics.beginFill(Skin.guiDisabled);
+                inGraphics.beginFill(skin.guiDisabled);
 
              case FillStyle.FillRowOdd:
-                inGraphics.beginFill(Skin.rowOddColour,((Skin.rowOddColour>>24)&0xff)/255.0);
+                inGraphics.beginFill(skin.rowOddColour,((skin.rowOddColour>>24)&0xff)/255.0);
 
              case FillStyle.FillRowEven:
-                inGraphics.beginFill(Skin.rowEvenColour,((Skin.rowEvenColour>>24)&0xff)/255.0);
+                inGraphics.beginFill(skin.rowEvenColour,((skin.rowEvenColour>>24)&0xff)/255.0);
 
              case FillStyle.FillRowSelect:
-                inGraphics.beginFill(Skin.rowSelectColour,((Skin.rowSelectColour>>24)&0xff)/255.0);
+                inGraphics.beginFill(skin.rowSelectColour,((skin.rowSelectColour>>24)&0xff)/255.0);
 
              case FillStyle.FillSolid(rgb,a):
                 inGraphics.beginFill(rgb,a);
@@ -265,7 +267,7 @@ class Renderer
       return 0.0;
    }
 
-   public static function setLine(inGraphics:Graphics,inLineStyle:LineStyle, square=false):Float
+   public static function setLine(skin:Skin, inGraphics:Graphics,inLineStyle:LineStyle, square=false):Float
    {
       if (inLineStyle!=null)
       {
@@ -277,15 +279,15 @@ class Renderer
                return 0.0;
 
             case LineBorder:
-               inGraphics.lineStyle(0, Skin.guiBorder, joint);
+               inGraphics.lineStyle(0, skin.guiBorder, joint);
                return 0.5;
 
             case LineTrim:
-               inGraphics.lineStyle(0, Skin.guiTrim, joint);
+               inGraphics.lineStyle(0, skin.guiTrim, joint);
                return 0.5;
 
             case LineHighlight:
-               inGraphics.lineStyle(0, Skin.guiHighlight, joint);
+               inGraphics.lineStyle(0, skin.guiHighlight, joint);
                return 0.5;
 
             case LineSolid( width, rgb, a ):
@@ -424,27 +426,27 @@ class Renderer
       {
          case ShapeNone:
          case ShapeRect:
-            lineOffset = setLine(gfx,lineStyle,true);
-            filled = setFill(gfx,fillStyle,widget);
+            lineOffset = setLine(skin, gfx,lineStyle,true);
+            filled = setFill(skin, gfx,fillStyle,widget);
             if (lineOffset>0 || filled)
                gfx.drawRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2);
 
          case ShapeRoundRect:
-            lineOffset = setLine(gfx,lineStyle);
-            filled = setFill(gfx,fillStyle,widget);
+            lineOffset = setLine(skin, gfx,lineStyle);
+            filled = setFill(skin, gfx,fillStyle,widget);
             if (lineOffset>0 || filled)
             {
                gfx.drawRoundRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2,
-                   Skin.roundRectRad*2,Skin.roundRectRad*2);
+                   skin.roundRectRad*2,skin.roundRectRad*2);
             }
 
          case ShapeUnderlineRect:
-            if (setFill(gfx,fillStyle,widget))
+            if (setFill(skin, gfx,fillStyle,widget))
             {
                gfx.drawRect(r.x, r.y, r.width, r.height);
                gfx.endFill();
             }
-            lineOffset = setLine(gfx,lineStyle,true);
+            lineOffset = setLine(skin, gfx,lineStyle,true);
             if (lineOffset>0)
             {
                gfx.moveTo(r.x+lineOffset, r.y+r.height-lineOffset);
@@ -452,14 +454,14 @@ class Renderer
             }
 
          case ShapeRoundRectRad(rad):
-            lineOffset = setLine(gfx,lineStyle);
-            filled = setFill(gfx,fillStyle,widget);
+            lineOffset = setLine(skin, gfx,lineStyle);
+            filled = setFill(skin, gfx,fillStyle,widget);
             if (lineOffset>0 || filled)
                gfx.drawRoundRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2, rad*2,rad*2);
 
          case ShapeCustom( render ):
-            lineOffset = setLine(gfx,lineStyle);
-            filled = setFill(gfx,fillStyle,widget);
+            lineOffset = setLine(skin, gfx,lineStyle);
+            filled = setFill(skin, gfx,fillStyle,widget);
             if (widget==null)
                throw "Invalid custom renderer on non-widget";
             render(widget);
@@ -470,7 +472,7 @@ class Renderer
             filled = true;
 
          case ShapeShadowRect(depth,flags):
-            var shadow = ShadowCache.create( lineStyle, fillStyle, depth, flags, 0.0 );
+            var shadow = ShadowCache.create(skin, lineStyle, fillStyle, depth, flags, 0.0 );
             if (shadow!=null)
             {
                renderScale9(gfx, r, shadow.bmp, shadow.inner, 1.0);
@@ -478,7 +480,7 @@ class Renderer
             }
 
          case ShapeRectFlags(flags):
-            var shadow = ShadowCache.create( lineStyle, fillStyle, 0, flags | EdgeFlags.Rect, 0.0 );
+            var shadow = ShadowCache.create(skin, lineStyle, fillStyle, 0, flags | EdgeFlags.Rect, 0.0 );
             if (shadow!=null)
             {
                renderScale9(gfx, r, shadow.bmp, shadow.inner, 1.0);
@@ -486,7 +488,7 @@ class Renderer
             }
 
          case ShapeRoundRectFlags(flags,rad):
-            var shadow = ShadowCache.create( lineStyle, fillStyle, 0, flags | EdgeFlags.Rect, rad );
+            var shadow = ShadowCache.create(skin, lineStyle, fillStyle, 0, flags | EdgeFlags.Rect, rad );
             if (shadow!=null)
             {
                renderScale9(gfx, r, shadow.bmp, shadow.inner, 1.0);

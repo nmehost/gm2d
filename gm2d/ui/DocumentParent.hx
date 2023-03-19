@@ -42,11 +42,13 @@ class DocumentParent extends Sprite implements IDock implements IDockable
    var sizeY:Float;
    var dockX:Float;
    var dockY:Float;
+   var skin:Skin;
 
-   public function new(inSingleDocument:Bool)
+   public function new(inSkin:Skin, inSingleDocument:Bool)
    {
       //super(["DocumentParent", "Dock", "Widget"] );
       super();
+      skin = Skin.getSkin(inSkin);
 
       if (allParents==null)
          allParents = [this];
@@ -92,7 +94,7 @@ class DocumentParent extends Sprite implements IDock implements IDockable
          mLayout.add( clientLayout );
          //mLayout.setRowStretch(0,0);
       }
-      mLayout.setMinSize( Skin.scale(50), Skin.scale(50) );
+      mLayout.setMinSize( skin.scale(50), skin.scale(50) );
    }
 
    function unregister()
@@ -317,7 +319,7 @@ class DocumentParent extends Sprite implements IDock implements IDockable
    public function getLayout() return mLayout;
    public function getBestSize(inPos:Int):Size
    {
-      var chrome = Skin.getMDIClientChrome();
+      var chrome = skin.getMDIClientChrome();
       return new Size(clientWidth+chrome.width,clientHeight+chrome.height);
    }
    public function getProperties() : Dynamic { return properties; }
@@ -371,11 +373,11 @@ class DocumentParent extends Sprite implements IDock implements IDockable
       if (rect.contains(outZones.x,outZones.y))
       {
          var dock = getDock();
-         Skin.renderDropZone(rect,outZones,DOCK_LEFT,true,   function(d) dock.addSibling(this,d,DOCK_LEFT) );
-         Skin.renderDropZone(rect,outZones,DOCK_RIGHT,true,  function(d) dock.addSibling(this,d,DOCK_RIGHT));
-         Skin.renderDropZone(rect,outZones,DOCK_TOP,true,    function(d) dock.addSibling(this,d,DOCK_TOP) );
-         Skin.renderDropZone(rect,outZones,DOCK_BOTTOM,true, function(d) dock.addSibling(this,d,DOCK_BOTTOM) );
-         Skin.renderDropZone(rect,outZones,DOCK_OVER,true,   function(d) addDockable(d,DOCK_OVER,0) );
+         skin.renderDropZone(rect,outZones,DOCK_LEFT,true,   function(d) dock.addSibling(this,d,DOCK_LEFT) );
+         skin.renderDropZone(rect,outZones,DOCK_RIGHT,true,  function(d) dock.addSibling(this,d,DOCK_RIGHT));
+         skin.renderDropZone(rect,outZones,DOCK_TOP,true,    function(d) dock.addSibling(this,d,DOCK_TOP) );
+         skin.renderDropZone(rect,outZones,DOCK_BOTTOM,true, function(d) dock.addSibling(this,d,DOCK_BOTTOM) );
+         skin.renderDropZone(rect,outZones,DOCK_OVER,true,   function(d) addDockable(d,DOCK_OVER,0) );
       }
    }
 
@@ -485,12 +487,12 @@ class DocumentParent extends Sprite implements IDock implements IDockable
             fill = Reflect.field(asPane.frameAttribs,"fill");
             if (fill==null)
             {
-               gfx.beginFill(Skin.guiLight);
+               gfx.beginFill(skin.guiLight);
                gfx.drawRect(0,0,clientWidth,clientHeight);
             }
             else if (fill!=FillNone)
             {
-               if (gm2d.skin.Renderer.setFill(gfx,fill,null))
+               if (gm2d.skin.Renderer.setFill(skin,gfx,fill,null))
                   gfx.drawRect(0,0,clientWidth,clientHeight);
             }
          }
@@ -499,7 +501,7 @@ class DocumentParent extends Sprite implements IDock implements IDockable
       }
       else
       {
-         gfx.beginFill(Skin.mdiBGColor);
+         gfx.beginFill(skin.mdiBGColor);
          gfx.drawRect(0,0,clientWidth,clientHeight);
       }
 

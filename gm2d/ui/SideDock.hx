@@ -114,20 +114,22 @@ class SideDock extends Layout implements IDock implements IDockable
    var properties:Dynamic;
    var flags:Int;
    var mRenderer:DockRenderer;
+   var skin:Skin;
    //var sideLayout:SideLayout;
 
    public var shortTitle:String;
    public var icon:BitmapData;
    public var title:String;
 
-   public function new(inPos:DockPosition)
+   public function new(?inSkin:Skin, inPos:DockPosition)
    {
       super();
+      skin = Skin.getSkin(inSkin);
 
       flags =  Dock.RESIZABLE;
       variableWidths = inPos==DOCK_LEFT || inPos==DOCK_RIGHT;
       position = variableWidths ? DOCK_LEFT : DOCK_TOP;
-      mRenderer = Skin.dockRenderer([variableWidths?"VariableWidth":"VariableHeight","SideDock","Dock"]);
+      mRenderer = skin.dockRenderer([variableWidths?"VariableWidth":"VariableHeight","SideDock","Dock"]);
       mDockables = [];
       mSizes = [];
       properties = [];
@@ -516,7 +518,7 @@ class SideDock extends Layout implements IDock implements IDockable
       {
           for(d in mDockables)
              d.item.addDockZones(outZones);
-          Skin.addResizeDockZones(outZones,mRect,variableWidths,mSizes,onDock);
+          skin.addResizeDockZones(outZones,mRect,variableWidths,mSizes,onDock);
       }
    }
    public function hasBestSize()
@@ -680,7 +682,7 @@ class SideDock extends Layout implements IDock implements IDockable
       {
           var rect = getDockableRect(ref);
           // Patch up references...
-          var split = new SideDock(direction);
+          var split = new SideDock(skin,direction);
           var asPane = mDockables[ref].item.asPane();
           if (asPane!=null)
           {

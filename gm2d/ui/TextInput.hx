@@ -20,11 +20,11 @@ class TextInput extends TextLabel
 
    var isEditing:Bool;
 
-   public function new(inVal="", ?inOnText:String->Void, ?inOnTextPhase:String->Int->Void, ?inLineage:Array<String>,?inAttribs:Dynamic)
+   public function new(?inSkin:Skin,inVal="", ?inOnText:String->Void, ?inOnTextPhase:String->Int->Void, ?inLineage:Array<String>,?inAttribs:Dynamic)
    {
        placeholder = null;
        onTextPhase = inOnTextPhase;
-       super(inVal,Widget.addLine(inLineage,"TextInput"),inAttribs);
+       super(inSkin, inVal,Widget.addLine(inLineage,"TextInput"),inAttribs);
        placeholder = attribString("placeholder",null);
        wantFocus = true;
        onTextUpdate = inOnText;
@@ -66,7 +66,7 @@ class TextInput extends TextLabel
             var attribs = mAttribs==null ? mAttribs : mAttribs.placeholderAttribs;
             if (attribs==null)
                attribs = mAttribs;
-            var renderer = Skin.renderer( always ? ["TextPlaceholderAlways","TextPlaceholder", "TextLabel" ] :
+            var renderer = skin.renderer( always ? ["TextPlaceholderAlways","TextPlaceholder", "TextLabel" ] :
                                             ["TextPlaceholder", "TextLabel"],0,attribs);
             renderer.renderLabel(placeholderField);
          }

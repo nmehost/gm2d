@@ -45,19 +45,21 @@ class TabRenderer
 
    var attribs:Map<String,Dynamic>;
    var currentAttribs:Map<String,Dynamic>;
+   var skin:Skin;
 
    var buts:Array<Widget>;
 
-   public function new(inLineage:Array<String>, inAttribs:{})
+   public function new(inSkin:Skin, inLineage:Array<String>, inAttribs:{})
    {
-      attribs = Skin.combineAttribs(inLineage, 0, inAttribs);
-      currentAttribs = Skin.combineAttribs(inLineage, Widget.CURRENT, inAttribs);
+      skin = inSkin;
+      attribs = skin.combineAttribs(inLineage, 0, inAttribs);
+      currentAttribs = skin.combineAttribs(inLineage, Widget.CURRENT, inAttribs);
    }
 
 
    public dynamic function renderBackground(bitmap:BitmapData)
    {
-      var shape = Skin.mDrawing;
+      var shape = skin.mDrawing;
       var gfx = shape.graphics;
       var w = bitmap.width;
       var tabHeight = bitmap.height;
@@ -67,7 +69,7 @@ class TabRenderer
 
       mtx.createGradientBox(tabHeight,tabHeight,Math.PI * 0.5);
 
-      var cols:Array<CInt> = [ Skin.guiDark, Skin.tabGradientColor];
+      var cols:Array<CInt> = [ skin.guiDark, skin.tabGradientColor];
       var alphas:Array<Float> = [1.0, 1.0];
       var ratio:Array<Int> = [0, 255];
       gfx.beginGradientFill(nme.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
@@ -76,17 +78,17 @@ class TabRenderer
    }
    public function renderGripBackground(bitmap:BitmapData)
    {
-      var shape = Skin.mDrawing;
+      var shape = skin.mDrawing;
       var gfx = shape.graphics;
       var w = bitmap.width;
       var tabHeight = bitmap.height;
       gfx.clear();
 
-      gfx.beginFill(Skin.guiDark);
+      gfx.beginFill(skin.guiDark);
       gfx.drawRect(0,0,w,tabHeight);
 
       if (gripBmp==null)
-         gripBmp = DefaultBitmaps.factory("#grip",0);
+         gripBmp = skin.createDefaultBitmap("#grip",0);
 
       var by = Std.int( (tabHeight-gripBmp.height) * 0.5 );
       var bx = w - gripBmp.width - by;
@@ -102,7 +104,7 @@ class TabRenderer
 
    public function getHeight()
    {
-      return  Skin.scale(Skin.tabHeight);
+      return  skin.scale(skin.tabHeight);
    }
 
    public function createTabButton(inId:String, forTab = false,?pane:Pane,hitBoxes:HitBoxes)
@@ -126,12 +128,12 @@ class TabRenderer
                               ?inTabPos:Null<Int> ) : Rectangle
    {
       //var tabHeight = Skin.tabHeight;
-      var tmpText = Skin.mText;
-      var shape = Skin.mDrawing;
+      var tmpText = skin.mText;
+      var shape = skin.mDrawing;
 
-      var borderLeft = Skin.scale(4);
-      var borderRight = Skin.scale(4);
-      var bmpPad = Skin.scale(2);
+      var borderLeft = skin.scale(4);
+      var borderRight = skin.scale(4);
+      var bmpPad = skin.scale(2);
       var tabGap = 0;
       var tabX = new Array<Float>();
 
@@ -288,7 +290,7 @@ class TabRenderer
             if (!showGrip)
             {
                gfx.lineStyle(1,0x404040);
-               gfx.beginFill(Skin.guiTrim);
+               gfx.beginFill(skin.guiTrim);
                gfx.drawRoundRect(0.5,0.5,tw,tabHeight+2,6,6);
             }
             trans.ty = y0;
@@ -354,11 +356,11 @@ class TabRenderer
          trans.tx = 0;
 
 
-         var rad0 = Skin.roundRectRad;
+         var rad0 = skin.roundRectRad;
          var rad1 = rad0 * 0.55228;
          gfx.clear();
          gfx.lineStyle(1,0x404040);
-         gfx.beginFill(Skin.guiMedium);
+         gfx.beginFill(skin.guiMedium);
          gfx.moveTo(-1,tabHeight-4);
          gfx.lineTo(cx,tabHeight-4);
          if (round)
@@ -415,7 +417,7 @@ class TabRenderer
       if ((inFlags & IS_OVERLAPPED) == 0)
       {
          gfx.clear();
-         gfx.beginFill(Skin.guiMedium);
+         gfx.beginFill(skin.guiMedium);
          gfx.drawRect(0,tabHeight-2,w,8);
          bitmap.draw(shape);
 

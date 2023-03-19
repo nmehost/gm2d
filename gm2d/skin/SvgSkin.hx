@@ -38,8 +38,9 @@ class SvgSkin
    public static var svgThumb = ".thumb";
 
 
-   public static function createButtonRenderer( inSvg:Group,?inLayer:String)
+   public static function createButtonRenderer(?skin:Skin, inSvg:Group,?inLayer:String)
    {
+      skin = Skin.getSkin(skin);
       var renderer = new SvgRenderer(inSvg,inLayer);
 
       var result:Dynamic = {};
@@ -70,8 +71,8 @@ class SvgSkin
       var text = renderer.findText();
       if (text!=null)
       {
-         var fmt = Skin.getTextFormat();
-         fmt.size = Skin.scale(text.style.size);
+         var fmt = skin.getTextFormat();
+         fmt.size = skin.scale(text.style.size);
          //fmt.font = text.font_family;
          switch(text.style.fill)
          {
@@ -91,7 +92,7 @@ class SvgSkin
    }
 
 
-   public static function createFrameRenderer(inSvg:Group,?inLayer:String)
+   public static function createFrameRenderer(?skin:Skin, inSvg:Group,?inLayer:String)
    {
       var renderer = new SvgRenderer(inSvg,inLayer);
 
@@ -103,7 +104,7 @@ class SvgSkin
          interior = bounds;
       var scaleRect = getScaleRect(renderer,bounds);
 
-      var result = Skin.renderer(["Frame","Widget"], 0, {
+      var result = skin.renderer(["Frame","Widget"], 0, {
          shape: Shape.ShapeCustom(function(widget:Widget) {
             var gfx = widget.mChrome.graphics;
             var matrix = new Matrix();
@@ -130,8 +131,9 @@ class SvgSkin
       return result;
    }
 
-   public static function createSliderRenderer(inSvg:Group,?inLayer:String)
+   public static function createSliderRenderer(?skin:Skin, inSvg:Group,?inLayer:String)
    {
+      skin = Skin.getSkin(skin);
       var renderer = new SvgRenderer(inSvg,inLayer);
 
       var interior = renderer.getMatchingRect(svgInterior);
@@ -187,8 +189,9 @@ class SvgSkin
       return result;
    }
 
-   public static function createLabelRenderer(inSvg:Group, inSearch:Array<String>)
+   public static function createLabelRenderer(?skin:Skin, inSvg:Group, inSearch:Array<String>)
    {
+      skin = Skin.getSkin(skin);
       for(layer in inSearch)
       {
       trace(layer);
@@ -216,7 +219,7 @@ class SvgSkin
             }
          }
       }
-      return Skin.textFormat;
+      return skin.textFormat;
    }
 
 

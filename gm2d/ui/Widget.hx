@@ -55,23 +55,25 @@ class Widget extends Sprite
    public var mLineage : Array<String>;
    public var mAttribs : Dynamic;
    public var combinedAttribs : Map<String,Dynamic>;
+   public var skin : Skin;
 
    //var highlightColour:Int;
 
-   public function new(?inLineage:Array<String>, ?inAttribs:{})
+   public function new(?inSkin:Skin, ?inLineage:Array<String>, ?inAttribs:{})
    {
       super();
+      skin = inSkin==null ? Skin.getSkin() : inSkin;
       styled = false;
       mAttribs = inAttribs;
       Reflect.setField(this,"state",0);
       mLineage = addLine(inLineage,"Widget");
-      combinedAttribs = Skin.combineAttribs(mLineage, state, inAttribs);
+      combinedAttribs = skin.combineAttribs(mLineage, state, inAttribs);
       if (combinedAttribs.exists("id"))
          name = combinedAttribs.get("id");
       else
          name = mLineage[0];
 
-      mRenderer = new Renderer(combinedAttribs);
+      mRenderer = new Renderer(skin,combinedAttribs);
       mChrome = new Sprite();
       addChild(mChrome);
       wantFocus = attribBool("wantsFocus",false);
@@ -366,8 +368,8 @@ class Widget extends Sprite
       if (wasCurrent==null)
          wasCurrent = isCurrent;
       var renderState = showCurrent ? state : (state & ~CURRENT);
-      combinedAttribs = Skin.combineAttribs(mLineage, renderState, mAttribs);
-      mRenderer = new Renderer(combinedAttribs);
+      combinedAttribs = skin.combineAttribs(mLineage, renderState, mAttribs);
+      mRenderer = new Renderer(skin,combinedAttribs);
       redraw();
       if (isCurrent && !wasCurrent && attribBool("raiseCurrent",true) && parent!=null)
          parent.setChildIndex(this, parent.numChildren-1 );

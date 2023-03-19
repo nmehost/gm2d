@@ -73,9 +73,9 @@ class ListControl extends ScrollWidget
    public var variableHeightRows = false;
 
 
-   public function new(?inOnSelect:Int->Void, ?inLineage:Array<String>,?inAttribs:{})
+   public function new(?inSkin:Skin, ?inOnSelect:Int->Void, ?inLineage:Array<String>,?inAttribs:{})
    {
-      super(Widget.addLine(inLineage,"List"), inAttribs);
+      super(inSkin, Widget.addLine(inLineage,"List"), inAttribs);
 
       mMinControlWidth = mMinWidth = attribFloat("width",0);
       mWidth = mMinWidth;
@@ -89,11 +89,11 @@ class ListControl extends ScrollWidget
       if (hasAttrib("itemHeight"))
          Widget.addAttribs( attribs, {minSize: new Size(mMinWidth,mItemHeight) } );
 
-      mXGap = attribFloat("xgap",Skin.scale(2.0));
+      mXGap = attribFloat("xgap",skin.scale(2.0));
 
-      oddRenderer = Skin.renderer(rowLineage,   0, attribs);
-      evenRenderer = Skin.renderer(rowLineage, Widget.ALTERNATE, attribs);
-      selectRenderer = Skin.renderer(rowLineage, Widget.CURRENT, attribs);
+      oddRenderer = skin.renderer(rowLineage,   0, attribs);
+      evenRenderer = skin.renderer(rowLineage, Widget.ALTERNATE, attribs);
+      selectRenderer = skin.renderer(rowLineage, Widget.CURRENT, attribs);
 
       mStretchCol = null;
       onSelect = inOnSelect;

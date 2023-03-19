@@ -3,15 +3,16 @@ package gm2d.ui;
 import nme.events.MouseEvent;
 import nme.display.DisplayObjectContainer;
 import nme.ui.Keyboard;
+import gm2d.skin.Skin;
 
 class Window extends Widget
 {
    var focusWidget:Widget;
    var sleepingWidget:Widget;
 
-   public function new(?inLineage:Array<String>, ?inAttribs:Dynamic)
+   public function new(?inSkin:Skin, ?inLineage:Array<String>, ?inAttribs:Dynamic)
    {
-      super(Widget.addLine(inLineage,"Window"), inAttribs);
+      super(inSkin,Widget.addLine(inLineage,"Window"), inAttribs);
       focusWidget = null;
       addEventListener(MouseEvent.MOUSE_MOVE, windowMouseMove);
       addEventListener(MouseEvent.MOUSE_DOWN, currentFromMouse);

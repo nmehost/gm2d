@@ -19,10 +19,10 @@ class ComboList extends Window
 
    public function new(inCombo:ComboBox, inW:Float, inOptions:Array<Dynamic>,inSelectOnMove:Bool)
    {
-      super();
+      super(inCombo.skin);
       selectOnMove = inSelectOnMove;
       mCombo = inCombo;
-      mList = new ListControl(["PopupComboBox"], { width:inW } );
+      mList = new ListControl(skin,["PopupComboBox"], { width:inW } );
       mList.variableHeightRows = true;
       mList.addItems(inOptions);
       addChild(mList);
@@ -239,7 +239,7 @@ class ComboBox extends TextInput
       var pos = this.localToGlobal( new nme.geom.Point(0,0) );
       var h = pop.getControlHeight();
       var w = pop.getControlWidth();
-      var offset = Skin.scale(22);
+      var offset = skin.scale(22);
       var max = Std.int(stage.stageHeight/2);
       var below = Math.min(max,stage.stageHeight - (pos.y+offset));
       var above = Math.min(max,pos.y);

@@ -6,6 +6,7 @@ import nme.display.Bitmap;
 import nme.display.Sprite;
 import nme.display.DisplayObject;
 import nme.events.MouseEvent;
+import gm2d.skin.Skin;
 
 class ResizeFlag
 {
@@ -69,12 +70,14 @@ class HitBoxes
    var downPane:IDockable;
    var downTitle:HitBox;
    var mResizeFlags:Int;
+   var skin:Skin;
 
 
-   public function new(inObject:Sprite,inCallback:HitAction->MouseEvent->Void)
+   public function new(inSkin:Skin,inObject:Sprite,inCallback:HitAction->MouseEvent->Void)
    {
       rects = [];
 
+      skin = inSkin;
       mObject = inObject;
       mCallback = inCallback;
       downPane = null;
@@ -240,7 +243,7 @@ class HitBoxes
          break;
       }
 
-      var dragDist = gm2d.skin.Skin.scale(20);
+      var dragDist = skin.scale(20);
       var dx = inX-downX;
       var dy = inY-downY;
       var moved = (downPane!=null) && (!mMoved) && ( (dx*dx + dy*dy) > dragDist*dragDist );
