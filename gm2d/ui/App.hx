@@ -34,9 +34,9 @@ class App extends Screen
 
    public function new(inSingleDocument=false)
    {
-      super();
+      skin = createSkin();
+      super(skin);
 
-      var skin = createSkin();
 
       slideBorders = 0;
 

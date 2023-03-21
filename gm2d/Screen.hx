@@ -9,6 +9,7 @@ import nme.events.KeyboardEvent;
 import nme.ui.Keyboard;
 import gm2d.tween.Timeline;
 import gm2d.input.Input;
+import gm2d.skin.Skin;
 
 class Screen extends gm2d.ui.Window
 {
@@ -17,12 +18,12 @@ class Screen extends gm2d.ui.Window
    public var controller(default,set):Input;
 
 
-   public function new(?inLineage:Array<String>, ?inAttribs:Dynamic )
+   public function new(?inSkin:Skin, ?inLineage:Array<String>, ?inAttribs:Dynamic )
    {
-	   Game.create();
+      Game.create();
       mPaused = false;
       timeline = new Timeline();
-      super(Widget.addLine(inLineage,"Screen"),inAttribs);
+      super(inSkin,Widget.addLine(inLineage,"Screen"),inAttribs);
    }
 
    public function makeCurrent()
