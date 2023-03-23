@@ -1,5 +1,7 @@
 package gm2d.ui;
 
+import gm2d.skin.Skin;
+
 
 class MenuGroup<Key>
 {
@@ -49,7 +51,7 @@ class MenuGroup<Key>
 
       if (inKey!=null && nme.Assets.exists(inKey) )
       {
-         var bmp = gm2d.skin.Skin.createBitmapData(inKey,16);
+         var bmp = Skin.getSkin().createBitmapData(inKey,16);
          item.icon = bmp;
       }
       item.checkable = true;
