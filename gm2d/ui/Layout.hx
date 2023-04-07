@@ -739,7 +739,7 @@ class StackLayout extends Layout
    {
       return Layout.findTextLayoutInList(mChildren);
    }
-   override public function visitChildren(onChild:Layout->Dynamic,inRecurse=true)
+   override public function visitChildren(onChild:Layout->Dynamic,inRecurse=true) : Dynamic
       return Layout.visitChildList(mChildren, onChild,inRecurse);
 
 
@@ -1265,7 +1265,7 @@ class GridLayout extends Layout
       }
       return null;
    }
-   override public function visitChildren(onChild:Layout->Dynamic,inRecurse=true)
+   override public function visitChildren(onChild:Layout->Dynamic,inRecurse=true) : Dynamic
    {
       for(row in mRowInfo)
       {
