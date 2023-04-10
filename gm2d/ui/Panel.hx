@@ -40,9 +40,10 @@ class Panel extends Widget
       mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",0) );
       mGridLayout.stretch();
       mGridLayout.name = "Panel Grid " + inTitle;
-      mItemGrid = new GridLayout(2,"items");
+      var itemCols = attribInt("panelCols", 2);
+      mItemGrid = new GridLayout(itemCols,"items");
       mItemGrid.name = "ItemGrid " + inTitle;
-      mItemGrid.setColStretch(1,1);
+      mItemGrid.setColStretch(itemCols-1,1);
       mItemGrid.setAlignment(Layout.AlignTop);
       mItemGrid.setSpacing(mRenderer.getDefaultFloat("labelGap", skin.scale(10)),
                            mRenderer.getDefaultFloat("lineGap",skin.scale(10)) );
@@ -296,6 +297,14 @@ class Panel extends Widget
       mLayoutDirty = true;
       mItemGrid.add( inLayout );
    }
+
+   public function addUIAligned(inItem:gm2d.ui.Widget)
+   {
+      mLayoutDirty = true;
+      addChild(inItem);
+      mItemGrid.add( inItem.getLayout() );
+   }
+
 
    public function addUI(inItem:gm2d.ui.Widget)
    {
