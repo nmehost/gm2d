@@ -1,0 +1,53 @@
+name: CI
+on: [push]
+
+jobs:
+ release:
+    runs-on: ubuntu-latest
+    name: Release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.3.0
+
+      - name: Set Haxelib
+        run: |
+          haxe -version
+          haxelib dev gm2d .
+          
+      - name: Set Version
+        run: haxe -cp tools/version --run Write ${{github.run_number}} >> $GITHUB_ENV
+
+      - name: Zip release
+        run: |
+             mkdir gm2d-${{ env.gm2d_release }}
+             cp -r Changes.md  README.md  gm2d  haxelib.json  samples gm2d-${{ env.gm2d_release }}
+             zip -r gm2d-${{ env.gm2d_release }}.zip gm2d-${{ env.gm2d_release }} 
+      
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+            tag_name: v${{ env.gm2d_release }}
+            release_name: Release ${{ env.gm2d_release }}
+            draft: false
+            prerelease: false
+
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+            asset_path: ./gm2d-${{ env.gm2d_release }}.zip
+            asset_name: gm2d-${{ env.gm2d_release }}.zip
+            asset_content_type: application/zip
+
+
+
