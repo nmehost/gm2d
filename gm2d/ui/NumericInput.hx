@@ -87,7 +87,7 @@ class NumericInput extends TextInput
       onUpdate = inOnUpdateFloat;
       step = attribFloat("step",0.1);
       quantization = 0.01;
-      if (step>quantization)
+      if (step>0)
          quantization = step;
       newDrag = false;
       popupMode = INLINE_SLIDE;
