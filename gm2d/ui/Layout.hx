@@ -529,6 +529,7 @@ class DisplayLayout extends Layout
    var mOY:Float;
    var mOWidth:Float;
    var mOHeight:Float;
+   var mGfxRect:Bool;
 
    public function new(inObj:DisplayObject,inAlign:Int = 0x24, // AlignCenterX|AlignCenterY
            ?inPrefWidth:Null<Float>,?inPrefHeight:Null<Float>)
@@ -541,6 +542,8 @@ class DisplayLayout extends Layout
       mOX = inObj.x;
       mOY = inObj.y;
       mBLeft = mBRight = mBTop = mBBottom = 0;
+
+      mGfxRect = ( inAlign & Layout.AlignGraphcsRect ) > 0;
 
       mDebugCol = 0xff00ff;
    }
@@ -584,7 +587,7 @@ class DisplayLayout extends Layout
       mObj.x = x;
       mObj.y = y;
 
-      if (mObj.scale9Grid != null ||  (mAlign & Layout.AlignGraphcsRect)!=0 )
+      if (mObj.scale9Grid != null || mGfxRect )
       {
          mObj.width = w;
          mObj.height = h;
@@ -597,7 +600,8 @@ class DisplayLayout extends Layout
       var x = mOX + inX + mBLeft;
       var ow = mOWidth;
       var oh = mOHeight;
-      if ( (mAlign & Layout.AlignGraphcsRect)!=0)
+
+      if ( mGfxRect )
       {
          ow = minWidth<ow ? ow : minWidth;
          oh = minHeight<oh ? oh : minHeight;
