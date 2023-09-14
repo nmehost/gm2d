@@ -36,6 +36,7 @@ class DefaultBitmaps
       var invert = true;
 
       var bmp = new BitmapData(sizeX,sizeY,true, 0x00000000 );
+      //var bmp = new BitmapData(sizeX,sizeY,true, 0xffff00ff );
       var shape = new nme.display.Shape();
       shape.pixelSnapping = nme.display.PixelSnapping.NEVER;
       var gfx = shape.graphics;

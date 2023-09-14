@@ -394,9 +394,16 @@ class TabRenderer
 
          if (icon==null || forceText)
          {
+            //var s = new Shape();
+            //s.graphics.lineStyle(1,0xff0000);
+            //s.graphics.moveTo(0,-20);
+            //s.graphics.lineTo(0,20);
+            //bitmap.draw(s,trans);
+            trans.tx -= 2;
             trans.ty = Std.int( (tabHeight - tmpText.textHeight)*0.5 );
             bitmap.draw(tmpText,trans);
-            trans.tx += tmpText.textWidth;
+            trans.tx += tmpText.textWidth + 2;
+            //bitmap.draw(s,trans);
          }
 
          if (closeBut!=null)

@@ -81,8 +81,9 @@ class Button extends Control
             layout = new DisplayLayout(mDisplayObj);
          }
          layout.mDebugCol = 0x00ff00;
+         layout.name = "ButtonInner";
          setItemLayout(layout);
- 
+         getLayout().name="Button Outer";
       }
       else
       {
@@ -335,6 +336,7 @@ class BmpButton extends Button
       normal = inBitmapData;
       bitmap = new Bitmap(normal);
       super(bitmap,inOnClick,inLineage,inAttribs);
+      bitmap.name="BmpButton";
    }
 
    public function createDisabled(inBmp:BitmapData)

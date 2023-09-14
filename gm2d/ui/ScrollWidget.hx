@@ -154,6 +154,8 @@ class ScrollWidget extends Widget //Control
 
    function onScrollbarDragY(e:MouseEvent,offset:Float)
    {
+      if (scrollbarContainer==null)
+         return;
       var t = getThumbMetrics();
       var gap = t[0] - t[2];
       var targetThumb0 = scrollbarContainer.globalToLocal(new Point(e.stageX,e.stageY)).y - offset;

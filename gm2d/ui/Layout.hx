@@ -20,6 +20,7 @@ class Layout
    public static inline var AlignBottom   = 0x0010;
    public static inline var AlignCenterY  = 0x0020;
    public static inline var AlignEqual    = 0x0040;
+   public static inline var AlignGraphcsRect = 0x0080;
    public static var AlignMaskX    = AlignLeft | AlignRight | AlignCenterX;
    public static var AlignMaskY    = AlignTop | AlignBottom | AlignCenterY;
    public static var AlignCenter   = AlignCenterX | AlignCenterY;
@@ -41,8 +42,8 @@ class Layout
    public var mBRight:Float;
    public var mBBottom:Float;
 
-   public var minWidth:Float;
-   public var minHeight:Float;
+   var minWidth:Float;
+   var minHeight:Float;
    public var width:Float;
    public var height:Float;
 
@@ -64,7 +65,7 @@ class Layout
    public function new()
    {
       width = height = 0.0;
-      minWidth = minHeight = 0.0;
+      minWidth = minHeight = -1;
       mDebugCol = 0xff0000;
       mBLeft = mBRight = mBTop = mBBottom = 0;
       mAlign = AlignCenterX|AlignCenterY;
@@ -95,12 +96,12 @@ class Layout
       return this;
    }
 
-   function makeBest(ioSize:Size) : Size
+   function bestDefault(ioSize:Size) : Size
    {
-      if (bestWidth!=null)
-         ioSize.x = bestWidth;
-      if (bestHeight!=null)
-         ioSize.y = bestHeight;
+      if (ioSize.x<0)
+         ioSize.x = bestWidth!=null ? bestWidth : 0;
+      if (ioSize.y<0)
+         ioSize.y = bestHeight!=null ? bestHeight : 0;
       return ioSize;
    }
 
@@ -156,37 +157,36 @@ class Layout
    }
 
 
-   public function setMinPaddedSize(inWidth:Float,inHeight:Float) : Layout
+   public function setMinItemSize(inWidth:Float,inHeight:Float) : Layout
    {
-      minWidth = inWidth;
-      minHeight = inHeight;
+      minWidth = inWidth + mBLeft + mBRight;
+      minHeight = inHeight + mBTop + mBBottom;
       return this;
    }
 
 
    public function setMinSize(inWidth:Float,inHeight:Float) : Layout
    {
-      minWidth = inWidth + mBLeft + mBRight;
-      minHeight = inHeight + mBTop + mBBottom;
+      setMinWidth(inWidth);
+      setMinHeight(inHeight);
       return this;
    }
 
    public function setMinWidth(inWidth:Float) : Layout
    {
-      minWidth = inWidth + mBLeft + mBRight;
+      minWidth = inWidth;
       return this;
    }
 
    public function setMinHeight(inHeight:Float) : Layout
    {
-      minHeight = inHeight + mBTop + mBBottom;
+      minHeight = inHeight;
       return this;
    }
 
    public function getMinSize()
    {
-      //trace('  $this (specified) -> $minWidth, $minHeight');
-      return makeBest(new Size(minWidth,minHeight));
+      return bestDefault(new Size(minWidth, minHeight) );
    }
 
    public function findTextLayout() : TextLayout  { return null; }
@@ -413,6 +413,7 @@ class Layout
       */
    }
 
+   public function toString() return 'Layout($name)';
 }
 
 typedef LayoutList = Array<Layout>;
@@ -461,7 +462,6 @@ class BorderLayout extends Layout
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
-      //trace("BorderLayout setRect " + inW + "," + inH + " " + mBase + ':' + mBase.getBestWidth() + "," + mBase.getBestHeight() );
       alignChild(mBase, (inX+mBLeft)*positionMask, (inY+mBTop)*positionMask,
                          inW-mBLeft-mBRight, inH-mBTop-mBBottom );
       super.setRect(inX, inY, inW, inH);
@@ -491,16 +491,33 @@ class BorderLayout extends Layout
       return this;
    }
 
+   // BorderLayout
+   override public function setMinWidth(inWidth:Float) : Layout
+   {
+      super.setMinWidth(inWidth);
+      mBase.setMinWidth(inWidth-mBLeft-mBRight);
+      return this;
+   }
 
+   override public function setMinHeight(inHeight:Float) : Layout
+   {
+      super.setMinHeight(inHeight);
+      mBase.setMinHeight(inHeight-mBTop-mBBottom);
+      return this;
+   }
+
+
+   // BorderLayout
    public override function getMinSize() : Size
    {
       var s = mBase.getMinSize();
       //trace(' border min $mBase ->' + s);
       s.x += mBLeft + mBRight;
       s.y += mBTop + mBBottom;
-      return makeBest(s);
+      return s;
    }
 
+   override public function toString() return 'BorderLayout($name : $mBase)';
 }
 
 // --- DisplayLayout ---------------------------------------------------
@@ -543,16 +560,10 @@ class DisplayLayout extends Layout
       return this;
    }
  
+   // DisplayLayout
    public override function getMinSize() : Size
    {
-      return makeBest(new Size(mOWidth>minWidth ? mOWidth:minWidth, mOHeight>minHeight ? mOHeight:minHeight ));
-   }
-
-   public override function setBestSize(inW:Float,inH:Float)
-   {
-     mOWidth = inW;
-     mOHeight = inH;
-     return this;
+      return bestDefault(new Size(mOWidth>minWidth ? mOWidth:minWidth, mOHeight>minHeight ? mOHeight:minHeight ));
    }
 
    public override function setBestWidth(inW:Float)
@@ -560,6 +571,7 @@ class DisplayLayout extends Layout
      mOWidth = inW;
      return this;
    }
+
    public override function setBestHeight(inH:Float)
    {
      mOHeight = inH;
@@ -572,7 +584,7 @@ class DisplayLayout extends Layout
       mObj.x = x;
       mObj.y = y;
 
-      if (mObj.scale9Grid != null)
+      if (mObj.scale9Grid != null ||  (mAlign & Layout.AlignGraphcsRect)!=0 )
       {
          mObj.width = w;
          mObj.height = h;
@@ -583,8 +595,14 @@ class DisplayLayout extends Layout
    {
       var w = inW - mBLeft - mBRight;
       var x = mOX + inX + mBLeft;
-      var ow = minWidth<mOWidth ? mOWidth : minWidth;
-      var oh = minHeight<mOHeight ? mOHeight : minHeight;
+      var ow = mOWidth;
+      var oh = mOHeight;
+      if ( (mAlign & Layout.AlignGraphcsRect)!=0)
+      {
+         ow = minWidth<ow ? ow : minWidth;
+         oh = minHeight<oh ? oh : minHeight;
+      }
+
       switch(mAlign & Layout.AlignMaskX)
       {
          case Layout.AlignLeft:
@@ -630,7 +648,6 @@ class DisplayLayout extends Layout
          h = bottom - y;
       }
 
-       
       // trace(mObj.name + ' setRect $name: $inX, $inY, $inW, $inH -> $x,$y,$w,$y');
       setObjRect(x,y,w,h);
 
@@ -661,6 +678,8 @@ class DisplayLayout extends Layout
       if (minHeight>h) return minHeight;
       return h;
    }
+
+   override public function toString() return 'DisplayLayout($name : $mObj)';
 }
 
 
@@ -703,6 +722,15 @@ class TextLayout extends DisplayLayout
       text.autoSize = TextFieldAutoSize.NONE;
       text.width = w;
       text.height = h;
+   }
+   override public function toString()
+   {
+      var textF:TextField = cast mObj;
+      var text =  textF.text;
+      if (text.length>10)
+         text = text.substr(0,7) + "...";
+
+      return 'TextLayout($name : $text)';
    }
 }
 
@@ -777,6 +805,7 @@ class StackLayout extends Layout
    }
 
 
+   // StackLayout
    public override function getMinSize() : Size
    {
       var w:Float = minWidth;
@@ -789,7 +818,7 @@ class StackLayout extends Layout
          if (s.y>h)
             h = s.y;
       }
-      return makeBest(new Size( w, h ));
+      return bestDefault(new Size( w, h ));
    }
 
 
@@ -831,6 +860,7 @@ class StackLayout extends Layout
       return height;
    }
 
+   override public function toString() return 'StackLayout($name)';
 }
 
 class PagedLayout extends StackLayout
@@ -858,6 +888,7 @@ class PagedLayout extends StackLayout
             display.visible = inIndex==c;
       }
    }
+   override public function toString() return 'PagedLayout($name)';
 }
 
 // In a child stack, the top item owns the others, so the offset
@@ -909,6 +940,7 @@ class ChildStackLayout extends StackLayout
       offsetTop = top;
       offsetBottom = bottom;
    }
+   override public function toString() return 'ChildStackLayout($name)';
 }
 
 // --- GridLayout -------------------------------------------
@@ -934,6 +966,8 @@ class RowInfo
    {
       mCols = [];
       mStretch = inStretch;
+      mShrink = 0.0;
+      mMinHeight = 0.0;
       mStretchSet = false;
       mShrinkOnly = false;
    }
@@ -941,6 +975,8 @@ class RowInfo
    public var mShrinkOnly:Bool;
    public var mStretch:Float;
    public var mHeight:Float;
+   public var mMinHeight:Float;
+   public var mShrink:Float;
    public var mStretchSet:Bool;
 }
 
@@ -1166,6 +1202,7 @@ class GridLayout extends Layout
       {
          var row = mRowInfo[r];
          row.mHeight = 0;
+         var minHeight = 0.0;
          for(i in 0...row.mCols.length)
          {
             var col =  row.mCols[i];
@@ -1176,8 +1213,17 @@ class GridLayout extends Layout
                   row.mHeight = h;
                if (h>tallest)
                   tallest = h;
+               var minH = col.getMinSize().y;
+               if (minH>minHeight)
+                  minHeight = minH;
             }
          }
+
+         row.mMinHeight = minHeight;
+         if (row.mHeight>minHeight)
+            row.mShrink = row.mHeight-minHeight;
+         else
+            row.mShrink = 0.0;
       }
       if ( (mAlign & Layout.AlignEqual)!=0 )
          for(r in mRowInfo)
@@ -1194,6 +1240,7 @@ class GridLayout extends Layout
    }
 
 
+   // GridLayout
    public override function calcSize(inWidth:Null<Float>,inHeight:Null<Float>) : Void
    {
      BestColWidths();
@@ -1238,15 +1285,67 @@ class GridLayout extends Layout
         if (extra!=0)
         {
            var stretch = 0.0;
+           var stretches = new Array<Float>();
            for(row in mRowInfo)
            {
               if (extra<0 || !row.mShrinkOnly)
+              {
+                 stretches.push(row.mStretch);
                  stretch += row.mStretch;
+              }
+              else
+                 stretches.push(0.0);
            }
-           if (stretch!=0)
+
+           var remaining = extra;
+           while(stretch>0 && Math.abs(extra)>=1 )
+           {
+              var clamped = false;
+              for(rid in 0...mRowInfo.length)
+              {
+                 if (stretches[rid]!=0)
+                 {
+                    var row = mRowInfo[rid];
+                    var delta = stretches[rid] * extra / stretch;
+                    if (row.mHeight+delta < row.mMinHeight)
+                    {
+                       delta = row.mMinHeight-row.mHeight;
+                       row.mHeight = row.mMinHeight;
+                       stretches[rid] = 0.0;
+                       clamped = true;
+                    }
+                    else
+                    {
+                       row.mHeight += delta;
+                    }
+                    remaining -= delta;
+                 }
+              }
+
+              if (!clamped)
+                 break;
+              stretch = 0;
+              for(s in stretches)
+                 stretch+=s;
+              extra = remaining;
+           }
+
+           if (remaining<0)
+           {
+              remaining = -remaining;
+              var total = 0.0;
+              for(row in mRowInfo)
+                 total += row.mShrink;
+
+              if (total>0)
+              {
                  for(row in mRowInfo)
-                    if (extra<0 || !row.mShrinkOnly)
-                       row.mHeight += row.mStretch * extra / stretch;
+                 {
+                    var delta = row.mShrink * remaining/total;
+                    row.mHeight = Std.int(row.mHeight - delta + 0.5);
+                 }
+              }
+           }
         }
 
         height = inHeight;
@@ -1306,6 +1405,7 @@ class GridLayout extends Layout
       return h;
    }
 
+   // GridLayout
    public override function getMinSize() : Size
    {
       var minX = [ for(c in mColInfo) c.mMinWidth ];
@@ -1336,7 +1436,7 @@ class GridLayout extends Layout
       for(m in minY) sy+= m;
       if (sy<minHeight)
          sy = minHeight;
-      return makeBest(new Size( sx, sy ));
+      return bestDefault(new Size( sx, sy ));
    }
 
 
@@ -1381,6 +1481,7 @@ class GridLayout extends Layout
 
       super.setRect(inX, inY, inW, inH);
    }
+   override public function toString() return 'GridLayout($name)';
 }
 
 class VerticalLayout extends GridLayout
@@ -1402,6 +1503,7 @@ class VerticalLayout extends GridLayout
 
       return super.add(inLayout);
    }
+   override public function toString() return 'VerticalLayout($name)';
 }
 
 
@@ -1423,6 +1525,7 @@ class HorizontalLayout extends GridLayout
 
       return super.add(inLayout);
    }
+   override public function toString() return 'HorizontalLayout($name)';
 }
 
 // --- FlowLayout --------------------------------
@@ -1612,6 +1715,7 @@ class FlowLayout extends Layout
    }
 
 
+   override public function toString() return 'FlowLayout($name)';
 }
 
 

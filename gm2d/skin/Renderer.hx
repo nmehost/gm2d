@@ -545,6 +545,8 @@ class Renderer
       var layout = ioWidget.getLayout();
       if (layout!=null)
       {
+         if (layout.name==null)
+            layout.name = ioWidget.name;
          if (minSize!=null)
             layout.setMinSize( minSize.x, minSize.y );
          var lineWidth = isRectRender() ? Std.int(getLineWidth(lineStyle)) : 0;
@@ -566,13 +568,18 @@ class Renderer
       var layout = ioWidget.getItemLayout();
       if (layout!=null)
       {
-         if (minItemSize!=null)
-            layout.setMinSize( minItemSize.x, minItemSize.y );
+         if (layout.name==null)
+            layout.name = ioWidget.name+":inner";
+
          if (padding!=null)
          {
             layout.setBorders(padding.x, padding.y,
                padding.width-padding.x, padding.height-padding.y);
          }
+
+         if (minItemSize!=null)
+            layout.setMinSize( minItemSize.x, minItemSize.y );
+
          if (itemAlign!=null)
             layout.setAlignment(itemAlign);
       }

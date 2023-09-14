@@ -274,14 +274,15 @@ class Pane implements IDockable
       {
          return inMove>0;
       }
+      var limit = itemLayout.getMinSize();
       if (inHorizontal)
       {
-        if (inMove<0 && sizeX <= itemLayout.minWidth)
+        if (inMove<0 && sizeX <= limit.x)
            return false;
       }
       else
       {
-        if (inMove<0 && sizeY <= itemLayout.minHeight)
+        if (inMove<0 && sizeY <= limit.y)
            return false;
       }
       return true;

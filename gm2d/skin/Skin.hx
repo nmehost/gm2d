@@ -374,6 +374,9 @@ class Skin
         "BitmapFromId" => {
            bitmap: BitmapFactory(createDefaultBitmap),
            },
+        "Image" => {
+           alignBitmap: Layout.AlignGraphcsRect,
+           },
 
         "UiButton" => {
            shape: ShapeNone,

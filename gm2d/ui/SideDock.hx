@@ -716,7 +716,7 @@ class SideDock extends Layout implements IDock implements IDockable
          return new Rectangle(mRect.x, mRect.y+origin, mRect.width, mSizes[inRef]);
    }
 
-   public function toString()
+   override public function toString()
    {
       if (lastRect==null)
          return "SideDock(null)";

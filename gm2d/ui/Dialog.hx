@@ -39,7 +39,8 @@ class Dialog extends Window implements IDialog
       vlayout.add(title.getLayout().stretch());
 
       inPane.setDock(null,this);
-      vlayout.add(inPane.itemLayout.stretch());
+      var paneLayout =inPane.itemLayout.stretch();
+      vlayout.add(paneLayout);
       setItemLayout(vlayout.stretch());
 
       build();
@@ -128,6 +129,25 @@ class Dialog extends Window implements IDialog
          Game.closeDialog();
       else if (Game.mCurrentPopup==this)
          Game.closePopup();
+   }
+
+   public function fitStage(inWidth:Int, inHeight:Int)
+   {
+      var best = getLayout().getBestSize();
+      var min = getLayout().getMinSize();
+      var w = best.x;
+      if (w>inWidth)
+      {
+         w = min.x<inWidth ? inWidth : min.x;
+      }
+      var h = best.y;
+      if (h>inHeight)
+      {
+         h = min.y<inHeight ? inHeight : min.y;
+      }
+      var rx = Std.int( (inWidth - w)/2 );
+      var ry = Std.int( (inHeight - h)/2 );
+      setRect(rx,ry,w,h);
    }
 
    public function center(inWidth:Float,inHeight:Float)

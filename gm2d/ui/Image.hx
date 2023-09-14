@@ -16,7 +16,7 @@ class Image extends Widget
 
    public function new(?skin:Skin, ?inBmp:BitmapData, ?inLineage:Array<String>, ?inAttribs:{})
    {
-      super(skin,inLineage,inAttribs);
+      super(skin,Widget.addLine(inLineage,"Image"),inAttribs);
       var bmp = inBmp != null ? inBmp : getBitmap();
       if (bmp!=null)
       {
@@ -25,11 +25,13 @@ class Image extends Widget
          var bmpScale = attribFloat("bmpScale",1.0);
          if (bmpScale!=1.0)
             bitmap.scaleX = bitmap.scaleY = bmpScale;
-         setItemLayout( new DisplayLayout(bitmap) );
+         var align = attribInt("alignBitmap", Layout.AlignGraphcsRect );
+         setItemLayout( new DisplayLayout(bitmap,align) );
       }
       applyStyles();
    }
 
+/*
    override public function onWidgetDrawn() {
       if (bitmap!=null)
       {
@@ -37,6 +39,7 @@ class Image extends Widget
          bitmap.height = mRect.height;
       }
    }
+   */
 
    public static function fromSvg(?skin:Skin,resoName:String, inScale = 1.0,?inLineage:Array<String>, ?inAttribs:{})
    {

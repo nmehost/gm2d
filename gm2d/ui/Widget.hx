@@ -336,8 +336,9 @@ class Widget extends Sprite
                for(str in strs)
                {
                   tf.text = str;
-                  w = tf.width;
-                  if (w>textLayout.minWidth)
+                  w = tf.width + textLayout.getBordersX();
+                  var s = textLayout.getMinSize();
+                  if (w>s.x)
                      textLayout.setMinWidth(w);
                }
                tf.text = t0;

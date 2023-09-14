@@ -506,6 +506,9 @@ class Game
          {
             sd.scaleX = 1.0;
             sd.scaleY = 1.0;
+            sd.fitStage(sw,sh);
+
+
             var dw = sd.width;
             var dh = sd.height;
             var scale = Math.min( sw/sd.width, sh/sd.height );

@@ -374,16 +374,10 @@ class ListControl extends ScrollWidget
       updateHeight();
    }
 
-   override public function onLayout(inX:Float,inY:Float,inW:Float,inH:Float)
-   {
-      x = inX;
-      y = inY;
-      mRect = new Rectangle(0,0,inW,inH);
-      redraw();
-   }
 
    function updateHeight()
    {
+      var rectH = mRect.height;
       contents.y = mTitleHeight;
       var h = mRowPos[mRows.length];
       mControlHeight = h + mTitleHeight;
@@ -392,8 +386,9 @@ class ListControl extends ScrollWidget
       if (maxHeight!=null && windowH>maxHeight)
          windowH = maxHeight;
       getItemLayout().setBestSize( mMinControlWidth, windowH );
+      //trace('LIST: rectH:$rectH  windowH:$windowH mControlHeight:$mControlHeight mListHeight:$mListHeight title:$mTitleHeight');
       //getItemLayout().setBestSize( mMinControlWidth, mControlHeight );
-      setScrollRange(mWidth,mWidth,mControlHeight-mTitleHeight,mListHeight);
+      setScrollRange(mWidth,mWidth,h,mListHeight);
    }
 
    public function stringToItem(inString:String) : DisplayObject
@@ -832,13 +827,13 @@ class ListControl extends ScrollWidget
       redraw();
    }
 
-/*
-   override public function onLayout(inX:Float, inY:Float, inW:Float, inH:Float)
+   override public function onLayout(inX:Float,inY:Float,inW:Float,inH:Float)
    {
-      recalcPos();
-      super.onLayout(inX,inY,inW,inH);
+      x = inX;
+      y = inY;
+      mRect = new Rectangle(0,0,inW,inH);
+      redraw();
    }
-*/
 
    override public function redraw()
    {
