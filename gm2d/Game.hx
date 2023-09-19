@@ -940,6 +940,13 @@ class Game
        invalidate();
    }
 
+   public static function popupAtMouse(inPopup:Window, ?inOnClosePopup:Void->Void)
+   {
+      var mx = nme.Lib.current.stage.mouseX;
+      var my = nme.Lib.current.stage.mouseY;
+      popup(inPopup,mx,my,inOnClosePopup);
+   }
+
    public static function moveToPopupLayer(inObject:DisplayObject)
    {
       mPopupParent.addChild(inObject);

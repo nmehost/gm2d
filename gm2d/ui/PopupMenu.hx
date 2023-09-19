@@ -58,11 +58,18 @@ class PopupMenu extends Window
                var id = mButtons.length;
                mRowIdx.push(rowCount);
                var but = new TextLabel(item.text,["PopupMenuItem"]);
-               but.addEventListener(MouseEvent.CLICK, function(_) {
+               but.addEventListener(MouseEvent.CLICK, function(e) {
                   Game.closePopup();
                   if (item.checkable)
                      item.checked = !item.checked;
-                  if (item.onSelect!=null)
+                  if (item.children!=null && item.children.length>0)
+                  {
+                     var p = new PopupMenu(inSkin, item);
+                     var px = Math.max(0, e.stageX-skin.scale(16));
+                     var py = Math.max(0, e.stageY-skin.scale(16));
+                     Game.popup(p,px,py);
+                  }
+                  else if (item.onSelect!=null)
                      item.onSelect(item);
                   });
                but.addEventListener(MouseEvent.MOUSE_OVER, function(_) me.setItem(id) );
