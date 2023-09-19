@@ -178,7 +178,7 @@ class Ado
       updateText();
    }
 
-   public function setDo( inName:String, inDo:Void->Void, inUndo:Void->Void)
+   public function setDo( inName:String, inDo:Void->Void, inUndo:Void->Void, extend=false)
    {
       if (held)
       {
@@ -187,7 +187,11 @@ class Ado
       }
       finishEdit();
       undone = null;
-      edit = new Edit(inName);
+
+      if (extend)
+         edit = edits.pop();
+      if (edit==null)
+         edit = new Edit(inName);
       edit.add(inDo,inUndo);
       inDo();
       finishEdit();
