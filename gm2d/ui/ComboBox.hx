@@ -29,7 +29,7 @@ class ComboList extends Window
       mList.scrollRect = null;
       mList.onSelectPhase = onSelectPhase;
       mList.onClick = function(e:MouseEvent) {
-         windowMouseMove(e);
+         processMouse(e,true);
          gm2d.Game.closePopup();
       }
       setItemLayout(mList.getLayout().setMinWidth(inW).stretch());
@@ -51,17 +51,22 @@ class ComboList extends Window
       return mLayout.getBestHeight();
    }
 
-   override function windowMouseMove(inEvent:MouseEvent)
+   function processMouse(inEvent:MouseEvent,click:Bool)
    {
       //if (selectOnMove)
       {
          closeLockout++;
          var pos = mList.toLocal( inEvent.stageX, inEvent.stageY );
-         mList.selectByY(pos.y, selectOnMove ? 0 : ListControl.SELECT_NO_CALLBACK );
+         var flags = click ?  ListControl.SELECT_FROM_CLICK : 0;
+         if (!selectOnMove && !click)
+            flags |= ListControl.SELECT_NO_CALLBACK;
+
+         mList.selectByY(pos.y, flags);
          closeLockout--;
       }
    }
 
+   override function windowMouseMove(inEvent:MouseEvent) processMouse(inEvent,false);
 
 /*
    override public function redraw()
