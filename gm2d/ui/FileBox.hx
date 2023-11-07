@@ -13,11 +13,13 @@ class FileBox extends TextInput
    var onText:String->Void;
    var isDir:Bool;
    var rightAlign = true;
+   var defaultText:String;
 
    public function new(inVal="", ?inLineage:Array<String>, ?inAttribs:{})
    {
        super(inVal, null, Widget.addLine(inLineage,"FileBox"), inAttribs);
        isDir = attribBool("directory",false);
+       setText( inVal );
        if (inVal=="" || inVal==null)
        {
           var rememberKey = attribString("dir_id");
@@ -25,12 +27,24 @@ class FileBox extends TextInput
           {
              var def = nme.system.Dialog.getDefaultPath(rememberKey);
              setText( def );
+             if (!isDir)
+                defaultText = def;
           }
           else
           {
              setText( inVal );
           }
        }
+   }
+
+   override public function get(inValue:Dynamic) : Void
+   {
+      if (Reflect.hasField(inValue,name))
+      {
+         var value = getText();
+         if (defaultText==null || value!=defaultText)
+            Reflect.setField(inValue, name, value );
+      }
    }
 
    function onBrowse()
@@ -46,6 +60,7 @@ class FileBox extends TextInput
       {
          var flags = attribInt("browseFlags",0);
          var ext = attribString("browseFilter","All Files|*.*");
+         var start = getText();
          nme.system.Dialog.fileDialog(title,"File", getText(), ext,
              function(f) if (f!=null) setTextEnter(f), rememberKey, flags );
       }

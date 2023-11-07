@@ -126,9 +126,10 @@ class Panel extends Widget
    }
 
    public function bindOk(data:Dynamic, onOk:Void->Void, addCancel:Bool=false,?rememberKey:String,
-       okText="Ok", cancelText="Cancel", inAsScreen = false, ?onCancel:Void->Void )
+       okText="Ok", cancelText="Cancel", inAsScreen = false, ?onCancel:Void->Void,
+        ?ignoreRestoreKeys:Array<String>)
    {
-      setAndRestore(data,rememberKey);
+      setAndRestore(data,rememberKey, ignoreRestoreKeys);
       addTextButton(okText, () -> {
          getAndStore(data,rememberKey);
          Game.closeDialog();
@@ -175,7 +176,7 @@ class Panel extends Widget
       }
    }
 
-   public static function restore(data:Dynamic,rememberKey:String)
+   public static function restore(data:Dynamic,rememberKey:String,?ignoreRestoreKeys:Array<String>)
    {
       if (rememberKey!=null)
       {
@@ -187,7 +188,8 @@ class Panel extends Widget
             {
                for(key in Reflect.fields(d) )
                {
-                  var now = Reflect.field(data,key);
+                  if (ignoreRestoreKeys!=null && ignoreRestoreKeys.indexOf(key)>=0)
+                     continue;
                   var stored = Reflect.field(d,key);
                   if ( stored!=null )
                      Reflect.setField(data, key, stored);
@@ -197,9 +199,9 @@ class Panel extends Widget
       }
    }
 
-   public function setAndRestore(data:Dynamic,rememberKey:String)
+   public function setAndRestore(data:Dynamic,rememberKey:String,?ignoreRestoreKeys:Array<String>)
    {
-      restore(data,rememberKey);
+      restore(data,rememberKey,ignoreRestoreKeys);
       set(data);
    }
 
