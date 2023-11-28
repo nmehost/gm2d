@@ -81,6 +81,7 @@ class ScrollWidget extends Widget //Control
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown, true);
       addEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
       addEventListener(MouseEvent.CLICK,onScrollClick,true);
+      addEventListener(Event.REMOVED_FROM_STAGE, (_) -> removeStageListeners() );
    }
 
    public function makeContentContainer()

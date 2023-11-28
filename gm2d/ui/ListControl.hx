@@ -127,6 +127,8 @@ class ListControl extends ScrollWidget
 
    public function clear()
    {
+      removeStageListeners();
+      finishScroll();
       mRows = [];
       mColWidths = mMinColWidths.copy();
       mBestColWidths = mMinColWidths.copy();
