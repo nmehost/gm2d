@@ -244,6 +244,8 @@ class Game
 
    static function get_screen() { return mCurrentScreen; }
 
+   public static function isMainWindow() return mCurrentPopup==null && mCurrentDialog==null;
+
    static function getCurrentWindow() : Window
    {
       var sd = getSpriteDialog();
