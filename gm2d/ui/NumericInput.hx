@@ -274,6 +274,7 @@ class NumericInput extends TextInput
    {
       max = inValue;
       dynamicMax = false;
+      maxBar = inValue;
       if (fullValue>max)
          setValue(max);
       redrawBar();
