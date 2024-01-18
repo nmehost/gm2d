@@ -7,9 +7,9 @@ class ProgressBar extends Widget
    var mMax:Float;
    var mFraction:Float;
 
-   public function new(inMax:Float)
+   public function new(?inSkin:Skin, inMax:Float, ?inAttribs:{})
    {
-      super(["ProgressBar"]);
+      super(["ProgressBar"], inAttribs);
       mMax = inMax;
       mFraction = 0.0;
       //build();

@@ -157,6 +157,9 @@ class Skin
       return getSkin().uiScale;
    }
 
+   public static function uiWidth(inSize:Int) return new Size( getSkin().scale(inSize), 0);
+
+
    public function init()
    {
       if (textFormat==null)

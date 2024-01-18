@@ -571,13 +571,13 @@ class DisplayLayout extends Layout
 
    public override function setBestWidth(inW:Float)
    {
-     mOWidth = inW;
+     mOWidth = inW - mBLeft - mBRight;
      return this;
    }
 
    public override function setBestHeight(inH:Float)
    {
-     mOHeight = inH;
+     mOHeight = inH - mBTop - mBBottom;
      return this;
    }
 
