@@ -42,8 +42,8 @@ class Layout
    public var mBRight:Float;
    public var mBBottom:Float;
 
-   var minWidth:Float;
-   var minHeight:Float;
+   public var minWidth:Float;
+   public var minHeight:Float;
    public var width:Float;
    public var height:Float;
 

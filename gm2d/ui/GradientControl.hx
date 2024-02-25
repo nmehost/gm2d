@@ -156,12 +156,12 @@ class GradientControl extends Widget
       controls.setAlignment(Layout.AlignStretch);
 
       var swatches = new GridLayout(10);
-      var s = Skin.scale(4);
+      var s = skin.scale(4);
       swatches.setSpacing(s,s);
       for(i in 0...20)
       {
          var swatch = new GradSwatch(i,20);
-         var box = new GradSwatchBox(this,swatch,Skin.scale(16));
+         var box = new GradSwatchBox(this,swatch,skin.scale(16));
          addChild(box);
          swatches.add(box.getLayout());
       }
@@ -232,7 +232,7 @@ class GradientControl extends Widget
       gradient.addStop( new RGBHSV(0x508080,1), 0.5);
       gradient.addStop( new RGBHSV(0xa0b0b0,1), 1);
       var matrix = new Matrix();
-      var size = Skin.scale(24);
+      var size = Skin.getSkin().scale(24);
       matrix.createGradientBox(size*0.5,size,0,0,0);
  
       for(spread in Gradient.spreads)
