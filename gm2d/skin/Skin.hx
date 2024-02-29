@@ -378,7 +378,7 @@ class Skin
            bitmap: BitmapFactory(createDefaultBitmap),
            },
         "Image" => {
-           alignBitmap: Layout.AlignGraphcsRect,
+           alignBitmap: Layout.AlignGraphcsRect | Layout.AlignKeepAspect,
            },
 
         "UiButton" => {

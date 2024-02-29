@@ -188,7 +188,7 @@ class NumericInput extends TextInput
       if (v<min) v = min;
       if (v>max) v = max;
       if (isInteger)
-         v = Std.int(v);
+         v = Std.int(Math.round(v));
       if (quantization>0)
       {
          v = min + (Std.int((v-min)/quantization+0.5)*quantization);

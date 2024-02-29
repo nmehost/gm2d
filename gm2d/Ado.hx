@@ -66,6 +66,7 @@ class Ado
    public var undoText:String;
    public var redoText:String;
    public var onUndoText:Void->Void;
+   public var makeDirty:Void->Void;
    var held = false;
 
    public function new()
@@ -74,9 +75,17 @@ class Ado
       undone = [];
    }
 
+   public function isHeld() return held;
+
    public function hold()
    {
       held = true;
+   }
+
+   public function setDirty()
+   {
+      if (makeDirty!=null)
+         makeDirty();
    }
 
    public function clear()
