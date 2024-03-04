@@ -206,6 +206,20 @@ class Ado
       finishEdit();
    }
 
+   public function undoNoReturns()
+   {
+      if (held)
+         return null;
+      finishEdit();
+      if (edits.length>0)
+      {
+         var e = edits.pop();
+         e.undo();
+         updateText();
+         return e.name;
+      }
+      return null;
+   }
 
    public function undo() : String
    {

@@ -165,6 +165,8 @@ class Button extends Control
    {
       if (mouseHandler!=null && !mouseHandler(name,e))
          return;
+      if (disabled)
+         return;
       if (isToggle)
       {
          set_down(!get_down());
@@ -330,6 +332,7 @@ class BmpButton extends Button
    public var bitmap(default,null):Bitmap;
    public var normal:BitmapData;
    public var disabledBmp:BitmapData;
+   var wasEnabled = true;
 
    public function new(inBitmapData:BitmapData,?inOnClick:Void->Void,?inLineage:Array<String>,?inAttribs:Dynamic)
    {
@@ -360,17 +363,28 @@ class BmpButton extends Button
       return result;
    }
 
+   override function rebuildState(?wasCurrent:Bool)
+   {
+      if (wasEnabled!=enabled)
+      {
+         wasEnabled = enabled;
+         mouseEnabled = enabled;
+
+         if (enabled)
+            bitmap.bitmapData = normal;
+         else
+         {
+            if (disabledBmp==null)
+               disabledBmp = createDisabled(normal);
+            bitmap.bitmapData = disabledBmp;
+         }
+      }
+      super.rebuildState(wasCurrent);
+   }
+
    public function enable(inEnable:Bool)
    {
-      mouseEnabled = inEnable;
-      if (inEnable)
-         bitmap.bitmapData = normal;
-      else
-      {
-         if (disabledBmp==null)
-            disabledBmp = createDisabled(normal);
-         bitmap.bitmapData = disabledBmp;
-      }
+      enabled = inEnable;
    }
 }
 
