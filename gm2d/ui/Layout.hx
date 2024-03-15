@@ -962,6 +962,8 @@ class ColInfo
    public var mStretch:Float;
    public var mMinWidth:Float;
    public var mStretchSet:Bool;
+
+   public function toString() return 'ColInfo($mWidth,$mStretch)';
 }
 
 class RowInfo
@@ -1054,11 +1056,13 @@ class GridLayout extends Layout
       }
       else
       {
-         mColInfo.push(new ColInfo(0));
+         while(mColInfo.length<=mPos)
+            mColInfo.push(new ColInfo(0));
       }
       if (mRowInfo[row]==null)
          mRowInfo[row]=new RowInfo(0);
       var col = mRowInfo[row].mCols.length;
+
       mRowInfo[row].mCols.push(inLayout);
       if (inLayout!=null)
       {
@@ -1254,7 +1258,9 @@ class GridLayout extends Layout
         width+=col.mWidth;
      width += mBLeft + mBRight;
      if (mColInfo.length>0)
+     {
         width += (mColInfo.length -1)*mSpaceX;
+     }
 
 
      if (inWidth!=null)
