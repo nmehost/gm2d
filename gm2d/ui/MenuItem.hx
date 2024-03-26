@@ -19,6 +19,7 @@ class MenuItem
    public var id:String;
    public var wxId:Int;
    public var onSelect:MenuItem->Void;
+   public var checkStyle = "MenuCheckbox";
    var keyboardAccel:KeyboardAccel;
 
    //public var gmPopup:PopupMenu;

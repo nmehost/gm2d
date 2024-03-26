@@ -48,6 +48,7 @@ class MenuGroup<Key>
       var item = new MenuItem(inText, onSelect);
       item.id = inKey!=null ? inKey : inText;
       item.shortcut = inShortcut;
+      item.checkStyle = "MenuRadiobox";
 
       if (inKey!=null && nme.Assets.exists(inKey) )
       {

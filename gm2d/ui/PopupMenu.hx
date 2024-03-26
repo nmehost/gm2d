@@ -81,7 +81,7 @@ class PopupMenu extends Window
                if (item.checkable)
                {
                   var checkbox = new CheckButtons(item.checked, item.onSelect==null ? null :
-                        function(c) { item.checked = c; item.onSelect(item); }, ["MenuCheckbox"] );
+                        function(c) { item.checked = c; item.onSelect(item); }, [item.checkStyle] );
                   checkbox.applyStyles();
                   //mList.addChild(checkbox);
                   w0 = checkbox;

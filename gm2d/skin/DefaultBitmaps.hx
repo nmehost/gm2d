@@ -26,7 +26,13 @@ class DefaultBitmaps
          sizeX = skin.scale(48);
       }
 
-      if (inButton==Skin.ComboPopup)
+      else if (inButton==Skin.Radiobox)
+      {
+         sizeY = skin.scale(24);
+         sizeX = skin.scale(24);
+      }
+
+      else if (inButton==Skin.ComboPopup)
       {
          sizeY = skin.scale(22);
          sizeX = skin.scale(22);
@@ -182,6 +188,22 @@ class DefaultBitmaps
             }
          }
       }
+      else if (inButton==Skin.Radiobox)
+      {
+         effects = false;
+         gfx.lineStyle(1,skin.guiTrim);
+         gfx.beginFill(skin.guiMedium);
+         var r = (sizeY-1)*0.5;
+         gfx.drawCircle(s11,s11,s8);
+
+         if (down)
+         {
+            gfx.lineStyle();
+            gfx.beginFill(skin.guiHighlight);
+            gfx.drawCircle(s11,s11,s4);
+         }
+      }
+
       else if (inButton==Skin.Grip)
       {
          effects = false;

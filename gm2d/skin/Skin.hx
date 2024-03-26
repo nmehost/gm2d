@@ -66,6 +66,7 @@ class Skin
 
    // Other Buttons
    public static inline var Checkbox   = "#checkbox";
+   public static inline var Radiobox   = "#radiobox";
    public static inline var ComboPopup = "#combopopup";
 
 
@@ -550,6 +551,14 @@ class Skin
            shape: ShapeNone,
            overlapped: true,
            },
+        "MenuRadiobox" => {
+           filters:null,
+           line: LineNone,
+           shape: ShapeNone,
+           overlapped: true,
+           bitmapId:"#radiobox",
+           },
+
          /*
          "MenuCheckbox" => {
            fill: FillMedium,
