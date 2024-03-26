@@ -652,7 +652,6 @@ class DisplayLayout extends Layout
          h = bottom - y;
       }
 
-      // trace(mObj.name + ' setRect $name: $inX, $inY, $inW, $inH -> $x,$y,$w,$y');
       setObjRect(x,y,w,h);
 
       if (Layout.mDebug!=null && mObj!=null && mObj.parent!=null)
@@ -694,17 +693,24 @@ class TextLayout extends DisplayLayout
    {
       super(inObj,inAlign);
 
-      mOWidth = inPrefWidth==null ? inObj.width : inPrefWidth;
-      if (inPrefHeight==null)
+      var w = inObj.width;
+      var h = inObj.height;
+      if (inObj.rotation==90 || inObj.rotation==270)
       {
-         var fmt = inObj.defaultTextFormat;
-         if (fmt!=null && fmt.size!=null)
-            mOHeight = fmt.size * 1.5 * inObj.numLines;
-         else
-            mOHeight = inObj.height;
+         var t = w; w = h; h = t;
       }
-      else
-         mOHeight = inObj.height;
+      var fmt = inObj.defaultTextFormat;
+      if (fmt!=null && fmt.size!=null)
+      {
+         if (inObj.rotation==90 || inObj.rotation==270)
+            w = fmt.size * 1.5 * inObj.numLines;
+         else
+            h = fmt.size * 1.5 * inObj.numLines;
+      }
+
+      mOWidth = inPrefWidth==null ? w: inPrefWidth;
+      mOHeight = inPrefWidth==null ? h: inPrefHeight;
+
       mDebugCol = 0x00ff00;
    }
 
@@ -724,8 +730,22 @@ class TextLayout extends DisplayLayout
       text.x = x;
       text.y = y;
       text.autoSize = TextFieldAutoSize.NONE;
-      text.width = w;
-      text.height = h;
+      if (text.rotation==90 || text.rotation==270)
+      {
+         text.width = h;
+         text.height = w;
+         if (text.rotation==270)
+            text.y = y+h;
+         else
+         {
+            text.x = x+w;
+         }
+      }
+      else
+      {
+         text.width = w;
+         text.height = h;
+      }
    }
    override public function toString()
    {
@@ -1453,7 +1473,6 @@ class GridLayout extends Layout
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
       var oindent = indent;
-      //trace(indent + "GridLayout::setRect " + inX + "," + inY + "   " +inW + "x"+inH);
       indent += "   ";
       calcSize(inW,inH);
       //for(col in mColInfo)

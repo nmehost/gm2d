@@ -528,6 +528,8 @@ class Renderer
    {
       label.defaultTextFormat = textFormat;
       label.setTextFormat(textFormat);
+      if (map.exists("textRotation"))
+         label.rotation = map.get("textRotation");
       if (label.type != nme.text.TextFieldType.INPUT)
       {
          //label.autoSize = TextFieldAutoSize.LEFT;
