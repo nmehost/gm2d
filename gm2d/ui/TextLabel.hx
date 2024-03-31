@@ -53,7 +53,7 @@ class TextLabel extends Widget
        //mText.autoSize = nme.text.TextFieldAutoSize.LEFT;
        //trace(inVal + ":" + mText.width + "x" + mText.height);
 
-       mTextLayout = new AutoTextLayout(mText).setAlignment(mText.multiline ? 0 : Layout.AlignCenterY);
+       mTextLayout = new AutoTextLayout(mText).setAlignment(mText.multiline&&false ? 0 : Layout.AlignCenterY);
        //trace("   => " + mTextLayout.getBestWidth() + "x" + mTextLayout.getBestHeight() );
 
        var extra = createExtraWidgetLayout();

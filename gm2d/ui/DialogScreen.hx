@@ -19,23 +19,33 @@ import gm2d.Screen;
 class DialogScreen extends Screen implements IDialog
 {
    var mPane:Pane;
-   var mSize:Size;
-   var mouseWatcher:MouseWatcher;
-   var dragStage:nme.display.Stage;
    public var shouldConsumeEvent : MouseEvent -> Bool;
 
-   public function new(inPane:Pane, ?inAttribs:Dynamic, ?inLineage:Array<String>)
+   public function new(inPane:Pane, ?inLineage:Array<String>, ?inAttribs:{} )
    {
-      super(Widget.addLines(inLineage,["DialogScreen"]), inAttribs);
+      super(Widget.addLines(inLineage,["DialogScreen","Dialog"]), inAttribs);
 
       mPane = inPane;
 
-      var vlayout = new VerticalLayout([0,1]);
+      var obj = mPane.displayObject;
+      if (obj!=null)
+         addChild(obj);
+      //mPane.setDock(this);
 
+      setItemLayout(inPane.itemLayout.stretch());
+
+/*
+      var vlayout = new VerticalLayout([0,1]);
       inPane.setDock(null,this);
       vlayout.add(inPane.itemLayout.stretch());
       setItemLayout(vlayout.stretch());
- 
+*/
+   }
+
+   override public function relayout()
+   {
+      trace("relayout!");
+      super.relayout();
    }
 
    override public function closeIfDialog()
@@ -43,8 +53,9 @@ class DialogScreen extends Screen implements IDialog
       Game.popScreen();
    }
 
-
    public function closeFrame():Void Game.popScreen();
+
    public function asDialog():Dialog return null;
+   public function asScreen():DialogScreen return this;
 }
 

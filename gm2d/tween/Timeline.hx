@@ -106,7 +106,7 @@ class Timeline
                      inSeconds:Float,
                      inOnUpdate:Float->Void,
                      ?inOnComplete:Void->Void,
-                     ?inEasing:Float->Float )
+                     ?inEasing:Float->Float ) : Tween
    {
       var tween = new Tween(inName, time, time+inSeconds, null, inOnComplete);
       if (inOnUpdate!=null)
@@ -119,6 +119,7 @@ class Timeline
       }
       tweens.push(tween);
       checkTimer();
+      return tween;
    }
 }
 

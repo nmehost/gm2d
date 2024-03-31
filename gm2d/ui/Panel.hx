@@ -81,11 +81,11 @@ class Panel extends Widget
        mItemGrid.setMinColWidth(1,inSize);
    }
 
-   public function showDialog(inCentre=true,inAutoClose=true,inAsScreen=false,?inAttribs:{}, ?inLineage:Array<String>) : IDialog
+   public function showDialog(inCentre=true,inAutoClose=true,inAsScreen=false,?inLineage:Array<String>, ?inAttribs:{} ) : IDialog
    {
       if (inAsScreen)
       {
-         var screen = new DialogScreen(getPane(),inAttribs,inLineage);
+         var screen = new DialogScreen(getPane(),inLineage,inAttribs);
          Game.pushScreen(screen);
          return screen;
       }
@@ -113,7 +113,7 @@ class Panel extends Widget
    public function showOkDialog(onOk:Void->Void, okText="Ok", inCentre=true,inAutoClose=true,?inAttribs:{}, ?inLineage:Array<String>)
    {
       addTextButton(okText, function() { Game.closeDialog(); onOk();} );
-      showDialog(inCentre, inAutoClose, inAttribs, inLineage );
+      showDialog(inCentre, inAutoClose, inLineage, inAttribs );
    }
 
 

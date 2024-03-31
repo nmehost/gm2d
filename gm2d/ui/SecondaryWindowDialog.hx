@@ -52,4 +52,5 @@ class SecondaryWindowDialog implements IDialog
       window.close();
    }
    public function asDialog():Dialog return null;
+   public function asScreen():DialogScreen return null;
 }

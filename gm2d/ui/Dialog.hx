@@ -53,6 +53,7 @@ class Dialog extends Window implements IDialog
    }
 
    public function asDialog():Dialog return this;
+   public function asScreen():DialogScreen return null;
    public function closeFrame():Void
    {
       onClose();
