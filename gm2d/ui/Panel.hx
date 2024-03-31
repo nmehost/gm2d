@@ -69,6 +69,8 @@ class Panel extends Widget
       mGridLayout.setRowStretch(0,1);
       mGridLayout.setRowStretch(1,0);
       setItemLayout( mGridLayout );
+
+      mItemGrid.setAlignment( Layout.AlignCenterY );
       //build();
    }
 

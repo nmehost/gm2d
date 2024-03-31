@@ -57,6 +57,8 @@ class Layout
 
    public var onLayout:Float->Float->Float->Float->Void;
 
+   public var debug:Bool = false;
+
    static var mDebug:nme.display.Graphics;
    static var mDebugObject:Shape;
 
@@ -219,6 +221,8 @@ class Layout
    }
    public function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
+      if (debug)
+         Sys.println('$name $inX,$inY ${inW}x$inH');
       lastRect = new Rectangle(inX,inY,inW,inH);
       if (onLayout!=null)
          onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
@@ -329,6 +333,8 @@ class Layout
       var inW = w;
       var inH = h;
 
+      if (debug)
+         Sys.println('  $name : alignChild $x,$y ${w}x$h');
       if ( (child.mAlign & Layout.AlignKeepAspect) > 0 )
       {
          if (w*child.getBestHeight() > h*child.getBestWidth())
@@ -401,7 +407,6 @@ class Layout
          h = bottom - y;
       }
 
-      //trace(' aligned $inW,$inH -> ' + w + "," + h);
       child.setRect(x,y,w,h);
 
       /*
@@ -594,12 +599,15 @@ class DisplayLayout extends Layout
       }
    }
 
+   public function getBaseWidth() return mOWidth;
+   public function getBaseHeight() return mOHeight;
+
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
       var w = inW - mBLeft - mBRight;
       var x = mOX + inX + mBLeft;
-      var ow = mOWidth;
-      var oh = mOHeight;
+      var ow = getBaseWidth();
+      var oh = getBaseHeight();
 
       if ( mGfxRect )
       {
@@ -702,6 +710,7 @@ class TextLayout extends DisplayLayout
       var fmt = inObj.defaultTextFormat;
       if (fmt!=null && fmt.size!=null)
       {
+         //trace("  fmt size: " + fmt.size + " lines:" + inObj.numLines );
          if (inObj.rotation==90 || inObj.rotation==270)
             w = fmt.size * 1.5 * inObj.numLines;
          else
@@ -723,13 +732,26 @@ class TextLayout extends DisplayLayout
      Layout.mDebug.drawRect(pos.x,pos.y,text.textWidth,text.textHeight);
    }
 
+   override public function getBaseWidth()
+   {
+      var text:TextField = cast mObj;
+      if (text.rotation==90 || text.rotation==270)
+          return text.height;
+      return text.width;
+   }
+   override public function getBaseHeight()
+   {
+      var text:TextField = cast mObj;
+      if (text.rotation==90 || text.rotation==270)
+          return text.width;
+      return text.height;
+   }
 
    override function setObjRect(x:Float,y:Float,w:Float,h:Float)
    {
       var text:TextField = cast mObj;
       text.x = x;
       text.y = y;
-      text.autoSize = TextFieldAutoSize.NONE;
       if (text.rotation==90 || text.rotation==270)
       {
          text.width = h;
@@ -747,6 +769,53 @@ class TextLayout extends DisplayLayout
          text.height = h;
       }
    }
+
+
+   /*
+   public override function getBestWidth(?inHeight:Null<Float>) : Float
+   {
+      var w = mOWidth + mBLeft + mBRight;
+      if (minWidth>w) return minWidth;
+      return w;
+   }
+   */
+
+
+   // TextLayout
+   public override function getMinSize() : Size
+   {
+      var textF:TextField = cast mObj;
+      if (minHeight<0 && textF.multiline && (mObj.rotation==0 || mObj.rotation==180))
+      {
+         var h = -1.0;
+         var fmt = textF.defaultTextFormat;
+         if (fmt!=null && fmt.size!=null)
+            h = fmt.size * 1.5 + mBTop + mBBottom;
+
+         return bestDefault(new Size(mOWidth>minWidth ? mOWidth:minWidth, h) );
+      }
+
+      return super.getMinSize();
+
+      return bestDefault(new Size(mOWidth>minWidth ? mOWidth:minWidth, mOHeight>minHeight ? mOHeight:minHeight ));
+   }
+
+   public override function getBestHeight(?inWidth:Null<Float>) : Float
+   {
+      var textF:TextField = cast mObj;
+      if (textF.multiline && inWidth!=null && (mObj.rotation==0 || mObj.rotation==180))
+      {
+         textF.autoSize = TextFieldAutoSize.LEFT;
+         textF.width=inWidth - mBLeft - mBRight;
+         var h = textF.height + mBTop + mBBottom;
+         //trace(textF.text + "@" + inWidth + " -> " + textF.autoSize + " " + h + "/" + minHeight);
+         if (minHeight>h)
+            return minHeight;
+         return h;
+      }
+      return super.getBestHeight(inWidth);
+   }
+
    override public function toString()
    {
       var textF:TextField = cast mObj;
@@ -763,8 +832,8 @@ class AutoTextLayout extends TextLayout
    public function new(inObj:TextField,inAlign:Int = 0x24, // AlignCenterX|AlignCenterY
            ?inPrefWidth:Null<Float>,?inPrefHeight:Null<Float>)
    {
-      var old = inObj.autoSize;
       inObj.autoSize = TextFieldAutoSize.LEFT;
+      //trace(" " + inObj.text + " autos " + inObj.autoSize);
       super(inObj,inAlign,inPrefWidth,inPrefHeight);
    }
 }
@@ -1248,6 +1317,8 @@ class GridLayout extends Layout
          }
 
          row.mMinHeight = minHeight;
+         if (debug)
+            Sys.println('   $name $r] h=$minHeight');
          if (row.mHeight>minHeight)
             row.mShrink = row.mHeight-minHeight;
          else
@@ -1294,7 +1365,14 @@ class GridLayout extends Layout
               stretch += col.mStretch;
            if (stretch!=0)
               for(col in mColInfo)
-                 col.mWidth += col.mStretch * extra / stretch;
+              {
+                 var ex = Std.int(col.mStretch * extra / stretch + 0.5);
+                 col.mWidth += ex;
+                 extra -= ex;
+                 stretch -= col.mStretch;
+                 if (extra==0 || stretch==0)
+                    break;
+              }
         }
         width = inWidth;
      }
@@ -1304,10 +1382,14 @@ class GridLayout extends Layout
      height = 0;
      for(row in mRowInfo)
         height+=row.mHeight;
+     if (debug)
+        Sys.println("  row heights: " + [ for(row in mRowInfo) row.mHeight ] );
      height += mBTop + mBBottom;
      if (mRowInfo.length>0)
         height += (mRowInfo.length -1)*mSpaceY;
 
+     if (debug)
+        Sys.println(' Layout H $name: $height / $inHeight $mAlign');
 
      if (inHeight!=null)
      {
@@ -1336,10 +1418,10 @@ class GridLayout extends Layout
                  if (stretches[rid]!=0)
                  {
                     var row = mRowInfo[rid];
-                    var delta = stretches[rid] * extra / stretch;
+                    var delta = Std.int(stretches[rid] * extra / stretch + 0.5);
                     if (row.mHeight+delta < row.mMinHeight)
                     {
-                       delta = row.mMinHeight-row.mHeight;
+                       delta = Std.int(row.mMinHeight-row.mHeight);
                        row.mHeight = row.mMinHeight;
                        stretches[rid] = 0.0;
                        clamped = true;
@@ -1425,7 +1507,9 @@ class GridLayout extends Layout
    {
       if (bestHeight!=null)
          return bestHeight;
-      BestRowHeights();
+
+      calcSize(inWidth,null);
+
       var h = mBTop + mBBottom;
       if (mRowInfo.length>0)
         h+= (mRowInfo.length-1)*mSpaceY;

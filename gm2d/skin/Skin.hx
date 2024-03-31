@@ -35,6 +35,7 @@ import gm2d.ui.HitBoxes;
 import gm2d.skin.FillStyle;
 import gm2d.skin.LineStyle;
 import gm2d.skin.BitmapStyle;
+import gm2d.skin.ProgressStyle;
 import gm2d.skin.Shape;
 
 import nme.display.SimpleButton;
@@ -469,6 +470,7 @@ class Skin
         "ProgressBar" => {
            align: Layout.AlignStretch,
            minItemSize: new Size(scale(100),scale(20)),
+           progressStyle: ProgressRoundRect(0x000000, guiHighlight, guiLight, scale(2), scale(6) ),
            },
         "Stretch" => {
            align: Layout.AlignStretch,
@@ -1150,17 +1152,6 @@ class Skin
       outSprite.graphics.clear();
       while(outSprite.numChildren>0)
          outSprite.removeChildAt(0);
-   }
-
-    public function renderProgressBar(inGfx:Graphics, inWidth:Float, inHeight:Float, inFraction:Float)
-   {
-      inGfx.clear();
-      inGfx.beginFill(0xffffff);
-      inGfx.lineStyle(1,0x000000);
-      inGfx.drawRoundRect(0.5,0.5,inWidth,inHeight,6,6);
-      inGfx.lineStyle();
-      inGfx.beginFill(0x2020ff);
-      inGfx.drawRoundRect(0.5,0.5,inWidth*inFraction,inHeight,6,6);
    }
 
 /*
