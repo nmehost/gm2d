@@ -44,9 +44,9 @@ class Panel extends Widget
       mItemGrid = new GridLayout(itemCols,"items");
       mItemGrid.name = "ItemGrid " + inTitle;
       mItemGrid.setColStretch(itemCols-1,1);
-      mItemGrid.setAlignment(Layout.AlignTop);
       mItemGrid.setSpacing(mRenderer.getDefaultFloat("labelGap", skin.scale(10)),
                            mRenderer.getDefaultFloat("lineGap",skin.scale(10)) );
+
       mButtonLayout = new GridLayout(null,"buttons");
       mButtonLayout.setSpacing(  mRenderer.getDefaultFloat("buttonSpacing",0) ,0);
       mButtonLayout.setAlignment( attribInt("buttonAlign", Layout.AlignCenter) );
@@ -70,7 +70,9 @@ class Panel extends Widget
       mGridLayout.setRowStretch(1,0);
       setItemLayout( mGridLayout );
 
-      mItemGrid.setAlignment( Layout.AlignCenterY );
+      var align = attribInt("itemAlignment",  Layout.AlignTop );
+      mItemGrid.setAlignment(align);
+
       //build();
    }
 

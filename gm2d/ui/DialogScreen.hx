@@ -32,7 +32,7 @@ class DialogScreen extends Screen implements IDialog
          addChild(obj);
       //mPane.setDock(this);
 
-      setItemLayout(inPane.itemLayout.stretch());
+      setItemLayout(inPane.itemLayout);
 
 /*
       var vlayout = new VerticalLayout([0,1]);
