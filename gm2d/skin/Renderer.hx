@@ -549,8 +549,6 @@ class Renderer
       {
          if (layout.name==null)
             layout.name = ioWidget.name;
-         if (minSize!=null)
-            layout.setMinSize( minSize.x, minSize.y );
          var lineWidth = isRectRender() ? Std.int(getLineWidth(lineStyle)) : 0;
 
          if (margin!=null)
@@ -562,6 +560,9 @@ class Renderer
          {
             layout.setBorders(lineWidth, lineWidth, lineWidth, lineWidth);
          }
+
+         if (minSize!=null)
+            layout.setMinSize( minSize.x, minSize.y );
 
          if (align!=null)
             layout.setAlignment(align);

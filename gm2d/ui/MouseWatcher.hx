@@ -65,7 +65,7 @@ class MouseWatcher
          isDown = true;
          mEventStage = inWatch.stage;
          mEventStage.addEventListener(MouseEvent.MOUSE_MOVE, onStageDrag);
-         mEventStage.addEventListener(MouseEvent.MOUSE_UP, onStageUp);
+         mEventStage.addEventListener(MouseEvent.MOUSE_UP, onStageUp, true);
       }
    }
 

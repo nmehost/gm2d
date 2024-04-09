@@ -42,7 +42,7 @@ class RGBBox extends Widget
       textField.defaultTextFormat = fmt;
       addChild(textField);
 
-      var textLayout = new TextLayout(textField).setAlignment(Layout.AlignCenterY|Layout.AlignStretch);
+      var textLayout = new AutoTextLayout(textField).setAlignment(Layout.AlignCenterY|Layout.AlignCenterX);
       textLayout.setMinSize( textField.textWidth, textField.textHeight*1.2 );
       setItemLayout(textLayout);
 

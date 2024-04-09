@@ -70,6 +70,12 @@ class ColourSlider extends Widget
       layout.setBorders(2,2,2,2);
       setItemLayout(layout);
       getLayout().setAlignment(inVertical ? Layout.AlignCenterX : Layout.AlignCenterY);
+      var b = skin.scale(10);
+      if (mVertical)
+         getLayout().setBorders(0,b,0,b);
+      else
+         getLayout().setBorders(b,0,b,0);
+      if (mVertical)
       updateMarker();
       //build();
    }
@@ -652,7 +658,7 @@ class ColourControl extends Widget
       all.add(alphaSlider.getLayout().setBorders(0,0,6,0));
 
       all.setSpacing(10,10);
-      all.setColStretch(0,0);
+      all.setColStretch(0,1);
       all.setColStretch(1,0);
       all.setColStretch(2,1);
       all.setRowStretch(0,0);
@@ -753,8 +759,10 @@ class ColourControl extends Widget
       var delta = inMax<= 100 ? 0.01 : 1;
       var result = new NumericInput(inMax*0.5,
          function(f,phase)  if (updateLockout==0) setComponent(inMode,f,phase),
-         { isInteger:inMax>100,  maxValue:inMax, step:delta } );
-      result.setTextWidth(50);
+         { isInteger:inMax>100,  maxValue:inMax, minValue:0, step:delta } );
+      var lay = result.getLayout();
+      var w = lay.getBestWidth();
+      lay.setMinWidth( Std.int(w/2) ).setBestWidth(w).stretch();
       result.addEventListener( MouseEvent.MOUSE_DOWN, function(_) setInputMode(inMode) );
       return result;
    }
@@ -771,13 +779,14 @@ class ColourControl extends Widget
       var panel = new Panel("Values");
       addChild(panel);
       panel.addLabelObj("R",redIn   = makeInput( RGBHSV.RED ) );
+      redIn.getLayout().name="R";
       panel.addLabelObj("G",greenIn = makeInput( RGBHSV.GREEN) );
       panel.addLabelObj("B",blueIn   = makeInput( RGBHSV.BLUE) );
 
       panel.addLabelObj("H",hueIn         = makeInput( RGBHSV.HUE,359) );
       panel.addLabelObj("S",saturationIn  = makeInput( RGBHSV.SATURATION,1 ) );
       panel.addLabelObj("V",valueIn       = makeInput( RGBHSV.VALUE ) );
-      return panel.getLayout();
+      return panel.getLayout().stretch();
    }
 
    public function applyColour(inCol:RGBHSV)

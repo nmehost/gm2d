@@ -77,6 +77,7 @@ class Pane implements IDockable
             scroll.shouldBeginScroll = (e) -> return e.target == scroll.mChrome;
          }
       }
+      itemLayout.name = "PANE:" + title + " layout";
    }
 
    public function setTitle(inTitle:String, ?inShortTitle:String)
@@ -258,12 +259,15 @@ class Pane implements IDockable
    public function getMinSize():Size
    {
       //return new Size(minSizeX,minSizeY);
+      //trace(' $title $itemLayout ' + itemLayout.getMinSize());
       return itemLayout.getMinSize();
    }
    public function getLayoutSize(w:Float,h:Float,inLimitX:Bool):Size
    {
       var min = getMinSize();
-      return new Size(w<min.x ? min.x : w,h<min.y ? min.y : h);
+      var result = new Size(w<min.x ? min.x : w,h<min.y ? min.y : h);
+      //trace(' getLayoutSize $title -> $w,$h,$inLimitX  $min, $result' );
+      return result;
    }
 
    public function isLocked():Bool { return false; }

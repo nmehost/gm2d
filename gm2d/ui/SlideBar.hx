@@ -162,13 +162,11 @@ class SlideBar extends Sprite implements IDock
 
    function onUp(_)
    {
-      #if (nme_api_level>=611)
       if (dragStage!=null)
       {
          dragStage.captureMouse = false;
          dragStage = null;
       }
-      #end
 
       if (mouseWatcher!=null && !mouseWatcher.wasDragged)
       {
@@ -358,7 +356,8 @@ class SlideBar extends Sprite implements IDock
             clipped = true;
             size.x = w;
          }
-         current.getLayout().setRect(0,0,size.x,size.y);
+         var childLayout = current.getLayout();
+         childLayout.setRect(0,0,size.x,size.y);
       }
 
 

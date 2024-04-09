@@ -146,7 +146,7 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
        var x = mNextX;
        for(w in extraWidgets)
        {
-          var tw = w.getLayout().getBestWidth(mHeight);
+          var tw = w.getLayout().getBestWidth();
           w.align( x, 0, tw, mHeight);
           x+= tw+2;
        }

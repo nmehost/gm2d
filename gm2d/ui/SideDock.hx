@@ -66,7 +66,7 @@ class FramedDockable
       if (layoutSize==null)
       {
          if (variableWidth)
-            layoutSize = Std.int(getLayout().getBestWidth(h));
+            layoutSize = Std.int(getLayout().getBestWidth());
          else
             layoutSize = Std.int(getLayout().getBestHeight(w));
       }
@@ -75,7 +75,7 @@ class FramedDockable
    public function getBestSize(?w:Null<Float>,?h:Null<Float>,variableWidth:Bool):Int
    {
       if (variableWidth)
-         return Std.int(getLayout().getBestWidth(h));
+         return Std.int(getLayout().getBestWidth());
       else
          return Std.int(getLayout().getBestHeight(w));
    }
@@ -169,7 +169,7 @@ class SideDock extends Layout implements IDock implements IDockable
       return size;
    }
 
-   override public function getBestWidth(?inHeight:Null<Float>) : Float
+   override public function getBestWidth() : Float
    {
       return getBestSize().x;
    }

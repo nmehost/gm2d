@@ -153,8 +153,10 @@ class TopLevelDock implements IDock
    public function setRect(x:Float,y:Float,w:Float,h:Float):Void
    {
       size = new Rectangle(x,y,w,h);
+      var r = Layout.sBeginCache();
       if (root!=null)
          root.getLayout().setRect(x,y,w,h);
+      Layout.sEndCache(r);
    }
 
    function forceLayout()
