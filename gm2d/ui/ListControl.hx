@@ -120,6 +120,9 @@ class ListControl extends ScrollWidget
       var internalLayout = new Layout().setMinSize(mMinWidth,mOrigItemHeight).stretch();
       internalLayout.onLayout = layoutList;
       setItemLayout(internalLayout);
+      var layout = getLayout();
+      layout.setMinWidth(mMinWidth);
+      layout.setMinHeight(mOrigItemHeight);
       setScrollRange(mWidth,mWidth,mOrigItemHeight,mOrigItemHeight);
       applyStyles();
    }
