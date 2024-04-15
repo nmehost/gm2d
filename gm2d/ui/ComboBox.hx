@@ -109,7 +109,6 @@ class ComboBox extends TextInput
    var mButtonX:Float;
    var mOptions:Array<String>;
    var mDisplay:Array<Dynamic>;
-   static var mBMP:BitmapData;
    var onText:String->Void;
    var onItem:Int->Void;
    public var index(default,null):Int;
@@ -128,8 +127,6 @@ class ComboBox extends TextInput
        onText = inOnSelectString;
 
        super(inVal, inOnSelectString, inOnTextPhase, Widget.addLine(inLineage,"ComboBox"), inAttribs);
-
-       mBMP = getBitmap();
 
        listOnly = attribBool("listOnly",false);
        selectOnMove = attribBool("selectOnMove",true);
@@ -186,7 +183,7 @@ class ComboBox extends TextInput
 
    override public function createExtraWidgetLayout() : Layout
    {
-      var bitmap = new Bitmap(mBMP);
+      var bitmap = new Bitmap( getBitmap() );
       addChild(bitmap);
       return new DisplayLayout(bitmap);
    }
