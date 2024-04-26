@@ -886,6 +886,7 @@ class TextLayout extends DisplayLayout
          textF.autoSize = TextFieldAutoSize.LEFT;
          textF.width=inWidth - mBLeft - mBRight;
          var h = textF.height + mBTop + mBBottom;
+         textF.autoSize = TextFieldAutoSize.NONE;
          //trace(textF.text + "@" + inWidth + " -> " + textF.autoSize + " " + h + "/" + minHeight);
          if (minHeight>h)
             return minHeight;
@@ -913,6 +914,7 @@ class AutoTextLayout extends TextLayout
       inObj.autoSize = TextFieldAutoSize.LEFT;
       //trace(" " + inObj.text + " autos " + inObj.autoSize);
       super(inObj,inAlign,inPrefWidth,inPrefHeight);
+      inObj.autoSize = TextFieldAutoSize.NONE;
    }
 }
 

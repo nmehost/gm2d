@@ -57,7 +57,9 @@ class TextLabel extends Widget
 
        var extra = createExtraWidgetLayout();
        if (extra==null)
+       {
           setItemLayout( mTextLayout );
+       }
        else
        {
           var grid = new GridLayout(2,"grid");

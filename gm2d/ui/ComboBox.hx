@@ -32,7 +32,7 @@ class ComboList extends Window
          processMouse(e,true);
          gm2d.Game.closePopup();
       }
-      setItemLayout(mList.getLayout().setMinWidth(inW).stretch());
+      setItemLayout(mList.getLayout().setMinWidth(inW).setAlignment(Layout.AlignStretch| Layout.AlignCenterY ) );
       //build();
    }
 
@@ -185,7 +185,7 @@ class ComboBox extends TextInput
    {
       var bitmap = new Bitmap( getBitmap() );
       addChild(bitmap);
-      return new DisplayLayout(bitmap);
+      return new DisplayLayout(bitmap).setAlignment( Layout.AlignCenter );
    }
 
    public function setOptions(inOptions:Array<String>,?inDisplay:Array<Dynamic>)

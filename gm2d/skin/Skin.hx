@@ -470,7 +470,7 @@ class Skin
         "ProgressBar" => {
            align: Layout.AlignStretch,
            minItemSize: new Size(scale(100),scale(20)),
-           progressStyle: ProgressRoundRect(0x000000, guiHighlight, guiLight, scale(2), scale(6) ),
+           progressStyle: ProgressRoundRect(0x000000, guiHighlight, guiLight, scale(1), scale(6) ),
            },
         "Stretch" => {
            align: Layout.AlignStretch,
