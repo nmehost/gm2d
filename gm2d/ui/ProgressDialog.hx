@@ -112,7 +112,7 @@ class ProgressDialog extends Dialog
          var frac = inValue/maxVal;
          if (frac>0)
          {
-            var estTime = dt/frac;
+            var estTime = dt/frac - dt;
             timeText.setText( formatTime(dt) + " : " + formatTime(estTime) );
          }
       }
