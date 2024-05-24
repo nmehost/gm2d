@@ -276,16 +276,36 @@ class ScrollWidget extends Widget //Control
       var y = child.y;
       var w = child.width;
       var h = child.height;
+      var x1 = x + w;
+      var y1 = y + h;
 
-      if (targetX>x)
+      if (w>=windowWidth)
+      {
+         if (targetX>x1)
+            targetX = x1-windowWidth;
+         else if (targetX+windowWidth < x)
+            targetX = x;
+      }
+      else if (targetX>x)
          targetX = x;
-      else if ( x+w > targetX+windowWidth )
-         targetX = x+w-windowWidth;
+      else if ( x1 > targetX+windowWidth )
+         targetX = x1-windowWidth;
 
-      if (targetY>y)
+      if (h>=windowHeight)
+      {
+         if (targetY>y1)
+            targetY = y1-windowHeight;
+         else if (targetY+windowHeight < y)
+            targetY = y;
+      }
+      else if (targetY>y)
+      {
          targetY = y;
-      else if ( y+h > targetY+windowHeight )
+      }
+      else if ( y1 > targetY+windowHeight )
+      {
          targetY = y+h-windowHeight;
+      }
 
       scrollTo(targetX, targetY, 0.5);
    }
