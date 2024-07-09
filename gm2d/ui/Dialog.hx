@@ -32,7 +32,7 @@ class Dialog extends Window implements IDialog
       var vlayout = new VerticalLayout([0,1]);
       vlayout.name = "Dialog VLayout";
 
-      var title = new TextLabel(inPane.title, ["DialogTitle"]);
+      var title = new TextLabel(skin, inPane.title, ["DialogTitle"], inAttribs!=null ? inAttribs.titleStyle : null );
       name = "Dialog(" + inPane.title + ")";
 
       addChild(title);
@@ -45,9 +45,11 @@ class Dialog extends Window implements IDialog
 
       build();
 
-      title.addEventListener(nme.events.MouseEvent.MOUSE_DOWN, doDrag);
-      mChrome.addEventListener(nme.events.MouseEvent.MOUSE_DOWN, doDrag);
-
+      if (attribBool("draggable",true))
+      {
+         title.addEventListener(nme.events.MouseEvent.MOUSE_DOWN, doDrag);
+         mChrome.addEventListener(nme.events.MouseEvent.MOUSE_DOWN, doDrag);
+      }
       //if (gm2d.Lib.isOpenGL)
       //   cacheAsBitmap = true;
    }
