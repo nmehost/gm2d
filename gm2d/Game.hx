@@ -147,6 +147,9 @@ class Game
       parent.stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
       parent.stage.addEventListener(MouseEvent.CLICK, onMouseClick);
 
+      parent.stage.addEventListener(Event.ACTIVATE, (_)-> onStageActivate(true) );
+      parent.stage.addEventListener(Event.DEACTIVATE, (_)-> onStageActivate(false) );
+
       setStageTransform();
    }
 
@@ -262,6 +265,12 @@ class Game
          var pos = window.globalToLocal( new Point(inEvent.stageX, inEvent.stageY) );
          window.onMouseMove(pos.x,pos.y);
       }
+   }
+
+   public static function onStageActivate(inActive:Bool)
+   {
+      if (mCurrentScreen!=null)
+         mCurrentScreen.onStageActivate(inActive);
    }
 
    public static function filterMouseEvent(inEvent:MouseEvent,inCloseIfNeeded:Bool)

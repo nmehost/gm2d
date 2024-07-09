@@ -123,6 +123,10 @@ class Screen extends gm2d.ui.Window
 
    function isDown(inCode:Int) { return Game.isDown(inCode); }
 
+   public function onStageActivate(inActive:Bool)
+   {
+   }
+
    override public function setItemLayout(inLayout:Layout)
    {
       var layout = super.setItemLayout(inLayout);
