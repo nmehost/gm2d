@@ -553,6 +553,7 @@ class Skin
            shape: ShapeNone,
            overlapped: true,
            },
+
         "MenuRadiobox" => {
            filters:null,
            line: LineNone,
@@ -584,12 +585,16 @@ class Skin
            padding: 0,
            },
 
+        "PopupMenuItemBase" => {
+           padding: scale(3),
+        },
+
+        // The text part
         "PopupMenuItem" => {
            //shape: ShapeRect,
            //fill: FillLight,
            filters: null,
            textAlign: "left",
-           padding: scale(3),
            align: Layout.AlignStretch | Layout.AlignCenterY,
            stateCurrent:{
               textColor: 0xffffff,
@@ -599,6 +604,10 @@ class Skin
         "PopupMenuItemShortcut" => {
            textAlign: "right",
            },
+
+        "PopupMenuItemIcon" => {
+           },
+
 
         "PopupMenuSeparator" => {
            rowHeight: scale(5),
@@ -669,6 +678,8 @@ class Skin
 
       if (defaultTabRenderer==null)
          defaultTabRenderer = createTabRenderer(["Tabs", "TabRenderer"],{});
+
+      theSkin = this;
    }
 
    public function createDefaultBitmap( inButton:String, inState:Int) : BitmapData

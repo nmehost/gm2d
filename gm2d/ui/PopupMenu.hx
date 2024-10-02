@@ -58,7 +58,7 @@ class PopupMenu extends Window
             {
                var id = mButtons.length;
                mRowIdx.push(rowCount);
-               var but = new TextLabel(item.text,["PopupMenuItem"]);
+               var but = new TextLabel(item.text,["PopupMenuItem", "PopupMenuItemBase" ]);
                but.addEventListener(MouseEvent.CLICK, function(e) {
                   Game.closePopup();
                   if (item.checkable)
@@ -82,46 +82,29 @@ class PopupMenu extends Window
                if (item.checkable)
                {
                   var checkbox = new CheckButtons(item.checked, item.onSelect==null ? null :
-                        function(c) { item.checked = c; item.onSelect(item); }, [item.checkStyle] );
+                        function(c) { item.checked = c; item.onSelect(item); }, [item.checkStyle, "PopupMenuItemBase" ] );
                   checkbox.applyStyles();
-                  //mList.addChild(checkbox);
                   w0 = checkbox;
-                  //layout.add( checkbox.getLayout() );
                }
                else if (item.icon!=null)
                {
-                  var bitmap = new Bitmap(item.icon);
-                  //mList.addChild(bitmap);
+                  var bitmap = new Image(item.icon, ["PopupMenuItemIcon", "PopupMenuItemBase" ] );
                   w0 = bitmap;
-                  //layout.add( new DisplayLayout(bitmap).setPadding(4,4) );
                }
                else if (item.id!=null)
                {
                   var icon:BitmapData = skin.getIdAttrib(item.id,"icon");
                   if (icon!=null)
                   {
-                     // TODO widget instead
-                     var bitmap = new Bitmap(icon);
-                     //mList.addChild(bitmap);
-                     //layout.add( new DisplayLayout(bitmap).setPadding(4,4) );
+                     var bitmap = new Image(icon, ["PopupMenuItemIcon", "PopupMenuItemBase" ] );
                      w0 = bitmap;
                   }
-                  //else layout.add( null );
                }
-               //else layout.add( null );
 
-               //layout.add(but.getLayout());
-
-               if (item.shortcut==null)
+               if (item.shortcut!=null)
                {
-                  //layout.add(null);
-               }
-               else
-               {
-                  var text = new TextLabel(item.shortcut,["PopupMenuItemShortcut","PopupMenuItem"]);
+                  var text = new TextLabel(item.shortcut,["PopupMenuItemShortcut","PopupMenuItem", "PopupMenuItemBase" ]);
                   text.applyStyles();
-                  //mList.addChild(text);
-                  //layout.add(text.getLayout());
                   w2 = text;
                }
                mList.addRow([w0,w1,w2],height);
