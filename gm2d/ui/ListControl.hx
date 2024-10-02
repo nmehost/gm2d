@@ -16,17 +16,19 @@ import gm2d.ui.IListDrag;
 
 class ListControlRow
 {
-   public function new(inObjs:Array<DisplayObject>,inHeight:Float,inUserData:Dynamic,inIndent:Float)
+   public function new(inObjs:Array<DisplayObject>,inHeight:Float,inUserData:Dynamic,inIndent:Float, inSpan:Bool)
    {
       objs = inObjs;
       height = inHeight;
       userData = inUserData;
       indent = inIndent;
+      span = inSpan;
    }
    public var objs:Array<DisplayObject>;
    public var height:Float;
    public var indent:Float;
    public var userData:Dynamic;
+   public var span:Bool;
 }
 
 class ListControl extends ScrollWidget
@@ -458,21 +460,26 @@ class ListControl extends ScrollWidget
    }
 
    public function addRow(inRow:Array<Dynamic>,?inHeight:Null<Float>,
-                          ?inUserData:Dynamic,inIndent:Float=0.0)
+                          ?inUserData:Dynamic,inIndent:Float=0.0,
+                          inSpanRow=false)
    {
       var row = new Array<DisplayObject>();
       var rowHeight = 0.0;
       var needRecalcPos = false;
+      var span = inRow.length==1 && inSpanRow;
       for(i in 0...inRow.length)
       {
-         if (i==mColAlign.length)
-            mColAlign.push(Layout.AlignCenterY | Layout.AlignLeft);
-         if (mBestColWidths.length<=i)
+         if (!span)
          {
-            if (mMinColWidths.length<=i)
-               mMinColWidths[i] = 0;
-            mColWidths.push(mMinColWidths[i]);
-            mBestColWidths.push(mMinColWidths[i]);
+            if (i==mColAlign.length)
+               mColAlign.push(Layout.AlignCenterY | Layout.AlignLeft);
+            if (mBestColWidths.length<=i)
+            {
+               if (mMinColWidths.length<=i)
+                  mMinColWidths[i] = 0;
+               mColWidths.push(mMinColWidths[i]);
+               mBestColWidths.push(mMinColWidths[i]);
+            }
          }
          var item:Dynamic = inRow[i];
          if (item!=null)
@@ -501,7 +508,7 @@ class ListControl extends ScrollWidget
                w = size.x;
                h = size.y;
             }
-            if (i==0)
+            if (i==0 && !span)
                w += inIndent;
 
             h = Std.int(h+0.99);
@@ -511,7 +518,7 @@ class ListControl extends ScrollWidget
             if (h>rowHeight)
                rowHeight = h;
 
-            if (w>mBestColWidths[i])
+            if (!span && w>mBestColWidths[i])
             {
                mBestColWidths[i] = w;
                needRecalcPos = true;
@@ -545,7 +552,7 @@ class ListControl extends ScrollWidget
            rowHeight = mItemHeight;
       }
 
-      mRows.push( new ListControlRow(row,rowHeight,inUserData,inIndent) );
+      mRows.push( new ListControlRow(row,rowHeight,inUserData,inIndent,span) );
       if (mHoldUpdates==0)
       {
          if (needRecalcPos)
@@ -856,51 +863,72 @@ class ListControl extends ScrollWidget
       for(row_idx in mChildrenClean...mRows.length)
       {
          var row = mRows[row_idx];
-         var indent = row.indent;
-         for(i in 0...row.objs.length)
+         if (row.span)
          {
-            var item = row.objs[i];
+            var item = row.objs[0];
             if (item!=null)
             {
-               var w = item.width;
-               var h = item.height;
-               var x = mColPos[i] + indent;
-
                if (Std.isOfType(item,Widget))
                {
                   var widget:Widget = cast item;
                   widget.align(x, mRowPos[row_idx],
-                               mColWidths[i]-indent, mRows[row_idx].height );
+                               mWidth, mRows[row_idx].height );
                }
                else
                {
-                  switch(mColAlign[i] & Layout.AlignMaskX)
-                  {
-                     case Layout.AlignRight:
-                         item.x = mColPos[i] + (mColWidths[i]-w-indent) + indent;
-
-                     case Layout.AlignCenterX:
-                         item.x = mColPos[i] + (mColWidths[i]-w-indent)*0.5 + indent;
-
-                     default:
-                         item.x = x;
-                  }
-    
-
-                  switch(mColAlign[i] & Layout.AlignMaskY)
-                  {
-                     case Layout.AlignTop:
-                         item.y = mRowPos[row_idx];
-
-                     case Layout.AlignBottom:
-                         item.y = mRowPos[row_idx+1] - h;
-
-                     default:
-                         item.y = mRowPos[row_idx] + (mRows[row_idx].height-h)*0.5;
-                  }
+                  item.x = 0;
+                  item.y = mRowPos[row_idx];
                }
             }
-            indent = 0;
+         }
+         else
+         {
+            var indent = row.indent;
+            for(i in 0...row.objs.length)
+            {
+               var item = row.objs[i];
+               if (item!=null)
+               {
+                  var w = item.width;
+                  var h = item.height;
+                  var x = mColPos[i] + indent;
+
+                  if (Std.isOfType(item,Widget))
+                  {
+                     var widget:Widget = cast item;
+                     widget.align(x, mRowPos[row_idx],
+                                  mColWidths[i]-indent, mRows[row_idx].height );
+                  }
+                  else
+                  {
+                     switch(mColAlign[i] & Layout.AlignMaskX)
+                     {
+                        case Layout.AlignRight:
+                            item.x = mColPos[i] + (mColWidths[i]-w-indent) + indent;
+
+                        case Layout.AlignCenterX:
+                            item.x = mColPos[i] + (mColWidths[i]-w-indent)*0.5 + indent;
+
+                        default:
+                            item.x = x;
+                     }
+       
+
+                     switch(mColAlign[i] & Layout.AlignMaskY)
+                     {
+                        case Layout.AlignTop:
+                            item.y = mRowPos[row_idx];
+
+                        case Layout.AlignBottom:
+                            item.y = mRowPos[row_idx+1] - h;
+
+                        default:
+                            item.y = mRowPos[row_idx] + (mRows[row_idx].height-h)*0.5;
+                     }
+                  }
+               }
+               indent = 0;
+            }
          }
       }
       mChildrenClean = mRows.length;

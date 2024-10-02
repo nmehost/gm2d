@@ -17,5 +17,6 @@ enum Shape
    ShapeScale9(bmp:BitmapData, inner:Rectangle, edgeScale:Float);
    ShapeShadowRect(depth:Float,flags:Int);
    ShapeCustom( renderer:Widget->Void );
+   ShapeItemRect;
 }
 

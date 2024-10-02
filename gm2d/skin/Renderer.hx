@@ -35,6 +35,8 @@ class Renderer
    public var offset:Point;
    public var minSize:Size;
    public var minItemSize:Size;
+   public var bestWidth:Null<Float>;
+   public var bestHeight:Null<Float>;
    public var align:Null<Int>;
    public var itemAlign:Null<Int>;
    public var padding:Rectangle;
@@ -109,6 +111,10 @@ class Renderer
              bitmapStyle = map.get("bitmap");
          if (map.exists("filters"))
              filters = map.get("filters");
+         if (map.exists("bestWidth"))
+             bestWidth = map.get("bestWidth");
+         if (map.exists("bestHeight"))
+             bestHeight = map.get("bestHeight");
 
          if (fillStyle!=null)
          {
@@ -341,7 +347,7 @@ class Renderer
          return;
 
       var gfx = inWidget.mChrome.graphics;
-      var r = inWidget.mRect;
+      var r = shape==ShapeItemRect ? inWidget.getItemRect() : inWidget.mRect;
       renderRect(inWidget,gfx,r);
    }
 
@@ -425,7 +431,7 @@ class Renderer
       switch(shape)
       {
          case ShapeNone:
-         case ShapeRect:
+         case ShapeRect, ShapeItemRect:
             lineOffset = setLine(skin, gfx,lineStyle,true);
             filled = setFill(skin, gfx,fillStyle,widget);
             if (lineOffset>0 || filled)
@@ -564,6 +570,12 @@ class Renderer
          if (minSize!=null)
             layout.setMinSize( minSize.x, minSize.y );
 
+         if (bestWidth!=null)
+            layout.setBestWidth(bestWidth);
+
+         if (bestHeight!=null)
+            layout.setBestHeight(bestHeight);
+
          if (align!=null)
             layout.setAlignment(align);
       }
@@ -582,6 +594,7 @@ class Renderer
 
          if (minItemSize!=null)
             layout.setMinSize( minItemSize.x, minItemSize.y );
+
 
          if (itemAlign!=null)
             layout.setAlignment(itemAlign);

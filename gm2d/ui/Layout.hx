@@ -387,8 +387,7 @@ class Layout
       var inH = h;
 
       var min = child.getMinSize();
-      //if (debug)
-      //   Sys.println('  $name : alignChild $x,$y ${w}x$h / $min');
+      //if (debug) Sys.println('  $name : alignChild $x,$y ${w}x$h / $min');
       if (w<min.x)
          w = min.x;
       if (h<min.y)

@@ -26,6 +26,8 @@ class PopupMenu extends Window
       mRowIdx = [];
 
       mList = new ListControl(["PopupMenuList"]);
+      //mList.setColAlign(2, Layout.AlignCenterY | Layout.AlignRight );
+
       addChild(mList);
 
       mButtons = [];
@@ -47,11 +49,10 @@ class PopupMenu extends Window
             var w2:Dynamic = null;
             if (item==null)
             {
-               w1 = Widget.createHLine(this, null, { margin:2 } );
-               height = 5;
-               //layout.add( null );
-               //layout.add( Widget.createHLine(this, null, { margin:2 } ).getLayout() );
-               //layout.add( null );
+               var widget = Widget.createHLine(this, ["PopupMenuSeparator"] );
+               height = widget.attribFloat("rowHeight");
+               w1 = widget;
+               mList.addRow([w1],height,null,0,true);
             }
             else
             {
@@ -117,14 +118,14 @@ class PopupMenu extends Window
                }
                else
                {
-                  var text = new TextLabel(item.shortcut,["Shortcut","PopupMenuItem"]);
+                  var text = new TextLabel(item.shortcut,["PopupMenuItemShortcut","PopupMenuItem"]);
                   text.applyStyles();
                   //mList.addChild(text);
                   //layout.add(text.getLayout());
                   w2 = text;
                }
+               mList.addRow([w0,w1,w2],height);
             }
-            mList.addRow([w0,w1,w2],height);
             rowCount++;
          }
       }

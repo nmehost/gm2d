@@ -504,6 +504,15 @@ class Widget extends Sprite
    public function wantsFocus() { return wantFocus; }
 
    public function getItemLayout() : Layout { return mItemLayout; }
+
+   public function getItemRect() : Rectangle
+   {
+      var l = getItemLayout().getRect();
+      if (l==null)
+         return mRect;
+      return l;
+
+   }
  
    public function onChromeMouse(inId:String,inEvent:MouseEvent) : Bool
    {

@@ -463,7 +463,7 @@ class Skin
         "Line" => {
            fill: FillDark,
            line: LineNone,
-           shape: ShapeRect,
+           shape: ShapeItemRect,
            minItemSize: new Size(1,1),
            align: Layout.AlignStretch,
            },
@@ -594,6 +594,16 @@ class Skin
            stateCurrent:{
               textColor: 0xffffff,
               }
+           },
+
+        "PopupMenuItemShortcut" => {
+           textAlign: "right",
+           },
+
+        "PopupMenuSeparator" => {
+           rowHeight: scale(5),
+           align:Layout.AlignStretch | Layout.AlignCenterY,
+           fill: FillDark,
            },
 
         "PopupMenuList" => {
