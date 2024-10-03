@@ -104,7 +104,7 @@ class Skin
    public var centerTitle = true;
    public var buttonBorderX = 10;
    public var buttonBorderY = 2;
-   public var mdiBGColor = 0x404040;
+   public var mdiBGColor:Null<Int> = 0x404040;
    public var labelColor = 0x000000;
    public var disableColor = 0x808080;
    public var resizeBarColor = 0x00ff00;
