@@ -14,6 +14,7 @@ import nme.text.TextFieldAutoSize;
 import gm2d.skin.Skin;
 import gm2d.ui.IDock;
 import gm2d.ui.DockPosition;
+import gm2d.ui.Layout;
 
 #if (waxe && !nme_menu)
 import wx.Menu;
@@ -53,8 +54,11 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
       mCurrentItem = -1;
       mNormalParent = null;
       extraWidgets = [];
+      var layout = new HorizontalLayout();
+      setItemLayout(layout);
       applyStyles();
    }
+
 
    public function add(inItem:MenuItem)
    {
@@ -70,6 +74,9 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
       but.x = mNextX;
       mNextX += but.width + 10;
       addChild(but);
+
+      var layout = getItemLayout();
+      layout.add( but.getLayout() );
    }
 
    override public function onKeyDown(event:KeyboardEvent ) : Bool
@@ -125,38 +132,48 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
 
    public function layout(inWidth:Float) : Float
    {
-      var size = mLayout.getBestSize();
+      var layout = getLayout();
+      var size = layout.getBestSize();
       mHeight = size.y;
+      mWidth = inWidth;
       for(w in extraWidgets)
       {
          var th = w.getLayout().getBestHeight();
          if (th>mHeight)
              mHeight = th;
       }
-      mWidth = inWidth;
-      mLayout.setRect(0,0,mWidth,mHeight);
 
+      var w = layout.getBestWidth();
+
+      layout.setRect(0,0,mWidth,mHeight);
+
+      /*
        //Skin.renderMenubar(this,mWidth,mHeight);
        for(but in mButtons)
        {
           var butHeight = but.getLayout().getBestHeight();
           but.y = Std.int( (mHeight-butHeight)/2 );
        }
+      */
 
-       var x = mNextX;
+       var x = w;
        for(w in extraWidgets)
        {
           var tw = w.getLayout().getBestWidth();
           w.align( x, 0, tw, mHeight);
           x+= tw+2;
        }
+
        return mHeight;
    }
 
+   
    public function setWidgets(inWidgets:Array<Widget>)
    {
       for(w in extraWidgets)
+      {
          removeChild(w);
+      }
 
       extraWidgets = [];
 

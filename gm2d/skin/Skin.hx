@@ -67,6 +67,7 @@ class Skin
 
    // Other Buttons
    public static inline var Checkbox   = "#checkbox";
+   public static inline var CheckboxSmall   = "#checkbox-small";
    public static inline var Radiobox   = "#radiobox";
    public static inline var ComboPopup = "#combopopup";
 
@@ -394,7 +395,7 @@ class Skin
            itemAlign: Layout.AlignLeft,
            padding: null,
            toggle: true,
-           bitmapId:"#checkbox",
+           bitmapId:"#checkbox-small",
            bitmap: BitmapFactory(createDefaultBitmap),
            },
         "DockItem" => {

@@ -25,7 +25,11 @@ class DefaultBitmaps
          sizeY = skin.scale(24);
          sizeX = skin.scale(48);
       }
-
+      else if (inButton==Skin.CheckboxSmall)
+      {
+         sizeY = skin.scale(16);
+         sizeX = skin.scale(26);
+      }
       else if (inButton==Skin.Radiobox)
       {
          sizeY = skin.scale(24);
@@ -186,6 +190,31 @@ class DefaultBitmaps
                gfx.moveTo(s32+o,s16+o);
                gfx.lineTo(s40+o,s8+o);
             }
+         }
+      }
+      else if (inButton==Skin.CheckboxSmall)
+      {
+         effects = false;
+         var r = (sizeY-1)*0.5;
+
+         if (down)
+         {
+            gfx.lineStyle(1,skin.guiLight);
+            gfx.beginFill(skin.guiHighlight);
+            gfx.drawRoundRect(0,0,sizeX-1,sizeY-1,r*2,r*2);
+            gfx.lineStyle();
+            gfx.beginFill(skin.guiLight);
+            gfx.drawCircle( sizeX-1-r, r,  r*0.75 );
+         }
+         else
+         {
+            gfx.lineStyle(1,skin.guiDark);
+            gfx.beginFill(skin.guiMedium);
+            gfx.drawRoundRect(0,0,sizeX-1,sizeY-1,r*2,r*2);
+            gfx.lineStyle();
+            gfx.beginFill(skin.guiDark);
+            gfx.drawCircle( r, r,  r*0.6 );
+            gfx.endFill();
          }
       }
       else if (inButton==Skin.Radiobox)
