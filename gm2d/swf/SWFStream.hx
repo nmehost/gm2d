@@ -38,7 +38,10 @@ class SWFStream
          throw "Invalid signature";
 
       if (ver>13)
-         throw("unknown swf version " + ver);
+      {
+         trace("unknown swf version " + ver + " > 13, trying anyhow");
+         //throw("unknown swf version " + ver);
+      }
 
       mVersion = ver;
 

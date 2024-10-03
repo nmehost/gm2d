@@ -64,8 +64,11 @@ class Font
             offsets.push( wide_offsets ? inStream.ReadInt() :
                                          inStream.ReadUI16() );
          }
-         code_offset = wide_offsets ? inStream.ReadInt() : inStream.ReadUI16();
-         code_offset = s0-code_offset;
+         if (n>0)
+         {
+            code_offset = wide_offsets ? inStream.ReadInt() : inStream.ReadUI16();
+            code_offset = s0-code_offset;
+         }
       }
       else
       {
@@ -192,7 +195,7 @@ class Font
          inStream.AlignBits();
 
          if (inStream.BytesLeft() != code_offset)
-            throw("Code offset miscaculation");
+            throw("Code offset miscaculation, bytesLeft=" + inStream.BytesLeft() + " code_offset=" + code_offset);
 
          mCodeToGlyph = new Glyphs();
 
