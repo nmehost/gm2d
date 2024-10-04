@@ -178,12 +178,15 @@ class Skin
          var s = scale(3);
          shadowFilters = [ new DropShadowFilter(s,45,0,0.5,s,s,3) ];
       }
+
+      /*
       if (currentFilters==null)
       {
          var s = scale(3);
          var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, s, s, 2, 1, false, false);
          currentFilters = [ glow ];
       }
+      */
 
 
       initGfx();
@@ -219,6 +222,7 @@ class Skin
            offset: new Point(scale(1),scale(1)),
            },
         "SimpleButton" => {
+           parent:"Control",
            offset: new Point(0,0),
            line: LineNone,
            fill: FillNone,
@@ -229,6 +233,9 @@ class Skin
            parent:"Button",
            offset: new Point(0,0),
            },
+        "ButtonText" => {
+           textAlign: "center",
+        },
         "BMPTextButton" => {
            parent:"Button",
            shape: ShapeRoundRect,
@@ -244,17 +251,7 @@ class Skin
            wantsFocus: true,
            filters: null,
            },
-        "SipleButton" => {
-           parent:"Control",
-           offset: new Point(0,0),
-           line: LineNone,
-           fill: FillNone,
-           shape: ShapeRect,
-           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
-           stateDown: {
-              line: LineBorder,
-              },
-           },
+
         "DialogButton" => {
            parent:"Button",
            offset: new Point(0,0),
@@ -370,6 +367,9 @@ class Skin
            minItemSize : new Size(scale(100),1),
            line: LineTrim,
            fill: FillSolid(0xffffff,1),
+           stateCurrent: {
+              line: LineHighlight,
+              },
            },
         "Dock" => {
            shape: ShapeRect,
@@ -393,9 +393,12 @@ class Skin
            shape: ShapeNone,
            offset: new Point(0,0),
            itemAlign: Layout.AlignLeft,
-           padding: null,
+           padding: 1,
            toggle: true,
            bitmapId:"#checkbox-small",
+           stateCurrent: {
+              shape: ShapeRoundRect,
+           },
            bitmap: BitmapFactory(createDefaultBitmap),
            },
         "DockItem" => {
@@ -646,6 +649,10 @@ class Skin
               shape: ShapeRect,
               line: LineBorder,
               },
+
+           stateCurrent: {
+              line: LineHighlight,
+              },
            },
 
         "WidgetDrawer" => {
@@ -848,12 +855,13 @@ class Skin
 
        mergeAttribMap(map,inAttribs);
 
-       if (inState>0)
+       for( flag in [ Widget.ALTERNATE, Widget.DOWN, Widget.SELECTED, Widget.CURRENT, Widget.DISABLED ] )
+       if ( (inState&flag) >0 )
        {
           for(line in 0...last)
-             mergeAttribMapState(map, attribSet.get(inLineage[last-1-line]), inState );
+             mergeAttribMapState(map, attribSet.get(inLineage[last-1-line]), inState & flag);
 
-          mergeAttribMapState(map, inAttribs, inState );
+          mergeAttribMapState(map, inAttribs, inState & flag);
        }
 
        var id = map.get("id");

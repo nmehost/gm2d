@@ -791,7 +791,7 @@ class TextLayout extends DisplayLayout
       }
 
       mOWidth = inPrefWidth==null ? w: inPrefWidth;
-      mOHeight = inPrefWidth==null ? h: inPrefHeight;
+      mOHeight = inPrefHeight==null ? h: inPrefHeight;
 
       mDebugCol = 0x00ff00;
    }

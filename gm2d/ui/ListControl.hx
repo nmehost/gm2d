@@ -551,6 +551,8 @@ class ListControl extends ScrollWidget
          else
            rowHeight = mItemHeight;
       }
+      else if (inHeight!=mItemHeight)
+         variableHeightRows = true;
 
       mRows.push( new ListControlRow(row,rowHeight,inUserData,inIndent,span) );
       if (mHoldUpdates==0)

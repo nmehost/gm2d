@@ -48,7 +48,9 @@ class TextLabel extends Widget
        mText.x = 0;
        mText.y = 0;
        //mText.border = true;
-       //mText.borderColor = 0x000000;
+       //mText.borderColor = 0xff0000;
+       //mText.background = true;
+       //mText.backgroundColor = 0x90ffff;
 
        //mText.autoSize = nme.text.TextFieldAutoSize.LEFT;
        //trace(inVal + ":" + mText.width + "x" + mText.height);

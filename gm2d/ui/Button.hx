@@ -53,32 +53,40 @@ class Button extends Control
       {
          var layout:Layout = null;
          addChild(mDisplayObj);
-         var objSize:Dynamic = attrib("objectSize");
-         if (objSize!=null)
+         if (Std.isOfType(mDisplayObj,Widget))
          {
-            if (Std.isOfType(objSize,Float))
-            {
-                mDisplayObj.width = mDisplayObj.height = (objSize:Float);
-            }
-            else
-            {
-               var s:Size = cast objSize;
-               if (s!=null)
-               {
-                  mDisplayObj.width = s.x;
-                  mDisplayObj.height = s.y;
-               }
-            }
-         }
-         if ( Std.isOfType(mDisplayObj,TextField))
-         {
-            var tf = cast mDisplayObj;
-            layout = new AutoTextLayout(tf);
-            name += " " +tf.text;
+            var widget:Widget = cast mDisplayObj;
+            layout = widget.getLayout();
          }
          else
          {
-            layout = new DisplayLayout(mDisplayObj);
+            var objSize:Dynamic = attrib("objectSize");
+            if (objSize!=null)
+            {
+               if (Std.isOfType(objSize,Float))
+               {
+                   mDisplayObj.width = mDisplayObj.height = (objSize:Float);
+               }
+               else
+               {
+                  var s:Size = cast objSize;
+                  if (s!=null)
+                  {
+                     mDisplayObj.width = s.x;
+                     mDisplayObj.height = s.y;
+                  }
+               }
+            }
+            if ( Std.isOfType(mDisplayObj,TextField))
+            {
+               var tf = cast mDisplayObj;
+               layout = new AutoTextLayout(tf);
+               name += " " +tf.text;
+            }
+            else
+            {
+               layout = new DisplayLayout(mDisplayObj);
+            }
          }
          layout.mDebugCol = 0x00ff00;
          layout.name = "ButtonInner";
@@ -279,14 +287,14 @@ class Button extends Control
    public static function TextButton(?inSkin:Skin, inText:String,inOnClick:Void->Void,?inLineage:Array<String>, ?inArrtibs:Dynamic)
    {
       var skin = Skin.getSkin(inSkin);
-      var lin = Widget.addLines(inLineage,["ButtonText","Button","StaticText","Text"]);
+      //var label = new TextLabel(inText, ["ButtonText","StaticText","Text"]);
       var renderer = skin.renderer(Widget.addLines(inLineage,["ButtonText","Button","StaticText","Text"]),0,inArrtibs);
       var label = new TextField();
       label.text = inText;
       renderer.renderLabel(label);
+      label.selectable = false;
       //label.border = true;
       //label.borderColor = 0x0000ff;
-      label.selectable = false;
       var result =  new Button(label,inOnClick,Widget.addLine(inLineage,"TextButton"),inArrtibs);
       return result;
    }

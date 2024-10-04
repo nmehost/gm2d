@@ -435,14 +435,14 @@ class Renderer
             lineOffset = setLine(skin, gfx,lineStyle,true);
             filled = setFill(skin, gfx,fillStyle,widget);
             if (lineOffset>0 || filled)
-               gfx.drawRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2);
+               gfx.drawRect(r.x+lineOffset, r.y+lineOffset, r.width-lineOffset*2, r.height-lineOffset*2);
 
          case ShapeRoundRect:
             lineOffset = setLine(skin, gfx,lineStyle);
             filled = setFill(skin, gfx,fillStyle,widget);
             if (lineOffset>0 || filled)
             {
-               gfx.drawRoundRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2,
+               gfx.drawRoundRect(r.x+lineOffset, r.y+lineOffset, r.width-lineOffset*2, r.height-lineOffset*2,
                    skin.roundRectRad*2,skin.roundRectRad*2);
             }
 
@@ -463,7 +463,7 @@ class Renderer
             lineOffset = setLine(skin, gfx,lineStyle);
             filled = setFill(skin, gfx,fillStyle,widget);
             if (lineOffset>0 || filled)
-               gfx.drawRoundRect(r.x-lineOffset, r.y-lineOffset, r.width+lineOffset*2, r.height+lineOffset*2, rad*2,rad*2);
+               gfx.drawRoundRect(r.x+lineOffset, r.y+lineOffset, r.width-lineOffset*2, r.height-lineOffset*2, rad*2,rad*2);
 
          case ShapeCustom( render ):
             lineOffset = setLine(skin, gfx,lineStyle);
@@ -555,16 +555,11 @@ class Renderer
       {
          if (layout.name==null)
             layout.name = ioWidget.name;
-         var lineWidth = isRectRender() ? Std.int(getLineWidth(lineStyle)) : 0;
 
          if (margin!=null)
          {
-            layout.setBorders(margin.x+lineWidth, margin.y+lineWidth,
-               margin.width-margin.x + lineWidth, margin.height-margin.y + lineWidth);
-         }
-         else if (lineWidth>0)
-         {
-            layout.setBorders(lineWidth, lineWidth, lineWidth, lineWidth);
+            layout.setBorders(margin.x, margin.y,
+               margin.width-margin.x, margin.height-margin.y);
          }
 
          if (minSize!=null)

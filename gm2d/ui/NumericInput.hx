@@ -297,7 +297,7 @@ class NumericInput extends TextInput
             val = min;
          if (val-min > range)
             val = min+range;
-         gfx.drawRect(0.5,-0.5,mText.width * (val-min) / range, mText.height + 1);
+         gfx.drawRect(1,1,(mText.width-2) * (val-min) / range, mText.height-2 );
       }
    }
 
