@@ -37,7 +37,7 @@ class Panel extends Widget
       mTitle = inTitle;
 
       mGridLayout = new GridLayout(1,"vertical");
-      mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",0) );
+      //mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",0) );
       mGridLayout.stretch();
       mGridLayout.name = "Panel Grid " + inTitle;
       var itemCols = attribInt("panelCols", 2);

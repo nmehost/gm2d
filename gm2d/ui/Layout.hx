@@ -1713,6 +1713,7 @@ class GridLayout extends Layout
    }
 
 
+   // Grid
    public override function getBestHeight(?inWidth:Null<Float>) : Float
    {
       if (bestHeight!=null)
@@ -1729,7 +1730,7 @@ class GridLayout extends Layout
 
       var h = mBTop + mBBottom;
       if (rowHeights.length>0)
-         h+= (mRowInfo.length-1)*mSpaceY;
+         h+= (rowHeights.length-1)*mSpaceY;
       for(r in rowHeights)
          h+=r;
       if (minHeight>h)
