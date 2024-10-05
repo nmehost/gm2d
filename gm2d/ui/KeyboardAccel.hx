@@ -78,7 +78,8 @@ class KeyboardAccel
 
    public function matches(key:KeyboardEvent) : Bool
    {
-      var match =  Std.int(key.keyCode)==code && shift==key.shiftKey && alt==key.altKey && ctrl==key.ctrlKey;
+      var match =  (Std.int(key.keyCode)==code || (code==Keyboard.DELETE && key.keyCode==8) )
+                      && shift==key.shiftKey && alt==key.altKey && ctrl==key.ctrlKey;
       return match;
       // return Std.int(key.keyCode)==code && shift==key.shiftKey && alt==key.altKey && ctrl==key.ctrlKey;
    }

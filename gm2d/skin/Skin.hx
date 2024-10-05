@@ -975,7 +975,6 @@ class Skin
 
    public function styleLabel(label:TextField)
    {
-      init();
       label.defaultTextFormat = textFormat;
       label.textColor = labelColor;
       if (label.type != nme.text.TextFieldType.INPUT)
