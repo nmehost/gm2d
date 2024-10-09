@@ -48,7 +48,7 @@ class Window extends Widget
 
    function currentFromMouse(inEvent:MouseEvent)
    {
-      checkCurrentMode(false);
+      //checkCurrentMode(false);
       var target:nme.display.DisplayObject = inEvent.target;
       while(target!=null && target!=this)
       {
@@ -86,6 +86,7 @@ class Window extends Widget
       }
    }
 
+   /*
    public function checkCurrentMode(inFromClick:Bool)
    {
       if (Widget.autoShowCurrent)
@@ -98,6 +99,7 @@ class Window extends Widget
          }
       }
    }
+   */
 
    public override function onKeyDown(event:nme.events.KeyboardEvent ) : Bool
    {
@@ -137,7 +139,7 @@ class Window extends Widget
 
       if (dx!=0 || dy!=0)
       {
-         checkCurrentMode(true);
+         //checkCurrentMode(true);
          if (focusWidget==null || focusWidget.stage==null)
          {
             var items = getWidgetList();

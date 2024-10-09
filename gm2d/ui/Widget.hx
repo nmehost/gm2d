@@ -29,8 +29,8 @@ class Widget extends Sprite
    var mLayout:BorderLayout;
    var mItemLayout:Layout;
 
-   public static var showCurrent = true;
-   public static var autoShowCurrent = true;
+   //public static var showCurrent = true;
+   //public static var autoShowCurrent = true;
 
    public var state(default,set) : Int;
    public var onState:Int->Void;
@@ -368,8 +368,7 @@ class Widget extends Sprite
    {
       if (wasCurrent==null)
          wasCurrent = isCurrent;
-      var renderState = showCurrent ? state : (state & ~CURRENT);
-      combinedAttribs = skin.combineAttribs(mLineage, renderState, mAttribs);
+      combinedAttribs = skin.combineAttribs(mLineage, state, mAttribs);
       mRenderer = new Renderer(skin,combinedAttribs);
       redraw();
       if (isCurrent && !wasCurrent && attribBool("raiseCurrent",true) && parent!=null)
