@@ -30,7 +30,7 @@ class SlideBar extends Sprite implements IDock
    var chrome:Sprite;
    var bgRect:Rectangle;
    var paneContainer:Sprite;
-   var barContainer:Sprite;
+   var barContainer:Widget;
    var overlayContainer:Sprite;
    var slideOver:Bool;
    var hitBoxes:HitBoxes;
@@ -112,8 +112,6 @@ class SlideBar extends Sprite implements IDock
 
       paneContainer = new Sprite();
       addChild(paneContainer);
-      barContainer = new Sprite();
-      addChild(barContainer);
       overlayContainer = new Sprite();
       addChild(overlayContainer);
       //hitBoxes = new HitBoxes(background,onHitBox);
@@ -425,6 +423,15 @@ class SlideBar extends Sprite implements IDock
       return showing + (tabGap ? getBarHeight() : 0);
     }
 
+    function renderBarDock(x:Float, y:Float, w:Float, h:Float)
+    {
+       var oy = 0.0;
+       if ( (pinned || showGrip ) && tabRenderer!=null )
+          oy = getBarHeight();
+
+       barContainer.setRect(x,y+oy,w,h);
+    }
+
     public function checkChrome()
     {
       if (chromeDirty)
@@ -497,26 +504,31 @@ class SlideBar extends Sprite implements IDock
             {
                 if (tallBar)
                 {
-                trace("tallbar");
                    // Tabs run vertically...
-                   barDockable.getLayout().setRect(tabRect.x, tabRect.y+gapRect.y, tabRect.width, tabRect.height-gapRect.y);
+                   var bw = tabRect.width;
+                   var bh = tabRect.height-gapRect.y;
+                   barContainer.setRect(tabRect.x, tabRect.y+gapRect.y, bw, bh );
+                   barDockable.getLayout().setRect(0, 0, bw, bh );
                 }
                 else if (showGrip)
                 {
                    var x0 = tabRect.x+tabRect.width - barHeight;
                    var w = barHeight;
-                   var y0 = 0;
-                   var h = fullRect.height - tabRect.height;
+                   var y0 = barHeight;
+                   var h = bgRect.height - barHeight;
+
                    // Tabs run horizontally, but extend into bar region
-                   barDockable.getLayout().setRect(x0, y0, w, h);
+                   barContainer.setRect(x0, y0, w, h);
+                   barDockable.getLayout().setRect(0,0,w,h);
                 }
                 else
                 {
                    var y = tabRect.y;
-                   if (pos==DOCK_BOTTOM)
-                      y-= barHeight;
+                   //if (pos==DOCK_BOTTOM)
+                   //   y-= barHeight;
                    // tabs run horizontally, followed by bar
-                   barDockable.getLayout().setRect(gapRect.x, y, gapRect.width, barHeight);
+                   barContainer.setRect(gapRect.x, y, gapRect.width, barHeight);
+                   barDockable.getLayout().setRect(0, 0, gapRect.width, barHeight);
                 }
             }
          }
@@ -562,6 +574,12 @@ class SlideBar extends Sprite implements IDock
          if (barDockable!=null)
             Dock.remove(barDockable);
          barDockable = inChild;
+         if (barContainer==null)
+         { 
+            barContainer = new Widget([showGrip ? "GripBarDock" : "BarDock"]);
+            addChild(barContainer);
+            addChild(overlayContainer);
+         }
          barContainer.visible = true;
          barDockable.setDock(this,barContainer);
          setDirty(true,true);

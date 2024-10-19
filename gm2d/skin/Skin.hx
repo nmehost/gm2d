@@ -428,11 +428,23 @@ class Skin
               }
            },
 
-        "TabBox" => {
+        "TabRenderer" => {
            shape: ShapeRect,
-           fill: FillDark,
+           fill: FillLight,
            align: Layout.AlignStretch | Layout.AlignTop,
            },
+
+
+        "BarDock" => {
+           align: Layout.AlignStretch | Layout.AlignTop,
+        },
+
+        "GripBarDock" => {
+           shape: ShapeRect,
+           fill: FillMedium,
+           align: Layout.AlignStretch | Layout.AlignTop,
+           },
+
 
         "TabButton" => {
            fill: FillLight,
@@ -440,9 +452,9 @@ class Skin
 
         "TabBarButton" => {
            bitmap: BitmapFactory(createDefaultDarkBitmap),
-           fill: FillDark,
+           fill: guiMedium,
+           shape: ShapeRect,
            },
-
 
         "Dialog" => {
            shape: ShapeRect,
@@ -490,6 +502,8 @@ class Skin
            },
         "TabBar" => {
            minSize: size(tabSize,tabSize),
+           fill: FillLight,
+           shape:ShapeRect,
            },
         "Menubar" => {
            minSize: new Size(0,scale(menuHeight)),
@@ -498,8 +512,6 @@ class Skin
            line: LineNone,
            fill: FillSolid(guiVeryDark,1),
            shape: ShapeRect,
-           //fill: FillSolid(guiVeryDark,1),
-           //shape: ShapeCustom(renderMenubar),
            },
         "MenubarItem" => {
            filters:null,
@@ -955,21 +967,6 @@ class Skin
       fmt.font = textFormat.font;
       fmt.color = textFormat.color;
       return fmt;
-   }
-
-
-   public function renderMenubar(widget:Widget)
-   {
-      var gfx = widget.graphics;
-      gfx.clear();
-      var mtx = new nme.geom.Matrix();
-      var rect = widget.mRect;
-      mtx.createGradientBox(rect.height,rect.height,Math.PI * 0.5);
-      var cols:Array<CInt> = [guiLight, guiMedium, guiDark];
-      var alphas:Array<Float> = [1.0, 1.0, 1.0];
-      var ratio:Array<Int> = [0, 128, 255];
-      gfx.beginGradientFill(nme.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
-      gfx.drawRect(0,0,rect.width,rect.height);
    }
 
 

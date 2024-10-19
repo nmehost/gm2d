@@ -69,18 +69,9 @@ class TabRenderer
 
       var rect = new Rectangle(0,0,bitmap.width, bitmap.height);
       bgRenderer.renderRect(null, gfx, rect);
-      /*
-      var mtx = new Matrix();
-
-      mtx.createGradientBox(tabHeight,tabHeight,Math.PI * 0.5);
-
-      var cols:Array<CInt> = [ skin.guiDark, skin.tabGradientColor];
-      var alphas:Array<Float> = [1.0, 1.0];
-      var ratio:Array<Int> = [0, 255];
-      gfx.beginGradientFill(nme.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
-      gfx.drawRect(0,0,w,tabHeight);
+      //gfx.beginFill(0x0000ff);
+      //gfx.drawRect( 0,0,rect.width,rect.height);
       bitmap.draw(shape);
-      */
    }
    public function renderGripBackground(bitmap:BitmapData)
    {
@@ -89,9 +80,8 @@ class TabRenderer
       var w = bitmap.width;
       var tabHeight = bitmap.height;
       gfx.clear();
-
-      gfx.beginFill(skin.guiDark);
-      gfx.drawRect(0,0,w,tabHeight);
+      //gfx.beginFill(skin.guiDark);
+      //gfx.drawRect(0,0,w,tabHeight);
 
       if (gripBmp==null)
          gripBmp = skin.createDefaultBitmap("#grip",0);
@@ -103,7 +93,6 @@ class TabRenderer
       matrix.ty = by;
       gfx.beginBitmapFill(gripBmp,matrix);
       gfx.drawRect(bx,by, gripBmp.width, gripBmp.height);
-
       bitmap.draw(shape);
    }
 
@@ -208,6 +197,7 @@ class TabRenderer
          inTabContainer.addChild(but);
 
       var gripClip:BitmapData = null;
+      renderBackground(bitmap);
       if (showGrip)
       {
          renderGripBackground(bitmap);
@@ -216,8 +206,7 @@ class TabRenderer
          gripClip = new BitmapData(tabHeight,tabHeight,true,0);
          gripClip.copyPixels(bitmap, new Rectangle(bitmap.width-tabHeight,0,tabHeight,tabHeight), new Point(0,0) );
       }
-      else
-         renderBackground(bitmap);
+
       var gfx = shape.graphics;
       gfx.clear();
 
@@ -478,7 +467,7 @@ class TabRenderer
 
       }
 
-      // Rather than clipping the tab drawing, we will just past the grip back over the top
+      // Rather than clipping the tab drawing, we will just paste the grip back over the top
       if (gripClip!=null)
          bitmap.copyPixels(gripClip, new Rectangle(0,0,tabHeight,tabHeight), new Point(bitmap.width-tabHeight,0) );
 
