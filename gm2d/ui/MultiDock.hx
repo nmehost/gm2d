@@ -218,9 +218,9 @@ class MultiDock extends Widget implements IDock implements IDockable
          if (fill!=null && fill!=FillNone)
          {
             var gfx = inContainer.graphics;
-            if (gm2d.skin.Renderer.setFill(skin,gfx,fill,this))
+            var rect = getLayout().getRect();
+            if (gm2d.skin.Renderer.setFill(skin,gfx,fill,rect.width, rect.height))
             {
-               var rect = getLayout().getRect();
                gfx.drawRect(rect.x, rect.y, rect.width, rect.height);
             }
          }

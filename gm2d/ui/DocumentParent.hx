@@ -492,7 +492,7 @@ class DocumentParent extends Sprite implements IDock implements IDockable
             }
             else if (fill!=FillNone)
             {
-               if (gm2d.skin.Renderer.setFill(skin,gfx,fill,null))
+               if (gm2d.skin.Renderer.setFill(skin,gfx,fill,clientWidth,clientHeight))
                   gfx.drawRect(0,0,clientWidth,clientHeight);
             }
             else

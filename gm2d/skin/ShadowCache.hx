@@ -35,7 +35,7 @@ class ShadowCache
          drawing.addChild(child);
 
          var gfx = child.graphics;
-         Renderer.setFill(skin,gfx,fillStyle,null);
+         Renderer.setFill(skin,gfx,fillStyle,0,0);
          Renderer.setLine(skin,gfx,lineStyle);
 
          var lw = Renderer.getLineWidth(lineStyle)*0.5;

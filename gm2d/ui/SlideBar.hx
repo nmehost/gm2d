@@ -448,7 +448,7 @@ class SlideBar extends Sprite implements IDock
                fill = renderer.getDynamic("fill");
 
             if (fill!=null && fill!=FillNone)
-               if (Renderer.setFill(skin, gfx,fill,null))
+               if (Renderer.setFill(skin, gfx,fill,bgRect.width,bgRect.height))
                   gfx.drawRect(bgRect.x, bgRect.y, bgRect.width, bgRect.height);
          }
          else if (current!=null)

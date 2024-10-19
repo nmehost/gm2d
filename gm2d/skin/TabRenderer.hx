@@ -46,6 +46,7 @@ class TabRenderer
    var attribs:Map<String,Dynamic>;
    var currentAttribs:Map<String,Dynamic>;
    var skin:Skin;
+   var bgRenderer:Renderer;
 
    var buts:Array<Widget>;
 
@@ -54,6 +55,7 @@ class TabRenderer
       skin = inSkin;
       attribs = skin.combineAttribs(inLineage, 0, inAttribs);
       currentAttribs = skin.combineAttribs(inLineage, Widget.CURRENT, inAttribs);
+      bgRenderer = new Renderer(skin,attribs);
    }
 
 
@@ -65,6 +67,9 @@ class TabRenderer
       var tabHeight = bitmap.height;
       gfx.clear();
 
+      var rect = new Rectangle(0,0,bitmap.width, bitmap.height);
+      bgRenderer.renderRect(null, gfx, rect);
+      /*
       var mtx = new Matrix();
 
       mtx.createGradientBox(tabHeight,tabHeight,Math.PI * 0.5);
@@ -75,6 +80,7 @@ class TabRenderer
       gfx.beginGradientFill(nme.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
       gfx.drawRect(0,0,w,tabHeight);
       bitmap.draw(shape);
+      */
    }
    public function renderGripBackground(bitmap:BitmapData)
    {
