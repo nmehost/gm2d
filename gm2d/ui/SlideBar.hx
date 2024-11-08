@@ -333,7 +333,8 @@ class SlideBar extends Sprite implements IDock
          }
       }
       paneContainer.y = oy;
-      barContainer.y = oy;
+      if (barContainer!=null)
+         barContainer.y = oy;
 
       var size = new Size(horizontal ? showing : w,horizontal ? h : showing);
       var pullFromRight = false;

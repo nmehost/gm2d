@@ -354,8 +354,9 @@ class TabRenderer
          var rad0 = skin.roundRectRad;
          var rad1 = rad0 * 0.55228;
          gfx.clear();
-         gfx.lineStyle(1,0x404040);
+         gfx.lineStyle(1,skin.guiTrim);
          gfx.beginFill(skin.guiMedium);
+
          gfx.moveTo(-1,tabHeight-4);
          gfx.lineTo(cx,tabHeight-4);
          if (round)
