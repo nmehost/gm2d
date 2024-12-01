@@ -24,10 +24,16 @@
 obj/
 Export/
 bin/
+cpp/
 lib/*/
+
+Thumbs.db
+
+
 
 
 # Created files
+samples/00-ImportAll/All.hx
 
 # Miscellaneous
 all_objs

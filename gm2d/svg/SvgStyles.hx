@@ -6,7 +6,7 @@ using StringTools;
 
 class SvgStyles
 {
-   var defaultFill = FillSolid(0x000000);
+   public var defaultFill = FillSolid(0x000000);
    var urlMatch = ~/url\(#(.*?)\)/;
    var rgbMatch = ~/rgb\((.*),(.*),(.*)\)/;
 
@@ -153,7 +153,10 @@ class SvgStyles
       if (s=="" && forceCurrent)
          return FillCurrentColor;
 
-      if (s=="" || s=="none")
+      if (s=="")
+         return defaultFill;
+
+      if (s=="none")
          return FillNone;
 
       if (s=="currentColor")
