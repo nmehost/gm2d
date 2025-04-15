@@ -504,11 +504,13 @@ class Widget extends Sprite
 
    public function getItemLayout() : Layout { return mItemLayout; }
 
-   public function getItemRect() : Rectangle
+   public function getItemRect(inner=false) : Rectangle
    {
       var l = getItemLayout().getRect();
       if (l==null)
          return mRect;
+      if (inner)
+         return getItemLayout().getInnerRect(l);
       return l;
 
    }

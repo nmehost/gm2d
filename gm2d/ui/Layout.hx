@@ -477,6 +477,12 @@ class Layout
       */
    }
 
+   public function getInnerRect(rect:Rectangle) : Rectangle
+   {
+     return new Rectangle( rect.x+mBLeft, rect.y+mBTop,
+        rect.width - mBLeft-mBRight, rect.height-mBTop-mBBottom );
+   }
+
    public function toString() return 'Layout($name)';
 }
 

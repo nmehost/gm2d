@@ -9,6 +9,9 @@ import gm2d.ui.Button;
 import gm2d.ui.Layout;
 import gm2d.skin.Skin;
 import gm2d.skin.Renderer;
+import gm2d.skin.Shape;
+import gm2d.skin.LineStyle;
+
 
 class ComboList extends Window
 {
@@ -118,6 +121,7 @@ class ComboBox extends TextInput
    public var listOnly:Bool;
    public var onItemPhase:Int->Int->Void;
    public var lastExplicit:String;
+   var inlineDisplay:Bitmap;
 
    public function new(inVal="", ?inOptions:Array<String>, ?inDisplay:Array<Dynamic>,
        ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void, ?inOnTextPhase:String->Int->Void, ?inLineage:Array<String>, ?inAttribs:{})
@@ -138,9 +142,55 @@ class ComboBox extends TextInput
        //addChild(mText);
        addEventListener(MouseEvent.CLICK, onClick );
        updateIndex();
-       if (listOnly && index<0)
+       if (listOnly && (index<0 || mDisplay!=null) )
           setText(inVal);
        lastExplicit = inVal;
+   }
+
+   function updateDisplay()
+   {
+      if (mDisplay==null || mDisplay.length==0 || mRect==null)
+         return;
+      mText.text = "";
+      if (index<0)
+        index = 0;
+      if (index>=mDisplay.length)
+         index = mDisplay.length-1;
+      if (inlineDisplay==null)
+      {
+        inlineDisplay = new Bitmap();
+        addChild(inlineDisplay);
+      }
+
+      var r = getItemRect(true);
+      var w = r.width;
+      var list = new ListControl(skin, {
+         width:w,
+         shape: ShapeNone,
+         rowAttribs : {
+           filters:null,
+           line: LineNone,
+           shape: ShapeNone,
+         }
+      });
+      var item:Dynamic = mDisplay[index];
+
+      if (Std.isOfType(item,Array))
+         list.addRow(item, r.height);
+      else
+         list.addRow([item], r.height);
+
+      var bmp = new BitmapData( Std.int(r.width), Std.int(r.height), true, 0 );
+      bmp.draw(list);
+      inlineDisplay.bitmapData = bmp;
+      inlineDisplay.x = r.x;
+      inlineDisplay.y = r.y;
+   }
+
+   override function onWidgetDrawn()
+   {
+      if (mDisplay!=null && listOnly)
+         updateDisplay();
    }
 
    override public function set(inValue:Dynamic) : Void
@@ -192,15 +242,29 @@ class ComboBox extends TextInput
    {
       mOptions = inOptions==null ? null : inOptions.copy();
       mDisplay = inDisplay==null ? null : inDisplay.copy();
+      if (mDisplay!=null && inlineDisplay!=null)
+      {
+         removeChild(inlineDisplay);
+         inlineDisplay = null;
+      }
+
       if (listOnly)
       {
          if (mOptions==null)
             mOptions = [];
          var idx = mOptions.indexOf(lastExplicit);
-         if (idx>=0)
-            setText(lastExplicit);
+         if (mDisplay!=null)
+         {
+            setIndex(idx<0 ? 0 : idx);
+            updateDisplay();
+         }
          else
-            setText( getText() );
+         {
+            if (idx>=0)
+               setText(lastExplicit);
+            else
+               setText( getText() );
+         }
       }
    }
 
@@ -266,7 +330,12 @@ class ComboBox extends TextInput
    public function setIndex(inIndex:Int) : Void
    {
       index = inIndex;
-      mText.text = mOptions[index];
+      if (listOnly && mDisplay!=null)
+      {
+         updateDisplay();
+      }
+      else
+         mText.text = mOptions[index];
    }
 
 
@@ -289,8 +358,15 @@ class ComboBox extends TextInput
 
             if (mOptions.length>0)
             {
-               mText.text = mOptions[index];
-               checkPlaceholder();
+               if (mDisplay!=null)
+               {
+                  updateDisplay();
+               }
+               else
+               {
+                  mText.text = mOptions[index];
+                  checkPlaceholder();
+               }
             }
          }
       }
