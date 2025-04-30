@@ -44,6 +44,7 @@ class KeyboardAccel
                case "Up" : code = Keyboard.UP;
                case "Left" : code = Keyboard.LEFT;
                case "Right" : code = Keyboard.RIGHT;
+               case "Esc" : code = Keyboard.ESCAPE;
                case "-" : code = Keyboard.MINUS;
                case "`" : code = Keyboard.BACKQUOTE;
                case "," : code = Keyboard.COMMA;
