@@ -802,6 +802,18 @@ class TextLayout extends DisplayLayout
       mDebugCol = 0x00ff00;
    }
 
+   public function updateSizeFromText()
+   {
+      var w = mObj.width;
+      var h = mObj.height;
+      if (mObj.rotation==90 || mObj.rotation==270)
+      {
+         var t = w; w = h; h = t;
+      }
+      mOWidth = w;
+      mOHeight = h;
+   }
+
    override public function findTextLayout() : TextLayout  { return this; }
 
    override public function renderDebug(pos:Point, w:Float, h:Float)
@@ -921,6 +933,23 @@ class AutoTextLayout extends TextLayout
       super(inObj,inAlign,inPrefWidth,inPrefHeight);
       inObj.autoSize = TextFieldAutoSize.NONE;
    }
+
+   override public function updateSizeFromText()
+   {
+      var tf:TextField = cast mObj;
+      if (tf!=null)
+      {
+         var as = tf.autoSize;
+         tf.autoSize = TextFieldAutoSize.LEFT;
+         super.updateSizeFromText();
+         tf.autoSize = as;
+      }
+      else
+      {
+         super.updateSizeFromText();
+      }
+   }
+
 }
 
 // --- StackLayout ---------------------------------------------------------------------

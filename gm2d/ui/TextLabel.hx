@@ -13,6 +13,7 @@ class TextLabel extends Widget
    var mText:TextField;
    var mTextLayout:Layout;
    var showRight:Bool;
+   var dynamicSize:Bool;
    public var isInput(default,null):Bool;
    public var processSpecial:Bool;
 
@@ -31,6 +32,7 @@ class TextLabel extends Widget
 
        isInput = attribBool("isInput",false) && !attribBool("listOnly",false);
        showRight = attribBool("showRight",false);
+       dynamicSize = attribBool("dynamicSize",false);
        processSpecial = attribBool("processSpecial",false);
 
        if (isInput)
@@ -83,6 +85,8 @@ class TextLabel extends Widget
    override public function setText(inText:String) : Void
    {
       mText.text = inText;
+      if (dynamicSize)
+         getLayout()?.findTextLayout()?.updateSizeFromText();
       if (showRight)
          showTextEnd();
    }

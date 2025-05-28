@@ -843,9 +843,12 @@ class ListControl extends ScrollWidget
 
    override public function onLayout(inX:Float,inY:Float,inW:Float,inH:Float)
    {
+      /*
       x = inX;
       y = inY;
       mRect = new Rectangle(0,0,inW,inH);
+      */
+      super.onLayout(inX, inY, inW, inH);
       redraw();
    }
 

@@ -227,6 +227,7 @@ class ScrollWidget extends Widget //Control
    {
       controlW = inControlWidth;
       controlH = inControlHeight;
+
       if (windowWidth>0 && windowHeight>0)
           setWindowSize( windowWidth, windowHeight);
    }
@@ -264,7 +265,14 @@ class ScrollWidget extends Widget //Control
    override public function onLayout(x:Float,y:Float,w:Float,h:Float)
    {
       super.onLayout(x,y,w,h);
-      setWindowSize(w,h);
+      var itemLayout = getItemLayout();
+      if (itemLayout!=null)
+      {
+         var rect = itemLayout.getRect();
+         setWindowSize( rect.width, rect.height );
+      }
+      else
+         setWindowSize(w,h);
    }
 
    public function showChild(child:DisplayObject)
