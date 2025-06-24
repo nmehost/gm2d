@@ -1,6 +1,7 @@
 package gm2d.ui;
 
 import gm2d.ui.Button;
+import gm2d.skin.ProgressStyle;
 
 class ProgressDialog extends Dialog
 {
@@ -24,7 +25,7 @@ class ProgressDialog extends Dialog
       time0 = haxe.Timer.stamp();
    }
 
-   public static function create(inTitle:String, inLabel:String, ?statusText:String, inMax:Float, ?inOnCancel:Void->Void, showTime = false)
+   public static function create(inTitle:String, inLabel:String, ?statusText:String, inMax:Float, ?inOnCancel:Void->Void, showTime = false, ?inStyle:ProgressStyle )
    {
       var panel = new Panel(inTitle);
 
@@ -32,7 +33,10 @@ class ProgressDialog extends Dialog
       if (status!=null)
          panel.addLabelUI("Status", status);
 
-      var progress = new ProgressBar(inMax);
+      var attribs:{ } = null;
+      if (inStyle!=null)
+         attribs = { progressStyle : inStyle }
+      var progress = new ProgressBar(inMax, attribs );
       panel.addLabelUI(inLabel, progress);
 
       var button:Button = null;
