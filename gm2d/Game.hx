@@ -292,6 +292,7 @@ class Game
                closePopup();
             }
             inEvent.stopImmediatePropagation();
+            return false;
          }
       }
       else if (getSpriteDialog()!=null)
@@ -313,9 +314,11 @@ class Game
                if (inCloseIfNeeded && mAutoCloseDialog)
                   closeDialog();
                inEvent.stopImmediatePropagation();
+               return false;
             }
          }
       }
+      return true;
    }
 
    public static function onPreMouseDown(inEvent:MouseEvent)
@@ -336,6 +339,13 @@ class Game
 
    public static function onMouseDown(inEvent:MouseEvent)
    {
+      if (inEvent.target?.parent==null)
+      {
+         // Stage did not have a chance to cancel with onPreMouseDown since it is the target
+         if (!filterMouseEvent(inEvent,true))
+            return;
+      }
+
       var window = getCurrentWindow();
       if (window!=null)
       {
@@ -345,8 +355,15 @@ class Game
       lastWindowDown = window;
    }
 
-   public static function onMouseUp(inEvent)
+   public static function onMouseUp(inEvent:MouseEvent)
    {
+      if (inEvent.target?.parent==null)
+      {
+         // Stage did not have a chance to cancel with onPreMouseUp since it is the target
+         if (!filterMouseEvent(inEvent,true))
+            return;
+      }
+
       if (mCurrentScreen!=null)
       {
          var window = getCurrentWindow();
