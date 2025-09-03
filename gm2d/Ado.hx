@@ -67,6 +67,7 @@ class Ado
    public var redoText:String;
    public var onUndoText:Void->Void;
    public var makeDirty:Void->Void;
+   var watchers:Array<Bool->Void>;
    var held = false;
 
    public function new()
@@ -88,13 +89,36 @@ class Ado
          makeDirty();
    }
 
+   public function addWatcher(func:Bool->Void) : Void
+   {
+      if (watchers==null)
+         watchers = [func];
+      else
+         watchers.push(func);
+   }
+
+
+   public function removeWatcher(func:Bool->Void) : Bool
+   {
+      if (watchers!=null)
+         return watchers.remove(func);
+      return false;
+   }
+
+   function fire(fromAction:Bool)
+   {
+      if (watchers!=null)
+         for(w in watchers)
+            w(fromAction);
+   }
+
    public function clear()
    {
       held = false;
       edits = [];
       undone = [];
       edit = null;
-      updateText();
+      update(false);
    }
 
    public function hasBegun()
@@ -102,7 +126,7 @@ class Ado
       return edit!=null;
    }
 
-   public function updateText()
+   public function update(fromAction:Bool)
    {
       var uText:String = edits!=null && edits.length>0 ? edits[edits.length-1].name : null;
       var rText:String = undone!=null && undone.length>0 ? undone[undone.length-1].name : null;
@@ -113,6 +137,7 @@ class Ado
          if (onUndoText!=null)
              onUndoText();
       }
+      fire(fromAction);
    }
 
    public function continueEdit(inName:String)
@@ -141,9 +166,11 @@ class Ado
       {
          undone=null;
          edits.push(edit);
+         edit = null;
+         update(false);
       }
-      edit = null;
-      updateText();
+      else
+         edit = null;
    }
 
    public function editPhase(inName:String,
@@ -184,7 +211,7 @@ class Ado
          edit.continueDo(inDo,inUndo);
       else
          edit.add(inDo,inUndo);
-      updateText();
+      update(false);
    }
 
    public function setDo( inName:String, inDo:Void->Void, inUndo:Void->Void, extend=false)
@@ -215,7 +242,7 @@ class Ado
       {
          var e = edits.pop();
          e.undo();
-         updateText();
+         update(true);
          return e.name;
       }
       return null;
@@ -233,7 +260,7 @@ class Ado
          if (undone==null)
             undone = new Array<Edit>();
          undone.push(e);
-         updateText();
+         update(true);
          return e.name;
       }
       return null;
@@ -249,7 +276,7 @@ class Ado
          var e = undone.pop();
          e.redo();
          edits.push(e);
-         updateText();
+         update(true);
          return e.name;
       }
       return null;
