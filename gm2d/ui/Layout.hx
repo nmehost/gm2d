@@ -96,9 +96,10 @@ class Layout
 
    static function sSetCache(key:String, value:Dynamic, remove:Bool)
    {
-      cache.set(key,value);
       if (remove)
          cache = null;
+      else
+         cache.set(key,value);
    }
 
    inline public function isCached(key:String): Bool
@@ -273,9 +274,7 @@ class Layout
    public function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
       if (debug)
-      {
-         Sys.println('setRect $name:$layoutId $inX,$inY ${inW}x$inH for min=${getMinSize()} best=${getBestSize()}');
-      }
+         trace('Layout setRect $onLayout, $name:$layoutId $inX,$inY ${inW}x$inH for min=${getMinSize()} best=${getBestSize()}');
       lastRect = new Rectangle(inX,inY,inW,inH);
       if (onLayout!=null)
          onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
@@ -385,9 +384,11 @@ class Layout
    {
       var inW = w;
       var inH = h;
-
       var min = child.getMinSize();
-      //if (debug) Sys.println('  $name : alignChild $x,$y ${w}x$h / $min');
+      if (debug)
+         trace('  aligning($child:  $x,$y,$w,$h / $min)');
+
+      //if (debug) trace('  $name : alignChild $x,$y ${w}x$h / $min');
       if (w<min.x)
          w = min.x;
       if (h<min.y)
@@ -414,37 +415,47 @@ class Layout
       {
          case Layout.AlignRight:
             var bw = child.getBestWidth();
+            if (debug) trace(' ${child.name} right:${w-bw}');
             if (bw>w) bw = w;
             x += w-bw;
             w = bw;
          case Layout.AlignCenterX:
             var bw = child.getBestWidth();
+            if (debug) trace(' ${child.name} center:${w-bw}');
             if (bw>w) bw = w;
             x += (w-bw)/2;
             w = bw;
          case Layout.AlignLeft:
             var bw = child.getBestWidth();
+            if (debug) trace(' ${child.name} left:${w-bw}');
             if (bw>w) bw = w;
             w = bw;
          default:
+            if (debug) trace(' ${child.name} keepx:${x} / ${w}');
       }
 
       switch(child.mAlign & Layout.AlignMaskY)
       {
          case Layout.AlignBottom:
             var bh = child.getBestHeight(w);
+            if (debug) trace(' ${child.name} bottom:${h-bh}');
             if (bh>h) bh = h;
             y += h - bh;
             h = bh;
          case Layout.AlignCenterY:
             var bh = child.getBestHeight(w);
+            if (debug) trace(' ${child.name} centerY:$y $h / $bh');
             if (bh>h) bh = h;
             y += (h - bh)/2;
             h = bh;
+            if (debug) trace(' -> $y $h');
          case Layout.AlignTop:
             var bh = child.getBestHeight(w);
+            if (debug) trace(' ${child.name} top:${h-bh}');
             if (bh>h) bh = h;
             h = bh;
+         default:
+            if (debug) trace(' ${child.name} keepy:${y}/${h}');
       }
 
       if (child.mAlign & Layout.AlignHalfPixel > 0)
@@ -466,6 +477,8 @@ class Layout
          h = bottom - y;
       }
 
+      if (debug)
+         trace(' -> ${child}.setRect($x,$y,$w,$h)');
       child.setRect(x,y,w,h);
 
       /*
@@ -583,11 +596,9 @@ class BorderLayout extends Layout
    public override function getMinSize() : Size
    {
       var s = mBase.getMinSize();
-      s.x += mBLeft + mBRight;
-      s.y += mBTop + mBBottom;
-      //if (debug || mBase.debug)
-      //   Sys.println(' border min $mBase ->' + s);
-      return s;
+      if ( (mBLeft+mBRight)==0 && (mBTop+mBBottom)==0 )
+         return s;
+      return new Size(s.x+mBLeft+mBRight, s.y+mBTop+mBBottom);
    }
 
    override public function toString() return 'BorderLayout($name : $mBase)';
@@ -676,10 +687,14 @@ class DisplayLayout extends Layout
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
+      if (debug)
+         trace('DisplayLayout $name setRect($inX,$inY,$inW,$inH) min=${getMinSize()}');
+
       var w = inW - mBLeft - mBRight;
       var x = mOX + inX + mBLeft;
       var ow = getBaseWidth();
       var oh = getBaseHeight();
+
 
       if ( mGfxRect )
       {
@@ -1777,10 +1792,9 @@ class GridLayout extends Layout
    // GridLayout
    public override function getMinSize() : Size
    {
-      var key = 'gmh:$layoutId';
+      var key = 'gms:$layoutId';
       if (isCached(key))
          return getCached(key);
-
 
       var remove = beginCache();
 
@@ -1802,12 +1816,15 @@ class GridLayout extends Layout
       var result = bestDefault(new Size( sx, sy ));
 
       if (debug) trace('dbg: $this  getMinSize ->' + result);
+
       return setCache(key,result,remove);
    }
 
 
    public override function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
+      if (debug)
+         trace('GridLayout $name setRect($inX,$inY,$inW,$inH) min=${getMinSize()}');
       var destroyCache = beginCache();
 
       var oindent = indent;
@@ -1842,7 +1859,11 @@ class GridLayout extends Layout
             var item = row.mCols[c];
 
             if (item!=null)
+            {
+               if (debug)
+                  trace('  alignChild($rid,$c,$item:  $x,$y,$col_w,$row_h)');
                alignChild(item, x, y, col_w, row_h );
+            }
 
             x+=col_w + mSpaceX;
          }
@@ -1881,7 +1902,7 @@ class VerticalLayout extends GridLayout
    {
       if (mRowInfo!=null &&  mRowInfo[mPos]!=null)
          if (mRowInfo[mPos].mStretch>0)
-            inLayout.stretch();
+            inLayout.mAlign &= ~Layout.AlignMaskY; // Stretch Y
 
       return super.add(inLayout);
    }
@@ -1903,7 +1924,7 @@ class HorizontalLayout extends GridLayout
    {
       if (mColInfo!=null &&  mColInfo[mPos]!=null)
          if (mColInfo[mPos].mStretch>0)
-            inLayout.stretch();
+            inLayout.mAlign &= ~Layout.AlignMaskX; // Stretch X
 
       return super.add(inLayout);
    }

@@ -135,16 +135,15 @@ class ListControl extends ScrollWidget
       removeStageListeners();
       finishScroll();
       mRows = [];
-      mColWidths = mMinColWidths.copy();
-      mBestColWidths = mMinColWidths.copy();
+      mMinColWidths = [];
+      mBestColWidths = [];
+      mColWidths = [];
       mColPos = [0.0];
-
-
       mRowPos = [0.0];
       mChildrenClean = 0;
       mSelected = -1;
       mItemHeight = mOrigItemHeight;
-      //mWidth = mMinWidth;
+      mWidth = mMinWidth;
       scrollWheelStep = mOrigItemHeight;
       graphics.clear();
       while(contents.numChildren>0)
