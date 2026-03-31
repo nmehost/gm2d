@@ -227,6 +227,7 @@ class ScrollWidget extends Widget //Control
    {
       controlW = inControlWidth;
       controlH = inControlHeight;
+      getItemLayout().setMinSize(controlW, controlH);
 
       if (windowWidth>0 && windowHeight>0)
           setWindowSize( windowWidth, windowHeight);
@@ -259,6 +260,7 @@ class ScrollWidget extends Widget //Control
    {
       controlW = inControlWidth;
       controlH = inControlHeight;
+      //getItemLayout().setMinSize(controlW, controlH);
       setWindowSize(inWindowWidth, inWindowHeight);
    }
 
@@ -266,10 +268,12 @@ class ScrollWidget extends Widget //Control
    {
       super.onLayout(x,y,w,h);
       var itemLayout = getItemLayout();
+      // itemLayout should control 'control' size?
       if (itemLayout!=null)
       {
          var rect = itemLayout.getRect();
-         setWindowSize( rect.width, rect.height );
+         //setWindowSize( rect.width, rect.height );
+         setScrollRange( rect.width, w, rect.height,  h );
       }
       else
          setWindowSize(w,h);

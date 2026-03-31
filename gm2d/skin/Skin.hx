@@ -277,7 +277,8 @@ class Skin
            bitmap: BitmapFactory(createDefaultBitmap),
            },
         "TextLabel" => {
-           align: Layout.AlignLeft,
+           align: Layout.AlignLeft | Layout.AlignHalfPixel,
+           itemAlign: Layout.AlignCenterY,
            },
         "ListText" => {
            padding:scale(5),

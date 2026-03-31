@@ -78,6 +78,7 @@ class Pane implements IDockable
          }
       }
       itemLayout.name = "PANE:" + title + " layout";
+      itemLayout.stretch();
    }
 
    public function setTitle(inTitle:String, ?inShortTitle:String)
