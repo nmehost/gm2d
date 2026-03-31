@@ -41,7 +41,6 @@ class ListControl extends ScrollWidget
    var mOrigItemHeight:Float;
    var mItemHeight:Float;
    var mSelected :Int;
-   var mWidth:Float;
    var mMinWidth:Float;
    var mMinControlWidth:Float;
    var mHeight:Float;
@@ -53,11 +52,11 @@ class ListControl extends ScrollWidget
    var mColPos:Array<Float>;
    var mColAlign:Array<Int>;
    var mMultiSelect:Array<Bool>;
-   var mControlHeight:Float;
    var mHoldUpdates = 0;
    var dragHandler:IListDrag;
    var overlay:nme.display.Shape;
    var draggingIndex:Int;
+   var minCtrlWidth = 0.0;
 
    public var maxHeight:Null<Float>;
 
@@ -80,7 +79,6 @@ class ListControl extends ScrollWidget
       super(inSkin, Widget.addLine(inLineage,"List"), inAttribs);
 
       mMinControlWidth = mMinWidth = attribFloat("width",0);
-      mWidth = mMinWidth;
       mOrigItemHeight = mHeight = mListHeight = attribFloat("itemHeight",0);
       mItemHeight = mOrigItemHeight;
       maxHeight = attrib("maxHeight");
@@ -103,7 +101,6 @@ class ListControl extends ScrollWidget
       makeContentContainer();
 
       scrollWheelStep = mOrigItemHeight;
-      mControlHeight = 0.0;
       mTitleHeight = 0.0;
 
 
@@ -119,15 +116,17 @@ class ListControl extends ScrollWidget
       wantFocus = false;
       mColAlign = [];
       mMultiSelect = null;
-      var internalLayout = new Layout().setMinSize(mMinWidth,mOrigItemHeight).stretch();
-      internalLayout.onLayout = layoutList;
+      var internalLayout = new Layout().setMinSize(mMinWidth,mOrigItemHeight).setAlignment( Layout.AlignTop );
+      //internalLayout.onLayout = layoutList;
       setItemLayout(internalLayout);
       var layout = getLayout();
       layout.setMinWidth(mMinWidth);
       layout.setMinHeight(mOrigItemHeight);
-      setScrollRange(mWidth,mWidth,mOrigItemHeight,mOrigItemHeight);
+      setScrollRange(mMinWidth,mMinWidth,mOrigItemHeight,mOrigItemHeight);
       applyStyles();
    }
+
+   override public function getMinContentSize() return new Size(mMinWidth,mItemHeight);
 
 
    public function clear()
@@ -143,7 +142,6 @@ class ListControl extends ScrollWidget
       mChildrenClean = 0;
       mSelected = -1;
       mItemHeight = mOrigItemHeight;
-      mWidth = mMinWidth;
       scrollWheelStep = mOrigItemHeight;
       graphics.clear();
       while(contents.numChildren>0)
@@ -200,7 +198,7 @@ class ListControl extends ScrollWidget
          {
             gfx.beginFill(0xff0000,0.3);
             gfx.lineStyle(0,0xff0000);
-            gfx.drawRect(0,by,mWidth,dy);
+            gfx.drawRect(0,by,windowWidth,dy);
          }
       }
       // TODO
@@ -321,8 +319,8 @@ class ListControl extends ScrollWidget
    {
       mChildrenClean = 0;
       var pos = 0.0;
+      minCtrlWidth = 0.0;
       mColPos=[];
-      mMinControlWidth = 0.0;
       var bestWidth = getLayout().getBordersX();
       for(i in 0...mColWidths.length)
       {
@@ -341,23 +339,23 @@ class ListControl extends ScrollWidget
          var best =Math.max(tw,mBestColWidths[i]);
          mColWidths[i] = best;
          pos += mColWidths[i];
-         mMinControlWidth += Math.max(tw,mMinColWidths[i]);
+         minCtrlWidth += Math.max(tw,mMinColWidths[i]);
          bestWidth += best;
          if (i!=mColWidths.length-1)
          {
-            mMinControlWidth += mXGap;
+            minCtrlWidth += mXGap;
             pos+=mXGap;
             bestWidth+=mXGap;
          }
       }
 
-      if (mMinControlWidth<mMinWidth)
-         mMinControlWidth = mMinWidth;
+      if (minCtrlWidth<mMinWidth)
+         minCtrlWidth = mMinWidth;
 
-      if (mMinControlWidth<bestWidth)
-         mMinControlWidth = bestWidth;
+      if (minCtrlWidth<bestWidth)
+         minCtrlWidth = bestWidth;
 
-      var w = Math.max(mMinControlWidth, mWidth );
+      var w = Math.max(minCtrlWidth, controlW );
       var col = mStretchCol!=null ? mStretchCol : mColWidths.length-1;
 
       if (col!=null && col<mColWidths.length && col>=0 && pos!=w)
@@ -386,15 +384,14 @@ class ListControl extends ScrollWidget
       var rectH = mRect.height;
       contents.y = mTitleHeight;
       var h = mRowPos[mRows.length];
-      mControlHeight = h + mTitleHeight;
-      //getItemLayout().setMinSize( mMinControlWidth, mControlHeight );
-      var windowH = mControlHeight;
-      if (maxHeight!=null && windowH>maxHeight)
-         windowH = maxHeight;
-      getItemLayout().setBestSize( mMinControlWidth, windowH );
-      //trace('LIST: rectH:$rectH  windowH:$windowH mControlHeight:$mControlHeight mListHeight:$mListHeight title:$mTitleHeight');
-      //getItemLayout().setBestSize( mMinControlWidth, mControlHeight );
-      setScrollRange(mWidth,mWidth,h,mListHeight);
+
+      var contentH = h + mTitleHeight;
+      if (maxHeight!=null && contentH>maxHeight)
+         contentH = maxHeight;
+
+      var item = getItemLayout();
+      item.setMinSize( mMinControlWidth, contentH );
+      relayout();
    }
 
    public function stringToItem(inString:String) : DisplayObject
@@ -808,13 +805,13 @@ class ListControl extends ScrollWidget
       {
          var selected = mMultiSelect==null ?  i==mSelected : mMultiSelect[i];
          var renderer = selected ? selectRenderer : (i & 1) > 0 ? oddRenderer: evenRenderer;
-         renderer.renderRect(null, gfx, new Rectangle(0,mRowPos[i],mWidth,mRows[i].height) );
+         renderer.renderRect(null, gfx, new Rectangle(0,mRowPos[i],windowWidth,mRows[i].height) );
       }
 
-      var boxHeight = mControlHeight - mTitleHeight;
+      var boxHeight = controlH - mTitleHeight;
       if (boxHeight<mListHeight)
       {
-         evenRenderer.renderRect(null, gfx, new Rectangle(0,boxHeight,mWidth,mListHeight-boxHeight));
+         evenRenderer.renderRect(null, gfx, new Rectangle(0,boxHeight,windowWidth,mListHeight-boxHeight));
       }
    }
 
@@ -829,24 +826,8 @@ class ListControl extends ScrollWidget
       }
    }
 
-   public function layoutList(inX:Float, inY:Float, inW:Float, inH:Float)
-   {
-      contents.x = inX;
-      contents.y = inY;
-      mWidth = inW;
-      mHeight = inH;
-      mListHeight = mHeight - mTitleHeight;
-      recalcPos();
-      redraw();
-   }
-
    override public function onLayout(inX:Float,inY:Float,inW:Float,inH:Float)
    {
-      /*
-      x = inX;
-      y = inY;
-      mRect = new Rectangle(0,0,inW,inH);
-      */
       super.onLayout(inX, inY, inW, inH);
       redraw();
    }
@@ -876,7 +857,7 @@ class ListControl extends ScrollWidget
                {
                   var widget:Widget = cast item;
                   widget.align(x, mRowPos[row_idx],
-                               mWidth, mRows[row_idx].height );
+                               windowWidth, mRows[row_idx].height );
                }
                else
                {

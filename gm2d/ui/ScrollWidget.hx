@@ -10,7 +10,26 @@ import nme.geom.Rectangle;
 import gm2d.tween.Tween;
 import gm2d.math.TimeAverage;
 import gm2d.skin.Skin;
+import gm2d.ui.Layout;
 import haxe.Timer;
+
+class ScrollWidgetLayout extends BorderLayout
+{
+   var owner:ScrollWidget;
+
+   public function new(owner:ScrollWidget, child:Layout)
+   {
+     super(child,true);
+     this.owner = owner;
+   }
+
+   public override function getMinSize() : Size
+   {
+      var s = owner.getMinContentSize();
+      //return new Size(minWidth + mBase.minWidth+mBLeft+mBRight, minHeight + mBase.minHeight+mBTop+mBBottom);
+      return new Size(s.x + mBLeft+mBRight, s.y + mBTop+mBBottom);
+   }
+}
 
 class ScrollWidget extends Widget //Control
 {
@@ -83,6 +102,10 @@ class ScrollWidget extends Widget //Control
       addEventListener(MouseEvent.CLICK,onScrollClick,true);
       addEventListener(Event.REMOVED_FROM_STAGE, (_) -> removeStageListeners() );
    }
+
+   override public function createLayout() return new ScrollWidgetLayout(this,mItemLayout);
+
+   public function getMinContentSize() return new Size(1,1);
 
    public function makeContentContainer()
    {

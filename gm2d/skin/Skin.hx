@@ -530,6 +530,7 @@ class Skin
            line: LineNone,
            shape: ShapeUnderlineRect,
            fill: FillRowOdd,
+           align:Layout.AlignStretch,
            stateAlternate: {
              fill: FillRowEven,
              },

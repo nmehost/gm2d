@@ -591,6 +591,8 @@ class Renderer
 
          if (itemAlign!=null)
             layout.setAlignment(itemAlign);
+         else
+            layout.stretch();
       }
 
    }

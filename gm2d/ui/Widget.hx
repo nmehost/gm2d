@@ -167,6 +167,7 @@ class Widget extends Sprite
       return getLayout().stretch();
    }
 
+   public function createLayout() return new BorderLayout(mItemLayout,true);
 
    public function setItemLayout(inLayout:Layout)
    {
@@ -174,7 +175,7 @@ class Widget extends Sprite
       //if (inStretch) mItemLayout.stretch();
       if (mLayout==null)
       {
-         mLayout = new BorderLayout(mItemLayout,true);
+         mLayout = createLayout();
          mLayout.onLayout = onLayout;
       }
       else
