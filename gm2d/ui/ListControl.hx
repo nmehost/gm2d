@@ -126,7 +126,20 @@ class ListControl extends ScrollWidget
       applyStyles();
    }
 
-   override public function getMinContentSize() return new Size(mMinWidth,mItemHeight);
+   override public function getMinContentSize()
+   {
+      return new Size(mMinWidth,mItemHeight);
+   }
+
+   override public function getBestContentSize()
+   {
+      var h = mRowPos[mRows.length];
+
+      var contentH = h + mTitleHeight;
+      if (maxHeight!=null && contentH>maxHeight)
+         contentH = maxHeight;
+      return new Size(minCtrlWidth, contentH);
+   }
 
 
    public function clear()

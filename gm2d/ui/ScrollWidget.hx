@@ -29,6 +29,28 @@ class ScrollWidgetLayout extends BorderLayout
       //return new Size(minWidth + mBase.minWidth+mBLeft+mBRight, minHeight + mBase.minHeight+mBTop+mBBottom);
       return new Size(s.x + mBLeft+mBRight, s.y + mBTop+mBBottom);
    }
+   override public function getBestWidth() : Float
+   {
+      if (bestWidth!=null)
+         return bestWidth;
+      var s = owner.getBestContentSize();
+      return s.x + mBLeft+mBRight;
+   }
+   override public function getBestHeight(?inWidth:Null<Float>) : Float
+   {
+      if (bestHeight!=null)
+         return bestHeight;
+      var s = owner.getBestContentSize();
+      return s.y + mBTop+mBBottom;
+   }
+
+   /*
+   public override function getBestSize() : Size
+   {
+      var s = owner.getBestContentSize();
+      return new Size(s.x + mBLeft+mBRight, s.y + mBTop+mBBottom);
+   }
+      */
 }
 
 class ScrollWidget extends Widget //Control
@@ -106,6 +128,8 @@ class ScrollWidget extends Widget //Control
    override public function createLayout() return new ScrollWidgetLayout(this,mItemLayout);
 
    public function getMinContentSize() return new Size(1,1);
+
+   public function getBestContentSize() return new Size(controlW, controlH);
 
    public function makeContentContainer()
    {

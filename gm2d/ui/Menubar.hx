@@ -113,7 +113,11 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
       var yPos = mHeight > 0 ? mHeight : mRect.height;
 
       var stagePos = localToGlobal( new nme.geom.Point(mButtons[inPos].x, yPos) );
-      Game.popup( new PopupMenu(mItems[inPos],this), stagePos.x, stagePos.y );
+      var menu = new PopupMenu(mItems[inPos],this);
+      var layout = menu.getLayout();
+      var size = layout.getBestSize();
+      menu.setRect(0,0,size.x,size.y);
+      Game.popup( menu, stagePos.x, stagePos.y );
       Game.onClosePopup = function() mCurrentItem = -1;
    }
 

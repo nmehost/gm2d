@@ -41,6 +41,7 @@ class PopupMenu extends Window
 
       if (c!=null)
       {
+         mList.holdUpdates(true);
          for(item in c)
          {
             var height:Null<Float> = null;
@@ -111,9 +112,10 @@ class PopupMenu extends Window
             }
             rowCount++;
          }
+         mList.holdUpdates(false);
       }
       //setItemLayout(layout);
-      setItemLayout(mList.getLayout());
+      setItemLayout(mList.getLayout().stretch());
       applyStyles();
       setItem(0);
    }
