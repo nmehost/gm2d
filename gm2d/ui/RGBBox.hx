@@ -54,7 +54,7 @@ class RGBBox extends Widget
 
    public function setRgba(rgb:Int, a:Float)
    {
-      mColour = new RGBHSV(rgb,a);
+      setColour(new RGBHSV(rgb,a));
    }
 
    public function showDialog( )

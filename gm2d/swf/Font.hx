@@ -6,6 +6,7 @@ import nme.geom.Matrix;
 
 #if !flash
 import nme.text.NMEFont;
+import nme.text.NMEFontDef;
 import nme.display.BitmapData;
 #end
 
