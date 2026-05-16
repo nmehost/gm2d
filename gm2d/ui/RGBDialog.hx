@@ -1,14 +1,15 @@
 package gm2d.ui;
 
 import gm2d.RGBHSV;
+import gm2d.ui.ColourControl;
 
 class RGBDialog extends Dialog
 {
    var control:ColourControl;
 
-   public function new(inRGB:RGBHSV, inOnColour:RGBHSV->Int->Void)
+   public function new(inRGB:RGBHSV, inOnColour:RGBHSV->Int->Void, swatchSet:SwatchSet)
    {
-      control = new ColourControl(inRGB, inOnColour);
+      control = new ColourControl(inRGB, inOnColour, swatchSet);
 
       var pane = new Pane(control, "Select Colour", Dock.RESIZABLE);
       pane.itemLayout = control.getLayout().setMinSize(300,300);

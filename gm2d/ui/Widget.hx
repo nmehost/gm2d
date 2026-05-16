@@ -559,6 +559,9 @@ class Widget extends Sprite
          mChrome.removeChildAt(0);
    }
 
+   public function onKeyUp(event:nme.events.KeyboardEvent ) : Bool {
+      return false;
+   }
    public function onKeyDown(event:nme.events.KeyboardEvent ) : Bool {
       return false;
    }

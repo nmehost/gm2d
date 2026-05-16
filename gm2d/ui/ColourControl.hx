@@ -596,6 +596,18 @@ class ColourWheel extends Widget
    }
 }
 
+class SwatchSet
+{
+   public var swatches(default,null):Array<Swatch>;
+
+   public function new()
+   {
+      swatches = new Array<Swatch>();
+      for(i in 0...20)
+         swatches.push( new Swatch(i,20) );
+   }
+}
+
 class ColourControl extends Widget
 {
    var mMode:Int;
@@ -617,7 +629,7 @@ class ColourControl extends Widget
    var updateLockout:Int;
    public var onColourChange:RGBHSV->Int->Void;
 
-   public function new(inColour:RGBHSV, ?inOnChange:RGBHSV->Int->Void,?inAttribs:{})
+   public function new(inColour:RGBHSV, ?inOnChange:RGBHSV->Int->Void, ?swatchSet:SwatchSet, ?inAttribs:{})
    {
       super(null,inAttribs);
 
@@ -669,7 +681,7 @@ class ColourControl extends Widget
       var swatchSize = skin.scale(16);
       for(i in 0...20)
       {
-         var swatch = new Swatch(i,20);
+         var swatch = swatchSet==null ? new Swatch(i,20) : swatchSet.swatches[i];
          var box = new SwatchBox(swatch,this,swatchSize);
          addChild(box);
          swatches.add(box.getLayout());

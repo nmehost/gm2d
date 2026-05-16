@@ -3,6 +3,7 @@ package gm2d.ui;
 import nme.text.TextField;
 import nme.events.MouseEvent;
 import gm2d.ui.Layout;
+import gm2d.ui.ColourControl;
 import gm2d.RGBHSV;
 import gm2d.skin.Skin;
 import nme.text.TextFieldAutoSize;
@@ -17,14 +18,16 @@ class RGBBox extends Widget
    public var onDialogCreated:RGBDialog->Void;
    var mShowAlpha:Bool;
    var rgbDialog:RGBDialog;
+   var swatchSet:SwatchSet;
 
-   public function new(?inSkin:Skin, inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Int->Void, ?inAttribs:{ })
+   public function new(?inSkin:Skin, inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Int->Void, ?swatchSet:SwatchSet, ?inAttribs:{ })
    {
       super(inSkin,inAttribs);
       mShowAlpha = inShowAlpha;
       onColourChange = inOnColour;
       mColour = inColour==null ? new RGBHSV( ) : inColour.clone();
       updateLockout = 0;
+      this.swatchSet = swatchSet;
 
       var fmt = new nme.text.TextFormat();
       fmt.align = nme.text.TextFormatAlign.CENTER;
@@ -67,7 +70,7 @@ class RGBBox extends Widget
             if (onColourChange!=null && updateLockout==0)
                onColourChange(colour.clone(),phase);
             setColour(colour);
-            } );
+            }, swatchSet );
          rgbDialog.onClose = function() rgbDialog = null;
          if (onDialogCreated!=null)
             onDialogCreated(rgbDialog);

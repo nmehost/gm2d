@@ -101,6 +101,16 @@ class Window extends Widget
    }
    */
 
+   public override function onKeyUp(event:nme.events.KeyboardEvent):Bool
+   {
+      if (focusWidget!=null)
+      {
+         var used =  focusWidget.onKeyUp(event);
+         if (used)
+            return true;
+      }
+      return false;
+   }
    public override function onKeyDown(event:nme.events.KeyboardEvent ) : Bool
    {
       if (focusWidget!=null)
@@ -211,14 +221,13 @@ class Window extends Widget
              return true;
           }
       }
-      return true;
-      //return false;
+      //return true;
+      return false;
    }
 
    public function getWindowWidth() { return width; }
    public function getWindowHeight() { return height; }
 
-   public function onKeyUp(event:nme.events.KeyboardEvent):Bool { return false; }
    public dynamic function onAdded() { }
 
    public function onMouseMove(inX:Float, inY:Float) { }

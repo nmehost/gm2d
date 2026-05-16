@@ -19,6 +19,7 @@ import nme.geom.Point;
 import nme.events.MouseEvent;
 import gm2d.skin.Skin;
 import gm2d.skin.Renderer;
+import gm2d.ui.ColourControl;
 import gm2d.RGBHSV;
 
 
@@ -105,7 +106,7 @@ class GradientControl extends Widget
    public static var createdBmps = false;
    public static var bitmaps = new haxe.ds.StringMap<BitmapData>();
 
-   public function new(inOnChange:Gradient->Int->Void,?inLineage:Array<String>)
+   public function new(inOnChange:Gradient->Int->Void,?inLineage:Array<String>, ?swatchSet:SwatchSet)
    {
       super(Widget.addLine(inLineage,"GradientControl"));
 
@@ -123,7 +124,7 @@ class GradientControl extends Widget
       gradBox.addEventListener(MouseEvent.MOUSE_DOWN, onMouse);
 
       var stopControls = new GridLayout(1);
-      colourBox = new RGBBox(new RGBHSV(0xff00ff,1), false, true, onGradColour, { });
+      colourBox = new RGBBox(new RGBHSV(0xff00ff,1), false, true, onGradColour, swatchSet, { });
       colourBox.onDialogCreated = onColourDialog;
       addChild(colourBox);
       stopControls.add(colourBox.getLayout().setMinSize(64,28));
