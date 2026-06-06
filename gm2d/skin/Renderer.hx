@@ -39,6 +39,7 @@ class Renderer
    public var bestHeight:Null<Float>;
    public var align:Null<Int>;
    public var itemAlign:Null<Int>;
+   public var textBorder:Null<Int>;
    public var padding:Rectangle;
    public var margin:Rectangle;
    public var filters:Array<BitmapFilter>;
@@ -103,6 +104,8 @@ class Renderer
             textFormat.color = map.get("textColor");
          if (map.exists("textAlign"))
             textFormat.align = map.get("textAlign");
+         if (map.exists("textBorder"))
+            textBorder = map.get("textBorder");
          if (map.exists("bold"))
             textFormat.bold= map.get("bold");
          if (map.exists("shape"))
@@ -532,6 +535,11 @@ class Renderer
    {
       label.defaultTextFormat = textFormat;
       label.setTextFormat(textFormat);
+      if (textBorder!=null)
+      {
+         label.border = true;
+         label.borderColor = textBorder;
+      }
       if (map.exists("textRotation"))
          label.rotation = map.get("textRotation");
       if (label.type != nme.text.TextFieldType.INPUT)

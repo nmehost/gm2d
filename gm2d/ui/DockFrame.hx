@@ -42,7 +42,7 @@ class DockFrame extends Widget
          if (inAttribs==null)
             inAttribs = p.frameAttribs;
          else if (p.frameAttribs!=null)
-            inAttribs = skin.mergeAttribs(p.frameAttribs,inAttribs);
+            inAttribs = Skin.mergeAttribs(p.frameAttribs,inAttribs);
       }
       super(skin,["DocumentFrame","Dock"],inAttribs);
 

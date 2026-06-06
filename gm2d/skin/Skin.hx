@@ -1429,7 +1429,7 @@ class Skin
 
 
 
-   public function mergeAttribs(a0:{}, aover:{}) : {}
+   static public function mergeAttribs(a0:{}, aover:{}) : {}
    {
       var result = {};
       for(k in Reflect.fields(a0))

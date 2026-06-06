@@ -50,7 +50,10 @@ class Panel extends Widget
       mButtonLayout = new GridLayout(null,"buttons");
       mButtonLayout.setSpacing(  mRenderer.getDefaultFloat("buttonSpacing",0) ,0);
       mButtonLayout.setAlignment( attribInt("buttonAlign", Layout.AlignCenter) );
-      //mButtonLayout.setBorders(0,10,0,10);
+      mButtonLayout.setBorders( mRenderer.getDefaultFloat("buttonsPadLeft", 0),
+                                mRenderer.getDefaultFloat("buttonsPadTop", 0),
+                                mRenderer.getDefaultFloat("buttonsPadRight", 0),
+                                mRenderer.getDefaultFloat("buttonsPadBottom", 0) );
 
       if (inIcon!=null)
       {
@@ -373,19 +376,19 @@ class Panel extends Widget
       }
    }
 
-   public function addLabelObj(inLabel:String,inObj:DisplayObject,?inName:String,?inAlign:Null<Int>)
+   public function addLabelObj(inLabel:String,inObj:DisplayObject,?inName:String,?inAlign:Null<Int>, inAttribs:{} = null)
    {
-      addLabel(inLabel,inName,inAlign);
+      addLabel(inLabel,inName,inAlign,inAttribs);
       addObj(inObj,inAlign);
    }
 
-   public function addLabelUI(inLabel:String,inObj:Widget,?inAlign:Null<Int>)
+   public function addLabelUI(inLabel:String,inObj:Widget,?inAlign:Null<Int>, inAttribs:{} = null)
    {
-      addLabel(inLabel,null,inAlign);
+      addLabel(inLabel,null,inAlign,inAttribs);
       addUI(inObj);
    }
  
-   public function addLabel(inText:String,?inName:String,?inAlign:Null<Int>)
+   public function addLabel(inText:String,?inName:String,?inAlign:Null<Int>, inAttribs:{} = null)
    {
       mLayoutDirty = true;
       if (inText==null)
@@ -393,7 +396,14 @@ class Panel extends Widget
          mItemGrid.add(null);
          return;
       }
-      var label = new TextLabel(inText, ["PanelText"], attribDynamic("panelText",{}) );
+
+      var textAttrs:{} = attribDynamic("panelText",null);
+      if (textAttrs==null)
+         textAttrs = inAttribs;
+      else if (inAttribs!=null)
+         textAttrs = Skin.mergeAttribs(textAttrs,inAttribs);
+
+      var label = new TextLabel(inText, ["PanelText"], textAttrs );
       addChild(label);
       mItemGrid.add( label.getLayout() );
 
