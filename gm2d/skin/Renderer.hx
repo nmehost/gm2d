@@ -187,7 +187,7 @@ class Renderer
    }
 
 
-   public static function setFill(skin:Skin,inGraphics:Graphics,inFillStyle:FillStyle,w:Float, h:Float):Bool
+   public static function setFill(skin:Skin,inGraphics:Graphics,inFillStyle:FillStyle, w:Float, h:Float, x=0.0, y=0.0):Bool
    {
       var filled = false;
 
@@ -231,6 +231,11 @@ class Renderer
 
              case FillStyle.FillBitmap(bmp):
                 inGraphics.beginBitmapFill(bmp);
+
+             case FillStyle.FillBitmapStretch(bmp):
+                var mtx = new Matrix();
+                mtx.createBox(w/bmp.width, h/bmp.height);
+                inGraphics.beginBitmapFill(bmp, mtx);
 
              case FillStyle.FillGradV(rgb0,rgb1,a):
                 if (h==0)
@@ -434,13 +439,13 @@ class Renderer
          case ShapeNone:
          case ShapeRect, ShapeItemRect:
             lineOffset = setLine(skin, gfx,lineStyle,true);
-            filled = setFill(skin, gfx,fillStyle,w,h);
+            filled = setFill(skin, gfx,fillStyle,w,h,r.x,r.y);
             if (lineOffset>0 || filled)
                gfx.drawRect(r.x+lineOffset, r.y+lineOffset, r.width-lineOffset*2, r.height-lineOffset*2);
 
          case ShapeRoundRect:
             lineOffset = setLine(skin, gfx,lineStyle);
-            filled = setFill(skin, gfx,fillStyle,w,h);
+            filled = setFill(skin, gfx,fillStyle,w,h,r.x,r.y);
             if (lineOffset>0 || filled)
             {
                gfx.drawRoundRect(r.x+lineOffset, r.y+lineOffset, r.width-lineOffset*2, r.height-lineOffset*2,
@@ -448,7 +453,7 @@ class Renderer
             }
 
          case ShapeUnderlineRect:
-            if (setFill(skin, gfx,fillStyle,w,h))
+            if (setFill(skin, gfx,fillStyle,w,h,r.x,r.y))
             {
                gfx.drawRect(r.x, r.y, r.width, r.height);
                gfx.endFill();
@@ -462,13 +467,13 @@ class Renderer
 
          case ShapeRoundRectRad(rad):
             lineOffset = setLine(skin, gfx,lineStyle);
-            filled = setFill(skin, gfx,fillStyle,w,h);
+            filled = setFill(skin, gfx,fillStyle,w,h,r.x,r.y);
             if (lineOffset>0 || filled)
                gfx.drawRoundRect(r.x+lineOffset, r.y+lineOffset, r.width-lineOffset*2, r.height-lineOffset*2, rad*2,rad*2);
 
          case ShapeCustom( render ):
             lineOffset = setLine(skin, gfx,lineStyle);
-            filled = setFill(skin, gfx,fillStyle,w,h);
+            filled = setFill(skin, gfx,fillStyle, w,h, r.x,r.y);
             if (widget==null)
                throw "Invalid custom renderer on non-widget";
             render(widget);
