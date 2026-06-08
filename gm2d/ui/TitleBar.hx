@@ -10,7 +10,7 @@ import gm2d.ui.Layout;
 
 class TitleBar extends TextLabel
 {
-   public function new(inVal="",?inLineage:Array<String>, ?inAttribs:{} )
+   public function new(inVal="",?inLineage:Array<String>, ?inAttribs:Attribs )
    {
        super(inVal,Widget.addLine(inLineage,"TitleBar"),inAttribs);
    }

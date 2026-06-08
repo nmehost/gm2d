@@ -629,7 +629,7 @@ class ColourControl extends Widget
    var updateLockout:Int;
    public var onColourChange:RGBHSV->Int->Void;
 
-   public function new(inColour:RGBHSV, ?inOnChange:RGBHSV->Int->Void, ?swatchSet:SwatchSet, ?inAttribs:{})
+   public function new(inColour:RGBHSV, ?inOnChange:RGBHSV->Int->Void, ?swatchSet:SwatchSet, ?inAttribs:Attribs)
    {
       super(null,inAttribs);
 

@@ -16,7 +16,7 @@ class TabWidget extends Widget
    var widgets:Array<Widget>;
    var tabBar:Widget;
 
-   public function new(inWidgets:Array<Widget>, inCurrent:Widget, ?inLineage:Array<String>, ?inAttribs:{})
+   public function new(inWidgets:Array<Widget>, inCurrent:Widget, ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
       widgets = inWidgets.copy();
 
@@ -68,7 +68,7 @@ class TabWidget extends Widget
       for(w in widgets)
       {
          var ico = w.getBitmap();
-         var button = new Button(buttonLineage, { text:w.name, bitmapData:ico, toggle:true } );
+         var button = new Button(null,null,buttonLineage, { text:w.name, icon:ico, toggle:true } );
          group.add(button, w);
          addChild(button);
          hlayout.add( button.getLayout() );

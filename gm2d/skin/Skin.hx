@@ -43,6 +43,8 @@ import gm2d.svg.Svg;
 import gm2d.svg.SvgRenderer;
 import gm2d.CInt;
 
+import gm2d.ui.Attribs;
+
 typedef AttribSet = Map<String,Dynamic>;
 
 
@@ -131,9 +133,9 @@ class Skin
    public var mDrawing:Sprite;
    public var mText:TextField;
 
-   public var attribSet:Map<String,Dynamic>;
-   public var cachedIdAttribs:Map<String,Dynamic>;
-   public var resolveAttribs: String->Dynamic;
+   public var attribSet:Map<String,Attribs>;
+   public var cachedIdAttribs:Map<String,Attribs>;
+   public var resolveAttribs: String->Attribs;
 
 
 
@@ -192,7 +194,7 @@ class Skin
       initGfx();
 
       if (cachedIdAttribs==null)
-         cachedIdAttribs = new Map<String,Dynamic>();
+         cachedIdAttribs = new Map<String,Attribs>();
 
       // Rebuild attribs from scratch
       attribSet = [
@@ -318,7 +320,7 @@ class Skin
            },
         "DocumentFrame" => {
            padding: 0,//new Rectangle(scale(2),scale(2),scale(4),scale(4)),
-           sampe: ShapeRect,
+           shape: ShapeRect,
            fill: FillMedium,
            line: LineSolid(scale(2),guiLight,1),
         },
@@ -453,7 +455,7 @@ class Skin
 
         "TabBarButton" => {
            bitmap: BitmapFactory(createDefaultDarkBitmap),
-           fill: guiMedium,
+           fill: FillMedium,
            shape: ShapeRect,
            },
 
@@ -856,7 +858,7 @@ class Skin
    }
 
 
-   public function combineAttribs(inLineage:Array<String>,inState:Int=0, ?inAttribs:{}) : Map<String,Dynamic>
+   public function combineAttribs(inLineage:Array<String>,inState:Int=0, ?inAttribs:Attribs) : Map<String,Dynamic>
    {
        var map = new Map<String,Dynamic>();
        var last = inLineage.length;
@@ -886,7 +888,7 @@ class Skin
        return map;
    }
 
-   public function renderer(inLineage:Array<String>,inState:Int=0, ?inAttribs:{}) : Renderer
+   public function renderer(inLineage:Array<String>,inState:Int=0, ?inAttribs:Attribs) : Renderer
    {
       return new Renderer(this,combineAttribs(inLineage,inState,inAttribs));
    }
@@ -899,7 +901,7 @@ class Skin
       result.onRender = onRenderSlider;
       return result;
    }
-   public function createTabRenderer(inLineage:Array<String>, ?inAttribs:Dynamic) : TabRenderer
+   public function createTabRenderer(inLineage:Array<String>, ?inAttribs:Attribs) : TabRenderer
    {
       var result = new TabRenderer(this, inLineage, inAttribs);
       return result;
@@ -1429,7 +1431,7 @@ class Skin
 
 
 
-   static public function mergeAttribs(a0:{}, aover:{}) : {}
+   public static function mergeAttribs(a0:Attribs, aover:Attribs) : Attribs
    {
       var result = {};
       for(k in Reflect.fields(a0))
@@ -1463,7 +1465,7 @@ class Skin
    }
 
 
-   public function defaultResolveAttribs(inId) : Dynamic
+   public function defaultResolveAttribs(inId) : Attribs
    {
       switch(inId)
       {

@@ -58,7 +58,7 @@ class LRInput extends Input
       gfx.lineStyle(s*2,0xff0000);
       gfx.beginFill(0xff0000,0.5);
       gfx.drawCircle(rad,rad,rad);
-      leftButton = new Button(d, onLeftDown, {
+      leftButton = new Button(d, onLeftDown, null, {
          shape:ShapeNone,
          itemAlign: Layout.AlignLeft | Layout.AlignBottom,
          onState:(s) -> leftDown = (s & Widget.DOWN)!= 0,

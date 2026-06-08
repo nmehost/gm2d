@@ -9,7 +9,7 @@ class SecondaryWindowDialog implements IDialog
 {
    var window:nme.app.Window;
 
-   public function new(pane:Pane, ?inAttribs:{}, ?inLineage:Array<String> )
+   public function new(pane:Pane, ?inAttribs:Attribs, ?inLineage:Array<String> )
    {
       var fps = 0.0;
       var layout = pane.getLayout();

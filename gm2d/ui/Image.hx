@@ -14,7 +14,7 @@ class Image extends Widget
    public var bitmapData(get,set):BitmapData;
    var bitmap:Bitmap;
 
-   public function new(?skin:Skin, ?inBmp:BitmapData, ?inLineage:Array<String>, ?inAttribs:{})
+   public function new(?skin:Skin, ?inBmp:BitmapData, ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
       super(skin,Widget.addLine(inLineage,"Image"),inAttribs);
       var bmp = inBmp != null ? inBmp : getBitmap();
@@ -41,7 +41,7 @@ class Image extends Widget
    }
    */
 
-   public static function fromSvg(?skin:Skin,resoName:String, inScale = 1.0,?inLineage:Array<String>, ?inAttribs:{})
+   public static function fromSvg(?skin:Skin,resoName:String, inScale = 1.0,?inLineage:Array<String>, ?inAttribs:Attribs)
    {
       if (skin==null)
          skin = Skin.getSkin();

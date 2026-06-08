@@ -20,7 +20,7 @@ class RGBBox extends Widget
    var rgbDialog:RGBDialog;
    var swatchSet:SwatchSet;
 
-   public function new(?inSkin:Skin, inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Int->Void, ?swatchSet:SwatchSet, ?inAttribs:{ })
+   public function new(?inSkin:Skin, inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Int->Void, ?swatchSet:SwatchSet, ?inAttribs:Attribs)
    {
       super(inSkin,inAttribs);
       mShowAlpha = inShowAlpha;

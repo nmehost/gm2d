@@ -46,7 +46,7 @@ class NumericInput extends TextInput
    static var SLIDER_W = 22;
 
 
-   public function new(inVal:Float,?inOnUpdateFloat:Float->Int->Void, ?inLineage:Array<String>, ?inAttribs:{} )
+   public function new(inVal:Float,?inOnUpdateFloat:Float->Int->Void, ?inLineage:Array<String>, ?inAttribs:Attribs )
    {
       init = false;
       super(Std.string(inVal),onUpdateText, Widget.addLine(inLineage,"NumericInput"), inAttribs);

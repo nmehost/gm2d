@@ -96,7 +96,7 @@ class ScrollWidget extends Widget //Control
    var speedY:TimeAverage;
    var mLastT:Float;
 
-   public function new(?inSkin:Skin, ?inLineage:Array<String>,?inAttribs:{})
+   public function new(?inSkin:Skin, ?inLineage:Array<String>,?inAttribs:Attribs)
    {
       super(inSkin, Widget.addLine(inLineage,"Scroll"), inAttribs);
       mEventStage = null;

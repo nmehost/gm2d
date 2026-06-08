@@ -12,7 +12,8 @@ class StaticText
    {
       var label = new TextField();
       label.text = inText;
-      var renderer = Skin.renderer(["StaticText","Text"]);
+      var skin = Skin.getSkin();
+      var renderer = skin.renderer(["StaticText","Text"]);
       renderer.renderLabel(label);
       label.autoSize = nme.text.TextFieldAutoSize.LEFT;
       if (inParent!=null)

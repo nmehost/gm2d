@@ -1,5 +1,6 @@
 package gm2d.ui;
 
+import cpp.abi.Abi;
 import gm2d.Screen;
 import gm2d.ScreenScaleMode;
 import gm2d.skin.Skin;
@@ -20,16 +21,20 @@ class MiniWin extends Sprite
    var mClientHeight:Float;
    var mClientOffset:Point;
    var mDragStage:nme.display.Stage;
+   var skin:Skin;
 
    public function new(inPane:Pane, inScreen:Screen )
    {
       super();
+      skin = inScreen?.skin;
+      if (skin==null)
+         skin = Skin.getSkin();
       pane = inPane;
-      mHitBoxes = new HitBoxes(this, onHitBox);
+      mHitBoxes = new HitBoxes(skin, this, onHitBox);
       mScreen = inScreen;
       addChild(inPane.displayObject);
 
-      mClientOffset = Skin.getMiniWinClientOffset();
+      mClientOffset = skin.getMiniWinClientOffset();
       pane.displayObject.x = mClientOffset.x;
       pane.displayObject.y = mClientOffset.y;
       x = 20;
@@ -38,7 +43,7 @@ class MiniWin extends Sprite
       mClientWidth = 200;
       mClientHeight = 200;
       //pane.displayObject.scrollRect = new Rectangle(20,20,mClientWidth, mClientHeight);
-      Skin.renderMiniWin(this,pane,new Rectangle(0,0,mClientWidth,mClientHeight),mHitBoxes,true);
+      skin.renderMiniWin(this,pane,new Rectangle(0,0,mClientWidth,mClientHeight),mHitBoxes,true);
       addChild(pane.displayObject);
       mScreen.addChild(this);
    }
@@ -74,7 +79,7 @@ class MiniWin extends Sprite
 
    function redraw()
    {
-      Skin.renderMiniWin(this,pane,new Rectangle(0,0,mClientWidth,mClientHeight),mHitBoxes,true);
+      skin.renderMiniWin(this,pane,new Rectangle(0,0,mClientWidth,mClientHeight),mHitBoxes,true);
    }
 
    function onEndDrag(_)

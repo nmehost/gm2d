@@ -33,7 +33,7 @@ class ProgressDialog extends Dialog
       if (status!=null)
          panel.addLabelUI("Status", status);
 
-      var attribs:{ } = null;
+      var attribs:Attribs = null;
       if (inStyle!=null)
          attribs = { progressStyle : inStyle }
       var progress = new ProgressBar(inMax, attribs );

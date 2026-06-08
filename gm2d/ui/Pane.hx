@@ -18,7 +18,7 @@ class Pane implements IDockable
    public var title(default,null):String;
    public var shortTitle(default,null):String;
    public var displayObject(default,null):DisplayObject;
-   public var frameAttribs:{ };
+   public var frameAttribs:Attribs;
    public var gm2dMinimized:Bool;
    //public var minSizeX:Float;
    //public var minSizeY:Float;

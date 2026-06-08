@@ -9,6 +9,7 @@ import gm2d.ui.HitBoxes;
 import gm2d.ui.Button;
 import gm2d.ui.IDockable;
 import gm2d.ui.Widget;
+import gm2d.ui.Attribs;
 import gm2d.ui.Pane;
 import nme.display.Sprite;
 import nme.display.BitmapData;
@@ -50,7 +51,7 @@ class TabRenderer
 
    var buts:Array<Widget>;
 
-   public function new(inSkin:Skin, inLineage:Array<String>, inAttribs:{})
+   public function new(inSkin:Skin, inLineage:Array<String>, inAttribs:Attribs)
    {
       skin = inSkin;
       attribs = skin.combineAttribs(inLineage, 0, inAttribs);

@@ -17,7 +17,7 @@ class TextLabel extends Widget
    public var isInput(default,null):Bool;
    public var processSpecial:Bool;
 
-   public function new(?inSkin:Skin, inVal="",?inLineage:Array<String>, ?inAttribs:{} )
+   public function new(?inSkin:Skin, inVal="",?inLineage:Array<String>, ?inAttribs:Attribs )
    {
        super(skin, Widget.addLine(inLineage,"TextLabel"),inAttribs);
        wantFocus = false;

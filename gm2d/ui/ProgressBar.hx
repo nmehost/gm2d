@@ -12,7 +12,7 @@ class ProgressBar extends Widget
    var ballRad:Float;
    var t0:Float;
 
-   public function new(?inSkin:Skin, inMax:Float,?inLineage:Array<String>,?inAttribs:{})
+   public function new(?inSkin:Skin, inMax:Float,?inLineage:Array<String>,?inAttribs:Attribs)
    {
       super(Widget.addLine(inLineage,"ProgressBar"),inAttribs);
       mMax = inMax;

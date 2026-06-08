@@ -14,7 +14,7 @@ class TileControl extends ScrollWidget
 
    public var count(get,null):Int;
 
-   public function new(?inSkin:Skin, ?inLineage:Array<String>,?inAttribs:{})
+   public function new(?inSkin:Skin, ?inLineage:Array<String>,?inAttribs:Attribs)
    {
       super(inSkin, Widget.addLine(inLineage,"TileControl"), inAttribs);
       columns = attribInt("columns",0);

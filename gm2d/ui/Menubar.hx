@@ -43,7 +43,7 @@ class SpriteMenubar extends Widget implements Menubar implements IDock
 
    var extraWidgets:Array<Widget>;
 
-   public function new(inParent:DisplayObjectContainer,?dummy:Int,?inLineage:Array<String>,?inAttribs:{})
+   public function new(inParent:DisplayObjectContainer,?dummy:Int,?inLineage:Array<String>,?inAttribs:Attribs)
    {
       super( Widget.addLines(inLineage,["Menubar"]), inAttribs);
       if (inParent!=null)

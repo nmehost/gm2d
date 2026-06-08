@@ -21,7 +21,7 @@ class DialogScreen extends Screen implements IDialog
    var mPane:Pane;
    public var shouldConsumeEvent : MouseEvent -> Bool;
 
-   public function new(inPane:Pane, ?inLineage:Array<String>, ?inAttribs:{} )
+   public function new(inPane:Pane, ?inLineage:Array<String>, ?inAttribs:Attribs )
    {
       super(Widget.addLines(inLineage,["DialogScreen","Dialog"]), inAttribs);
 

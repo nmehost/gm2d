@@ -33,7 +33,7 @@ class DockFrame extends Widget
    var mSizeX0:Int;
    var mSizeY0:Int;
 
-   public function new(?inSkin:Skin,inPane:IDockable, parentDock:IDock, callbacks:DockCallbacks, ?inAttribs:{ })
+   public function new(?inSkin:Skin,inPane:IDockable, parentDock:IDock, callbacks:DockCallbacks, ?inAttribs:Attribs)
    {
       var skin = Skin.getSkin(inSkin);
       var p = inPane.asPane();
@@ -54,7 +54,7 @@ class DockFrame extends Widget
 
       var vlayout = new VerticalLayout([0,1]);
 
-      var chromeButtons:Array<{}> = [
+      var chromeButtons:Array<Attribs> = [
           { id:Skin.Close, onClick:function() pane.closeRequest(false) },
       ];
       if (callbacks!=null && callbacks.onPaneMaximize!=null )

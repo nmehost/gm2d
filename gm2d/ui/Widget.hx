@@ -59,7 +59,7 @@ class Widget extends Sprite
 
    //var highlightColour:Int;
 
-   public function new(?inSkin:Skin, ?inLineage:Array<String>, ?inAttribs:{})
+   public function new(?inSkin:Skin, ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
       super();
       skin = inSkin==null ? Skin.getSkin() : inSkin;
@@ -207,6 +207,14 @@ class Widget extends Sprite
    }
 
    public function attribDynamic(inName:String,inDefault:Dynamic) : Dynamic
+   {
+      var result = combinedAttribs.get(inName);
+      if (result!=null)
+         return result;
+      return inDefault;
+   }
+
+   public function attribAttribs(inName:String,inDefault:Attribs) : Attribs
    {
       var result = combinedAttribs.get(inName);
       if (result!=null)

@@ -26,7 +26,7 @@ class Panel extends Widget
    var mTitle:String;
    var mPane:Pane;
 
-   public function new(?inSkin:Skin, inTitle:String = "",?inIcon:Image, ?inLineage:Array<String>, ?inAttribs:{})
+   public function new(?inSkin:Skin, inTitle:String = "",?inIcon:Image, ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
       if (inTitle!="")
          inAttribs = Widget.addAttribs(inAttribs, {title:inTitle});
@@ -88,7 +88,7 @@ class Panel extends Widget
        mItemGrid.setMinColWidth(1,inSize);
    }
 
-   public function showDialog(inCentre=true,inAutoClose=true,inAsScreen=false,?inLineage:Array<String>, ?inAttribs:{} ) : IDialog
+   public function showDialog(inCentre=true,inAutoClose=true,inAsScreen=false,?inLineage:Array<String>, ?inAttribs:Attribs ) : IDialog
    {
       if (inAsScreen)
       {
@@ -117,7 +117,7 @@ class Panel extends Widget
       return dlg;
    }
 
-   public function showOkDialog(onOk:Void->Void, okText="Ok", inCentre=true,inAutoClose=true,?inAttribs:{}, ?inLineage:Array<String>)
+   public function showOkDialog(onOk:Void->Void, okText="Ok", inCentre=true,inAutoClose=true,?inAttribs:Attribs, ?inLineage:Array<String>)
    {
       addTextButton(okText, function() { Game.closeDialog(); onOk();} );
       showDialog(inCentre, inAutoClose, inLineage, inAttribs );
@@ -376,19 +376,19 @@ class Panel extends Widget
       }
    }
 
-   public function addLabelObj(inLabel:String,inObj:DisplayObject,?inName:String,?inAlign:Null<Int>, inAttribs:{} = null)
+   public function addLabelObj(inLabel:String,inObj:DisplayObject,?inName:String,?inAlign:Null<Int>, inAttribs:Attribs = null)
    {
       addLabel(inLabel,inName,inAlign,inAttribs);
       addObj(inObj,inAlign);
    }
 
-   public function addLabelUI(inLabel:String,inObj:Widget,?inAlign:Null<Int>, inAttribs:{} = null)
+   public function addLabelUI(inLabel:String,inObj:Widget,?inAlign:Null<Int>, inAttribs:Attribs = null)
    {
       addLabel(inLabel,null,inAlign,inAttribs);
       addUI(inObj);
    }
  
-   public function addLabel(inText:String,?inName:String,?inAlign:Null<Int>, inAttribs:{} = null)
+   public function addLabel(inText:String,?inName:String,?inAlign:Null<Int>, inAttribs:Attribs = null)
    {
       mLayoutDirty = true;
       if (inText==null)
@@ -397,7 +397,7 @@ class Panel extends Widget
          return;
       }
 
-      var textAttrs:{} = attribDynamic("panelText",null);
+      var textAttrs:Attribs = attribDynamic("panelText",null);
       if (textAttrs==null)
          textAttrs = inAttribs;
       else if (inAttribs!=null)

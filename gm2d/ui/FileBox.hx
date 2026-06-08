@@ -15,7 +15,7 @@ class FileBox extends TextInput
    var rightAlign = true;
    var defaultText:String;
 
-   public function new(inVal="", ?inLineage:Array<String>, ?inAttribs:{})
+   public function new(inVal="", ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
        super(inVal, null, Widget.addLine(inLineage,"FileBox"), inAttribs);
        isDir = attribBool("directory",false);

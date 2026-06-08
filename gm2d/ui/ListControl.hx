@@ -74,7 +74,7 @@ class ListControl extends ScrollWidget
    public var variableHeightRows = false;
 
 
-   public function new(?inSkin:Skin, ?inOnSelect:Int->Void, ?inLineage:Array<String>,?inAttribs:{})
+   public function new(?inSkin:Skin, ?inOnSelect:Int->Void, ?inLineage:Array<String>,?inAttribs:Attribs)
    {
       super(inSkin, Widget.addLine(inLineage,"List"), inAttribs);
 

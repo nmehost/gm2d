@@ -124,7 +124,7 @@ class ComboBox extends TextInput
    var inlineDisplay:Bitmap;
 
    public function new(inVal="", ?inOptions:Array<String>, ?inDisplay:Array<Dynamic>,
-       ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void, ?inOnTextPhase:String->Int->Void, ?inLineage:Array<String>, ?inAttribs:{})
+         ?inOnSelectIndex:Int->Void, ?inOnSelectString:String->Void, ?inOnTextPhase:String->Int->Void, ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
        index = -1;
        onItem = inOnSelectIndex;

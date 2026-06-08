@@ -14,7 +14,7 @@ class FrameWidget extends Widget
 {
    var child:Widget;
 
-   public function new(inChild:Widget, ?inLineage:Array<String>, ?inAttribs:{})
+   public function new(inChild:Widget, ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
       child = inChild;
       super(Widget.addLines(inLineage,["Frame"]), inAttribs);
