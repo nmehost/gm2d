@@ -388,13 +388,13 @@ class Panel extends Widget
       addUI(inObj);
    }
  
-   public function addLabel(inText:String,?inName:String,?inAlign:Null<Int>, inAttribs:Attribs = null)
+   public function addLabel(inText:String,?inName:String,?inAlign:Null<Int>, inAttribs:Attribs = null) : TextLabel
    {
       mLayoutDirty = true;
       if (inText==null)
       {
          mItemGrid.add(null);
-         return;
+         return null;
       }
 
       var textAttrs:Attribs = attribDynamic("panelText",null);
@@ -413,6 +413,7 @@ class Panel extends Widget
              mLabelLookup = new Hash<TextLabel>();
           mLabelLookup.set(inName,label);
       }
+      return label;
    }
    public function setLabel(inName:String,inValue:String)
    {

@@ -1,5 +1,6 @@
 package gm2d;
 
+import gm2d.tween.Timeline;
 import nme.display.Sprite;
 import nme.display.Shape;
 import gm2d.Screen;
@@ -46,6 +47,7 @@ class Game
    static public var onClosePopup:Void->Void;
    static public var gapDetect = 1.0;
    static public var gapReplace = 0.1;
+   static public var timeline(default,null):Timeline;
 
    static var mCurrentScreen:Screen;
    public static var mCurrentDialog(default,null):IDialog;
@@ -55,6 +57,7 @@ class Game
    static var mDialogGrey:Shape;
    static var mDialogParent:Sprite;
    static var mPopupParent:Sprite;
+   static var mOverlayParent:Sprite;
    static var mDebugOverlay:Shape;
    static var mFPSControl:TextField;
    static var mAutoCloseDialog:Bool;
@@ -107,6 +110,10 @@ class Game
       mDialogParent.name = "DialogParent";
       mPopupParent = new Sprite();
       mPopupParent.name = "PopupParent";
+      mOverlayParent = new Sprite();
+      mOverlayParent.name = "OverlayParent";
+      mOverlayParent.mouseEnabled = false;
+      mOverlayParent.visible = false;
       mDebugOverlay = new Shape();
       mDebugOverlay.name = "DebugOverlay";
       mDebugOverlay.visible = false;
@@ -121,14 +128,17 @@ class Game
       mFPSControl.visible = mShowFPS;
       mFPSControl.textColor = mFPSColor;
 
+      timeline = new Timeline();
+
       var parent = nme.Lib.current;
       parent.name = "nme.Lib.current";
       parent.addChildAt(mScreenParent,0);
       parent.addChildAt(mDialogGrey,1);
       parent.addChildAt(mDialogParent,2);
       parent.addChildAt(mPopupParent,3);
-      parent.addChildAt(mFPSControl,4);
-      parent.addChildAt(mDebugOverlay,5);
+      parent.addChildAt(mOverlayParent,4);
+      parent.addChildAt(mFPSControl,5);
+      parent.addChildAt(mDebugOverlay,6);
 
       //if (pixelAccurate)
       parent.stage.scaleMode = nme.display.StageScaleMode.NO_SCALE;
@@ -160,6 +170,18 @@ class Game
          stage.invalidate();
    }
 
+   public static function addOverlay(inObj:DisplayObject)
+   {
+      mOverlayParent.addChild(inObj);
+      mOverlayParent.visible = true;
+   }
+
+   public static function removeOverlay(inObj:DisplayObject)
+   {
+      mOverlayParent.removeChild(inObj);
+      mOverlayParent.visible = mOverlayParent.numChildren>0;
+   }
+
    public static function destroy()
    {
       var parent = nme.Lib.current;
@@ -171,6 +193,8 @@ class Game
          parent.removeChild(mDialogParent);
       if (mPopupParent!=null)
          parent.removeChild(mPopupParent);
+      if (mOverlayParent!=null)
+         parent.removeChild(mOverlayParent);
       if (mDebugOverlay!=null)
          parent.removeChild(mDebugOverlay);
       if (mFPSControl!=null)
@@ -651,13 +675,15 @@ class Game
    {
       var now = haxe.Timer.stamp();
       var big_gap = now>mLastEnter+gapDetect;
+      var dt = big_gap ? gapReplace : now-mLastEnter;
+      timeline.update(dt);
       if (mCurrentScreen!=null)
       {
-         mCurrentScreen.updateTimeline(big_gap ? gapReplace : now-mLastEnter);
+         mCurrentScreen.updateTimeline(dt);
          var freq = mCurrentScreen.getUpdateFrequency();
          if (freq<=0)
          {
-            mCurrentScreen.updateDelta(now-mLastEnter);
+            mCurrentScreen.updateDelta(dt);
             mCurrentScreen.onUpdated();
             mLastEnter = now;
             mCurrentScreen.render(0.0);
@@ -675,15 +701,24 @@ class Game
             else
             {
                // Do a number of descrete steps based on the frequency.
-               steps = Math.floor( (now-mLastStep) * freq );
+               steps = Math.floor( (dt) * freq );
                mLastStep += steps / freq;
             }
 
+            var screen = mCurrentScreen;
             for(i in 0...steps)
+            {
                mCurrentScreen.updateFixed();
+               if (screen!=mCurrentScreen)
+               {
+                  mLastEnter = now;
+                  update();
+                  return;
+               }
+            }
             mCurrentScreen.onUpdated();
 
-            var fractional_step = (now-mLastStep) * freq;
+            var fractional_step = (dt) * freq;
 
             mCurrentScreen.render(fractional_step);
 
