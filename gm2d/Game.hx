@@ -542,7 +542,7 @@ class Game
 
    static function updateDialogSize()
    {
-      var s = mCurrentScreen.stage;
+      var s = mCurrentScreen?.stage;
       if (s!=null && mDialogGrey.visible)
       {
          var sw = s.stageWidth;
@@ -684,9 +684,9 @@ class Game
          if (freq<=0)
          {
             mCurrentScreen.updateDelta(dt);
-            mCurrentScreen.onUpdated();
+            mCurrentScreen?.onUpdated();
             mLastEnter = now;
-            mCurrentScreen.render(0.0);
+            mCurrentScreen?.render(0.0);
          }
          else
          {
@@ -716,11 +716,12 @@ class Game
                   return;
                }
             }
-            mCurrentScreen.onUpdated();
+
+            mCurrentScreen?.onUpdated();
 
             var fractional_step = (dt) * freq;
 
-            mCurrentScreen.render(fractional_step);
+            mCurrentScreen?.render(fractional_step);
 
             //var fps = (now==mLastEnter) ? 1000 : 1.0/(now-mLastEnter);
             //trace(steps + ":" + fps + "   (" + fractional_step + ")");

@@ -26,6 +26,8 @@ class Widget extends Sprite
    public static inline var ALTERNATE  = 0x0010;
    public static inline var SELECTED   = 0x0020;
 
+   public static var keyboardNavigation:Bool = true;
+
    var mLayout:BorderLayout;
    var mItemLayout:Layout;
 
@@ -377,7 +379,10 @@ class Widget extends Sprite
    {
       if (wasCurrent==null)
          wasCurrent = isCurrent;
-      combinedAttribs = skin.combineAttribs(mLineage, state, mAttribs);
+      var renderState = state;
+      if (isCurrent && !keyboardNavigation && attribBool("autoCurrent",false))
+         renderState &= ~CURRENT;
+      combinedAttribs = skin.combineAttribs(mLineage, renderState, mAttribs);
       mRenderer = new Renderer(skin,combinedAttribs);
       redraw();
       if (isCurrent && !wasCurrent && attribBool("raiseCurrent",true) && parent!=null)
@@ -392,6 +397,7 @@ class Widget extends Sprite
          state = inState;
          if (onState!=null)
             onState(state);
+         stage?.invalidate();
          rebuildState(wasCurrent);
       }
       return inState;

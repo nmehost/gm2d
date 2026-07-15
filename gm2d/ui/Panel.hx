@@ -316,7 +316,7 @@ class Panel extends Widget
    }
 
 
-   public function addUI(inItem:gm2d.ui.Widget)
+   public function addUI(inItem:gm2d.ui.Widget, stretch=true)
    {
       mLayoutDirty = true;
        if (inItem==null)
@@ -325,7 +325,9 @@ class Panel extends Widget
          return;
       }
       addChild(inItem);
-      mItemGrid.add( inItem.getLayout().stretch() );
+      if (stretch)
+         inItem.getLayout().stretch();
+      mItemGrid.add( inItem.getLayout() );
    }
    public function addRow(inLayout:Layout)
    {
@@ -356,22 +358,26 @@ class Panel extends Widget
 
 
 
-   public function addObj(inObj:nme.display.DisplayObject,?inAlign:Null<Int>)
+   public function addObj(inObj:nme.display.DisplayObject,?inAlign:Null<Int>,stretch=true)
    {
       mLayoutDirty = true;
       addChild(inObj);
       if (Std.isOfType(inObj,Widget))
       {
          var layout = cast(inObj,Widget).getLayout();
-         mItemGrid.add( layout.stretch() );
+         if (inAlign!=null)
+            layout.setAlignment(inAlign);
+         else if (stretch)
+            layout.stretch();
+         mItemGrid.add( layout );
       }
       else
       {
          var layout = new DisplayLayout(inObj);
          if (inAlign!=null)
             layout.mAlign = inAlign;
-         else
-            layout.mAlign = Layout.AlignStretch;
+         else if (stretch)
+            layout.stretch();
          mItemGrid.add( layout );
       }
    }
@@ -382,11 +388,12 @@ class Panel extends Widget
       addObj(inObj,inAlign);
    }
 
-   public function addLabelUI(inLabel:String,inObj:Widget,?inAlign:Null<Int>, inAttribs:Attribs = null)
+   public function addLabelUI(inLabel:String,inObj:Widget,?inAlign:Null<Int>, stretch=true, inAttribs:Attribs = null)
    {
       addLabel(inLabel,null,inAlign,inAttribs);
-      addUI(inObj);
+      addUI(inObj,stretch);
    }
+
  
    public function addLabel(inText:String,?inName:String,?inAlign:Null<Int>, inAttribs:Attribs = null) : TextLabel
    {

@@ -410,7 +410,7 @@ class Renderer
             uvtData[vid++] = u;
             uvtData[vid++] = v;
          }
-      gfx.beginBitmapFill(bmp);
+      gfx.beginBitmapFill(bmp, null, false, true);
       gfx.drawTriangles(vertices, getIndices(), uvtData);
    }
 

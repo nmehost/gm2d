@@ -26,7 +26,9 @@ class Image extends Widget
          if (bmpScale!=1.0)
             bitmap.scaleX = bitmap.scaleY = bmpScale;
          var align = attribInt("alignBitmap", Layout.AlignGraphcsRect|Layout.AlignKeepAspect );
-         setItemLayout( new DisplayLayout(bitmap,align) );
+         var itemLayout =  new DisplayLayout(bitmap,align);
+         itemLayout.name = "Image Layout";
+         setItemLayout(itemLayout);
       }
       applyStyles();
    }

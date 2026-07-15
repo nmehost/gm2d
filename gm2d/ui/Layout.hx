@@ -274,7 +274,10 @@ class Layout
    public function setRect(inX:Float,inY:Float,inW:Float,inH:Float) : Void
    {
       if (debug)
+      {
          trace('Layout setRect $onLayout, $name:$layoutId $inX,$inY ${inW}x$inH for min=${getMinSize()} best=${getBestSize()}');
+         trace('  borders: $mBLeft,$mBTop,$mBRight,$mBBottom');
+      }
       lastRect = new Rectangle(inX,inY,inW,inH);
       if (onLayout!=null)
          onLayout(inX+mBLeft,inY+mBTop,inW-mBLeft-mBRight,inH-mBTop-mBBottom);
@@ -386,13 +389,19 @@ class Layout
       var inH = h;
       var min = child.getMinSize();
       if (debug)
-         trace('  aligning($child:  $x,$y,$w,$h / $min)');
+         trace('  aligning($child:  $x,$y,$w,$h / $min), align=${child.mAlign}');
 
       //if (debug) trace('  $name : alignChild $x,$y ${w}x$h / $min');
       if (w<min.x)
          w = min.x;
       if (h<min.y)
          h = min.y;
+      if (child.debug || debug)
+      {
+         trace('  $name : alignChild ${child.name} a=${child.mAlign} $x,$y ${inW}x$inH -> $w x $h / $min');
+         //if (h>w)
+         //   throw "debug";
+      }
       if ( (child.mAlign & Layout.AlignKeepAspect) > 0 )
       {
          var cw = child.getBestWidth();
@@ -409,6 +418,7 @@ class Layout
              y+=(h-nh)*0.5;
              h = nh;
          }
+         trace("alignChild keepAspect: $child $cw x $ch -> $w x $h");
       }
 
       switch(child.mAlign & Layout.AlignMaskX)
@@ -478,7 +488,7 @@ class Layout
       }
 
       if (debug)
-         trace(' -> ${child}.setRect($x,$y,$w,$h)');
+         trace(' $this -> ${child}.setRect($x,$y,$w,$h)');
       child.setRect(x,y,w,h);
 
       /*

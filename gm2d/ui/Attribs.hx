@@ -43,6 +43,7 @@ typedef Attribs =
    ?align:Int,
    ?itemAlign:Int,
    ?alignBitmap:Int,
+   ?autoCurrent:Bool,
 
    // Text/presentation options
    ?textAlign:String,
@@ -69,6 +70,7 @@ typedef Attribs =
    ?buttonSpacing:Int,
    ?buttonAlign:Int,
    ?width:Float,
+   ?down:Bool,
 
    ?bmpScale:Float,
    ?chromeButtons:Array<Attribs>,
@@ -84,9 +86,11 @@ typedef Attribs =
    ?itemHeight:Float,
 
    ?step:Float,
+   ?arrowStep:Float,
    ?placeholder:String,
    ?minValue:Float,
    ?maxValue:Float,
+   ?barColour:Int,
 
    ?browseTitle: String,
    ?browseFilter: String,
@@ -94,5 +98,6 @@ typedef Attribs =
    ?onTextEnter:String->Void,
    ?icon:BitmapData,
    ?text:String,
+   ?alternateText:String,
    ?onState: Int->Void,
 }

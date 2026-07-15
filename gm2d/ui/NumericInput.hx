@@ -1,6 +1,7 @@
 package gm2d.ui;
 
 import nme.text.TextField;
+import nme.ui.Keyboard;
 import nme.display.Sprite;
 import nme.display.Shape;
 import nme.display.BitmapData;
@@ -108,6 +109,45 @@ class NumericInput extends TextInput
    }
 
    override function alwaysPlaceholder() return true;
+
+   override public function onKeyDown(event:nme.events.KeyboardEvent ) : Bool
+   {
+      if (super.onKeyDown(event))
+         return true;
+
+      var arrowStep = attribFloat("arrowStep",0);
+      if (arrowStep>0)
+      {
+         if (event.keyCode==Keyboard.LEFT)
+         {
+            setValue(restrictedValue-arrowStep);
+            if (onUpdate!=null)
+               onUpdate(restrictedValue,Phase.ALL);
+            return true;
+         }
+         else if (event.keyCode==Keyboard.RIGHT)
+         {
+            setValue(restrictedValue+arrowStep);
+            if (onUpdate!=null)
+               onUpdate(restrictedValue,Phase.ALL);
+            return true;
+         }
+      }
+
+      return false;
+   }
+
+   override public function onKeyUp(event:nme.events.KeyboardEvent ) : Bool
+   {
+      if (super.onKeyUp(event))
+         return true;
+      var arrowStep = attribFloat("arrowStep",0);
+      if (arrowStep>0 && (event.keyCode==Keyboard.LEFT || event.keyCode==Keyboard.RIGHT) )
+         return true;
+
+      return false;
+   }
+
 
 
    override public function createUnderlay()
@@ -291,7 +331,8 @@ class NumericInput extends TextInput
       if (range>0)
       {
          gfx.clear();
-         gfx.beginFill(0xc0c0c0,1);
+         var barCol = attribInt("barColour",0xc0c0c0);
+         gfx.beginFill(barCol,1);
          var val = restrictedValue<maxBar ? fullValue : maxBar;
          if (val<min)
             val = min;

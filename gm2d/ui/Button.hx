@@ -48,6 +48,7 @@ class Button extends Control
       addEventListener(MouseEvent.MOUSE_DOWN, onDown );
       addEventListener(MouseEvent.MOUSE_OUT, onOut );
       addEventListener(MouseEvent.MOUSE_UP, onUp );
+      var isImage = false;
 
       if (mDisplayObj!=null)
       {
@@ -104,11 +105,17 @@ class Button extends Control
             var textStyle = attribDynamic("textStyle",{});
             var textLineage = attribDynamic("textLineage",[]);
             var textWidget = (text==null) ? null : new TextLabel(text,textLineage,textStyle);
-            iconWidget = (icon==null) ? null : new Image(icon);
+            iconWidget = (icon==null) ? null : new Image(icon,{alignBitmap:Layout.AlignCenter});
+            if (iconWidget!=null)
+            {
+               iconWidget.name = "ButtonIcon";
+            }
+            //trace("Button: " + name + " contents: " + contents + " items: " + items + " text: " + text + " icon: " + icon);
             if (items==1)
             {
                addChild(mDisplayObj = (textWidget!=null ? textWidget : iconWidget) );
                setItemLayout((textWidget!=null ? (textWidget:Widget) : (iconWidget:Widget)).getLayout());
+               getLayout().name = "Button Outer";
             }
             else
             {
@@ -133,6 +140,7 @@ class Button extends Control
       //build();
 
       applyStyles();
+
       if (isToggle && attribBool("down",false))
          down = true;
    }
@@ -270,7 +278,7 @@ class Button extends Control
    public static function BMPButton(inBitmapData:BitmapData,?inOnClick:Void->Void, ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
       //var bmp = new Bitmap(inBitmapData);
-      var result = new BmpButton(inBitmapData,inOnClick,Widget.addLine(inLineage,"BitmapButton"), inAttribs);
+      var result = new BmpButton(inBitmapData,inOnClick,inLineage,inAttribs);
       //bmp.smoothing = result.attribBool("smooth",false);
       return result;
    }
@@ -278,7 +286,7 @@ class Button extends Control
    public static function BitmapButton(inBitmapData:BitmapData,?inOnClick:Void->Void, ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
       //var bmp = new Bitmap(inBitmapData);
-      var result = new BmpButton(inBitmapData,inOnClick, Widget.addLine(inLineage,"BitmapButton"), inAttribs);
+      var result = new BmpButton(inBitmapData,inOnClick, inLineage, inAttribs);
       //bmp.smoothing = result.attribBool("smooth",false);
       return result;
    }
@@ -345,10 +353,11 @@ class BmpButton extends Button
    public function new(inBitmapData:BitmapData,?inOnClick:Void->Void,?inLineage:Array<String>,?inAttribs:Dynamic)
    {
       normal = inBitmapData;
+      //bitmap = new Bitmap(normal, nme.display.PixelSnapping.AUTO, smooth);
       bitmap = new Bitmap(normal);
-      super(bitmap,inOnClick,inLineage,inAttribs);
+      super(bitmap,inOnClick,Widget.addLine(inLineage,"BitmapButton"),inAttribs);
       bitmap.name="BmpButton";
-      bitmap.smoothing = attribBool("smooth",false);
+      bitmap.smoothing = attribBool("smooth",true);
    }
 
    public function createDisabled(inBmp:BitmapData)

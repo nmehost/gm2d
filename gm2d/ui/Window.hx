@@ -49,6 +49,7 @@ class Window extends Widget
    function currentFromMouse(inEvent:MouseEvent)
    {
       //checkCurrentMode(false);
+      Widget.keyboardNavigation = false;
       var target:nme.display.DisplayObject = inEvent.target;
       while(target!=null && target!=this)
       {
@@ -149,6 +150,7 @@ class Window extends Widget
 
       if (dx!=0 || dy!=0)
       {
+         Widget.keyboardNavigation = true;
          //checkCurrentMode(true);
          if (focusWidget==null || focusWidget.stage==null)
          {
@@ -215,7 +217,7 @@ class Window extends Widget
 
       if (focusWidget!=null)
       {
-          if (code==Keyboard.ENTER)
+          if (code==Keyboard.ENTER || code==Keyboard.SPACE)
           {
              focusWidget.activate();
              return true;

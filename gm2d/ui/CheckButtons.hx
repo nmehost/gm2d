@@ -11,11 +11,12 @@ import gm2d.ui.WidgetState;
 
 class CheckButtons extends Button
 {
-   public function new(inValue:Bool, ?inCheck:Bool->Void,?inLineage:Array<String>,?inAttribs:Dynamic)
+   public function new(inValue:Bool, ?inCheck:Bool->Void,?inLineage:Array<String>,?inAttribs:Attribs)
    {
-      super(null,inCheck==null ? null : () -> inCheck(down),Widget.addLines(inLineage,["CheckButton"]),inAttribs);
+      super(null,inCheck==null ? null : () -> inCheck(down),Widget.addLine(inLineage,"CheckButton"),inAttribs);
       setChecked(inValue);
       //build();
+      //getItemLayout().setAlignment(Layout.AlignLeft | Layout.AlignCenterY);
    }
 
    public function setChecked(inCheck:Bool)

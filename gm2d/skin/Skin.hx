@@ -208,6 +208,7 @@ class Skin
            },
         "Control" => {
            wantsFocus: true,
+           autoCurrent: true,
            stateCurrent: {
               filters: currentFilters!=null && currentFilters.length==0 ? null : currentFilters,
               line: LineHighlight,
@@ -219,6 +220,7 @@ class Skin
            fill: FillButton,
            line: LineTrim,
            textAlign: "center",
+           autoCurrent: false,
            itemAlign: Layout.AlignCenter,
            padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
            offset: new Point(scale(1),scale(1)),
@@ -385,6 +387,7 @@ class Skin
            },
         "Image" => {
            alignBitmap: Layout.AlignGraphcsRect | Layout.AlignKeepAspect,
+           //align: Layout.AlignStretch,
            },
 
         "UiButton" => {
@@ -395,7 +398,8 @@ class Skin
         "CheckButton" => {
            shape: ShapeNone,
            offset: new Point(0,0),
-           itemAlign: Layout.AlignLeft,
+           itemAlign: Layout.AlignLeft | Layout.AlignCenterY,
+           align: Layout.AlignLeft | Layout.AlignCenterY,
            padding: 1,
            toggle: true,
            bitmapId:"#checkbox-small",

@@ -12,7 +12,7 @@ class ChoiceButtons extends Control
    var group:RadioGroup<String>;
    var layout:Layout;
 
-   public function new(inOnChoice:String->Void,?inItemsPerRow:Null<Int>,?inLineage:Array<String>,?inAttribs:Dynamic)
+   public function new(inOnChoice:String->Void,?inItemsPerRow:Null<Int>,?inLineage:Array<String>,?inAttribs:Attribs)
    {
       super(Widget.addLine(inLineage,"ChoiceButtons"), inAttribs);
 
@@ -39,7 +39,7 @@ class ChoiceButtons extends Control
       build();
    }
 
-   public static function create(inOnIndex:Int->Void,inKeys:Array<Dynamic>, inBitmaps:Map<String,BitmapData>, ?inItemsPerRow:Int, ?inAttribs:Dynamic )
+   public static function create(inOnIndex:Int->Void,inKeys:Array<Dynamic>, inBitmaps:Map<String,BitmapData>, ?inItemsPerRow:Int, ?inAttribs:Attribs )
    {
       var keys:Array<String> = inKeys.map( function(x) return Std.string(x) );
 
