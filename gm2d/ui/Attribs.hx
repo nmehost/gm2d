@@ -71,6 +71,8 @@ typedef Attribs =
    ?buttonAlign:Int,
    ?width:Float,
    ?down:Bool,
+   ?resource:String,
+
 
    ?bmpScale:Float,
    ?chromeButtons:Array<Attribs>,

@@ -663,8 +663,8 @@ class DisplayLayout extends Layout
    // DisplayLayout
    public override function getMinSize() : Size
    {
-      return bestDefault(new Size(minWidth>=0 ? minWidth : mOWidth,
-                                 minHeight>=0 ? minHeight : mOHeight ));
+      return bestDefault(new Size(minWidth>=0 ? minWidth : mOWidth + mBLeft + mBRight,
+                                 minHeight>=0 ? minHeight : mOHeight + mBTop + mBBottom));
    }
 
    public override function setBestWidth(inW:Float)
@@ -910,7 +910,7 @@ class TextLayout extends DisplayLayout
          if (fmt!=null && fmt.size!=null)
             h = fmt.size * 1.5 + mBTop + mBBottom;
 
-         return bestDefault(new Size(minWidth>=0? minWidth : mOWidth, h) );
+         return bestDefault(new Size(minWidth>=0? minWidth : mOWidth + mBLeft + mBRight, h) );
       }
 
       return super.getMinSize();

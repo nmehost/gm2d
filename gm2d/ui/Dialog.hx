@@ -152,6 +152,7 @@ class Dialog extends Window implements IDialog
       var rx = Std.int( (inWidth - w)/2 );
       var ry = Std.int( (inHeight - h)/2 );
       setRect(rx,ry,w,h);
+      return new Size(w,h);
    }
 
    public function center(inWidth:Float,inHeight:Float)

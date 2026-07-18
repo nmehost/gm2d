@@ -558,19 +558,18 @@ class Game
          {
             sd.scaleX = 1.0;
             sd.scaleY = 1.0;
-            sd.fitStage(sw,sh);
+            var size = sd.fitStage(sw,sh);
 
-
-            var dw = sd.width;
-            var dh = sd.height;
-            var scale = Math.min( sw/sd.width, sh/sd.height );
+            var scale = Math.min( sw/size.x, sh/size.y );
             if (scale<1)
             {
                scale *= 0.95;
                sd.scaleX = sd.scaleY = scale;
             }
+            else
+               scale = 1.0;
 
-            var screenPos = new Point( Std.int(0.5*(sw-sd.width)), Std.int(0.5*(sh-sd.height)));
+            var screenPos = new Point( Std.int(0.5*(sw-size.x*scale)), Std.int(0.5*(sh-size.y*scale)));
             var local = mDialogParent.globalToLocal(screenPos);
             sd.x = local.x;
             sd.y = local.y;
