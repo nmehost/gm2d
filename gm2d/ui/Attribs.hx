@@ -86,6 +86,7 @@ typedef Attribs =
    ?bestWidth:Float,
    ?bestHeight:Float,
    ?itemHeight:Float,
+   ?columnWidth:Float,
 
    ?step:Float,
    ?arrowStep:Float,
