@@ -85,6 +85,16 @@ If the codebase also *reads* `onLayout` anywhere (not just assigns it) — e.g.
 reads as well as writes, but there's no reason to keep depending on the deprecated name once it's
 been found.
 
+**Caveat found while applying this:** the Detect pattern also matches `gm2d.ui.Pane.onLayout` —
+an unrelated, still-current setter property declared on `Pane` itself (`public var
+onLayout(never,set):Void->Void`) that just forwards internally to `getLayout().onInnerRect` on
+Pane's behalf. It is not the field this entry renames. Renaming a `pane.onLayout = handler;` site
+to `pane.onInnerRect` breaks the build (`gm2d.ui.Pane has no field onInnerRect`) since `Pane` never
+had (and doesn't need) that field. Before applying the rename to a match, check what the receiver
+actually is: only rename it if the receiver's static type is `Layout` (e.g. `someLayout.onLayout =
+...`, or `widget.getLayout().onLayout = ...`) — leave `somePane.onLayout = ...` alone whenever the
+receiver is a `Pane` (or anything else that isn't `Layout`).
+
 ---
 
 ## LAY-002 — Adding a child no longer mutates alignment/stretch
@@ -206,7 +216,15 @@ import gm2d.ui.BorderLayout;
 3. If one or two are found, add an explicit `import gm2d.ui.<Name>;` line for each, next to the
    existing `import gm2d.ui.Layout;`.
 4. If three or more are found, replace `import gm2d.ui.Layout;` with `import gm2d.ui.*;` instead
-   of adding many individual lines — simpler and matches the pre-split reach most closely.
+   of adding many individual lines — simpler and matches the pre-split reach most closely. **Before
+   doing this, check the same file for any bare (unqualified) reference to a class also named `App`
+   (or another common/generic name that also exists somewhere in `gm2d.ui`, e.g. `Widget`, `Size`,
+   `Button`).** A wildcard import doesn't error at the import line if such a collision exists — it
+   silently shadows the consuming codebase's own type with the `gm2d.ui` one, and the resulting
+   errors show up far from the actual cause and look unrelated (e.g. `gm2d.ui.App has no field
+   projectAdd`, or `gm2d.ui.App should be ed.App`). If a same-named type is referenced bare anywhere
+   in the file, use explicit per-type imports instead of the wildcard even when three or more
+   sibling types are used.
 5. After editing, recompile — any remaining "Type not found" errors for these names point at a
    file this grep-based sweep missed (e.g. types referenced only inside a macro or via
    `Type.resolveClass`), and should be fixed the same way by hand.
@@ -301,15 +319,43 @@ and the new `TextButton` class now do their own setup work in a real constructor
 the thin `BMPTextButton` wrapper around it was removed.
 
 **Fix (agent instructions):** for each match from **Detect**, apply the corresponding row's
-transform from the table above verbatim, preserving argument values and order (only `?skin`,
-if omitted in the old call, should be passed as `null` in the new positional constructor call).
-Separately, run:
+transform from the table above verbatim, preserving argument values and order. Separately, run:
 
 ```sh
 grep -rnE '\bBmpButton\b' --include='*.hx' .
 ```
 
 and rename every match to `BitmapButton`.
+
+**On omitted optional arguments (e.g. `?skin`, `?lineage`):** old calls frequently omit one or more
+leading/middle optional parameters to reach a later one positionally, e.g.
+`Button.TextButton("From Ed", onClick, attribs)` (skipping both `?skin` and `?lineage` to supply
+`attribs`). Haxe resolves this by matching the given arguments against the remaining parameter
+types — which is exactly why it compiled before without an explicit `null`. That type-directed
+matching is not something to rely on when converting to the constructor call: it's only as safe as
+the parameter types are mutually exclusive, and several of these constructors accept a generic
+`Attribs`/`Dynamic`-shaped object (`attribs`) alongside other optional parameters, so a skipped slot
+and a supplied one can occasionally be structurally compatible enough for Haxe to bind the argument
+to the wrong parameter without a compile error. Passing an explicit `null` for every optional
+parameter the old call skipped removes this ambiguity — it costs nothing at the call site and is
+never wrong, so do it unconditionally rather than trying to determine case-by-case whether the
+implicit match would have been safe. For the example above:
+
+```haxe
+// old
+Button.TextButton("From Ed", onClick, attribs);
+// new
+new TextButton(null, "From Ed", onClick, null, attribs);
+```
+
+**New-module imports:** `TextButton` and `BitmapButton` are now their own modules (see
+[LAY-003](#lay-003--layouthx-split-into-one-file-per-class-import-gm2duilayout-no-longer-reaches-sibling-types)
+for the same concern applied to `Layout`'s siblings) — rewriting the call site is not sufficient by
+itself. Every file that ends up with a bare `new TextButton(...)` or `new BitmapButton(...)` after
+this transform also needs `import gm2d.ui.TextButton;` / `import gm2d.ui.BitmapButton;` (or an
+existing `import gm2d.ui.*;`) — otherwise it fails as "Type not found" on a second compile pass
+after the call-site rewrite already looked complete. Check for this in the same pass as the call
+transform rather than waiting to discover it as a follow-up error.
 
 ---
 
