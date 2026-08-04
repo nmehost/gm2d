@@ -52,7 +52,7 @@ class MultiDock extends Widget implements IDock implements IDockable
       layout.add(tabBar.getLayout());
       clientLayout = new Layout().stretch();
       layout.add(clientLayout);
-      clientLayout.onLayout = setClientRect;
+      clientLayout.onInnerRect = setClientRect;
       setItemLayout(layout);
    }
 
@@ -120,7 +120,7 @@ class MultiDock extends Widget implements IDock implements IDockable
 
    public function addPadding(ioSize:Size):Size
    {
-      var outer = mLayout.getRect();
+      var outer = outerLayout.getRect();
       var inner = clientLayout.getRect();
       ioSize.x += outer.width-inner.width;
       ioSize.y += outer.height-inner.height;

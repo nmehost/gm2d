@@ -203,7 +203,7 @@ class SideDock extends Layout implements IDock implements IDockable
    public function getProperties() : Dynamic { return properties; }
 
 
-   override public function getMinSize():Size
+   override public function getMinSize(?inWidth:Null<Float>):Size
    {
       var min = new Size(0,0);
       for(dv in mDockables)

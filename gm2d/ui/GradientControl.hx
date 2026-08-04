@@ -120,7 +120,7 @@ class GradientControl extends Widget
       addChild(gradBox);
       var gradLayout = new DisplayLayout(gradBox,Layout.AlignCenterY|Layout.AlignStretch,32,64);
       gradLayout.setPadding(8,0);
-      gradLayout.onLayout = renderGradBox;
+      gradLayout.onInnerRect = renderGradBox;
       gradBox.addEventListener(MouseEvent.MOUSE_DOWN, onMouse);
 
       var stopControls = new GridLayout(1);
@@ -136,14 +136,14 @@ class GradientControl extends Widget
 
       var addRemoveLayout = new GridLayout(2);
       addRemoveLayout.setSpacing(0,0);
-      var addStop = Button.create(["PaneButton", "UiButton"], { id:MiniButton.ADD }, onAddStop);
+      var addStop = new Button(null, onAddStop, ["PaneButton", "UiButton"], { id:MiniButton.ADD });
       addChild(addStop);
-      //var addStop = Button.BMPButton(Skin.getButtonBitmapData(MiniButton.ADD,0),onAddStop);
+      //var addStop = new BitmapButton(Skin.getButtonBitmapData(MiniButton.ADD,0),onAddStop);
       //addStop.getItemLayout().setBorders(5,5,5,5);
 
       addRemoveLayout.add(addStop.getLayout());
-      var removeStop = Button.create(["PaneButton", "UiButton"], { id:MiniButton.REMOVE }, onRemoveStop);
-      //var removeStop = Button.BMPButton(Skin.getButtonBitmapData(MiniButton.REMOVE,0),onRemoveStop);
+      var removeStop = new Button(null, onRemoveStop, ["PaneButton", "UiButton"], { id:MiniButton.REMOVE });
+      //var removeStop = new BitmapButton(Skin.getButtonBitmapData(MiniButton.REMOVE,0),onRemoveStop);
       addChild(removeStop);
       //removeStop.getItemLayout().setBorders(5,5,5,5);
       addRemoveLayout.add(removeStop.getLayout());
@@ -217,7 +217,7 @@ class GradientControl extends Widget
    /*
    public function createButton(inData:BitmapData)
    {
-      var button = Button.BitmapButton(inData,null, "ChoiceButton" );
+      var button = new BitmapButton(inData,null, "ChoiceButton" );
       return button;
    }
    */

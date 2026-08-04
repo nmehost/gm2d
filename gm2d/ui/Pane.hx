@@ -106,7 +106,7 @@ class Pane implements IDockable
    {
       var lay = getLayout();
       if (lay!=null)
-         getLayout().onLayout = function(x,y,w,h) {
+         getLayout().onInnerRect = function(x,y,w,h) {
             call();
          }
       return call;

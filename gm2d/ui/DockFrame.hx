@@ -74,7 +74,7 @@ class DockFrame extends Widget
 
       var asPane = pane.asPane();
       //if (asPane!=null && asPane.clipped && asPane.displayObject!=null)
-      //   getLayout().onLayout = function(_,_,_,_) clipPane(asPane);
+      //   getLayout().onInnerRect = function(_,_,_,_) clipPane(asPane);
 
 
       if (callbacks.onTitleDrag!=null)

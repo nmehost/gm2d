@@ -80,7 +80,7 @@ class DocumentParent extends Sprite implements IDock implements IDockable
 
       clientLayout = new DisplayLayout(clientArea, Layout.AlignStretch, clientWidth, clientHeight);
       clientLayout.setAlignment(Layout.AlignStretch);
-      clientLayout.onLayout = setClientSize;
+      clientLayout.onInnerRect = setClientSize;
 
       if (singleDocument)
       {

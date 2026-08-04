@@ -124,13 +124,13 @@ class Button extends Control
                var layout = contents.indexOf("-") >= 0 ? new HorizontalLayout() : new VerticalLayout();
                if (contents.indexOf("icon")<contents.indexOf("text"))
                {
-                  layout.add(iconWidget.getLayout().setAlignment(Layout.AlignCenter));
-                  layout.add(textWidget.getLayout().setAlignment(Layout.AlignCenter));
+                  layout.add(iconWidget.getLayout());
+                  layout.add(textWidget.getLayout());
                }
                else
                {
-                  layout.add(textWidget.getLayout().setAlignment(Layout.AlignCenter));
-                  layout.add(iconWidget.getLayout().setAlignment(Layout.AlignCenter));
+                  layout.add(textWidget.getLayout());
+                  layout.add(iconWidget.getLayout());
                }
                setItemLayout(layout);
             }
@@ -155,11 +155,6 @@ class Button extends Control
       super.redraw();
    }
 
-
-   public static function create(?inLineage:Array<String>, ?inAttribs:Dynamic,?inOnClick:Void->Void)
-   {
-      return new Button(null,inOnClick,inLineage,inAttribs);
-   }
 
    override function widgetClick(e:MouseEvent)
    {
@@ -212,7 +207,7 @@ class Button extends Control
    public function getInnerLayout()
    {
       getLayout();
-      return mItemLayout;
+      return contentLayout;
    }
 
    override public function getLabel() : TextField
@@ -275,45 +270,6 @@ class Button extends Control
    }
 
 
-   public static function BMPButton(inBitmapData:BitmapData,?inOnClick:Void->Void, ?inLineage:Array<String>, ?inAttribs:Attribs)
-   {
-      //var bmp = new Bitmap(inBitmapData);
-      var result = new BmpButton(inBitmapData,inOnClick,inLineage,inAttribs);
-      //bmp.smoothing = result.attribBool("smooth",false);
-      return result;
-   }
-
-   public static function BitmapButton(inBitmapData:BitmapData,?inOnClick:Void->Void, ?inLineage:Array<String>, ?inAttribs:Attribs)
-   {
-      //var bmp = new Bitmap(inBitmapData);
-      var result = new BmpButton(inBitmapData,inOnClick, inLineage, inAttribs);
-      //bmp.smoothing = result.attribBool("smooth",false);
-      return result;
-   }
-
-
-   public static function TextButton(?inSkin:Skin, inText:String,inOnClick:Void->Void,?inLineage:Array<String>, ?inAttribs:Attribs)
-   {
-      var skin = Skin.getSkin(inSkin);
-      //var label = new TextLabel(inText, ["ButtonText","StaticText","Text"]);
-      var renderer = skin.renderer(Widget.addLines(inLineage,["ButtonText","Button","StaticText","Text"]),0,inAttribs);
-      var label = new TextField();
-      label.text = inText;
-      renderer.renderLabel(label);
-      label.selectable = false;
-      //label.border = true;
-      //label.borderColor = 0x0000ff;
-      var result =  new Button(label,inOnClick,Widget.addLine(inLineage,"TextButton"),inAttribs);
-      return result;
-   }
-
-   public static function BMPTextButton(inBitmapData:BitmapData,inText:String, ?inOnClick:Void->Void,?inLineage:Array<String>,?inAttribs:Attribs)
-   {
-      var result = new Button(null,inOnClick,Widget.addLine(inLineage,"BMPTextButton"),
-          Widget.addAttribs(inAttribs,{icon:inBitmapData, text:inText}) );
-      return result;
-   }
-
 /*
    override public function onCurrentChanged(inCurrent:Bool)
    {
@@ -340,69 +296,6 @@ class Button extends Control
          #end
          mouseHandler(name,fakeEvent);
       }
-   }
-}
-
-class BmpButton extends Button
-{
-   public var bitmap(default,null):Bitmap;
-   public var normal:BitmapData;
-   public var disabledBmp:BitmapData;
-   var wasEnabled = true;
-
-   public function new(inBitmapData:BitmapData,?inOnClick:Void->Void,?inLineage:Array<String>,?inAttribs:Dynamic)
-   {
-      normal = inBitmapData;
-      //bitmap = new Bitmap(normal, nme.display.PixelSnapping.AUTO, smooth);
-      bitmap = new Bitmap(normal);
-      super(bitmap,inOnClick,Widget.addLine(inLineage,"BitmapButton"),inAttribs);
-      bitmap.name="BmpButton";
-      bitmap.smoothing = attribBool("smooth",true);
-   }
-
-   public function createDisabled(inBmp:BitmapData)
-   {
-      var w = inBmp.width;
-      var h = inBmp.height;
-      var result = new BitmapData(w,h,true,gm2d.RGB.CLEAR);
-
-      for(y in 0...h)
-         for(x in 0...w)
-         {
-            var pix:Int = inBmp.getPixel32(x,y);
-            var val:Int = (pix&0xff) + ( (pix>>8)&0xff ) + ( (pix>>16)&0xff ); 
-            if (val<255) val=0;
-            else if (val>512) val = 255;
-            else val = 128;
-            val = (val * 0x10101) | (pix&0xff000000);
-            result.setPixel32(x,y,val);
-         }
-
-      return result;
-   }
-
-   override function rebuildState(?wasCurrent:Bool)
-   {
-      if (wasEnabled!=enabled)
-      {
-         wasEnabled = enabled;
-         mouseEnabled = enabled;
-
-         if (enabled)
-            bitmap.bitmapData = normal;
-         else
-         {
-            if (disabledBmp==null)
-               disabledBmp = createDisabled(normal);
-            bitmap.bitmapData = disabledBmp;
-         }
-      }
-      super.rebuildState(wasCurrent);
-   }
-
-   public function enable(inEnable:Bool)
-   {
-      enabled = inEnable;
    }
 }
 

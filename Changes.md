@@ -1,5 +1,24 @@
 
 
+5.0
+-------------
+**Breaking changes**
+* `Layout.onLayout` renamed to `onInnerRect` — it always delivered the inner/content rect, never the rect passed to `setRect()`; the old name is kept as a deprecated alias for one release
+* Adding a child to `GridLayout`/`VerticalLayout`/`HorizontalLayout` no longer mutates the child's or the container's alignment as a side effect — request stretch explicitly (`stretch()`, `setAlignment(Layout.AlignStretch)`, `setRowStretch`, `setColStretch`)
+* `Layout.mBLeft`/`mBTop`/`mBRight`/`mBBottom` renamed to `borderLeft`/`borderTop`/`borderRight`/`borderBottom`, and are now read-only outside `Layout` itself
+* `Layout.hx` split into one file per class — code relying on a bare `import gm2d.ui.Layout` to also reach `BorderLayout`, `GridLayout`, `StackLayout`, etc. needs its own import per type (or `import gm2d.ui.*`)
+* `Button.create()`/`BMPButton()`/`BitmapButton()`/`TextButton()`/`BMPTextButton()` static factories removed — construct `Button`, `BitmapButton` (renamed from `BmpButton`), or the new `TextButton` class directly instead
+* Waxe IDE integration (`WaxeDialog`) removed
+* See `docs/Migration-v5.md` for a detailed, mechanical migration guide (entries LAY-001 through LAY-005)
+
+**New features**
+* `getMinSize()` is now width-aware (optional `inWidth` argument), giving wrapped/multiline text a real reflowed minimum height instead of a fixed heuristic
+* `getBestWidth()`/`getBestHeight()` now guarantee `best >= min` for every built-in layout, regardless of whether the value came from an explicit override or a computed default
+
+**Other notable fixes**
+* Button text now stretches to fill its box by default, so `textAlign` (left/center/right) actually has an effect instead of being overridden by a hardcoded center alignment
+* The layout cache is now exception-safe — an error mid-layout no longer permanently corrupts later layout calls for the rest of the process
+
 4.4
 -------------
 **Breaking changes**

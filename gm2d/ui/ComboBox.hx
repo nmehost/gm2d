@@ -45,13 +45,13 @@ class ComboList extends Window
    {
       if (mList.scrollRect!=null)
          return mList.scrollRect.width;
-      return mLayout.getBestWidth();
+      return outerLayout.getBestWidth();
    }
    override public function getWindowHeight()
    {
       if (mList.scrollRect!=null)
          return mList.scrollRect.height;
-      return mLayout.getBestHeight();
+      return outerLayout.getBestHeight();
    }
 
    function processMouse(inEvent:MouseEvent,click:Bool)

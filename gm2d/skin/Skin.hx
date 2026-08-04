@@ -221,7 +221,9 @@ class Skin
            line: LineTrim,
            textAlign: "center",
            autoCurrent: false,
-           itemAlign: Layout.AlignCenter,
+           // Y-only: leave X unset (stretch) so text fills the button and textAlign actually
+           // has slack to act on, instead of the item box shrink-wrapping the text.
+           itemAlign: Layout.AlignCenterY,
            padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
            offset: new Point(scale(1),scale(1)),
            },
@@ -247,7 +249,10 @@ class Skin
            line: LineBorder,
            contents:"icon-text",
            textAlign: "center",
-           itemAlign: Layout.AlignCenter,
+           // itemAlign here governs the icon+text block as a whole (this is the composite
+           // Horizontal/VerticalLayout case, not a single text box) - Y-only for the same
+           // reason as "Button" above.
+           itemAlign: Layout.AlignCenterY,
            padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
            offset: new Point(scale(1),scale(1)),
            },
@@ -922,7 +927,7 @@ class Skin
       gfx.beginFill(controlColor);
       gfx.lineStyle(1,controlBorder);
       gfx.drawRect(-10,0,20,20);
-      inSlider.getItemLayout().onLayout = function(inX:Float,inY:Float,inW:Float,inH:Float)
+      inSlider.getItemLayout().onInnerRect = function(inX:Float,inY:Float,inW:Float,inH:Float)
       {
           inSlider.mSliderRenderer.onRender( inSlider, new Rectangle(inX,inY,inW,inH) );
           inSlider.mSliderRenderer.onPosition(inSlider);
@@ -1095,7 +1100,7 @@ class Skin
                                   getButtonBitmap(but,HitBoxes.BUT_STATE_OVER),
                                   getButtonBitmap(but,HitBoxes.BUT_STATE_DOWN), state );
                */
-               var button =  Button.create(["PaneButton", "UiButton"], { id:but });
+               var button =  new Button(null, null, ["PaneButton", "UiButton"], { id:but });
 
                inContainer.addChild(button);
                button.x = inRect.x + w - 16 - 2;

@@ -298,7 +298,7 @@ class ColourWheel extends Widget
       layout.minHeight = skin.scale(32);
       layout.mAlign = Layout.AlignKeepAspect | Layout.AlignStretch;
       layout.name = "colour";
-      layout.onLayout = onBmpLayout;
+      layout.onInnerRect = onBmpLayout;
       setItemLayout(layout);
       getLayout().setAlignment(Layout.AlignStretch);
       mMode = RGBHSV.VALUE;

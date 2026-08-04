@@ -351,7 +351,7 @@ class Panel extends Widget
 
    public function addTextButton(inText:String, ?inOnClick:Void->Void)
    {
-      var button = Button.TextButton(inText,inOnClick==null ? gm2d.Game.closeDialog : inOnClick);
+      var button = new TextButton(inText,inOnClick==null ? gm2d.Game.closeDialog : inOnClick);
       addButton(button);
       return this;
    }

@@ -130,18 +130,18 @@ class Screen extends gm2d.ui.Window
    override public function setItemLayout(inLayout:Layout)
    {
       var layout = super.setItemLayout(inLayout);
-      mLayout.setMinSize(Game.screenWidth, Game.screenHeight);
-      mLayout.stretch();
+      outerLayout.setMinSize(Game.screenWidth, Game.screenHeight);
+      outerLayout.stretch();
       return layout;
    }
 
 
    public function scaleScreen(inScale:Float)
    {
-      if (mLayout!=null)
+      if (outerLayout!=null)
       {
-         mLayout.setMinSize(Game.screenWidth, Game.screenHeight);
-         mLayout.setRect(0,0, Game.screenWidth, Game.screenHeight );
+         outerLayout.setMinSize(Game.screenWidth, Game.screenHeight);
+         outerLayout.setRect(0,0, Game.screenWidth, Game.screenHeight );
       }
       if (stage!=null)
          screenLayout( stage.stageWidth, stage.stageHeight );

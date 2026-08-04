@@ -38,7 +38,7 @@ class Toolbar extends Pane
       padY = 2.0;
       super(root, inTitle, Dock.RESIZABLE  | Dock.TOOLBAR );
       getLayout().setAlignment( Layout.AlignTop | Layout.AlignLeft );
-      getLayout().onLayout = setRect;
+      getLayout().onInnerRect = setRect;
    }
 
    public function addTool(inTool:Widget)

@@ -166,7 +166,7 @@ class SvgSkin
             renderer.render(inSlider.mThumb.graphics,mtx, function(_,groups) return groups[1]==".thumb" );
          }
 
-         layout.onLayout = function(inX:Float,inY:Float,inW:Float,inH:Float)
+         layout.onInnerRect = function(inX:Float,inY:Float,inW:Float,inH:Float)
          {
             result.onRender( inSlider, new Rectangle(inX,inY,inW,inH) );
             result.onPosition(inSlider);

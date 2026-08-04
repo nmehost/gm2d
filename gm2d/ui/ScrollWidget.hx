@@ -23,32 +23,32 @@ class ScrollWidgetLayout extends BorderLayout
      this.owner = owner;
    }
 
-   public override function getMinSize() : Size
+   public override function getMinSize(?inWidth:Null<Float>) : Size
    {
       var s = owner.getMinContentSize();
-      //return new Size(minWidth + mBase.minWidth+mBLeft+mBRight, minHeight + mBase.minHeight+mBTop+mBBottom);
-      return new Size(s.x + mBLeft+mBRight, s.y + mBTop+mBBottom);
+      //return new Size(minWidth + mBase.minWidth+borderLeft+borderRight, minHeight + mBase.minHeight+borderTop+borderBottom);
+      return new Size(s.x + borderLeft+borderRight, s.y + borderTop+borderBottom);
    }
    override public function getBestWidth() : Float
    {
       if (bestWidth!=null)
          return bestWidth;
       var s = owner.getBestContentSize();
-      return s.x + mBLeft+mBRight;
+      return s.x + borderLeft+borderRight;
    }
    override public function getBestHeight(?inWidth:Null<Float>) : Float
    {
       if (bestHeight!=null)
          return bestHeight;
       var s = owner.getBestContentSize();
-      return s.y + mBTop+mBBottom;
+      return s.y + borderTop+borderBottom;
    }
 
    /*
    public override function getBestSize() : Size
    {
       var s = owner.getBestContentSize();
-      return new Size(s.x + mBLeft+mBRight, s.y + mBTop+mBBottom);
+      return new Size(s.x + borderLeft+borderRight, s.y + borderTop+borderBottom);
    }
       */
 }
@@ -125,7 +125,7 @@ class ScrollWidget extends Widget //Control
       addEventListener(Event.REMOVED_FROM_STAGE, (_) -> removeStageListeners() );
    }
 
-   override public function createLayout() return new ScrollWidgetLayout(this,mItemLayout);
+   override public function createLayout() return new ScrollWidgetLayout(this,contentLayout);
 
    public function getMinContentSize() return new Size(1,1);
 

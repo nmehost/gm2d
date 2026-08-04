@@ -117,7 +117,7 @@ class ListControl extends ScrollWidget
       mColAlign = [];
       mMultiSelect = null;
       var internalLayout = new Layout().setMinSize(mMinWidth,mOrigItemHeight).setAlignment( Layout.AlignTop );
-      //internalLayout.onLayout = layoutList;
+      //internalLayout.onInnerRect = layoutList;
       setItemLayout(internalLayout);
       var layout = getLayout();
       layout.setMinWidth(mMinWidth);

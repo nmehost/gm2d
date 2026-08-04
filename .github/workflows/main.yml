@@ -19,7 +19,10 @@ jobs:
           haxelib dev gm2d .
           
       - name: Set Version
-        run: haxe -cp tools/version --run Write ${{github.run_number}} >> $GITHUB_ENV
+        # run_number is monotonic for the whole repo's history and doesn't reset on a major
+        # bump - offset by the last v4 run_number (67, i.e. release v4.4.67) so the v5.0.x
+        # build number starts back near 0 instead of continuing from the 60s.
+        run: haxe -cp tools/version --run Write $(( ${{github.run_number}} - 67 )) >> $GITHUB_ENV
 
       - name: Zip release
         run: |

@@ -28,8 +28,8 @@ class Widget extends Sprite
 
    public static var keyboardNavigation:Bool = true;
 
-   var mLayout:BorderLayout;
-   var mItemLayout:Layout;
+   var outerLayout:BorderLayout;
+   var contentLayout:Layout;
 
    //public static var showCurrent = true;
    //public static var autoShowCurrent = true;
@@ -169,25 +169,25 @@ class Widget extends Sprite
       return getLayout().stretch();
    }
 
-   public function createLayout() return new BorderLayout(mItemLayout,true);
+   public function createLayout() return new BorderLayout(contentLayout,true);
 
    public function setItemLayout(inLayout:Layout)
    {
-      mItemLayout = inLayout;
-      //if (inStretch) mItemLayout.stretch();
-      if (mLayout==null)
+      contentLayout = inLayout;
+      //if (inStretch) contentLayout.stretch();
+      if (outerLayout==null)
       {
-         mLayout = createLayout();
-         mLayout.onLayout = onLayout;
+         outerLayout = createLayout();
+         outerLayout.onInnerRect = onLayout;
       }
       else
       {
-         mLayout.setItemLayout(mItemLayout);
+         outerLayout.setItemLayout(contentLayout);
       }
       if (!styled)
          applyStyles();
 
-      return mLayout;
+      return outerLayout;
    }
 
    public function getId() : String
@@ -300,13 +300,13 @@ class Widget extends Sprite
       if (!styled)
          applyStyles();
 
-      if (mLayout==null)
+      if (outerLayout==null)
       {
          setItemLayout( new Layout() );
-         mLayout.onLayout = onLayout;
+         outerLayout.onInnerRect = onLayout;
       }
 
-      return mLayout;
+      return outerLayout;
    }
 
    public function setAlignment(inAlign:Int)
@@ -319,11 +319,11 @@ class Widget extends Sprite
    public function applyStyles()
    {
       styled = true;
-      if (mLayout==null)
+      if (outerLayout==null)
       {
          //throw "No layout set";
          setItemLayout( new Layout() );
-         mLayout.onLayout = onLayout;
+         outerLayout.onInnerRect = onLayout;
       }
       if (mRenderer!=null)
       {
@@ -334,7 +334,7 @@ class Widget extends Sprite
             var alternate:Dynamic = mRenderer.getDynamic("alternateText");
             if (alternate==null)
                alternate =  mRenderer.getDynamic("placeholder");
-            var textLayout = alternate==null ? null : mItemLayout.findTextLayout();
+            var textLayout = alternate==null ? null : contentLayout.findTextLayout();
             if (textLayout!=null)
             {
                mRenderer.renderLabel(tf);
@@ -357,8 +357,8 @@ class Widget extends Sprite
          }
       }
 
-      var size = mLayout.getBestSize();
-      mLayout.setRect(0,0,size.x,size.y);
+      var size = outerLayout.getBestSize();
+      outerLayout.setRect(0,0,size.x,size.y);
    }
 
    public function setRect(inX:Float, inY:Float, inW:Float, inH:Float) : Widget
@@ -371,7 +371,7 @@ class Widget extends Sprite
    public function setPosition(inX:Float, inY:Float)
    {
       var layout = getLayout();
-      var size = mLayout.getBestSize();
+      var size = outerLayout.getBestSize();
       layout.setRect(inX,inY,size.x,size.y);
    }
 
@@ -517,7 +517,7 @@ class Widget extends Sprite
 
    public function wantsFocus() { return wantFocus; }
 
-   public function getItemLayout() : Layout { return mItemLayout; }
+   public function getItemLayout() : Layout { return contentLayout; }
 
    public function getItemRect(inner=false) : Rectangle
    {

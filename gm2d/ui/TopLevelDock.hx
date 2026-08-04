@@ -154,9 +154,17 @@ class TopLevelDock implements IDock
    {
       size = new Rectangle(x,y,w,h);
       var r = Layout.sBeginCache();
-      if (root!=null)
-         root.getLayout().setRect(x,y,w,h);
-      Layout.sEndCache(r);
+      try
+      {
+         if (root!=null)
+            root.getLayout().setRect(x,y,w,h);
+         Layout.sEndCache(r);
+      }
+      catch (e:Dynamic)
+      {
+         Layout.sEndCache(r);
+         throw e;
+      }
    }
 
    function forceLayout()

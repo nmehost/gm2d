@@ -41,7 +41,7 @@ class ProgressDialog extends Dialog
 
       var button:Button = null;
       if (inOnCancel!=null)
-         panel.addButton( button = Button.TextButton("Cancel", inOnCancel ) );
+         panel.addButton( button = new TextButton("Cancel", inOnCancel ) );
 
       var ipsText:TextLabel = null;
       var timeText:TextLabel = null;

@@ -79,7 +79,7 @@ class FileBox extends TextInput
 
    override public function createExtraWidgetLayout() : Layout
    {
-      var browseButton = Button.TextButton("Browse",onBrowse);
+      var browseButton = new TextButton("Browse",onBrowse);
       addChild(browseButton);
       return browseButton.getLayout();
    }

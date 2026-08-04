@@ -195,11 +195,11 @@ class FileOpenScreen extends Screen
 
       if (isSave || multiSelect)
       {
-         var button = Button.TextButton("Ok", function() onSave() );
+         var button = new TextButton("Ok", function() onSave() );
          addChild(button);
          buttons.add(button.getLayout());
       }
-      var button = Button.TextButton("Cancel", function() onCancel() );
+      var button = new TextButton("Cancel", function() onCancel() );
       addChild(button);
       buttons.add(button.getLayout());
 
@@ -368,9 +368,11 @@ class FileOpenScreen extends Screen
    {
       if (buttonAttribs!=null)
          buttonAttribs.file = file;
-      var widget =  Button.BMPTextButton(icon,name, dir!=null ? function() onDir(dir) :
+      var widget =  new Button(null, dir!=null ? function() onDir(dir) :
                                           multiSelect ? () -> selectFile(file) :
-                                          function() onFile(file), ["SimpleTile"], buttonAttribs  );
+                                          function() onFile(file),
+                                Widget.addLine(["SimpleTile"],"BMPTextButton"),
+                                Widget.addAttribs(buttonAttribs,{icon:icon, text:name}) );
       widget.getItemLayout().setAlignment( Layout.AlignLeft | Layout.AlignCenterY );
       widget.getLayout().stretch();
 
@@ -400,7 +402,7 @@ class FileOpenScreen extends Screen
       allButtons = [];
       dirButtons.clear();
 
-      var button = Button.TextButton("All", function() setDir(null) );
+      var button = new TextButton("All", function() setDir(null) );
       addButton(button);
 
       if (inDir=="")
@@ -432,12 +434,12 @@ class FileOpenScreen extends Screen
                spaceChar = "/";
                addButton(spacer);
                var link = soFar.join("/");
-               var button = Button.TextButton(part, function() setDir(link) );
+               var button = new TextButton(part, function() setDir(link) );
                addButton(button);
             }
          }
          #if !flash
-         var add = Button.create(["BitmapFromId"], { margin:5, id:MiniButton.ADD }, onNewDir);
+         var add = new Button(null, onNewDir, ["BitmapFromId"], { margin:5, id:MiniButton.ADD });
          addButton(add);
          #end
       }

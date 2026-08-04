@@ -40,9 +40,9 @@ class TabBar extends Widget
       mHitBoxes = new HitBoxes(skin,this,inOnHitBox);
       var layout = new Layout();
       layout.setAlignment(Layout.AlignStretch);
-      layout.onLayout = layoutTabs;
+      layout.onInnerRect = layoutTabs;
       setItemLayout(layout);
-      mLayout.setAlignment(Layout.AlignStretch | Layout.AlignTop);
+      outerLayout.setAlignment(Layout.AlignStretch | Layout.AlignTop);
       tabsWidth = tabsHeight = 0;
       allowRestore = inAllowRestore;
       //build();

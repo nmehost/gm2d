@@ -31,7 +31,7 @@ class TileControl extends ScrollWidget
       items = [];
 
       var internalLayout = new Layout().setMinSize(width,height).stretch();
-      internalLayout.onLayout = layoutControl;
+      internalLayout.onInnerRect = layoutControl;
       setItemLayout(internalLayout);
       setScrollRange(width,width,height,height);
       //build();
