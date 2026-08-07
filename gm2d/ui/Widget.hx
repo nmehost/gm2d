@@ -102,6 +102,49 @@ class Widget extends Sprite
    {
    }
 
+   // Propagates a skin change through this widget and its whole subtree (display-list scan, not
+   // the Layout tree - a child widget's own subtree needs to be walked as a unit, which the
+   // display list encodes directly). Per-widget: onScaleChanged() (only if uiScale actually
+   // changed - a pure palette swap skips it), then rebuildState() (recombines attribs, rebuilds
+   // the Renderer, redraws - already correct for a palette swap since Fill/Line/TextColour all
+   // resolve live against skin), then push the fresh sizing onto this widget's own Layout.
+   // Freezes the incoming skin (Skin.mutable=false) - every widget that attaches a skin does
+   // this, idempotently.
+   //
+   // No separate relayout here by design - Window overrides this to do exactly one top-down
+   // relayout once its whole subtree is restyled, so nothing else needs to.
+   public function setSkin(inSkin:Skin):Void
+   {
+      if (inSkin==skin)
+         return;
+      var rescale = skin==null || skin.uiScale!=inSkin.uiScale;
+      skin = inSkin;
+      skin.mutable = false;
+      if (rescale)
+         onScaleChanged();
+      rebuildState();
+      mRenderer.layoutWidget(this);
+
+      setSkinChildren(this, inSkin);
+   }
+
+   // Recurses through every DisplayObjectContainer child looking for Widgets, not just direct
+   // Widget children - eg. SideDock is a Layout (not a Widget) and adds its DockFrames to a
+   // plain Sprite container, so a Widget can sit behind non-Widget chrome. Same shape as
+   // getWidgetsRecurse, minus its focus/visibility filtering (an invisible-but-live dialog still
+   // needs restyling).
+   static function setSkinChildren(inParent:DisplayObjectContainer, inSkin:Skin):Void
+   {
+      for(i in 0...inParent.numChildren)
+      {
+         var child = inParent.getChildAt(i);
+         if (Std.isOfType(child,Widget))
+            cast(child,Widget).setSkin(inSkin);
+         else if (Std.isOfType(child,DisplayObjectContainer))
+            setSkinChildren(cast child, inSkin);
+      }
+   }
+
    function widgetClick(e:MouseEvent)
    {
       var target:DisplayObject = e.target;

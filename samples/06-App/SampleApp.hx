@@ -26,12 +26,16 @@ import gm2d.ui.Panel;
 
 class SampleApp extends App
 {
+   var lightSkin:Skin;
+   var darkSkin:Skin;
+
    public function new()
    {
-      // Test: swap in a dark version of the default skin before anything gets built with it.
-      Skin.theSkin = Skin.getSkin().createDark();
-
       super();
+
+      // Test: live skin switching via Game.setSkin() - "Skin > Light"/"Skin > Dark".
+      lightSkin = Skin.getSkin();
+      darkSkin = lightSkin.createDark();
 
       //Game.debugLayout = true;
       createMenus();
@@ -79,6 +83,43 @@ class SampleApp extends App
       #end
       bar.add( view );
 
+      var skinMenu = new MenuItem("Skin");
+      var skinLight = new MenuItem("Light", onSkinLight);
+      skinLight.shortcut = "Shift+L";
+      skinMenu.add( skinLight );
+      var skinDark = new MenuItem("Dark", onSkinDark);
+      skinDark.shortcut = "Shift+D";
+      skinMenu.add( skinDark );
+      var dpiUp = new MenuItem("DPI Up", onDpiUp);
+      dpiUp.shortcut = "Shift+=";
+      skinMenu.add( dpiUp );
+      var dpiDown = new MenuItem("DPI Down", onDpiDown);
+      dpiDown.shortcut = "Shift+-";
+      skinMenu.add( dpiDown );
+      bar.add( skinMenu );
+
+   }
+
+   function onSkinLight(_)
+   {
+      Game.setSkin(lightSkin);
+   }
+
+   function onSkinDark(_)
+   {
+      Game.setSkin(darkSkin);
+   }
+
+   function onDpiUp(_)
+   {
+      var current = Skin.getSkin();
+      Game.setSkin( current.copyWithScale(current.uiScale * 1.1) );
+   }
+
+   function onDpiDown(_)
+   {
+      var current = Skin.getSkin();
+      Game.setSkin( current.copyWithScale(current.uiScale / 1.1) );
    }
 
    function onExit(_)

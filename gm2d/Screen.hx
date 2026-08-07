@@ -30,6 +30,9 @@ class Screen extends gm2d.ui.Window
    {
       applyStyles();
       Game.setCurrentScreen(this);
+      // Catch-up in case this screen missed a skin change while it wasn't current - cheap no-op
+      // via setSkin()'s own identity quick-exit when nothing actually changed.
+      setSkin(Skin.getSkin());
       relayout();
    }
 

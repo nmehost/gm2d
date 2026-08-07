@@ -350,7 +350,14 @@ class Renderer
 
       var label = inWidget.getLabel();
       if (label!=null)
+      {
          renderLabel(label);
+         // TextLayout.getBestWidth()/getMinSize() read a cached measurement (mOWidth/mOHeight)
+         // taken once at construction, not the TextField live - renderLabel() may just have
+         // changed the font/size (eg. a skin change), so the cache needs refreshing here or
+         // every text label silently keeps its construction-time best/min size forever.
+         inWidget.getItemLayout()?.findTextLayout()?.updateSizeFromText();
+      }
       inWidget.filters = filters;
       if (map!=null && map.exists("chromeFilters"))
       {

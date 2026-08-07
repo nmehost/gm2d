@@ -35,6 +35,7 @@ For each entry below:
 | [SKIN-004](#skin-004--attribstextcolor-retyped-int--textcolour) | `Attribs.textColor` retyped `Int` → `TextColour` | retype | shipped | no (manual — pick the matching role) |
 | [SKIN-005](#skin-005--skinshadowfilterscurrentfilters-replaced-by-a-named-filterset-palette) | `Skin.shadowFilters`/`currentFilters` replaced by a named `FilterSet` palette (`Attribs.filters`/`chromeFilters` retyped) | removal + retype | shipped | no (manual — describe the filter, don't construct one) |
 | [SKIN-006](#skin-006--default-menubar-is-now-theme-following-light-instead-of-a-fixed-dark-bar) | Default `Menubar`/`MenubarItem` now use theme-following colours instead of a fixed dark bar | behavior | shipped | no (visual re-check) |
+| [SKIN-007](#skin-007--live-skin-propagation-widgetsetskin-gamesetskin) | Live skin propagation: new `Widget.setSkin()`/`Window.setSkin()`/`Game.setSkin()` | new API | shipped | n/a (additive) |
 
 ---
 
@@ -983,6 +984,77 @@ TextColInverse });`.
 
 **Related, not changed by this entry:** `"StatusBar"` still uses the same fixed-dark-bar pattern
 (`FillInv`/`TextColInverse`) — noted as revisitable when `FillInv` was first introduced, still open.
+
+---
+
+## SKIN-007 — Live skin propagation: `Widget.setSkin()`/`Window.setSkin()`/`Game.setSkin()`
+
+- **Kind:** new API (additive — nothing renamed or removed)
+- **Status:** shipped
+- **Shipped in:** `master` (unreleased)
+- **Compiler assistance:** n/a — nothing breaks, this only adds capability.
+
+**Background:** everything in SKIN-001 through SKIN-006 existed to make a skin change *resolvable
+live* (colours, sizes, filters, text colour all resolve at render/combine time against whatever
+`skin` a widget currently has) — but nothing actually *triggered* a live change on an
+already-built tree. This entry adds that: the actual propagation mechanism.
+
+```haxe
+// Widget.hx
+public function setSkin(inSkin:Skin):Void
+```
+
+Per-widget entry point. Quick-exits on identity (`if (inSkin==skin) return;`) — this is why a
+`Skin` is effectively frozen once attached (`skin.mutable=false`, set here): an in-place field
+mutation on an already-attached `Skin` would leave the reference unchanged and this check would
+silently no-op the whole subtree. Order: `onScaleChanged()` (only if `uiScale` actually changed —
+a pure palette swap skips it), `rebuildState()` (already existed — recombines attribs, rebuilds
+the `Renderer`, redraws), then pushes the fresh sizing onto this widget's own `Layout`
+(`mRenderer.layoutWidget(this)`). Then recurses into the display list looking for further
+`Widget`s to propagate to (not the `Layout` tree — a child widget's own subtree needs to move as a
+unit, which display-list containment gives for free) — no visibility/focus filtering, an
+invisible-but-live dialog still needs restyling. **The recursion walks every
+`DisplayObjectContainer`, not just `Widget` children** — some containers in `gm2d/ui` aren't
+`Widget`s themselves (e.g. `SideDock extends Layout`, which adds its `DockFrame`s to a plain
+`Sprite`), so a `Widget` can sit behind a layer of non-`Widget` chrome; stopping at the first
+non-`Widget` child would silently strand everything nested inside it. Same shape as the existing
+`Widget.getWidgetsRecurse`, minus its focus/visibility filtering.
+
+```haxe
+// Window.hx (shared root for both Screen and Dialog)
+public override function setSkin(inSkin:Skin):Void
+```
+
+Calls `super.setSkin(inSkin)` (restyles the whole subtree, no relayout), then does exactly **one**
+top-down `relayout()` once that's finished. This is the only place a relayout happens — nothing
+below `Window` does its own, avoiding a relayout-per-level cascade.
+
+```haxe
+// Game.hx
+static public function setSkin(inSkin:Skin):Void
+```
+
+The "change it everywhere" entry point: updates `Skin.theSkin` (the default new widgets pick up),
+then calls `setSkin()` on the current `Screen` and the current `Dialog` if one's open. For a
+*scoped* change (e.g. one dialog changing its own effective DPI to fit its content), call
+`widget.setSkin(...)` directly instead — `Game.setSkin()` is specifically the global case.
+
+`Screen.makeCurrent()` also gained a catch-up call — `setSkin(Skin.getSkin())` right before its
+existing `relayout()` — for a screen that missed a skin change while it wasn't current. Cheap
+no-op via the same identity quick-exit when nothing actually changed.
+
+**Not covered by this entry (still manual, per the design's own "escape hatch, not exhaustive"
+framing):** a widget added to the display list after a skin change needs `setSkin()` called on it
+explicitly at the add site (same place a post-add relayout already happens) — there's no
+`ADDED_TO_STAGE` auto-catch-up by design (rejected as an unnecessary leak-surface risk). A
+paged/tabbed container activating a child should call `setSkin()` on it when it becomes current.
+Neither is retrofitted into existing `gm2d/ui` containers yet.
+
+**Try it:** `samples/06-App/SampleApp.hx` — `Skin > Light`/`Skin > Dark` (`Shift+L`/`Shift+D`)
+calls `Game.setSkin(lightSkin)`/`Game.setSkin(darkSkin)`, where `darkSkin` is
+`lightSkin.createDark()` — a test/example method added alongside this that mechanically inverts
+every entry in `colours` and returns `copyWithPalette(...)` of the result; not a curated dark
+theme, just a way to exercise the whole live-propagation path end to end.
 
 ---
 

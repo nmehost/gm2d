@@ -18,6 +18,17 @@ class Window extends Widget
       addEventListener(MouseEvent.MOUSE_DOWN, currentFromMouse);
    }
 
+   // The one top-down relayout for a whole restyled subtree lives here, not in the base
+   // Widget.setSkin() - Window is the shared root for both Screen and Dialog, so this runs
+   // exactly once per setSkin() call, after the whole subtree below it has already restyled.
+   public override function setSkin(inSkin:Skin):Void
+   {
+      if (inSkin==skin)
+         return;
+      super.setSkin(inSkin);
+      relayout();
+   }
+
    public function destroy()
    {
       removeEventListener(MouseEvent.MOUSE_MOVE, windowMouseMove);

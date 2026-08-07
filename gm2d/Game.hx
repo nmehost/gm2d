@@ -1,6 +1,7 @@
 package gm2d;
 
 import gm2d.tween.Timeline;
+import gm2d.skin.Skin;
 import nme.display.Sprite;
 import nme.display.Shape;
 import gm2d.Screen;
@@ -521,6 +522,20 @@ class Game
 
       mLastEnter = haxe.Timer.stamp();
       mLastStep = mLastEnter;
+   }
+
+   // Global entry point for a skin change (DPI, palette, template) - updates the default new
+   // widgets pick up, then propagates to whatever's actually on screen right now. Scoped cases
+   // (eg. a single dialog changing DPI to fit) should call widget.setSkin(...) directly instead -
+   // this is specifically the "change it everywhere" case.
+   static public function setSkin(inSkin:Skin):Void
+   {
+      Skin.theSkin = inSkin;
+      if (mCurrentScreen!=null)
+         mCurrentScreen.setSkin(inSkin);
+      var dlg = getSpriteDialog();
+      if (dlg!=null)
+         dlg.setSkin(inSkin);
    }
   
    static function isRotated() : Bool

@@ -744,6 +744,13 @@ class ColourControl extends Widget
       wheel.getLayout().setBorders(0,0,skin.toPixels(6),0);
       var b = skin.toPixels(2);
       box.getLayout().setBorders(b,b,b,b);
+
+      fixInputWidth(redIn);
+      fixInputWidth(greenIn);
+      fixInputWidth(blueIn);
+      fixInputWidth(hueIn);
+      fixInputWidth(saturationIn);
+      fixInputWidth(valueIn);
    }
 
    function onRGBDrag(e:MouseEvent)
@@ -817,11 +824,19 @@ class ColourControl extends Widget
       var result = new NumericInput(inMax*0.5,
          function(f,phase)  if (updateLockout==0) setComponent(inMode,f,phase),
          { isInteger:inMax>100,  maxValue:inMax, minValue:0, step:delta } );
-      var lay = result.getLayout();
-      var w = lay.getBestWidth();
-      lay.setMinWidth( Std.int(w/2) ).setBestWidth(w).stretch();
+      fixInputWidth(result);
       result.addEventListener( MouseEvent.MOUSE_DOWN, function(_) setInputMode(inMode) );
       return result;
+   }
+
+   // getBestWidth() reads the widget's currently-resolved (already scale-aware) text size, but
+   // setMinWidth/setBestWidth bake that pixel value directly onto the Layout - nothing re-pushes
+   // it later, so this needs to be re-run from onScaleChanged() too, not just at construction.
+   function fixInputWidth(inInput:NumericInput)
+   {
+      var lay = inInput.getLayout();
+      var w = lay.getBestWidth();
+      lay.setMinWidth( Std.int(w/2) ).setBestWidth(w).stretch();
    }
 
    function setInputMode(inMode:Int)
