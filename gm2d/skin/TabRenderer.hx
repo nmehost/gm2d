@@ -286,7 +286,7 @@ class TabRenderer
             if (!showGrip)
             {
                gfx.lineStyle(1,0x404040);
-               gfx.beginFill(skin.guiTrim);
+               gfx.beginFill(skin.getColour("LineTrim"));
                gfx.drawRoundRect(0.5,0.5,tw,tabHeight+2,6,6);
             }
             trans.ty = y0;
@@ -355,8 +355,8 @@ class TabRenderer
          var rad0 = skin.roundRectRad;
          var rad1 = rad0 * 0.55228;
          gfx.clear();
-         gfx.lineStyle(1,skin.guiTrim);
-         gfx.beginFill(skin.guiMedium);
+         gfx.lineStyle(1,skin.getColour("LineTrim"));
+         gfx.beginFill(skin.getColour("FillMedium"));
 
          gfx.moveTo(-1,tabHeight-4);
          gfx.lineTo(cx,tabHeight-4);
@@ -421,7 +421,7 @@ class TabRenderer
       if ((inFlags & IS_OVERLAPPED) == 0)
       {
          gfx.clear();
-         gfx.beginFill(skin.guiMedium);
+         gfx.beginFill(skin.getColour("FillMedium"));
          gfx.drawRect(0,tabHeight-2,w,8);
          bitmap.draw(shape);
 

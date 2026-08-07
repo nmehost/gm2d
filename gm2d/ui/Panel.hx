@@ -48,7 +48,7 @@ class Panel extends Widget
                            mRenderer.getDefaultFloat("lineGap",skin.scale(10)) );
 
       mButtonLayout = new GridLayout(null,"buttons");
-      mButtonLayout.setSpacing(  mRenderer.getDefaultFloat("buttonSpacing",0) ,0);
+      mButtonLayout.setSpacing(  mRenderer.getDefaultScaled("buttonSpacing",0) ,0);
       mButtonLayout.setAlignment( attribInt("buttonAlign", Layout.AlignCenter) );
       mButtonLayout.setBorders( mRenderer.getDefaultFloat("buttonsPadLeft", 0),
                                 mRenderer.getDefaultFloat("buttonsPadTop", 0),
@@ -331,7 +331,7 @@ class Panel extends Widget
    }
    public function addRow(inLayout:Layout)
    {
-      mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",0) );
+      mGridLayout.setSpacing(0, mRenderer.getDefaultScaled("buttonGap",0) );
       mGridLayout.add(inLayout);
    }
 
@@ -339,7 +339,7 @@ class Panel extends Widget
    {
       if (mButtons.length==0)
       {
-         mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",0) );
+         mGridLayout.setSpacing(0, mRenderer.getDefaultScaled("buttonGap",0) );
          mGridLayout.add(mButtonLayout);
       }
 

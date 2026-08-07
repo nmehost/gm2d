@@ -29,6 +29,8 @@ For each entry below:
 | [LAY-003](#lay-003--layouthx-split-into-one-file-per-class-import-gm2duilayout-no-longer-reaches-sibling-types) | `Layout.hx` split into one file per class — `import gm2d.ui.Layout` no longer reaches sibling types | import breakage | shipped | yes |
 | [LAY-004](#lay-004--mbleftmbtopmbrightmbbottom-renamed-to-borderleftbordertopborderrightborderbottom) | `mBLeft`/`mBTop`/`mBRight`/`mBBottom` → `borderLeft`/`borderTop`/`borderRight`/`borderBottom`, now read-only | rename | shipped | yes |
 | [LAY-005](#lay-005--buttonhx-restructured-static-factories-removed-bmpbutton-renamed-textbutton-promoted) | `Button.hx` restructured: static factories removed, `BmpButton`→`BitmapButton`, `TextButton` promoted to a real class | rename + removal | shipped | yes |
+| [SKIN-001](#skin-001--skin-construction-always-fully-initializes-named-colour-fields-replaced-by-a-palette-map) | `Skin` construction always fully initializes; named colour fields (`guiLight` etc.) replaced by a palette map | removal + rename | shipped | partial (see below) |
+| [SKIN-002](#skin-002--attribset-values-are-now-dpi-independent-logical-units-resolved-once-at-renderer-construction) | `attribSet`/custom skin attribs values are now DPI-independent logical units, not pre-scaled pixels | behavior | shipped | partial (see below) |
 
 ---
 
@@ -356,6 +358,217 @@ this transform also needs `import gm2d.ui.TextButton;` / `import gm2d.ui.BitmapB
 existing `import gm2d.ui.*;`) — otherwise it fails as "Type not found" on a second compile pass
 after the call-site rewrite already looked complete. Check for this in the same pass as the call
 transform rather than waiting to discover it as a follow-up error.
+
+---
+
+## SKIN-001 — `Skin` construction always fully initializes; named colour fields replaced by a palette map
+
+- **Kind:** removal + rename (constructor signature change; ~13 fields removed in favor of a map)
+- **Status:** shipped
+- **Shipped in:** `master` (unreleased)
+- **Compiler assistance:** yes — every break here is a normal compile error (wrong argument
+  count, unknown identifier, or missing private field), nothing is a silent behavior change.
+
+**Background:** this is the first step of a larger live-reskin/DPI-propagation rework (the design
+isn't public yet). Two related changes shipped together:
+
+1. `Skin`'s constructor no longer takes an `andInit` flag — it always fully initializes
+   (`init()` always runs, and is now a private method, not independently callable). The old
+   pattern of `new Skin(false)`, mutating fields, then calling `init()` explicitly no longer
+   compiles.
+2. The ~13 individually-named colour fields (`guiLight`, `guiMedium`, `guiTrim`, `guiHighlight`,
+   `guiDark`, `guiVeryDark`, `guiLightText`, `guiButton`, `guiDisabled`, `guiBorder`,
+   `rowSelectColour`, `rowEvenColour`, `rowOddColour`) are removed, replaced by a single
+   `colours:Map<String,Int>` accessed via `getColour(key)`/`setColour(key,rgb)`, plus
+   strongly-typed wrappers `setFillColor(FillStyle,rgb)`/`setLineColour(LineStyle,rgb)`. Map keys
+   are the `FillStyle`/`LineStyle` constructor names (`FillLight` → `"FillLight"`,
+   `LineBorder` → `"LineBorder"`, etc.) — `setColour`/`setFillColor`/`setLineColour` all reject
+   unknown keys, so the set stays closed. Two new `FillStyle` cases, `FillMax` and `FillInv`, were
+   added at the same time to close two raw-literal escape hatches (`FillSolid(0xffffff,1)` and
+   `FillSolid(guiVeryDark,1)`) that used to appear in `gm2d`'s own skin definitions.
+
+**Detect:**
+
+```sh
+grep -rn 'new Skin(\|\.init()\b' --include='*.hx' .
+grep -rnE '\.(guiLight|guiMedium|guiTrim|guiHighlight|guiDark|guiVeryDark|guiLightText|guiButton|guiDisabled|guiBorder|rowSelectColour|rowEvenColour|rowOddColour)\b' --include='*.hx' .
+```
+
+**Old:**
+
+```haxe
+class AppSkin extends Skin
+{
+   public function new()
+   {
+      super(false);
+      shadowFilters = [ new DropShadowFilter(...) ];
+      menuHeight = scale(48);
+      init();
+      addAttribs("ProgressBar", { progressStyle: ProgressRoundRect(0x000000, guiHighlight, guiLight, ...) });
+   }
+}
+```
+
+**New:**
+
+```haxe
+class AppSkin extends Skin
+{
+   public function new()
+   {
+      super();
+      addAttribs("ProgressBar", {
+         progressStyle: ProgressRoundRect(0x000000, getColour("FillHighlight"), getColour("FillLight"), ...)
+      });
+   }
+}
+```
+
+**Why:** this is laying the groundwork for `Skin` becoming copy-on-write (a later step adds a
+`mutable` flag and `copyWithScale`/`copyWithPalette` factories for live DPI/palette changes). A
+`Skin` that can be constructed, mutated, and re-initialized in two steps can't safely support an
+identity-based "has this widget already seen this skin?" check. Collapsing the colour fields into
+one map also means the whole customizable palette can be guarded and cloned with one check/one
+copy, instead of needing a guarded property per field.
+
+**Fix (agent instructions):**
+
+1. For every `new Skin(false)` (or any subclass `super(false)`), remove the `false` argument, and
+   remove the subsequent explicit `init()` call — construction now does that automatically.
+2. Any field mutation that used to happen *between* `super(false)` and `init()` (so it would be
+   picked up while `attribSet` was being built) needs to move to *after* `super()` returns, and
+   for colours specifically, use `setColour`/`setFillColor`/`setLineColour` instead of direct field
+   assignment (the fields no longer exist). **Caveat:** a handful of `attribSet` entries capture a
+   colour's value only once, at construction time (e.g. `chromeFilters: shadowFilters` on
+   `"Dialog"`/`"PopupMenu"`/`"PopupComboBox"`) — mutating after `super()` returns will not
+   retroactively fix those entries. This is a known, temporary gap that a later step (moving
+   filters to lazy/deferred resolution) closes properly; if you hit it, override the affected
+   `attribSet` entry explicitly via `addAttribs()` after construction as a workaround, the same way
+   `"Menubar"` already gets fully overridden in the old `AppSkin` example above.
+3. For every `skin.guiXxx`/`skin.rowXxxColour` reference (external, qualified access), replace with
+   `skin.getColour("FillXxx")` using this mapping: `guiLight`→`"FillLight"`,
+   `guiMedium`→`"FillMedium"`, `guiButton`→`"FillButton"`, `guiDark`→`"FillDark"`,
+   `guiHighlight`→`"FillHighlight"` (or `"LineHighlight"` if the call is a line/stroke operation,
+   not a fill — both keys hold the same value today but are semantically distinct), `guiDisabled`→
+   `"FillDisabled"`, `guiTrim`→`"LineTrim"`, `guiBorder`→`"LineBorder"`, `guiVeryDark`→`"FillInv"`,
+   `guiLightText`→`"TextColInverse"`, `rowSelectColour`→`"FillRowSelect"`,
+   `rowEvenColour`→`"FillRowEven"`, `rowOddColour`→`"FillRowOdd"`.
+4. If the call site is setting rather than reading a colour, use `skin.setColour("FillXxx", rgb)`
+   (or `setFillColor(FillLight, rgb)`/`setLineColour(LineBorder, rgb)` if a `FillStyle`/`LineStyle`
+   value is already in hand) instead of the old direct field assignment.
+5. Recompile and fix any remaining "Unknown identifier" on one of the removed field names the same
+   way — the compiler will find every remaining site.
+
+**Also in this step:** symmetric getters `getFillColour(FillStyle):Int`/`getLineColour(LineStyle):Int`
+were added alongside `setFillColor`/`setLineColour` (same `Type.enumConstructor`/
+`Type.enumParameters` mechanism). `Renderer.setFill`/`setLine`'s big per-role switch cases collapsed
+to a single `default: inGraphics.beginFill(skin.getFillColour(inFillStyle));` (payload-carrying
+cases like `FillSolid`/`FillRowOdd`/gradients still get their own explicit case; only the plain
+named-role cases collapsed) — adding a new named role no longer requires touching `Renderer.hx` at
+all. A new `LineStyle.LineSolidFill(width:Float, fill:FillStyle, a:Float)` case was added for
+solid lines that need a custom width but a deferred (not baked) colour — e.g. `"DocumentFrame"`'s
+border used to bake `LineSolid(scale(2), skin.getColour("FillLight"), 1)` at construction time,
+which defeats live re-resolution the same way the removed raw fields did; it's now
+`LineSolidFill(scale(2), FillLight, 1)`, resolved live at draw time. **General rule going forward:**
+never call `getColour`/`getFillColour`/`getLineColour` inside an `attribSet` literal to bake a
+value into a `FillSolid`/`LineSolid` payload — if the color should just be a named role, use the
+bare case (`fill: FillLight`, not `fill: FillSolid(skin.getColour("FillLight"),1)`); if it needs a
+custom width, use `LineSolidFill`. `getColour`/`getFillColour`/`getLineColour` are for genuinely
+immediate/live uses (inside a function that runs at draw time, like `Renderer.setFill` itself, or a
+bitmap factory), not for values captured once when `attribSet` is built.
+
+**Not yet enforced:** `Skin` also gained a `mutable:Bool` field and a guarded `uiScale` property in
+this step, plus `copyWithScale`/`copyWithPalette` factories — but nothing yet flips `mutable` to
+`false` (that happens when the not-yet-built `setSkin()` propagation mechanism lands). Until then,
+every `Skin` stays mutable for its whole lifetime; the guard exists but is dormant.
+
+---
+
+## SKIN-002 — `attribSet` values are now DPI-independent logical units, resolved once at `Renderer` construction
+
+- **Kind:** behavior change (no field renamed or removed; values that used to be pre-scaled pixels
+  are now logical units, resolved once when a `Renderer` is built from combined attribs)
+- **Status:** shipped
+- **Shipped in:** `master` (unreleased)
+- **Compiler assistance:** none — this is a silent behavior/appearance change for any custom skin
+  code that still wraps a value in `scale()` before putting it in an attribs literal.
+
+**Background:** `Skin.hx`'s default `attribSet` used to call `scale(N)` inline wherever a size
+appeared (`padding: new Rectangle(scale(2),scale(2),scale(4),scale(4))`, `fontSize: scale(16)`,
+etc.) — baking the *current* DPI-scaled pixel value into the attribs literal at construction time.
+That's gone: every number in the default `attribSet` is now a bare logical unit (e.g.
+`new Rectangle(2,2,4,4)`, `fontSize: 16`). Resolution to real pixels happens exactly once, later,
+either in `Renderer`'s constructor (for `offset`, `padding`, `minSize`, `minItemSize`, `fontSize` —
+the fields it extracts into its own typed members) or, for the handful of fields read ad-hoc via
+`Renderer.getDefaultFloat`/`Widget.attribFloat` instead of through `Renderer`'s constructor
+(`buttonGap`/`buttonSpacing` in `Panel.hx`, `rowHeight` in `PopupMenu.hx`), at the point those
+values are actually read.
+
+**Detect:**
+
+```sh
+grep -rn 'padding:.*scale(\|minSize:.*scale(\|minItemSize.*scale(\|fontSize:.*scale(\|offset:.*scale(\|buttonGap:.*scale(\|buttonSpacing:.*scale(\|rowHeight:.*scale(' --include='*.hx' .
+```
+
+Run this against any custom `Skin` subclass or code that builds an `Attribs`/attribs-literal value
+by hand (`addAttribs(...)`, `replaceAttribs(...)`, or a raw `{ ... }` passed as a widget's
+`inAttribs`) — not just against `gm2d` itself.
+
+**Old:**
+
+```haxe
+addAttribs("ProgressBar", {
+   padding: new Rectangle(skin.scale(2), skin.scale(2), skin.scale(4), skin.scale(4)),
+   fontSize: skin.scale(14),
+});
+```
+
+**New:**
+
+```haxe
+addAttribs("ProgressBar", {
+   padding: new Rectangle(2, 2, 4, 4),
+   fontSize: 14,
+});
+```
+
+**Why:** this is the sizing half of the live-reskin/DPI-propagation groundwork ([SKIN-001](#skin-001--skin-construction-always-fully-initializes-named-colour-fields-replaced-by-a-palette-map)
+started the colour half). A value baked into `attribSet` at construction time can never respond to
+a later DPI/`uiScale` change — the whole point of resolving it live, once, at the point it leaves
+`Skin`'s logical-unit domain and enters `Layout`'s pixel domain, is what makes that eventually
+possible. `Layout.hx` itself is unaffected — this is entirely a `Skin`/`Renderer` boundary concern.
+
+**Fix (agent instructions):**
+
+1. For every attribs literal field matching `padding`, `minSize`, `minItemSize`, `fontSize`, or
+   `offset` that wraps its value(s) in `scale(...)`/`skin.scale(...)`, remove the wrapping call and
+   leave the bare number. `Renderer`'s constructor now resolves these itself — leaving the old
+   `scale()` call in place double-scales the value (renders roughly `uiScale` times too large).
+2. `margin` is **not** resolved yet (still read as a raw, unscaled `Rectangle`/number, matching its
+   pre-existing behavior) — do not strip `scale()` from a `margin` field, and do not add one if it's
+   currently bare; leave it exactly as found. This is an inconsistency carried over from before this
+   change, not something this step fixes.
+3. For `buttonGap`/`buttonSpacing`/`rowHeight` specifically — these aren't read through `Renderer`'s
+   constructor at all, so removing `scale()` from their `attribSet` value only half-fixes them; the
+   *consuming* code needs to scale the result instead. Two new helpers exist for exactly this:
+   `Renderer.getDefaultScaled(name, default)` (replaces `skin.scale(renderer.getDefaultFloat(name,
+   default))`) and `Widget.getAttribScaled(name, ?default)` (replaces
+   `skin.scale(widget.attribFloat(name, default))`) — both scale the result once, whether it came
+   from the map or the fallback default, so the default you pass should also be a bare logical
+   number now, not pre-scaled. If your codebase does not use `Panel`/`PopupMenu`'s stock consumption
+   of these fields (i.e. you're not calling `getDefaultFloat("buttonGap"/"buttonSpacing", ...)` or
+   `attribFloat("rowHeight")` yourself), you likely have nothing to do here beyond step 1. If you
+   have your own similar ad-hoc-read logical-unit attrib, prefer `getDefaultScaled`/
+   `getAttribScaled` over hand-writing `skin.scale(...getDefaultFloat/attribFloat...)`.
+4. Any other attribs field not in the list above (`step`, `arrowStep`, `columnWidth`, `itemHeight`,
+   `bmpScale`, `width`, `height`, `xgap`, ...) is **not** affected by this step and should be left
+   exactly as-is — these are read via the generic `Widget.attribFloat`/`Renderer.getDefaultFloat`
+   helpers at scattered call sites across `gm2d/ui`, and haven't been individually triaged yet for
+   whether they need the same treatment. Do not "helpfully" strip `scale()` from these; that would
+   silently unscale them with no corresponding fix, which is worse than leaving them alone.
+5. This is a **silent** behavior change with no compile-time signal — after applying the fix, visually
+   re-check anything using a custom skin with its own `attribSet`/`addAttribs` sizing overrides.
 
 ---
 

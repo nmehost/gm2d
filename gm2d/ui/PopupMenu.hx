@@ -51,7 +51,7 @@ class PopupMenu extends Window
             if (item==null)
             {
                var widget = Widget.createHLine(this, ["PopupMenuSeparator"] );
-               height = widget.attribFloat("rowHeight");
+               height = widget.getAttribScaled("rowHeight");
                w1 = widget;
                mList.addRow([w1],height,null,0,true);
             }

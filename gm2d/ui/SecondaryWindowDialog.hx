@@ -24,11 +24,13 @@ class SecondaryWindowDialog implements IDialog
          switch(bg)
          {
             case FillSolid(c,a) : bgCol = c;
-            case FillLight: bgCol = skin.guiLight;
-            case FillMedium: bgCol = skin.guiMedium;
-            case FillButton: bgCol = skin.guiButton;
-            case FillDark: bgCol = skin.guiDark;
-            case FillHighlight: bgCol = skin.guiHighlight;
+            case FillLight: bgCol = skin.getColour("FillLight");
+            case FillMedium: bgCol = skin.getColour("FillMedium");
+            case FillButton: bgCol = skin.getColour("FillButton");
+            case FillDark: bgCol = skin.getColour("FillDark");
+            case FillHighlight: bgCol = skin.getColour("FillHighlight");
+            case FillMax: bgCol = skin.getColour("FillMax");
+            case FillInv: bgCol = skin.getColour("FillInv");
             default:
          }
 

@@ -52,7 +52,20 @@ class Skin
 {
    public static var dpiScale(get,null):Float;
 
-   public var uiScale:Float;
+   public var uiScale(default,set):Float;
+   function set_uiScale(inScale:Float):Float
+   {
+      if (!mutable)
+         throw "Skin is frozen - uiScale cannot be changed";
+      return uiScale = inScale;
+   }
+
+   // False once this Skin is attached to a widget - see the propagation design, not wired up yet.
+   public var mutable:Bool = true;
+
+   // Closed set of named colour roles, keyed by FillStyle/LineStyle(/TextColour) constructor name
+   // (eg. FillMax -> "FillMax"). See setColour/setFillColor/setLineColour.
+   public var colours:Map<String,Int>;
 
    // Chrome Buttons
    public static inline var Close    = "#close";
@@ -85,20 +98,10 @@ class Skin
 
    // You can use these to set the defaults before you create a Widget
    public var roundRectRad = 4.0;
-   public var guiLight = 0xf0f0f0;
-   public var guiMedium = 0xe0e0e0;
-   public var guiTrim = 0xadadad;
-   public var guiHighlight = 0x1883d7;
-   public var guiDark = 0x606060;
-   public var guiVeryDark = 0x404040;
-   public var guiLightText = 0xffffff;
    public var panelColor = 0xe0e0e0;
    public var controlColor = 0xf0f0f0;
    public var dialogColor = 0xf0f0f0;
-   public var guiButton = 0xe0e0e0;
 
-   public var guiDisabled = 0x808080;
-   public var guiBorder = 0x000000;
    public var textFormat:nme.text.TextFormat;
 
 
@@ -113,10 +116,6 @@ class Skin
    public var tabGradientColor = 0x909080;
    public var menuHeight:Float = 32;
    public var tabSize = 32;
-
-   public var rowSelectColour = 0xffd0d0f0;
-   public var rowEvenColour   = 0xffffffff;
-   public var rowOddColour    = 0xfff0f0ff;
 
 
    public var shadowFilters:Array<BitmapFilter>;
@@ -139,13 +138,131 @@ class Skin
 
 
 
-   public function new(andInit=true)
+   public function new()
    {
       uiScale = nme.ui.Scale.getFontScale();
       resolveAttribs = defaultResolveAttribs;
+      initColours();
+      init();
+   }
 
-      if (andInit)
-         init();
+   function initColours()
+   {
+      colours = new Map<String,Int>();
+      colours.set("FillLight", 0xf0f0f0);
+      colours.set("FillMedium", 0xe0e0e0);
+      colours.set("FillButton", 0xe0e0e0);
+      colours.set("FillDark", 0x606060);
+      colours.set("FillHighlight", 0x1883d7);
+      colours.set("FillDisabled", 0x808080);
+      colours.set("FillRowOdd", 0xfff0f0ff);
+      colours.set("FillRowEven", 0xffffffff);
+      colours.set("FillRowSelect", 0xffd0d0f0);
+      colours.set("FillMax", 0xffffff);
+      colours.set("FillInv", 0x404040);
+      colours.set("LineBorder", 0x000000);
+      colours.set("LineTrim", 0xadadad);
+      colours.set("LineHighlight", 0x1883d7);
+      // Seeded for the future TextColour enum (not yet built) - StatusBar/MenubarItem's old
+      // guiLightText already needs TextColInverse today, see the attribSet entries below.
+      colours.set("TextColNormal", 0x000000);
+      colours.set("TextColMuted", 0xa0a0a0);
+      colours.set("TextColInverse", 0xffffff);
+   }
+
+   public function getColour(inKey:String):Int
+   {
+      return colours.get(inKey);
+   }
+
+   public function setColour(inKey:String, inRgb:Int):Void
+   {
+      if (!mutable)
+         throw "Skin is frozen - colour '" + inKey + "' cannot be changed";
+      if (!colours.exists(inKey))
+         throw "Unknown skin colour key '" + inKey + "'";
+      colours.set(inKey, inRgb);
+   }
+
+   public function getFillColour(inStyle:FillStyle):Int
+   {
+      if (Type.enumParameters(inStyle).length != 0)
+         throw "getFillColour: not a named colour role: " + inStyle;
+      return getColour(Type.enumConstructor(inStyle));
+   }
+
+   public function getLineColour(inStyle:LineStyle):Int
+   {
+      if (Type.enumParameters(inStyle).length != 0)
+         throw "getLineColour: not a named colour role: " + inStyle;
+      return getColour(Type.enumConstructor(inStyle));
+   }
+
+   public function setFillColor(inStyle:FillStyle, inRgb:Int):Void
+   {
+      if (Type.enumParameters(inStyle).length != 0)
+         throw "setFillColor: not a named colour role: " + inStyle;
+      setColour(Type.enumConstructor(inStyle), inRgb);
+   }
+
+   public function setLineColour(inStyle:LineStyle, inRgb:Int):Void
+   {
+      if (Type.enumParameters(inStyle).length != 0)
+         throw "setLineColour: not a named colour role: " + inStyle;
+      setColour(Type.enumConstructor(inStyle), inRgb);
+   }
+
+   function shallowCopy():Skin
+   {
+      var result:Skin = Type.createEmptyInstance(Skin);
+      result.mutable = true;
+      result.uiScale = uiScale;
+      result.roundRectRad = roundRectRad;
+      result.panelColor = panelColor;
+      result.controlColor = controlColor;
+      result.dialogColor = dialogColor;
+      result.textFormat = textFormat;
+      result.controlBorder = controlBorder;
+      result.centerTitle = centerTitle;
+      result.buttonBorderX = buttonBorderX;
+      result.buttonBorderY = buttonBorderY;
+      result.mdiBGColor = mdiBGColor;
+      result.labelColor = labelColor;
+      result.disableColor = disableColor;
+      result.resizeBarColor = resizeBarColor;
+      result.tabGradientColor = tabGradientColor;
+      result.menuHeight = menuHeight;
+      result.tabSize = tabSize;
+      result.shadowFilters = shadowFilters;
+      result.currentFilters = currentFilters;
+      result.sliderRenderer = sliderRenderer;
+      result.defaultTabRenderer = defaultTabRenderer;
+      result.bmpCache = bmpCache;
+      result.tabHeight = tabHeight;
+      result.title_h = title_h;
+      result.borders = borders;
+      result.mDrawing = mDrawing;
+      result.mText = mText;
+      result.attribSet = attribSet;
+      result.cachedIdAttribs = cachedIdAttribs;
+      result.resolveAttribs = resolveAttribs;
+      result.colours = colours.copy();
+      return result;
+   }
+
+   public function copyWithScale(inUiScale:Float):Skin
+   {
+      var result = shallowCopy();
+      result.uiScale = inUiScale;
+      return result;
+   }
+
+   public function copyWithPalette(inColours:Map<String,Int>):Skin
+   {
+      var result = shallowCopy();
+      for(key in inColours.keys())
+         result.colours.set(key, inColours.get(key));
+      return result;
    }
 
    public static function getSkin(?inSkin:Skin)
@@ -165,7 +282,7 @@ class Skin
    public static function uiWidth(inSize:Int) return new Size( getSkin().scale(inSize), 0);
 
 
-   public function init()
+   function init()
    {
       if (textFormat==null)
       {
@@ -225,7 +342,7 @@ class Skin
            // has slack to act on, instead of the item box shrink-wrapping the text.
            itemAlign: Layout.AlignCenterY,
            padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
-           offset: new Point(scale(1),scale(1)),
+           offset: new Point(1,1),
            },
         "SimpleButton" => {
            parent:"Control",
@@ -233,7 +350,7 @@ class Skin
            line: LineNone,
            fill: FillNone,
            shape: ShapeRect,
-           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           padding: new Rectangle(2,2,4,4),
            },
         "ToggleButton" => {
            parent:"Button",
@@ -254,7 +371,7 @@ class Skin
            // reason as "Button" above.
            itemAlign: Layout.AlignCenterY,
            padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
-           offset: new Point(scale(1),scale(1)),
+           offset: new Point(1,1),
            },
         "Keyboard" => {
            wantsFocus: true,
@@ -268,7 +385,7 @@ class Skin
            fill: FillLight,
            //fill: FillButton,
            shape: ShapeRect,
-           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           padding: new Rectangle(2,2,4,4),
            },
         "ChromeButton" => {
            parent:["Button"],
@@ -276,8 +393,8 @@ class Skin
            //line: LineSolid(1,guiDark,0.5),
            line: LineNone,
            fill: FillMedium,
-           minItemSize: new Size(scale(10),scale(10)),
-           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           minItemSize: new Size(10,10),
+           padding: new Rectangle(2,2,4,4),
            filters: null,
            chromeFilters: null,
            align:Layout.AlignRight|Layout.AlignCenterY,
@@ -290,7 +407,7 @@ class Skin
            itemAlign: Layout.AlignCenterY,
            },
         "ListText" => {
-           padding:scale(5),
+           padding:5,
            },
         "TextPlaceholder" => {
            textColor: 0xa0a0a0,
@@ -301,9 +418,9 @@ class Skin
         "StatusBar" => {
            align: Layout.AlignLeft,
            shape:ShapeRect,
-           fill: FillSolid(guiVeryDark,1),
-           textColor: guiLightText,
-           padding: scale(5),
+           fill: FillInv,
+           textColor: getColour("TextColInverse"),
+           padding: 5,
            },
         "PanelText" => {
            align: Layout.AlignRight,
@@ -311,10 +428,10 @@ class Skin
         "DialogTitle" => {
            align: Layout.AlignStretch | Layout.AlignCenterY,
            textAlign: "left",
-           fontSize: scale(16),
-           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           fontSize: 16,
+           padding: new Rectangle(2,2,4,4),
            shape: ShapeRect,
-           fill: FillSolid(0xffffff,1),
+           fill: FillMax,
            //hitBoxId: HitBoxes.Title,
            chromeButtons: [ {
                 id:Close,
@@ -329,22 +446,22 @@ class Skin
            padding: 0,//new Rectangle(scale(2),scale(2),scale(4),scale(4)),
            shape: ShapeRect,
            fill: FillMedium,
-           line: LineSolid(scale(2),guiLight,1),
+           line: LineSolidFill(scale(2),FillLight,1),
         },
         "TitleBar" => {
            align: Layout.AlignStretch | Layout.AlignLeft,
            textAlign: "left",
-           fontSize: scale(16),
-           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           fontSize: 16,
+           padding: new Rectangle(2,2,4,4),
            shape: ShapeRect,
            fill: FillLight,
 
            },
 
         "Panel" => {
-           padding: scale(10),
-           buttonGap: scale(10),
-           buttonSpacing: scale(10),
+           padding: 10,
+           buttonGap: 10,
+           buttonSpacing: 10,
            buttonAlign: Layout.AlignCenter | Layout.AlignEqual,
            supportsSecondary : false,
            },
@@ -359,7 +476,7 @@ class Skin
 
         "GroupBox" => {
            margin: 10,
-           padding: new Rectangle(0,scale(20),0,scale(20)),
+           padding: new Rectangle(0,20,0,20),
            line:LineTrim,
            fill: FillLight,
            shape:ShapeRoundRect
@@ -374,16 +491,16 @@ class Skin
            shape: ShapeRoundRectRad(1.5),
            align: Layout.AlignLeft,
            isInput: true,
-           minItemSize : new Size(scale(100),1),
+           minItemSize : new Size(100,1),
            line: LineTrim,
-           fill: FillSolid(0xffffff,1),
+           fill: FillMax,
            stateCurrent: {
               line: LineHighlight,
               },
            },
         "Dock" => {
            shape: ShapeRect,
-           fill: FillSolid(guiLight,1),
+           fill: FillLight,
            filters: null,
            padding: null,
            },
@@ -398,7 +515,7 @@ class Skin
         "UiButton" => {
            shape: ShapeNone,
            bitmap: BitmapFactory(createDefaultBitmap),
-           padding: new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           padding: new Rectangle(2,2,4,4),
            },
         "CheckButton" => {
            shape: ShapeNone,
@@ -424,10 +541,10 @@ class Skin
         "FrameTitle" => {
            align: Layout.AlignStretch | Layout.AlignCenterY,
            textAlign: "center",
-           fontSize: scale(14),
+           fontSize: 14,
            shape: ShapeRect,
            fill: FillSolid(0xf0f0f0,1),
-           padding: new Rectangle(0,scale(4),0,scale(8)),
+           padding: new Rectangle(0,4,0,8),
            //shape: ShapeUnderlineRect,
            //line: LineSolid(2,0x8080ff,1),
            },
@@ -497,8 +614,8 @@ class Skin
            },
         "ProgressBar" => {
            align: Layout.AlignStretch,
-           minItemSize: new Size(scale(100),scale(20)),
-           progressStyle: ProgressRoundRect(0x000000, guiHighlight, guiLight, scale(1), scale(6) ),
+           minItemSize: new Size(100,20),
+           progressStyle: ProgressRoundRect(0x000000, getColour("FillHighlight"), getColour("FillLight"), scale(1), scale(6) ),
            },
         "Stretch" => {
            align: Layout.AlignStretch,
@@ -513,16 +630,16 @@ class Skin
            itemAlign: Layout.AlignStretch | Layout.AlignCenterY,
            },
         "TabBar" => {
-           minSize: size(tabSize,tabSize),
+           minSize: new Size(tabSize,tabSize),
            fill: FillLight,
            shape:ShapeRect,
            },
         "Menubar" => {
-           minSize: new Size(0,scale(menuHeight)),
+           minSize: new Size(0,menuHeight),
            align: Layout.AlignStretch,
            itemAlign: Layout.AlignLeft | Layout.AlignCenterY,
            line: LineNone,
-           fill: FillSolid(guiVeryDark,1),
+           fill: FillInv,
            shape: ShapeRect,
            },
         "MenubarItem" => {
@@ -530,10 +647,10 @@ class Skin
            shape: ShapeUnderlineRect,
            line: LineNone,
            fill: FillNone,
-           textColor: guiLightText,
+           textColor: getColour("TextColInverse"),
            stateCurrent : {
               filters:null,
-              line: LineSolid(scale(4),guiHighlight,1),
+              line: LineSolidFill(scale(4),FillHighlight,1),
               }
            },
         "ListRow" => {
@@ -550,13 +667,13 @@ class Skin
              },
            },
         "TileControl" => {
-           fill: FillSolid(0xffffff,1),
+           fill: FillMax,
            shape: ShapeRect,
            wantsFocus:false,
            },
         "SimpleTile" => {
            filters: null,
-           fill: FillSolid(0xffffff,1),
+           fill: FillMax,
            line: LineSolid(0,0xffffff,0),
            shape: ShapeShadowRect(1,0),
            padding: new Rectangle(10,10,20,20),
@@ -568,7 +685,7 @@ class Skin
            },
         "AppBar" => {
            filters: null,
-           fill: FillSolid(0xffffff,1),
+           fill: FillMax,
            line: LineNone,
            shape: ShapeShadowRect(2, EdgeFlags.BottomOnly),
            padding: new Rectangle(0,0,0,6),
@@ -615,7 +732,7 @@ class Skin
            },
 
         "PopupMenuItemBase" => {
-           padding: scale(3),
+           padding: 3,
         },
 
         // The text part
@@ -639,7 +756,7 @@ class Skin
 
 
         "PopupMenuSeparator" => {
-           rowHeight: scale(5),
+           rowHeight: 5,
            align:Layout.AlignStretch | Layout.AlignCenterY,
            fill: FillDark,
            },
@@ -682,7 +799,7 @@ class Skin
 
         "WidgetDrawer" => {
            filters: null,
-           fill: FillSolid(0xffffff,1),
+           fill: FillMax,
            line: LineSolid(0,0x0000ff,0),
            shape: ShapeShadowRect(3,0),
            },
@@ -720,7 +837,7 @@ class Skin
       var key = inButton + "::" + inState;
       if (bmpCache.exists(key))
           return  bmpCache.get(key);
-      var bmp = DefaultBitmaps.createBitmap(this, inButton, inState, guiDark, guiLight);
+      var bmp = DefaultBitmaps.createBitmap(this, inButton, inState, getColour("FillDark"), getColour("FillLight"));
       bmpCache[key] = bmp;
       return bmp;
    }
@@ -731,7 +848,7 @@ class Skin
       if (bmpCache.exists(key))
           return  bmpCache.get(key);
 
-      var bmp = DefaultBitmaps.createBitmap(this, inButton, inState,  guiLight, guiDark);
+      var bmp = DefaultBitmaps.createBitmap(this, inButton, inState,  getColour("FillLight"), getColour("FillDark"));
       bmpCache[key] = bmp;
       return bmp;
    }
@@ -1082,7 +1199,7 @@ class Skin
          var ratio:Array<Int> = [0, 128, 255];
          gfx.beginGradientFill(nme.display.GradientType.LINEAR, cols, alphas, ratio, mtx );
          */
-         gfx.beginFill(guiDark);
+         gfx.beginFill(getColour("FillDark"));
          //gfx.drawRoundRect(inRect.x+1, inRect.y+2, inRect.width-2, 20, 8,8);
          gfx.drawRect(inRect.x+1, inRect.y, inRect.width-2, 21);
          gfx.endFill();

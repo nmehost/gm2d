@@ -487,7 +487,7 @@ class DocumentParent extends Sprite implements IDock implements IDockable
             fill = Reflect.field(asPane.frameAttribs,"fill");
             if (fill==null)
             {
-               gfx.beginFill(skin.guiLight);
+               gfx.beginFill(skin.getColour("FillLight"));
                gfx.drawRect(0,0,clientWidth,clientHeight);
             }
             else if (fill!=FillNone)

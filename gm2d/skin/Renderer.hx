@@ -61,7 +61,10 @@ class Renderer
       if (map!=null)
       {
          if (map.exists("offset"))
-            offset = map.get("offset");
+         {
+            var o:Point = map.get("offset");
+            offset = o==null ? null : new Point(skin.scale(o.x), skin.scale(o.y));
+         }
          if (map.exists("fill"))
             fillStyle = map.get("fill");
          if (map.exists("line"))
@@ -72,9 +75,15 @@ class Renderer
             if (p==null)
                padding = null;
             else if (Std.isOfType(p,Rectangle))
-               padding = p;
+            {
+               var r:Rectangle = p;
+               padding = new Rectangle(skin.scale(r.x), skin.scale(r.y), skin.scale(r.width), skin.scale(r.height));
+            }
             else
-               padding = new Rectangle(p,p,p*2,p*2);
+            {
+               var sp = skin.scale(p);
+               padding = new Rectangle(sp,sp,sp*2,sp*2);
+            }
          }
          if (map.exists("margin"))
          {
@@ -89,9 +98,15 @@ class Renderer
          if (map.exists("textFormat"))
             textFormat = map.get("textFormat");
          if (map.exists("minSize"))
-            minSize = map.get("minSize");
+         {
+            var s:Size = map.get("minSize");
+            minSize = s==null ? null : new Size(skin.scale(s.x), skin.scale(s.y));
+         }
          if (map.exists("minItemSize"))
-            minItemSize = map.get("minItemSize");
+         {
+            var s:Size = map.get("minItemSize");
+            minItemSize = s==null ? null : new Size(skin.scale(s.x), skin.scale(s.y));
+         }
          if (map.exists("align"))
             align = map.get("align");
          if (map.exists("itemAlign"))
@@ -99,7 +114,7 @@ class Renderer
          if (map.exists("font"))
             textFormat.font = map.get("font");
          if (map.exists("fontSize"))
-            textFormat.size = map.get("fontSize");
+            textFormat.size = skin.scale(map.get("fontSize"));
          if (map.exists("textColor"))
             textFormat.color = map.get("textColor");
          if (map.exists("textAlign"))
@@ -171,6 +186,13 @@ class Renderer
       return map.get(inName);
    }
 
+   // Like getDefaultFloat, but for a logical-unit attrib not extracted by the constructor above -
+   // scales the result (map value or default, either way) once, here, at the point of use.
+   public function getDefaultScaled(inName:String, inDefault:Float):Float
+   {
+      return skin.scale(getDefaultFloat(inName, inDefault));
+   }
+
    public function getDefaultBool(inName:String, inDefault:Bool):Bool
    {
       if (map==null || !map.exists(inName))
@@ -196,32 +218,17 @@ class Renderer
           filled = true;
           switch(inFillStyle)
           {
-             case FillStyle.FillLight:
-                inGraphics.beginFill(skin.guiLight);
-
-             case FillStyle.FillMedium:
-                inGraphics.beginFill(skin.guiMedium);
-
-             case FillStyle.FillButton:
-                inGraphics.beginFill(skin.guiButton);
-
-             case FillStyle.FillDark:
-                inGraphics.beginFill(skin.guiDark);
-
-             case FillStyle.FillHighlight:
-                inGraphics.beginFill(skin.guiHighlight);
-
-             case FillStyle.FillDisabled:
-                inGraphics.beginFill(skin.guiDisabled);
-
              case FillStyle.FillRowOdd:
-                inGraphics.beginFill(skin.rowOddColour,((skin.rowOddColour>>24)&0xff)/255.0);
+                var v = skin.getColour("FillRowOdd");
+                inGraphics.beginFill(v,((v>>24)&0xff)/255.0);
 
              case FillStyle.FillRowEven:
-                inGraphics.beginFill(skin.rowEvenColour,((skin.rowEvenColour>>24)&0xff)/255.0);
+                var v = skin.getColour("FillRowEven");
+                inGraphics.beginFill(v,((v>>24)&0xff)/255.0);
 
              case FillStyle.FillRowSelect:
-                inGraphics.beginFill(skin.rowSelectColour,((skin.rowSelectColour>>24)&0xff)/255.0);
+                var v = skin.getColour("FillRowSelect");
+                inGraphics.beginFill(v,((v>>24)&0xff)/255.0);
 
              case FillStyle.FillSolid(rgb,a):
                 inGraphics.beginFill(rgb,a);
@@ -258,6 +265,9 @@ class Renderer
                 }
              case FillNone:
                  filled = false;
+
+             default:
+                inGraphics.beginFill(skin.getFillColour(inFillStyle));
           }
       }
       return filled;
@@ -270,8 +280,9 @@ class Renderer
          switch(inLineStyle)
          {
             case LineNone: return 0.0;
-            case LineBorder, LineTrim, LineHighlight: return 1;
             case LineSolid( width, rgb, a ): return width==0 ? 1 : width;
+            case LineSolidFill( width, fill, a ): return width==0 ? 1 : width;
+            default: return 1;
          }
       }
       return 0.0;
@@ -288,23 +299,17 @@ class Renderer
             case LineNone:
                return 0.0;
 
-            case LineBorder:
-               inGraphics.lineStyle(0, skin.guiBorder, joint);
-               return 0.5;
-
-            case LineTrim:
-               inGraphics.lineStyle(0, skin.guiTrim, joint);
-               return 0.5;
-
-            case LineHighlight:
-               inGraphics.lineStyle(0, skin.guiHighlight, joint);
-               return 0.5;
-
             case LineSolid( width, rgb, a ):
                inGraphics.lineStyle(width, rgb,a, false, CapsStyle.SQUARE, joint);
                return width*0.5;
 
+            case LineSolidFill( width, fill, a ):
+               inGraphics.lineStyle(width, skin.getFillColour(fill), a, false, CapsStyle.SQUARE, joint);
+               return width*0.5;
+
             default:
+               inGraphics.lineStyle(0, skin.getLineColour(inLineStyle), joint);
+               return 0.5;
          }
       }
       return 0.0;

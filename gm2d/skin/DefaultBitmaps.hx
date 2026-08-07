@@ -162,21 +162,21 @@ class DefaultBitmaps
       else if (inButton==Skin.Checkbox)
       {
          effects = false;
-         gfx.lineStyle(1,skin.guiTrim);
-         gfx.beginFill(skin.guiMedium);
+         gfx.lineStyle(1,skin.getColour("LineTrim"));
+         gfx.beginFill(skin.getColour("FillMedium"));
          var r = (sizeY-1)*0.5;
          gfx.drawRoundRect(0,0,sizeX-1,sizeY-1,r*2,r*2);
-         gfx.lineStyle(1,skin.guiTrim);
-         gfx.beginFill(skin.guiLight);
+         gfx.lineStyle(1,skin.getColour("LineTrim"));
+         gfx.beginFill(skin.getColour("FillLight"));
          gfx.drawCircle(down ? sizeX-1-r : r, r,  r );
          gfx.endFill();
          for(pass in 0...2)
          {
             var o = pass==0 ? -0.5 : 0;
             if (pass==0)
-               gfx.lineStyle(3,skin.guiDark, 0.2);
+               gfx.lineStyle(3,skin.getColour("FillDark"), 0.2);
             else
-               gfx.lineStyle(2,skin.guiLight);
+               gfx.lineStyle(2,skin.getColour("FillLight"));
             if (down)
             {
                gfx.moveTo(s6+o,s12+o);
@@ -199,20 +199,20 @@ class DefaultBitmaps
 
          if (down)
          {
-            gfx.lineStyle(1,skin.guiLight);
-            gfx.beginFill(skin.guiHighlight);
+            gfx.lineStyle(1,skin.getColour("FillLight"));
+            gfx.beginFill(skin.getColour("FillHighlight"));
             gfx.drawRoundRect(0,0,sizeX-1,sizeY-1,r*2,r*2);
             gfx.lineStyle();
-            gfx.beginFill(skin.guiLight);
+            gfx.beginFill(skin.getColour("FillLight"));
             gfx.drawCircle( sizeX-1-r, r,  r*0.75 );
          }
          else
          {
-            gfx.lineStyle(1,skin.guiDark);
-            gfx.beginFill(skin.guiMedium);
+            gfx.lineStyle(1,skin.getColour("FillDark"));
+            gfx.beginFill(skin.getColour("FillMedium"));
             gfx.drawRoundRect(0,0,sizeX-1,sizeY-1,r*2,r*2);
             gfx.lineStyle();
-            gfx.beginFill(skin.guiDark);
+            gfx.beginFill(skin.getColour("FillDark"));
             gfx.drawCircle( r, r,  r*0.6 );
             gfx.endFill();
          }
@@ -220,15 +220,15 @@ class DefaultBitmaps
       else if (inButton==Skin.Radiobox)
       {
          effects = false;
-         gfx.lineStyle(1,skin.guiTrim);
-         gfx.beginFill(skin.guiMedium);
+         gfx.lineStyle(1,skin.getColour("LineTrim"));
+         gfx.beginFill(skin.getColour("FillMedium"));
          var r = (sizeY-1)*0.5;
          gfx.drawCircle(s11,s11,s8);
 
          if (down)
          {
             gfx.lineStyle();
-            gfx.beginFill(skin.guiHighlight);
+            gfx.beginFill(skin.getColour("FillHighlight"));
             gfx.drawCircle(s11,s11,s4);
          }
       }
@@ -236,7 +236,7 @@ class DefaultBitmaps
       else if (inButton==Skin.Grip)
       {
          effects = false;
-         gfx.beginFill(skin.guiLight);
+         gfx.beginFill(skin.getColour("FillLight"));
          gfx.drawRect(s2,s2, s14-s2, s4-s2);
          gfx.drawRect(s2,s7, s14-s2, s9-s7);
          gfx.drawRect(s2,s12, s14-s2, s14-s12);
@@ -245,7 +245,7 @@ class DefaultBitmaps
       {
           effects = false;
           gfx.lineStyle();
-          gfx.beginFill(skin.guiTrim);
+          gfx.beginFill(skin.getColour("LineTrim"));
           gfx.moveTo(s8,s8);
           gfx.lineTo(s16,s8);
           gfx.lineTo(s12,s14);

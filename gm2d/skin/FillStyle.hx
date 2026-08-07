@@ -11,6 +11,8 @@ enum FillStyle
    FillDark;
    FillHighlight;
    FillDisabled;
+   FillMax;
+   FillInv;
    FillTransparent;
    FillRowOdd;
    FillRowEven;

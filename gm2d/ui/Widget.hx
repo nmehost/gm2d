@@ -256,6 +256,13 @@ class Widget extends Sprite
       return val==null ? inDefault : val;
    }
 
+   // Like attribFloat, but for a logical-unit attrib - scales the result (attrib value or
+   // default, either way) once, here, at the point of use.
+   public function getAttribScaled(inName:String, inDefault=0.0) : Float
+   {
+      return skin.scale(attribFloat(inName, inDefault));
+   }
+
    public function setBitmap(inBmp:BitmapData)  { }
 
 
