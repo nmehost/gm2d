@@ -32,6 +32,9 @@ For each entry below:
 | [SKIN-001](#skin-001--skin-construction-always-fully-initializes-named-colour-fields-replaced-by-a-palette-map) | `Skin` construction always fully initializes; named colour fields (`guiLight` etc.) replaced by a palette map | removal + rename | shipped | partial (see below) |
 | [SKIN-002](#skin-002--attribset-values-are-now-dpi-independent-logical-units-resolved-once-at-renderer-construction) | `attribSet`/custom skin attribs values are now DPI-independent logical units, not pre-scaled pixels | behavior | shipped | partial (see below) |
 | [SKIN-003](#skin-003--skinscale-renamed-to-skintopixels-new-widgetonscalechanged-hook) | `Skin.scale()` → `Skin.toPixels()`; new `Widget.onScaleChanged()` hook | rename + new hook | shipped | yes (rename) / no (hook) |
+| [SKIN-004](#skin-004--attribstextcolor-retyped-int--textcolour) | `Attribs.textColor` retyped `Int` → `TextColour` | retype | shipped | no (manual — pick the matching role) |
+| [SKIN-005](#skin-005--skinshadowfilterscurrentfilters-replaced-by-a-named-filterset-palette) | `Skin.shadowFilters`/`currentFilters` replaced by a named `FilterSet` palette (`Attribs.filters`/`chromeFilters` retyped) | removal + retype | shipped | no (manual — describe the filter, don't construct one) |
+| [SKIN-006](#skin-006--default-menubar-is-now-theme-following-light-instead-of-a-fixed-dark-bar) | Default `Menubar`/`MenubarItem` now use theme-following colours instead of a fixed dark bar | behavior | shipped | no (visual re-check) |
 
 ---
 
@@ -706,6 +709,280 @@ a non-`Widget`'s graphics or a static map). `Skin.bmpCache` also keys cached bit
 state only, with no scale awareness, and `Skin.shallowCopy()` shares that cache with the copy — so a
 `copyWithScale()` result would serve stale, wrong-size icons. These all need the live-propagation
 step before they can be addressed.
+
+---
+
+## SKIN-004 — `Attribs.textColor` retyped `Int` → `TextColour`
+
+- **Kind:** retype (typedef field, not a class field — same enforcement mechanism as the
+  `Skin.scale()` rename, applied to a type instead of a symbol name)
+- **Status:** shipped
+- **Shipped in:** `master` (unreleased)
+- **Compiler assistance:** full — every `attribs`/`addAttribs`/`replaceAttribs` literal that sets
+  `textColor:` to a raw `Int` fails to compile (`Int should be Null<gm2d.skin.TextColour>`).
+
+**Background:** `fill:FillStyle` and `line:LineStyle` have resolved live, at draw time, against
+the skin ever since [SKIN-001](#skin-001--skin-construction-always-fully-initializes-named-colour-fields-replaced-by-a-palette-map)
+— `textColor` was the one place a real `Int` still got baked into `attribSet` at construction
+time, the same eager-bake problem already fixed once for `FillSolid`/`LineSolid` payloads (see the
+"Also in this step" note under SKIN-001). New closed enum:
+
+```haxe
+enum TextColour { TextColNormal; TextColMuted; TextColInverse; }
+```
+
+Grounded in the 5 actual `textColor:` sites `gm2d`'s own default skin had: `"TextPlaceholder"` →
+`TextColMuted`; `"StatusBar"`/`"MenubarItem"`/`"PopupMenuList"`/`"PopupMenuItem"`'s `stateCurrent`
+→ `TextColInverse` (all were `guiLightText`/`0xffffff` on a dark fill — same reason, just unnamed
+until now). Per the "no case without usage" rule already governing `FillStyle`/`LineStyle`,
+nothing else was added — a highlighted/current-state text color that isn't just inverse would earn
+its own case only once a real one shows up.
+
+Symmetric accessors added to `Skin`, matching `getFillColour`/`setFillColor`/`getLineColour`/
+`setLineColour` exactly: `getTextColour(TextColour):Int` / `setTextColour(TextColour,Int):Void`,
+both using `Type.enumConstructor`/`Type.enumParameters` the same way (irrelevant for now since
+every `TextColour` case is payload-free, but consistent, and future-proof if that changes).
+`Renderer`'s constructor resolves it live: `textFormat.color = skin.getTextColour(map.get("textColor"))`.
+
+**Detect:**
+
+```sh
+grep -rn 'textColor\s*:\s*[0-9x]' --include='*.hx' .
+```
+
+Catches a hex/decimal literal directly on `textColor:`. It will **not** catch `textColor:
+someIntVariable` (e.g. a skin field like `labelColor`) — those only surface as a compile error
+(`Int should be Null<gm2d.skin.TextColour>`), which is the more reliable signal; just compiling
+finds every real site.
+
+**Old:**
+
+```haxe
+addAttribs("MyWidget", { textColor: 0xffffff });
+```
+
+**New:**
+
+```haxe
+addAttribs("MyWidget", { textColor: TextColInverse });
+```
+
+**Why:** picking the matching `TextColour` case isn't mechanical — it requires judgment about
+*why* that color was chosen (is it meant to read against a dark background? a muted/placeholder
+tone? plain default text?), which is exactly why this entry is marked not auto-fixable. A
+mis-picked case still compiles and looks identical today (since it just resolves back to the same
+seeded `Int` in `skin.colours`), but will silently pick the wrong color once a real palette/dark-
+mode swap exists — pick based on intent, not by matching the current numeric value.
+
+**Fix (agent instructions):**
+
+1. For every `textColor:` set to a raw literal or an `Int`-typed variable/field, replace it with
+   the `TextColour` case matching its *intent*: `TextColInverse` if the fill behind it is dark
+   (light text on dark), `TextColMuted` if it's a placeholder/secondary/de-emphasized label,
+   `TextColNormal` for anything else (plain default text — this is also what happens if `textColor`
+   is simply omitted, so an explicit `TextColNormal` is only needed if the lineage would otherwise
+   inherit something else).
+2. If the color truly doesn't fit any of the three (e.g. a specific brand/accent text color with no
+   relationship to inverse/muted/normal), do not force it onto the nearest existing case — flag it
+   for a human decision. Per the "no case without usage" rule, a new `TextColour` case should only
+   be added once a real, grounded need shows up, the same discipline already applied to `FillStyle`/
+   `LineStyle`.
+3. If your codebase reads `Attribs.textColor` directly (rather than just setting it), it now reads
+   as `TextColour`, not `Int` — resolve to a real color via `skin.getTextColour(...)` at the point
+   you need the `Int`, don't compare it to a hex literal directly.
+
+**Follow-up fix (same entry, found via the `Skin.createDark()` test):** the *implicit* default —
+any `TextLabel`/attribs entry that never sets `textColor:` at all (most of them; e.g. `"PanelText"`,
+`"PopupMenuItem"`'s non-current state) — was still resolving to a hardcoded `Skin.textFormat.color
+= 0x000000` set once in `init()`, never through the palette. `Skin.getTextFormat()` now builds its
+base colour via `getTextColour(TextColNormal)` instead, so the implicit default is live like
+everything else. If you relied on plain text always being exactly `0x000000` regardless of palette
+(unlikely, but technically true before this fix), it now correctly follows `TextColNormal` instead.
+
+**Second follow-up: `Skin.getTextFormat()` removed entirely; base `font`/`fontSize` moved into
+`attribSet`'s `"*"` lineage.** The first follow-up above fixed `getTextFormat()`'s *colour* to be
+live, but its `font`/`size` were still sourced from `Skin.textFormat` — a `TextFormat` object
+built once in `init()` (`font:"Arial"`, `size:toPixels(14)`) — which is exactly the "`Skin` has no
+business pre-building a base `TextFormat`" case flagged as intentionally deferred back in
+[SKIN-001](#skin-001--skin-construction-always-fully-initializes-named-colour-fields-replaced-by-a-palette-map).
+Reviewing it now (asked directly: "should we even have a `getTextFormat`? where is this used?")
+confirmed only two callers, both now updated to build a fresh `TextFormat` inline instead:
+`Renderer`'s constructor (colour from `getTextColour(TextColNormal)`; `font`/`fontSize` come from
+the `map.exists("font")`/`("fontSize")` checks that already existed — no longer special-cased,
+since `"*"` now unconditionally contributes both) and `SvgSkin.createLabelRenderer` (same colour
+fix, `font` hardcoded `"Arial"` inline since SVG text doesn't specify one). **Default base font
+size is now `12`, not `14`** — the old `14` read a little large for general body/button text, and
+made `"FrameTitle"`'s own explicit `fontSize:14` a no-op (identical to the base, when it's meant
+to stand out slightly); `12` also matches every other size-specifying entry
+(`DialogTitle`/`TitleBar` at `16`, `FrameTitle` at `14`) actually reading as *larger than base*,
+which they're presumably meant to.
+
+`Skin.textFormat` itself (the field) still exists — kept for the separate, still-excluded chrome
+path (`styleLabel`/`styleText`, used by `renderMiniWin` and similar raw-`Graphics` drawing code,
+same "leave alone for now" scope as `TabRenderer.hx`) — only the *general*, `attribSet`-facing text
+path stopped depending on it.
+
+**Fix:** if you called `skin.getTextFormat()` directly, it no longer exists — read
+`font`/`fontSize`/`textColor` from your own `attribSet`/`combineAttribs()` result instead (the same
+mechanism `Renderer` itself now uses), or build a plain `new TextFormat()` and set what you need.
+If you relied on the base font size being `14`, it's `12` now; override `fontSize` explicitly via
+`addAttribs("*", { fontSize: 14 })` (or on a narrower lineage) if you want the old value back.
+
+---
+
+## SKIN-005 — `Skin.shadowFilters`/`currentFilters` replaced by a named `FilterSet` palette
+
+- **Kind:** removal + retype (two `Skin` fields removed; `Attribs.filters`/`chromeFilters` retyped)
+- **Status:** shipped
+- **Shipped in:** `master` (unreleased)
+- **Compiler assistance:** full — `skin.shadowFilters`/`skin.currentFilters` fail as "Unknown
+  identifier"; a literal `Array<BitmapFilter>` where `Attribs.filters`/`chromeFilters` is now a
+  `FilterSet` fails with a type mismatch.
+
+**Background:** `Skin.shadowFilters`/`currentFilters` used to be `Array<BitmapFilter>` fields, set
+once when `init()` ran and baked directly into `attribSet` (`chromeFilters: shadowFilters` on
+`"Dialog"`/`"PopupMenu"`/`"PopupComboBox"`, `filters: currentFilters` on `"Control"`'s
+`stateCurrent`) — the same eager-bake problem already fixed for colours and sizing, just not
+reachable until now. Replaced by two named slots, same closed-set shape as the colour palette
+(`getColour`/`setColour`):
+
+```haxe
+enum FilterSet { FilterSetShadow; FilterSetCurrent; }
+
+enum BitmapFilterStyle
+{
+   FilterDropShadow(distance:Float, angle:Float, blur:Float, colour:FillStyle, alpha:Float);
+   FilterGlow(colour:FillStyle, blur:Float, alpha:Float);
+   FilterCustom(filter:BitmapFilter);  // escape hatch - still goes through a named slot
+}
+```
+
+`skin.filterStyles:Map<String,Array<BitmapFilterStyle>>` holds the *definitions*, keyed by
+`FilterSet` constructor name; `skin.getFilterSet(FilterSetShadow)` realizes them to real
+`Array<BitmapFilter>` on first access and caches the result (`skin.setFilterStyle(...)` invalidates
+that cache). The realized cache is **not** copied by `copyWithScale`/`copyWithPalette` — a copy
+starts with an empty cache and lazily rebuilds against its own `uiScale`/`colours`, the same fix
+just applied to `Skin.bmpCache` while this was being built (previously shared with the copy,
+serving stale wrong-size icons — see the "Known remaining bakes" note under
+[SKIN-003](#skin-003--skinscale-renamed-to-skintopixels-new-widgetonscalechanged-hook), now closed).
+
+`Attribs.filters`/`chromeFilters` are retyped `Array<BitmapFilter>` → `FilterSet` — an attribs
+literal now names *which slot* it wants (`filters: FilterSetCurrent`), never a concrete filter
+array directly. `Renderer` resolves the named slot to real filters live, at construction/render
+time (reruns on every `rebuildState()`, same as `padding`/`fill`/etc.).
+
+**A `FillStyle` value can be a bare named role (e.g. `FillHighlight`) or a literal `FillSolid(rgb,a)`
+inside a filter definition** — unlike `Skin.getFillColour`, which rejects payload cases, filter
+resolution accepts both, since a filter's colour is sometimes deliberately fixed (see below) rather
+than theme-relative.
+
+**Default shadow colour is deliberately fixed, not a role:** `FilterSetShadow`'s default is
+`FilterDropShadow(3, 45, 3, FillSolid(0,1), 0.5)` — literal near-black, not e.g. `FillDark`/
+`FillInv`. A drop shadow is a lighting metaphor, not a surface colour; it shouldn't invert when the
+palette does (`FillInv` in particular is defined as "inverse of the current theme," which in a dark
+theme could resolve to something *light* — exactly wrong for a shadow). This also means a light/dark
+swap is a pure `copyWithPalette()` with no filter change needed for the default shadow. If you
+*want* a filter's colour to track the palette, use a named role instead of `FillSolid` — that's a
+deliberate per-filter choice, not the default.
+
+**`FilterSetCurrent` is empty by default** — matches the previous behaviour exactly (the old
+`currentFilters` glow was already commented-out/dead code); the slot and `FilterGlow` case exist
+and are ready to use, but nothing enables them out of the box.
+
+**Naming note:** `gm2d/svg/FilterSet.hx` already exists — an unrelated class (an SVG filter list).
+Different package (`gm2d.svg` vs `gm2d.skin`), so no compile conflict, but worth knowing if you
+ever see both in the same file's imports.
+
+**Detect:**
+
+```sh
+grep -rnE '\.(shadowFilters|currentFilters)\b' --include='*.hx' .
+grep -rn 'filters\s*:\s*\[' --include='*.hx' .
+```
+
+The second pattern catches an attribs literal handing `filters:`/`chromeFilters:` an array literal
+directly — no longer valid now that the field is `FilterSet`.
+
+**Old:**
+
+```haxe
+class AppSkin extends Skin
+{
+   public function new()
+   {
+      super();
+      shadowFilters = [ new DropShadowFilter(distancePx, 45, 0, 0.5, blurPx, blurPx, 1) ];
+   }
+}
+```
+
+**New:**
+
+```haxe
+class AppSkin extends Skin
+{
+   public function new()
+   {
+      super();
+      setFilterStyle(FilterSetShadow, [ FilterDropShadow(distanceLogical, 45, blurLogical, FillSolid(0,1), 0.5) ]);
+   }
+}
+```
+
+Note `distance`/`blur` are logical units now (no `scale()`/`toPixels()` wrapping — `Skin` resolves
+them at realization time), matching the convention already established for `attribSet` sizing
+([SKIN-002](#skin-002--attribset-values-are-now-dpi-independent-logical-units-resolved-once-at-renderer-construction)).
+
+**Fix (agent instructions):**
+
+1. Replace `skin.shadowFilters = [...]` / `currentFilters = [...]` with
+   `skin.setFilterStyle(FilterSetShadow, [...])` / `setFilterStyle(FilterSetCurrent, [...])`,
+   translating each concrete `BitmapFilter` construction to the matching `BitmapFilterStyle` case
+   — `FilterDropShadow`/`FilterGlow` for the two built-in shapes, `FilterCustom(existingFilter)` if
+   you need to keep an arbitrary filter you don't want to (or can't) express declaratively. When
+   translating, strip any `scale()`/`toPixels()` wrapping on distance/blur — they're logical units
+   now, resolved once by `Skin`.
+2. For colour: if the original was a hardcoded literal with no relationship to the active theme
+   (like the default shadow), use `FillSolid(rgb, a)`. If it should track light/dark, use the
+   matching named `FillStyle` role instead.
+3. For any attribs literal setting `filters:`/`chromeFilters:` to a concrete array, replace with
+   `FilterSetShadow`/`FilterSetCurrent` (or a new slot if you called `setFilterStyle` with a
+   `FilterSet` case that isn't one of the two built-in ones — note `setFilterStyle` **rejects**
+   unknown keys today, so a genuinely new named slot isn't self-service yet; flag that case for a
+   human rather than guessing at a workaround).
+4. Recompile — any remaining "Unknown identifier: shadowFilters/currentFilters" or filter-array
+   type mismatch marks a site this sweep missed.
+
+---
+
+## SKIN-006 — Default `Menubar`/`MenubarItem` now use theme-following colours instead of a fixed dark bar
+
+- **Kind:** behavior change (default `attribSet` values only — no renamed/removed symbol)
+- **Status:** shipped
+- **Shipped in:** `master` (unreleased)
+- **Compiler assistance:** none — a visual default change, not an API change.
+
+**Background:** the default skin's `"Menubar"`/`"MenubarItem"` used `FillInv`/`TextColInverse` —
+a fixed dark bar with light text, regardless of whether the rest of the skin is light or dark
+(the older convention, also still used by `"StatusBar"`, not changed by this entry). Now uses
+`FillLight`/`TextColNormal` — the same theme-following roles as the rest of the default chrome
+(`Button`, `Dialog`, etc.), so the menubar tracks light/dark like everything else instead of
+always being a dark accent bar. `MenubarItem`'s current-item underline is unaffected (`FillHighlight`,
+an accent colour — same in light or dark).
+
+**Why:** matches the now-common convention of a menubar that's light in a light theme and dark in
+a dark theme, rather than a fixed dark strip. This is specifically a v5 default-content decision,
+not a technical requirement of the propagation work — Hugh's call, made because gm2d's own apps are
+the primary consumer and a v5 major version is the right point to change defaults like this.
+
+**Fix:** if your custom skin didn't already override `"Menubar"`/`"MenubarItem"`'s `fill`/`textColor`,
+your menubar's default appearance changes from dark-with-light-text to light-with-dark-text (in the
+default/light palette). If you want the old fixed-dark-bar look back regardless of theme, set it
+explicitly: `addAttribs("Menubar", { fill: FillInv }); addAttribs("MenubarItem", { textColor:
+TextColInverse });`.
+
+**Related, not changed by this entry:** `"StatusBar"` still uses the same fixed-dark-bar pattern
+(`FillInv`/`TextColInverse`) — noted as revisitable when `FillInv` was first introduced, still open.
 
 ---
 

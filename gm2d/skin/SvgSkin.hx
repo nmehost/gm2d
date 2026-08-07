@@ -71,7 +71,9 @@ class SvgSkin
       var text = renderer.findText();
       if (text!=null)
       {
-         var fmt = skin.getTextFormat();
+         var fmt = new TextFormat();
+         fmt.font = "Arial";
+         fmt.color = skin.getTextColour(TextColNormal);
          fmt.size = skin.toPixels(text.style.size);
          //fmt.font = text.font_family;
          switch(text.style.fill)

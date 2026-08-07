@@ -4,9 +4,10 @@ import cpp.abi.Abi;
 import gm2d.skin.BitmapStyle;
 import gm2d.skin.FillStyle;
 import gm2d.skin.LineStyle;
+import gm2d.skin.TextColour;
+import gm2d.skin.FilterSet;
 import gm2d.skin.ProgressStyle;
 import gm2d.skin.Shape;
-import nme.filters.BitmapFilter;
 import nme.geom.Point;
 import nme.text.TextFormat;
 
@@ -33,8 +34,8 @@ typedef Attribs =
    ?fill:FillStyle,
    ?bitmap:BitmapStyle,
    ?bitmapId:String,
-   ?filters:Array<BitmapFilter>,
-   ?chromeFilters:Array<BitmapFilter>,
+   ?filters:FilterSet,
+   ?chromeFilters:FilterSet,
    ?padding:Dynamic,
    ?margin:Dynamic,
    ?offset:Point,
@@ -50,7 +51,7 @@ typedef Attribs =
    ?textFormat:TextFormat,
    ?font:String,
    ?fontSize:Int,
-   ?textColor:Int,
+   ?textColor:TextColour,
    ?textBorder:Int,
    ?bold:Bool,
    ?contents:String,

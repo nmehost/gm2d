@@ -53,7 +53,10 @@ class Renderer
    {
       skin = inSkin;
       shape = Shape.ShapeNone;
-      textFormat = skin.getTextFormat();
+      // font/fontSize come from the "*" attribSet lineage entry below (always present, so
+      // map.exists("font")/("fontSize") is guaranteed) - only the colour needs a base here.
+      textFormat = new TextFormat();
+      textFormat.color = skin.getTextColour(TextColNormal);
       offset = new Point(0,0);
       align = null;
       map = inMap;
@@ -116,7 +119,7 @@ class Renderer
          if (map.exists("fontSize"))
             textFormat.size = skin.toPixels(map.get("fontSize"));
          if (map.exists("textColor"))
-            textFormat.color = map.get("textColor");
+            textFormat.color = skin.getTextColour(map.get("textColor"));
          if (map.exists("textAlign"))
             textFormat.align = map.get("textAlign");
          if (map.exists("textBorder"))
@@ -128,7 +131,10 @@ class Renderer
          if (map.exists("bitmap"))
              bitmapStyle = map.get("bitmap");
          if (map.exists("filters"))
-             filters = map.get("filters");
+         {
+            var fs:FilterSet = map.get("filters");
+            filters = fs==null ? null : skin.getFilterSet(fs);
+         }
          if (map.exists("bestWidth"))
              bestWidth = map.get("bestWidth");
          if (map.exists("bestHeight"))
@@ -347,7 +353,10 @@ class Renderer
          renderLabel(label);
       inWidget.filters = filters;
       if (map!=null && map.exists("chromeFilters"))
-          inWidget.mChrome.filters = map.get("chromeFilters");
+      {
+         var fs:FilterSet = map.get("chromeFilters");
+         inWidget.mChrome.filters = fs==null ? null : skin.getFilterSet(fs);
+      }
       else
           inWidget.mChrome.filters = null;
 

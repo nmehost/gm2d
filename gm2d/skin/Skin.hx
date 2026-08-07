@@ -34,6 +34,9 @@ import gm2d.ui.HitBoxes;
 
 import gm2d.skin.FillStyle;
 import gm2d.skin.LineStyle;
+import gm2d.skin.TextColour;
+import gm2d.skin.FilterSet;
+import gm2d.skin.BitmapFilterStyle;
 import gm2d.skin.BitmapStyle;
 import gm2d.skin.ProgressStyle;
 import gm2d.skin.Shape;
@@ -118,8 +121,11 @@ class Skin
    public var tabSize = 32;
 
 
-   public var shadowFilters:Array<BitmapFilter>;
-   public var currentFilters:Array<BitmapFilter>;
+   // Named filter slots, keyed by FilterSet constructor name (eg. FilterSetShadow ->
+   // "FilterSetShadow") - same closed-set shape as "colours". Values are scale/palette-agnostic
+   // definitions; realized+cached to real BitmapFilters on demand, see getFilterSet/setFilterStyle.
+   public var filterStyles:Map<String,Array<BitmapFilterStyle>>;
+   var cachedFilters:Map<String,Array<BitmapFilter>>;
    public var sliderRenderer:SliderRenderer;
    public var defaultTabRenderer:TabRenderer;
    public var bmpCache = new Map<String, BitmapData>();
@@ -143,6 +149,7 @@ class Skin
       uiScale = nme.ui.Scale.getFontScale();
       resolveAttribs = defaultResolveAttribs;
       initColours();
+      initFilters();
       init();
    }
 
@@ -163,11 +170,20 @@ class Skin
       colours.set("LineBorder", 0x000000);
       colours.set("LineTrim", 0xadadad);
       colours.set("LineHighlight", 0x1883d7);
-      // Seeded for the future TextColour enum (not yet built) - StatusBar/MenubarItem's old
-      // guiLightText already needs TextColInverse today, see the attribSet entries below.
       colours.set("TextColNormal", 0x000000);
       colours.set("TextColMuted", 0xa0a0a0);
       colours.set("TextColInverse", 0xffffff);
+   }
+
+   function initFilters()
+   {
+      filterStyles = new Map<String,Array<BitmapFilterStyle>>();
+      // Fixed near-black, not a role - a drop shadow is a lighting metaphor, not a surface
+      // colour, and should not invert with a light/dark palette swap.
+      filterStyles.set("FilterSetShadow", [ FilterDropShadow(3, 45, 3, FillSolid(0,1), 0.5) ]);
+      // Matches the previously-commented-out/disabled default - available, opt-in.
+      filterStyles.set("FilterSetCurrent", []);
+      cachedFilters = new Map<String,Array<BitmapFilter>>();
    }
 
    public function getColour(inKey:String):Int
@@ -212,6 +228,85 @@ class Skin
       setColour(Type.enumConstructor(inStyle), inRgb);
    }
 
+   public function getTextColour(inStyle:TextColour):Int
+   {
+      if (Type.enumParameters(inStyle).length != 0)
+         throw "getTextColour: not a named colour role: " + inStyle;
+      return getColour(Type.enumConstructor(inStyle));
+   }
+
+   public function setTextColour(inStyle:TextColour, inRgb:Int):Void
+   {
+      if (Type.enumParameters(inStyle).length != 0)
+         throw "setTextColour: not a named colour role: " + inStyle;
+      setColour(Type.enumConstructor(inStyle), inRgb);
+   }
+
+   // Realized+cached on demand - a filter set's definition rarely changes, but resolving a
+   // FillStyle colour role or scaling distance/blur is cheap enough to just redo when the cache
+   // is empty rather than trying to track exactly what changed.
+   public function getFilterSet(inSet:FilterSet):Array<BitmapFilter>
+   {
+      var key = Type.enumConstructor(inSet);
+      var cached = cachedFilters.get(key);
+      if (cached==null)
+      {
+         cached = realizeFilters(filterStyles.get(key));
+         cachedFilters.set(key, cached);
+      }
+      return cached;
+   }
+
+   public function setFilterStyle(inSet:FilterSet, inStyles:Array<BitmapFilterStyle>):Void
+   {
+      if (!mutable)
+         throw "Skin is frozen - filter set '" + inSet + "' cannot be changed";
+      var key = Type.enumConstructor(inSet);
+      if (!filterStyles.exists(key))
+         throw "Unknown filter set '" + key + "'";
+      filterStyles.set(key, inStyles);
+      cachedFilters.remove(key);
+   }
+
+   function realizeFilters(inStyles:Array<BitmapFilterStyle>):Array<BitmapFilter>
+   {
+      var result = [];
+      if (inStyles!=null)
+         for(s in inStyles)
+            result.push(realizeFilter(s));
+      return result;
+   }
+
+   function realizeFilter(inStyle:BitmapFilterStyle):BitmapFilter
+   {
+      return switch(inStyle)
+      {
+         case FilterDropShadow(distance,angle,blur,colour,alpha):
+            var d = toPixels(distance);
+            var b = toPixels(blur);
+            new DropShadowFilter(d, angle, resolveFillColour(colour), alpha, b, b, 3);
+
+         case FilterGlow(colour,blur,alpha):
+            var b = toPixels(blur);
+            new GlowFilter(resolveFillColour(colour), alpha, b, b, 2, 1, false, false);
+
+         case FilterCustom(filter):
+            filter;
+      }
+   }
+
+   // FillStyle proper only resolves named roles via getFillColour (throws on a payload case
+   // like FillSolid) - filters need to accept a literal FillSolid too (eg. the fixed-black
+   // shadow default), so unwrap that one payload case here instead of widening getFillColour.
+   function resolveFillColour(inStyle:FillStyle):Int
+   {
+      return switch(inStyle)
+      {
+         case FillSolid(rgb,a): rgb;
+         default: getFillColour(inStyle);
+      }
+   }
+
    function shallowCopy():Skin
    {
       var result:Skin = Type.createEmptyInstance(Skin);
@@ -233,11 +328,15 @@ class Skin
       result.tabGradientColor = tabGradientColor;
       result.menuHeight = menuHeight;
       result.tabSize = tabSize;
-      result.shadowFilters = shadowFilters;
-      result.currentFilters = currentFilters;
+      result.filterStyles = filterStyles.copy();
+      // Deliberately NOT copied - a realized filter/bitmap depends on this instance's own
+      // uiScale/colours, so the copy starts empty and lazily rebuilds against its own. Sharing
+      // either cache here would be the same staleness bug either way (a copyWithScale() result
+      // serving the source's stale, wrong-size cached bitmaps/filters).
+      result.cachedFilters = new Map<String,Array<BitmapFilter>>();
+      result.bmpCache = new Map<String, BitmapData>();
       result.sliderRenderer = sliderRenderer;
       result.defaultTabRenderer = defaultTabRenderer;
-      result.bmpCache = bmpCache;
       result.tabHeight = tabHeight;
       result.title_h = title_h;
       result.borders = borders;
@@ -265,6 +364,21 @@ class Skin
       return result;
    }
 
+   // Test/example of copyWithPalette - mechanically inverts every colour (preserving any alpha
+   // packed in the top byte), not a curated dark theme.
+   public function createDark():Skin
+   {
+      var inverted = new Map<String,Int>();
+      for(key in colours.keys())
+      {
+         var v = colours.get(key);
+         var alpha = v & 0xff000000;
+         var rgb = v & 0xffffff;
+         inverted.set(key, alpha | (0xffffff - rgb));
+      }
+      return copyWithPalette(inverted);
+   }
+
    public static function getSkin(?inSkin:Skin)
    {
       if (inSkin!=null)
@@ -289,24 +403,7 @@ class Skin
          textFormat = new TextFormat();
          textFormat.size = toPixels(14);
          textFormat.font = "Arial";
-         textFormat.color = 0x000000;
       }
-
-      if (shadowFilters==null)
-      {
-         var s = toPixels(3);
-         shadowFilters = [ new DropShadowFilter(s,45,0,0.5,s,s,3) ];
-      }
-
-      /*
-      if (currentFilters==null)
-      {
-         var s = toPixels(3);
-         var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, s, s, 2, 1, false, false);
-         currentFilters = [ glow ];
-      }
-      */
-
 
       initGfx();
 
@@ -316,6 +413,8 @@ class Skin
       // Rebuild attribs from scratch
       attribSet = [
         "*" => {
+           font: "Arial",
+           fontSize: 14,
            stateDown: {
               fill: FillMedium,
               },
@@ -327,7 +426,7 @@ class Skin
            wantsFocus: true,
            autoCurrent: true,
            stateCurrent: {
-              filters: currentFilters!=null && currentFilters.length==0 ? null : currentFilters,
+              filters: FilterSetCurrent,
               line: LineHighlight,
               },
            },
@@ -410,7 +509,7 @@ class Skin
            padding:5,
            },
         "TextPlaceholder" => {
-           textColor: 0xa0a0a0,
+           textColor: TextColMuted,
            },
         "TextPlaceholderAlways" => {
            textAlign: "right",
@@ -419,7 +518,7 @@ class Skin
            align: Layout.AlignLeft,
            shape:ShapeRect,
            fill: FillInv,
-           textColor: getColour("TextColInverse"),
+           textColor: TextColInverse,
            padding: 5,
            },
         "PanelText" => {
@@ -589,7 +688,7 @@ class Skin
            shape: ShapeRect,
            line: LineHighlight,
            //padding: new Rectangle(borders, borders, borders*2, borders*2),
-           chromeFilters: shadowFilters,
+           chromeFilters: FilterSetShadow,
            fill: FillLight,
            /*
            chromeButtons: [ {bitmapId:Resize,
@@ -639,7 +738,7 @@ class Skin
            align: Layout.AlignStretch,
            itemAlign: Layout.AlignLeft | Layout.AlignCenterY,
            line: LineNone,
-           fill: FillInv,
+           fill: FillLight,
            shape: ShapeRect,
            },
         "MenubarItem" => {
@@ -647,7 +746,7 @@ class Skin
            shape: ShapeUnderlineRect,
            line: LineNone,
            fill: FillNone,
-           textColor: getColour("TextColInverse"),
+           textColor: TextColNormal,
            stateCurrent : {
               filters:null,
               line: LineSolidFill(toPixels(4),FillHighlight,1),
@@ -716,14 +815,14 @@ class Skin
          */
 
         "PopupMenu" => {
-           chromeFilters: shadowFilters,
+           chromeFilters: FilterSetShadow,
            filters: null,
            shape: ShapeRect,
            fill: FillLight,
            line: LineBorder,
            },
         "PopupComboBox" => {
-           chromeFilters: shadowFilters,
+           chromeFilters: FilterSetShadow,
            filters: null,
            shape: ShapeRect,
            fill: FillNone,
@@ -743,7 +842,7 @@ class Skin
            textAlign: "left",
            align: Layout.AlignStretch | Layout.AlignCenterY,
            stateCurrent:{
-              textColor: 0xffffff,
+              textColor: TextColInverse,
               }
            },
 
@@ -763,7 +862,7 @@ class Skin
 
         "PopupMenuList" => {
            rowLineage:"PopupMenuRow",
-           textColor: 0xffffff,
+           textColor: TextColInverse,
            },
         "PopupMenuRow" => {
            shape: ShapeUnderlineRect,
@@ -1090,14 +1189,6 @@ class Skin
    }
 
 
-   public function getTextFormat()
-   {
-      var fmt = new TextFormat();
-      fmt.size = textFormat.size;
-      fmt.font = textFormat.font;
-      fmt.color = textFormat.color;
-      return fmt;
-   }
 
 
    public function styleLabel(label:TextField)

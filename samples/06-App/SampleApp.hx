@@ -3,6 +3,7 @@ import gm2d.ui.Menubar;
 import gm2d.ui.MenuItem;
 import gm2d.ui.Widget;
 import gm2d.skin.FillStyle;
+import gm2d.skin.Skin;
 import gm2d.ui.Pane;
 import nme.display.Sprite;
 import nme.display.Bitmap;
@@ -27,6 +28,9 @@ class SampleApp extends App
 {
    public function new()
    {
+      // Test: swap in a dark version of the default skin before anything gets built with it.
+      Skin.theSkin = Skin.getSkin().createDark();
+
       super();
 
       //Game.debugLayout = true;
