@@ -73,7 +73,7 @@ class TileControl extends ScrollWidget
       var columnWidth = attribFloat("columnWidth",0);
       if (columnWidth>0)
       {
-         columns = Std.int( controlWidth/skin.scale(columnWidth) );
+         columns = Std.int( controlWidth/skin.toPixels(columnWidth) );
          if (columns<1)
             columns = 1;
       }

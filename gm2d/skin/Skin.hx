@@ -279,7 +279,7 @@ class Skin
       return getSkin().uiScale;
    }
 
-   public static function uiWidth(inSize:Int) return new Size( getSkin().scale(inSize), 0);
+   public static function uiWidth(inSize:Int) return new Size( getSkin().toPixels(inSize), 0);
 
 
    function init()
@@ -287,21 +287,21 @@ class Skin
       if (textFormat==null)
       {
          textFormat = new TextFormat();
-         textFormat.size = scale(14);
+         textFormat.size = toPixels(14);
          textFormat.font = "Arial";
          textFormat.color = 0x000000;
       }
 
       if (shadowFilters==null)
       {
-         var s = scale(3);
+         var s = toPixels(3);
          shadowFilters = [ new DropShadowFilter(s,45,0,0.5,s,s,3) ];
       }
 
       /*
       if (currentFilters==null)
       {
-         var s = scale(3);
+         var s = toPixels(3);
          var glow:BitmapFilter = new GlowFilter(0x0000ff, 1.0, s, s, 2, 1, false, false);
          currentFilters = [ glow ];
       }
@@ -443,10 +443,10 @@ class Skin
               ],
            },
         "DocumentFrame" => {
-           padding: 0,//new Rectangle(scale(2),scale(2),scale(4),scale(4)),
+           padding: 0,//new Rectangle(toPixels(2),toPixels(2),toPixels(4),toPixels(4)),
            shape: ShapeRect,
            fill: FillMedium,
-           line: LineSolidFill(scale(2),FillLight,1),
+           line: LineSolidFill(toPixels(2),FillLight,1),
         },
         "TitleBar" => {
            align: Layout.AlignStretch | Layout.AlignLeft,
@@ -615,7 +615,7 @@ class Skin
         "ProgressBar" => {
            align: Layout.AlignStretch,
            minItemSize: new Size(100,20),
-           progressStyle: ProgressRoundRect(0x000000, getColour("FillHighlight"), getColour("FillLight"), scale(1), scale(6) ),
+           progressStyle: ProgressRoundRect(0x000000, getColour("FillHighlight"), getColour("FillLight"), toPixels(1), toPixels(6) ),
            },
         "Stretch" => {
            align: Layout.AlignStretch,
@@ -650,7 +650,7 @@ class Skin
            textColor: getColour("TextColInverse"),
            stateCurrent : {
               filters:null,
-              line: LineSolidFill(scale(4),FillHighlight,1),
+              line: LineSolidFill(toPixels(4),FillHighlight,1),
               }
            },
         "ListRow" => {
@@ -858,8 +858,8 @@ class Skin
    public static function scaleBitmap(inBmp:BitmapData,extraScale:Float=1.0)
    {
       var skin = getSkin();
-      var w = skin.scale(inBmp.width*extraScale);
-      var h = skin.scale(inBmp.height*extraScale);
+      var w = skin.toPixels(inBmp.width*extraScale);
+      var h = skin.toPixels(inBmp.height*extraScale);
       var bitmap = new Bitmap(inBmp);
       var mtx = new nme.geom.Matrix(w/inBmp.width,0,0,h/inBmp.height,0,0);
 
@@ -867,8 +867,8 @@ class Skin
       result.draw(bitmap, mtx);
       return result;
    }
-   public function size(inX:Float,inY:Float) return new Size( scale(inX), scale(inY) );
-   public function scale(inVal:Float):Int
+   public function size(inX:Float,inY:Float) return new Size( toPixels(inX), toPixels(inY) );
+   public function toPixels(inVal:Float):Int
    {
       return Std.int(inVal*uiScale);
    }
@@ -1126,19 +1126,19 @@ class Skin
          if (Dock.isToolbar(pane))
          {
             if (inTopGrip)
-               return new Rectangle(scale(2),scale(8),scale(4),scale(10));
+               return new Rectangle(toPixels(2),toPixels(8),toPixels(4),toPixels(10));
             else
-               return new Rectangle(scale(8),scale(2),scale(10),scale(4));
+               return new Rectangle(toPixels(8),toPixels(2),toPixels(10),toPixels(4));
          }
          else
-            return new Rectangle(scale(2),scale(22),scale(4),scale(24));
+            return new Rectangle(toPixels(2),toPixels(22),toPixels(4),toPixels(24));
       }
       return new Rectangle(0,0,0,0);
    }
 
    public function getMultiDockChromePadding(inN:Int,tabStyle:Bool) : Size
    {
-      return new Size(0,tabStyle ? scale(tabHeight) : inN*24);
+      return new Size(0,tabStyle ? toPixels(tabHeight) : inN*24);
    }
 
 
@@ -1338,7 +1338,7 @@ class Skin
    }
    public function getResizeBarWidth() : Float
    {
-      return scale(3);
+      return toPixels(3);
    }
    public function getSideBorder() : Float
    {
@@ -1480,7 +1480,7 @@ class Skin
       return mDrawing.graphics;
    }
 
-   public function getMDIClientChrome() { return new Rectangle(0,scale(tabHeight), 0, scale(tabHeight)); }
+   public function getMDIClientChrome() { return new Rectangle(0,toPixels(tabHeight), 0, toPixels(tabHeight)); }
 
   
 
@@ -1492,11 +1492,11 @@ class Skin
       var y0 = Std.int(inRect.y) + 0.5;
       var showX = 0;
       var showY = 0;
-      var showW = scale(32);
-      var showH = scale(32);
-      var half = scale(16);
-      var plusHalf = scale(48);
-      var gap = scale(2);
+      var showW = toPixels(32);
+      var showH = toPixels(32);
+      var half = toPixels(16);
+      var plusHalf = toPixels(48);
+      var gap = toPixels(2);
 
       switch(inPosition)
       {
@@ -1504,51 +1504,51 @@ class Skin
             y0 = Std.int(inRect.y + inRect.height/2 - half ) + 0.5;
             if (inCentred)
                x0 = inRect.x +inRect.width*0.5 - plusHalf - gap;
-            showW = scale(12);
+            showW = toPixels(12);
          case DOCK_RIGHT:
             if (inCentred)
                x0 = inRect.x +inRect.width*0.5 + half + gap;
             else
                x0 = Std.int(inRect.right-showW)-0.5;
             y0 = Std.int(inRect.y + inRect.height/2 - half ) + 0.5;
-            showX = scale(20);
-            showW = scale(12);
+            showX = toPixels(20);
+            showW = toPixels(12);
          case DOCK_TOP:
             if (inCentred)
                y0 = inRect.y +inRect.height*0.5 - plusHalf - 2;
             x0 = Std.int(inRect.x + inRect.width/2 - half ) + 0.5;
-            showH = scale(12);
+            showH = toPixels(12);
          case DOCK_BOTTOM:
             x0 = Std.int(inRect.x + inRect.width/2 - half ) + 0.5;
             if (inCentred)
                y0 = inRect.y +inRect.height*0.5 + half + gap;
             else
                y0 = Std.int(inRect.bottom-showH)-0.5;
-            showY = scale(20);
-            showH = scale(12);
+            showY = toPixels(20);
+            showH = toPixels(12);
          case DOCK_OVER:
             if (!inCentred)
                return;
 
             x0 = inRect.x +inRect.width*0.5 - half;
             y0 = inRect.y +inRect.height*0.5 - half;
-            showX = showY = scale(4);
-            showW = showH = scale(24);
+            showX = showY = toPixels(4);
+            showW = showH = toPixels(24);
          case DOCK_BAR:
             return;
       }
 
       var gfx = outZones.container.graphics;
-      var result = new Rectangle(x0,y0,scale(32),scale(32));
+      var result = new Rectangle(x0,y0,toPixels(32),toPixels(32));
       if (result.contains(outZones.x,outZones.y))
       {
          gfx.lineStyle();
          gfx.beginFill(0x7070ff);
-         gfx.drawRect(x0-gap*2,y0-gap*2,scale(40),scale(40));
+         gfx.drawRect(x0-gap*2,y0-gap*2,toPixels(40),toPixels(40));
       }
       gfx.beginFill(0xffffff);
       gfx.lineStyle(1,0x000000);
-      gfx.drawRect(x0,y0,scale(32),scale(32));
+      gfx.drawRect(x0,y0,toPixels(32),toPixels(32));
       gfx.beginFill(0x4040a0);
       gfx.drawRect(x0+showX,y0+showY,showW,showH);
 
@@ -1633,7 +1633,7 @@ class Skin
       else
       {
          var svg = new SvgRenderer(gm2d.reso.Resources.loadSvg(inResoName));
-         var size = scale(inWidth);
+         var size = toPixels(inWidth);
          var bmp = new BitmapData(size,size,true, gm2d.RGB.CLEAR );
 
          var shape = svg.createShape();

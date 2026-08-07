@@ -13,6 +13,9 @@ class Image extends Widget
 {
    public var bitmapData(get,set):BitmapData;
    var bitmap:Bitmap;
+   // Set by fromSvg, so the bitmap can be re-rendered at the new size if the scale changes
+   var svg:SvgRenderer;
+   var svgScale:Float;
 
    public function new(?skin:Skin, ?inBmp:BitmapData, ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
@@ -49,8 +52,16 @@ class Image extends Widget
          skin = Skin.getSkin();
       var svg = new SvgRenderer(gm2d.reso.Resources.loadSvg(resoName));
 
-      var w = skin.scale(svg.width*inScale);
-      var h = skin.scale(svg.height*inScale);
+      var result = new Image(skin, renderSvg(skin,svg,inScale), inLineage, inAttribs);
+      result.svg = svg;
+      result.svgScale = inScale;
+      return result;
+   }
+
+   static function renderSvg(skin:Skin, svg:SvgRenderer, inScale:Float) : BitmapData
+   {
+      var w = skin.toPixels(svg.width*inScale);
+      var h = skin.toPixels(svg.height*inScale);
       var bmp = new BitmapData(w,h,true, gm2d.RGB.CLEAR );
 
       var shape = svg.createShape();
@@ -59,8 +70,17 @@ class Image extends Widget
       shape.scaleX = w/svg.width;
       shape.scaleY = h/svg.height;
       bmp.draw(scaled);
+      return bmp;
+   }
 
-      return new Image(skin, bmp, inLineage, inAttribs);
+   override public function onScaleChanged()
+   {
+      super.onScaleChanged();
+      if (svg==null || bitmap==null)
+         return;
+      var w = skin.toPixels(svg.width*svgScale);
+      if (bitmap.bitmapData.width!=w)
+         bitmap.bitmapData = renderSvg(skin,svg,svgScale);
    }
 
    function get_bitmapData() return bitmap==null ? null : bitmap.bitmapData;

@@ -16,30 +16,30 @@ class DefaultBitmaps
    public static function createBitmap(skin:Skin, inButton:String, inState:Int, lineCol:Int, fillCol:Int ) : BitmapData
    {
       var down = (inState & Widget.DOWN) > 0;
-      var sizeX = skin.scale(16);
-      var sizeY = skin.scale(16);
+      var sizeX = skin.toPixels(16);
+      var sizeY = skin.toPixels(16);
       var effects = true;
 
       if (inButton==Skin.Checkbox)
       {
-         sizeY = skin.scale(24);
-         sizeX = skin.scale(48);
+         sizeY = skin.toPixels(24);
+         sizeX = skin.toPixels(48);
       }
       else if (inButton==Skin.CheckboxSmall)
       {
-         sizeY = skin.scale(16);
-         sizeX = skin.scale(26);
+         sizeY = skin.toPixels(16);
+         sizeX = skin.toPixels(26);
       }
       else if (inButton==Skin.Radiobox)
       {
-         sizeY = skin.scale(24);
-         sizeX = skin.scale(24);
+         sizeY = skin.toPixels(24);
+         sizeX = skin.toPixels(24);
       }
 
       else if (inButton==Skin.ComboPopup)
       {
-         sizeY = skin.scale(22);
-         sizeX = skin.scale(22);
+         sizeY = skin.toPixels(22);
+         sizeX = skin.toPixels(22);
       }
 
 
@@ -51,7 +51,7 @@ class DefaultBitmaps
       shape.pixelSnapping = nme.display.PixelSnapping.NEVER;
       var gfx = shape.graphics;
 
-      gfx.lineStyle( skin.scale(1),lineCol );
+      gfx.lineStyle( skin.toPixels(1),lineCol );
       switch(inButton)
       {
          case Skin.Maximize, Skin.Popup, Skin.Restore:
@@ -60,24 +60,24 @@ class DefaultBitmaps
       }
       var matrix = new Matrix();
 
-      var s1 = skin.scale(1);
-      var s2 = skin.scale(2);
-      var s3 = skin.scale(3);
-      var s4 = skin.scale(4);
-      var s5 = skin.scale(5);
-      var s6 = skin.scale(6);
-      var s7 = skin.scale(7);
-      var s8 = skin.scale(8);
-      var s9 = skin.scale(9);
-      var s10 = skin.scale(10);
-      var s11 = skin.scale(11);
-      var s12 = skin.scale(12);
-      var s14 = skin.scale(14);
-      var s15 = skin.scale(15);
-      var s16 = skin.scale(16);
-      var s17 = skin.scale(17);
-      var s32 = skin.scale(32);
-      var s40 = skin.scale(40);
+      var s1 = skin.toPixels(1);
+      var s2 = skin.toPixels(2);
+      var s3 = skin.toPixels(3);
+      var s4 = skin.toPixels(4);
+      var s5 = skin.toPixels(5);
+      var s6 = skin.toPixels(6);
+      var s7 = skin.toPixels(7);
+      var s8 = skin.toPixels(8);
+      var s9 = skin.toPixels(9);
+      var s10 = skin.toPixels(10);
+      var s11 = skin.toPixels(11);
+      var s12 = skin.toPixels(12);
+      var s14 = skin.toPixels(14);
+      var s15 = skin.toPixels(15);
+      var s16 = skin.toPixels(16);
+      var s17 = skin.toPixels(17);
+      var s32 = skin.toPixels(32);
+      var s40 = skin.toPixels(40);
 
       if (inButton==Skin.Close)
       {
@@ -150,8 +150,8 @@ class DefaultBitmaps
       }
       else if (inButton==Skin.Resize)
       {
-         var w = skin.scale(16);
-         var h = skin.scale(16);
+         var w = skin.toPixels(16);
+         var h = skin.toPixels(16);
          for(o in 0...4)
          {
             var dx = (o+2)*3;

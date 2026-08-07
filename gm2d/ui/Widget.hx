@@ -82,6 +82,24 @@ class Widget extends Sprite
       mRect = new Rectangle(0,0,0,0);
       addEventListener( MouseEvent.CLICK, widgetClick );
       onState = attribDynamic("onState",null);
+      onScaleChanged();
+   }
+
+   // Recompute and apply this widget's scale-dependent local state - sizes in logical units
+   // resolved via skin.toPixels, layout sizing, cached bitmaps whose dimensions depend on the
+   // scale.  Overrides must be self-contained (apply the result, don't just compute it) and
+   // must be safe to call repeatedly.
+   //
+   // Called at the end of Widget's own constructor, so an override runs once before the
+   // subclass constructor body has executed - guard against members that do not exist yet, and
+   // prefer getItemLayout() over getLayout(), since getLayout() would lazily build the wrong
+   // layout.  Subclasses that set up further scale-dependent state call onScaleChanged() again
+   // as the last line of their own constructor.
+   //
+   // In the future this will also be called when the ui scale changes - eg the dpi changing as
+   // a window moves between monitors.
+   public function onScaleChanged():Void
+   {
    }
 
    function widgetClick(e:MouseEvent)
@@ -260,7 +278,7 @@ class Widget extends Sprite
    // default, either way) once, here, at the point of use.
    public function getAttribScaled(inName:String, inDefault=0.0) : Float
    {
-      return skin.scale(attribFloat(inName, inDefault));
+      return skin.toPixels(attribFloat(inName, inDefault));
    }
 
    public function setBitmap(inBmp:BitmapData)  { }

@@ -19,12 +19,14 @@ class Panel extends Widget
 {
    var mGridLayout:GridLayout;
    var mItemGrid:GridLayout;
+   var mIconLayout:HorizontalLayout;
    var mButtonLayout:Layout;
    var mLayoutDirty:Bool;
    var mLabelLookup:Hash<TextLabel>;
    var mButtons:Array<Widget>;
    var mTitle:String;
    var mPane:Pane;
+   var sizeHint:Int;
 
    public function new(?inSkin:Skin, inTitle:String = "",?inIcon:Image, ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
@@ -33,6 +35,7 @@ class Panel extends Widget
       super(inSkin,Widget.addLine(inLineage,"Panel"),inAttribs);
 
       mButtons = [];
+      sizeHint = 0;
       mLayoutDirty = true;
       mTitle = inTitle;
 
@@ -44,11 +47,8 @@ class Panel extends Widget
       mItemGrid = new GridLayout(itemCols,"items");
       mItemGrid.name = "ItemGrid " + inTitle;
       mItemGrid.setColStretch(itemCols-1,1);
-      mItemGrid.setSpacing(mRenderer.getDefaultFloat("labelGap", skin.scale(10)),
-                           mRenderer.getDefaultFloat("lineGap",skin.scale(10)) );
 
       mButtonLayout = new GridLayout(null,"buttons");
-      mButtonLayout.setSpacing(  mRenderer.getDefaultScaled("buttonSpacing",0) ,0);
       mButtonLayout.setAlignment( attribInt("buttonAlign", Layout.AlignCenter) );
       mButtonLayout.setBorders( mRenderer.getDefaultFloat("buttonsPadLeft", 0),
                                 mRenderer.getDefaultFloat("buttonsPadTop", 0),
@@ -57,13 +57,11 @@ class Panel extends Widget
 
       if (inIcon!=null)
       {
-         var hLayout = new HorizontalLayout([0,1]);
+         mIconLayout = new HorizontalLayout([0,1]);
          addChild(inIcon);
-         hLayout.add(inIcon.getLayout());
-         hLayout.add(mItemGrid.stretch());
-         hLayout.setSpacing(mRenderer.getDefaultFloat("labelGap", skin.scale(10)),
-                           mRenderer.getDefaultFloat("lineGap",skin.scale(10)) );
-         mGridLayout.add(hLayout.stretch());
+         mIconLayout.add(inIcon.getLayout());
+         mIconLayout.add(mItemGrid.stretch());
+         mGridLayout.add(mIconLayout.stretch());
       }
       else
       {
@@ -76,7 +74,23 @@ class Panel extends Widget
       var align = attribInt("itemAlignment",  Layout.AlignTop );
       mItemGrid.setAlignment(align);
 
+      onScaleChanged();
       //build();
+   }
+
+   override public function onScaleChanged()
+   {
+      super.onScaleChanged();
+      if (mItemGrid==null)
+         return;
+      var labelGap = mRenderer.getDefaultScaled("labelGap", 10);
+      var lineGap = mRenderer.getDefaultScaled("lineGap", 10);
+      mItemGrid.setSpacing(labelGap, lineGap);
+      mButtonLayout.setSpacing( mRenderer.getDefaultScaled("buttonSpacing",0), 0);
+      if (mIconLayout!=null)
+         mIconLayout.setSpacing(labelGap, lineGap);
+      if (sizeHint>0)
+         applySizeHint();
    }
 
    public function getVerticalLayout() return mGridLayout;
@@ -124,10 +138,17 @@ class Panel extends Widget
    }
 
 
-   public function setSizeHint(pix:Int)
+   // inPix is in logical units - remembered so it can be re-resolved if the scale changes
+   public function setSizeHint(inPix:Int)
+   {
+      sizeHint = inPix;
+      applySizeHint();
+   }
+
+   function applySizeHint()
    {
       var layout = getPane().getLayout();
-      var w = Math.max( layout.getBestWidth(), skin.scale(pix) );
+      var w = Math.max( layout.getBestWidth(), skin.toPixels(sizeHint) );
       w = Math.min( w, nme.Lib.current.stage.stageWidth );
       layout.setMinWidth(w);
    }

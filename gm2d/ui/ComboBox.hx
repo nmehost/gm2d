@@ -305,7 +305,7 @@ class ComboBox extends TextInput
       var pos = this.localToGlobal( new nme.geom.Point(0,0) );
       var h = pop.getControlHeight();
       var w = pop.getControlWidth();
-      var offset = skin.scale(22);
+      var offset = skin.toPixels(22);
       var max = Std.int(stage.stageHeight/2);
       var below = Math.min(max,stage.stageHeight - (pos.y+offset));
       var above = Math.min(max,pos.y);

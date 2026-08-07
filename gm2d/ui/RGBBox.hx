@@ -29,10 +29,6 @@ class RGBBox extends Widget
       updateLockout = 0;
       this.swatchSet = swatchSet;
 
-      var fmt = new nme.text.TextFormat();
-      fmt.align = nme.text.TextFormatAlign.CENTER;
-      fmt.size = skin.scale(14);
-
       textField = new TextField( );
       textField.text = "FFFFFFFF";
       mRenderer.renderLabel(textField);

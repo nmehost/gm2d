@@ -94,7 +94,7 @@ class DocumentParent extends Sprite implements IDock implements IDockable
          mLayout.add( clientLayout );
          //mLayout.setRowStretch(0,0);
       }
-      mLayout.setMinSize( skin.scale(50), skin.scale(50) );
+      mLayout.setMinSize( skin.toPixels(50), skin.toPixels(50) );
    }
 
    function unregister()

@@ -72,7 +72,7 @@ class SvgSkin
       if (text!=null)
       {
          var fmt = skin.getTextFormat();
-         fmt.size = skin.scale(text.style.size);
+         fmt.size = skin.toPixels(text.style.size);
          //fmt.font = text.font_family;
          switch(text.style.fill)
          {

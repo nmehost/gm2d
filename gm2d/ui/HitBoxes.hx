@@ -243,7 +243,7 @@ class HitBoxes
          break;
       }
 
-      var dragDist = skin.scale(20);
+      var dragDist = skin.toPixels(20);
       var dx = inX-downX;
       var dy = inY-downY;
       var moved = (downPane!=null) && (!mMoved) && ( (dx*dx + dy*dy) > dragDist*dragDist );

@@ -63,7 +63,7 @@ class Renderer
          if (map.exists("offset"))
          {
             var o:Point = map.get("offset");
-            offset = o==null ? null : new Point(skin.scale(o.x), skin.scale(o.y));
+            offset = o==null ? null : new Point(skin.toPixels(o.x), skin.toPixels(o.y));
          }
          if (map.exists("fill"))
             fillStyle = map.get("fill");
@@ -77,11 +77,11 @@ class Renderer
             else if (Std.isOfType(p,Rectangle))
             {
                var r:Rectangle = p;
-               padding = new Rectangle(skin.scale(r.x), skin.scale(r.y), skin.scale(r.width), skin.scale(r.height));
+               padding = new Rectangle(skin.toPixels(r.x), skin.toPixels(r.y), skin.toPixels(r.width), skin.toPixels(r.height));
             }
             else
             {
-               var sp = skin.scale(p);
+               var sp = skin.toPixels(p);
                padding = new Rectangle(sp,sp,sp*2,sp*2);
             }
          }
@@ -100,12 +100,12 @@ class Renderer
          if (map.exists("minSize"))
          {
             var s:Size = map.get("minSize");
-            minSize = s==null ? null : new Size(skin.scale(s.x), skin.scale(s.y));
+            minSize = s==null ? null : new Size(skin.toPixels(s.x), skin.toPixels(s.y));
          }
          if (map.exists("minItemSize"))
          {
             var s:Size = map.get("minItemSize");
-            minItemSize = s==null ? null : new Size(skin.scale(s.x), skin.scale(s.y));
+            minItemSize = s==null ? null : new Size(skin.toPixels(s.x), skin.toPixels(s.y));
          }
          if (map.exists("align"))
             align = map.get("align");
@@ -114,7 +114,7 @@ class Renderer
          if (map.exists("font"))
             textFormat.font = map.get("font");
          if (map.exists("fontSize"))
-            textFormat.size = skin.scale(map.get("fontSize"));
+            textFormat.size = skin.toPixels(map.get("fontSize"));
          if (map.exists("textColor"))
             textFormat.color = map.get("textColor");
          if (map.exists("textAlign"))
@@ -190,7 +190,7 @@ class Renderer
    // scales the result (map value or default, either way) once, here, at the point of use.
    public function getDefaultScaled(inName:String, inDefault:Float):Float
    {
-      return skin.scale(getDefaultFloat(inName, inDefault));
+      return skin.toPixels(getDefaultFloat(inName, inDefault));
    }
 
    public function getDefaultBool(inName:String, inDefault:Bool):Bool

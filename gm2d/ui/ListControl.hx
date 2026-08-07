@@ -89,8 +89,6 @@ class ListControl extends ScrollWidget
       if (hasAttrib("itemHeight"))
          Widget.addAttribs( attribs, {minSize: new Size(mMinWidth,mItemHeight) } );
 
-      mXGap = attribFloat("xgap",skin.scale(2.0));
-
       oddRenderer = skin.renderer(rowLineage,   0, attribs);
       evenRenderer = skin.renderer(rowLineage, Widget.ALTERNATE, attribs);
       selectRenderer = skin.renderer(rowLineage, Widget.CURRENT, attribs);
@@ -100,7 +98,6 @@ class ListControl extends ScrollWidget
 
       makeContentContainer();
 
-      scrollWheelStep = mOrigItemHeight;
       mTitleHeight = 0.0;
 
 
@@ -124,6 +121,15 @@ class ListControl extends ScrollWidget
       layout.setMinHeight(mOrigItemHeight);
       setScrollRange(mMinWidth,mMinWidth,mOrigItemHeight,mOrigItemHeight);
       applyStyles();
+      onScaleChanged();
+   }
+
+   override public function onScaleChanged()
+   {
+      super.onScaleChanged();
+      mXGap = getAttribScaled("xgap",2.0);
+      // The list scrolls by whole rows, not by the generic ScrollWidget step
+      scrollWheelStep = mOrigItemHeight;
    }
 
    override public function getMinContentSize()

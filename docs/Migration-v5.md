@@ -31,6 +31,7 @@ For each entry below:
 | [LAY-005](#lay-005--buttonhx-restructured-static-factories-removed-bmpbutton-renamed-textbutton-promoted) | `Button.hx` restructured: static factories removed, `BmpButton`→`BitmapButton`, `TextButton` promoted to a real class | rename + removal | shipped | yes |
 | [SKIN-001](#skin-001--skin-construction-always-fully-initializes-named-colour-fields-replaced-by-a-palette-map) | `Skin` construction always fully initializes; named colour fields (`guiLight` etc.) replaced by a palette map | removal + rename | shipped | partial (see below) |
 | [SKIN-002](#skin-002--attribset-values-are-now-dpi-independent-logical-units-resolved-once-at-renderer-construction) | `attribSet`/custom skin attribs values are now DPI-independent logical units, not pre-scaled pixels | behavior | shipped | partial (see below) |
+| [SKIN-003](#skin-003--skinscale-renamed-to-skintopixels-new-widgetonscalechanged-hook) | `Skin.scale()` → `Skin.toPixels()`; new `Widget.onScaleChanged()` hook | rename + new hook | shipped | yes (rename) / no (hook) |
 
 ---
 
@@ -569,6 +570,142 @@ possible. `Layout.hx` itself is unaffected — this is entirely a `Skin`/`Render
    silently unscale them with no corresponding fix, which is worse than leaving them alone.
 5. This is a **silent** behavior change with no compile-time signal — after applying the fix, visually
    re-check anything using a custom skin with its own `attribSet`/`addAttribs` sizing overrides.
+
+---
+
+## SKIN-003 — `Skin.scale()` renamed to `Skin.toPixels()`; new `Widget.onScaleChanged()` hook
+
+- **Kind:** rename + new overridable hook
+- **Status:** shipped
+- **Shipped in:** `master` (unreleased)
+- **Compiler assistance:** full for the rename — every remaining call site becomes
+  `gm2d.skin.Skin has no field scale` (or `Unknown identifier : scale` inside a `Skin` subclass).
+  None for the hook, which is additive.
+
+**Background:** `Skin.scale(v:Float):Int` converts a logical unit into a device pixel using the
+skin's `uiScale`. The name collided with the unrelated `scaleX`/`scaleY`/`Matrix.scale` sense of
+"scale" everywhere it appeared, and read as "make this bigger" rather than "resolve this to
+pixels". It is now `Skin.toPixels(v:Float):Int`. `Skin.uiScale`, `Skin.scaleBitmap()` and
+`Skin.size()` are unchanged.
+
+The rename is deliberately noisy, because the interesting half of this change is *where* those
+calls live. A `toPixels()` result computed inside a widget's constructor and stored in an instance
+field (or baked into a cached `BitmapData`, or pushed into a `Layout` once) can never respond to a
+later DPI/`uiScale` change. So `Widget` gains:
+
+```haxe
+public function onScaleChanged():Void
+```
+
+a no-op on the base class, overridden by a widget to recompute **and apply** its own
+scale-dependent state.
+
+**Detect:**
+
+```sh
+grep -rn '\bscale(' --include='*.hx' .
+```
+
+Ignore `Matrix.scale(...)`, `scaleX`/`scaleY`, and `Skin.scaleBitmap(...)` — the real hits are
+`skin.scale(...)`, `Skin.getSkin().scale(...)`, and bare `scale(...)` inside a `Skin` subclass.
+Or just compile: every one of them is a hard error.
+
+**Old:**
+
+```haxe
+class MySlider extends Widget
+{
+   var thumbSize:Int;
+   public function new()
+   {
+      super();
+      thumbSize = skin.scale(20);
+      var layout = new Layout();
+      layout.setBestSize(thumbSize, thumbSize);
+      setItemLayout(layout);
+   }
+}
+```
+
+**New:**
+
+```haxe
+class MySlider extends Widget
+{
+   var thumbSize:Int;
+   public function new()
+   {
+      super();
+      var layout = new Layout();
+      setItemLayout(layout);
+      onScaleChanged();
+   }
+
+   override public function onScaleChanged()
+   {
+      super.onScaleChanged();
+      thumbSize = skin.toPixels(20);
+      var layout = getItemLayout();
+      if (layout!=null)
+         layout.setBestSize(thumbSize, thumbSize);
+   }
+}
+```
+
+**`onScaleChanged()` contract:**
+
+- **Self-contained.** It recomputes the widget's scale-dependent state *and applies it* — reaching
+  into `getItemLayout()`/`getLayout()` to push updated sizing, and regenerating any cached bitmap
+  whose dimensions depend on the scale. It is not a notification that something else acts on.
+- **Idempotent.** It is called more than once, and will be called again on every future scale
+  change. Check-then-rebuild (compare the cached bitmap's current size against the new target)
+  rather than rebuild-unconditionally.
+- **Called twice during construction.** `Widget`'s own constructor calls it as its last statement,
+  so an override runs **once before the subclass constructor body has executed**. Subclasses that
+  set up further scale-dependent state then call `onScaleChanged()` again as the last line of their
+  own constructor. This means an override **must tolerate a half-constructed instance**: null-guard
+  your own members, and prefer `getItemLayout()` (returns `null` when there is no layout yet) over
+  `getLayout()` (which would lazily construct a plain `Layout`, and the subclass's real layout would
+  then replace it, discarding whatever the hook just wrote). The usual shape is a single early-out
+  guard on the first member the subclass constructor assigns.
+- **Nothing calls it automatically yet** beyond those constructor calls. The `setSkin()` / live
+  display-list propagation step that will invoke it on a real DPI or skin change is not built. So
+  today this change is groundwork: it makes each widget *able* to rescale, without anything yet
+  triggering it.
+
+**Fix (agent instructions):**
+
+1. Rename every `scale(` call that resolves to `Skin.scale` to `toPixels(`. This includes bare
+   `scale(...)` calls inside your own `Skin` subclass. Leave `uiScale`, `scaleBitmap`, `scaleX`,
+   `scaleY` and `Matrix.scale` alone. Compile — the rename is complete when the errors stop.
+2. Then classify each renamed call site. This is the part that is **not** mechanical:
+   - If the enclosing function re-runs naturally — an event handler, a per-render/per-layout method,
+     a lazily-invoked bitmap factory, `Renderer`'s constructor — the rename alone is the whole fix.
+   - If it runs once in a widget's constructor and the result is stored in an instance field, baked
+     into a cached bitmap, or pushed into a `Layout`, move it into an `onScaleChanged()` override
+     per the contract above. Leaving it inline after the rename keeps the value exactly as stuck as
+     it was before.
+3. If you have a widget that takes a pixel size as a constructor argument and bakes it into its
+   graphics or layout, prefer storing the *logical* size and resolving it in `onScaleChanged()`
+   (this is what `GradSwatchBox` and `Panel.setSizeHint` now do). Note `Panel.setSizeHint(inPix)`'s
+   argument was already interpreted as a logical unit and still is — no call-site change — but it is
+   now remembered and re-resolved rather than applied once.
+4. `Panel`'s `labelGap`/`lineGap` attribs are now read through `Renderer.getDefaultScaled` rather
+   than `getDefaultFloat(name, skin.scale(default))`. Previously only the *fallback default* was
+   scaled and a value you supplied was used raw; now a supplied value is scaled too, consistent with
+   [SKIN-002](#skin-002--attribset-values-are-now-dpi-independent-logical-units-resolved-once-at-renderer-construction).
+   If you set `labelGap`/`lineGap` in a custom attrib set, make it a bare logical unit. Same applies
+   to `ListControl`'s `xgap`, now read via `Widget.getAttribScaled`.
+
+**Known remaining bakes (not fixed by this step):** a few scale-dependent values still resolve once
+with no way to re-run, because they sit outside a `Widget`'s reach — `SvgSkin`'s
+`createButtonRenderer`/`createLabelRenderer` font sizes (resolved when the SVG skin is loaded),
+`DocumentParent`'s minimum size (`DocumentParent` is a `Sprite`, not a `Widget`),
+`ColourControl`'s `SwatchBox` and `GradientControl.createBmps`'s shared bitmap cache (both bake into
+a non-`Widget`'s graphics or a static map). `Skin.bmpCache` also keys cached bitmaps by button and
+state only, with no scale awareness, and `Skin.shallowCopy()` shares that cache with the copy — so a
+`copyWithScale()` result would serve stale, wrong-size icons. These all need the live-propagation
+step before they can be addressed.
 
 ---
 

@@ -105,7 +105,6 @@ class ScrollWidget extends Widget //Control
       controlW = controlH = 0.0;
       windowWidth = windowHeight = 0.0;
       mScrollX = mScrollY = 0.0;
-      scrollWheelStep = skin.scale(20);
       mScrolling = false;
       viscousity = 2500.0;
       scrollTarget = this;
@@ -123,6 +122,12 @@ class ScrollWidget extends Widget //Control
       addEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
       addEventListener(MouseEvent.CLICK,onScrollClick,true);
       addEventListener(Event.REMOVED_FROM_STAGE, (_) -> removeStageListeners() );
+   }
+
+   override public function onScaleChanged()
+   {
+      super.onScaleChanged();
+      scrollWheelStep = skin.toPixels(20);
    }
 
    override public function createLayout() return new ScrollWidgetLayout(this,contentLayout);
@@ -148,7 +153,7 @@ class ScrollWidget extends Widget //Control
    public function getThumbMetrics()
    {
       var showX = maxScrollX>0 && showScrollbarX && (scrollbarAwake||scrollbarActive);
-      var size = skin.scale(thumbW);
+      var size = skin.toPixels(thumbW);
       var displayHeight = windowHeight - (showX ? size : 0);
       var virtualSize = controlH;
       var pageSize = Std.int(windowHeight*0.8);
@@ -181,7 +186,7 @@ class ScrollWidget extends Widget //Control
          }
          var gfx  = scrollbarContainer.graphics;
          gfx.clear();
-         var size = skin.scale(thumbW);
+         var size = skin.toPixels(thumbW);
          gfx.lineStyle(0,0x00000000);
          if (sy)
          {
@@ -220,7 +225,7 @@ class ScrollWidget extends Widget //Control
       var sx = maxScrollX>0 && showScrollbarX;
       var sy = maxScrollY>0 && showScrollbarY;
 
-      var size = skin.scale(thumbW);
+      var size = skin.toPixels(thumbW);
       if (sy && e.localX>windowWidth-size)
       {
          var t = getThumbMetrics();
@@ -618,7 +623,7 @@ class ScrollWidget extends Widget //Control
       var p1 = scrollTarget.globalToLocal(pos);
       var dx = p1.x-p0.x;
       var dy = p1.y-p0.y;
-      var close = skin.scale(10.0);
+      var close = skin.toPixels(10.0);
       if (!mScrolling && (Math.abs(dx)>close || Math.abs(dy)>close))
       {
          mScrolling = true;

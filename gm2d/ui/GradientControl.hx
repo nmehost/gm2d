@@ -27,17 +27,31 @@ class GradSwatchBox extends Widget
 {
    var swatch:GradSwatch;
    var control:GradientControl;
+   var logicalSize:Int;
+   // inSize is in logical units
    public function new(inControl:GradientControl, inSwatch:GradSwatch, inSize:Int)
    {
       super();
       control = inControl;
       swatch = inSwatch;
-      var gfx = graphics;
-      gfx.beginBitmapFill(swatch.bitmapData, new Matrix(inSize/16,0,0,inSize/16) );
-      gfx.lineStyle(1,0x000000);
-      gfx.drawRect(0.5,0.5,inSize,inSize);
+      logicalSize = inSize;
       addEventListener(MouseEvent.MOUSE_DOWN, function(_) inControl.setGradient(inSwatch.gradient) );
-      setItemLayout( new Layout().setMinSize(inSize,inSize) );
+      setItemLayout( new Layout() );
+      onScaleChanged();
+   }
+
+   override public function onScaleChanged()
+   {
+      super.onScaleChanged();
+      if (swatch==null)
+         return;
+      var size = skin.toPixels(logicalSize);
+      var gfx = graphics;
+      gfx.clear();
+      gfx.beginBitmapFill(swatch.bitmapData, new Matrix(size/16,0,0,size/16) );
+      gfx.lineStyle(1,0x000000);
+      gfx.drawRect(0.5,0.5,size,size);
+      getItemLayout().setMinSize(size,size);
    }
 }
 
@@ -101,6 +115,7 @@ class GradientControl extends Widget
 
    var gradient:Gradient;
    var currentId:Int;
+   var swatches:GridLayout;
 
 
    public static var createdBmps = false;
@@ -156,13 +171,11 @@ class GradientControl extends Widget
       controls.setColStretch(1,1);
       controls.setAlignment(Layout.AlignStretch);
 
-      var swatches = new GridLayout(10);
-      var s = skin.scale(4);
-      swatches.setSpacing(s,s);
+      swatches = new GridLayout(10);
       for(i in 0...20)
       {
          var swatch = new GradSwatch(i,20);
-         var box = new GradSwatchBox(this,swatch,skin.scale(16));
+         var box = new GradSwatchBox(this,swatch,16);
          addChild(box);
          swatches.add(box.getLayout());
       }
@@ -210,6 +223,16 @@ class GradientControl extends Widget
       setGradient( gradient = (new GradSwatch(0,20)).gradient );
 
       setItemLayout(vstack);
+      onScaleChanged();
+   }
+
+   override public function onScaleChanged()
+   {
+      super.onScaleChanged();
+      if (swatches==null)
+         return;
+      var s = skin.toPixels(4);
+      swatches.setSpacing(s,s);
    }
 
    public function getGradient() { return gradient.clone(); }
@@ -233,7 +256,7 @@ class GradientControl extends Widget
       gradient.addStop( new RGBHSV(0x508080,1), 0.5);
       gradient.addStop( new RGBHSV(0xa0b0b0,1), 1);
       var matrix = new Matrix();
-      var size = Skin.getSkin().scale(24);
+      var size = Skin.getSkin().toPixels(24);
       matrix.createGradientBox(size*0.5,size,0,0,0);
  
       for(spread in Gradient.spreads)

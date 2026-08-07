@@ -67,8 +67,8 @@ class PopupMenu extends Window
                   if (item.children!=null && item.children.length>0)
                   {
                      var p = new PopupMenu(inSkin, item);
-                     var px = Math.max(0, e.stageX-skin.scale(16));
-                     var py = Math.max(0, e.stageY-skin.scale(16));
+                     var px = Math.max(0, e.stageX-skin.toPixels(16));
+                     var py = Math.max(0, e.stageY-skin.toPixels(16));
                      Game.popup(p,px,py);
                   }
                   else if (item.onSelect!=null)
