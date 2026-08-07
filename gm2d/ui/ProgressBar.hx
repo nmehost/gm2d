@@ -56,27 +56,37 @@ class ProgressBar extends Widget
          return;
       switch(style)
       {
-        case ProgressRoundRect(outline, fill, empty, lineWidth, rad):
+        case ProgressRoundRect(outline, fill, empty, lineWidth, radius):
            var w = mRect.width;
            var h = mRect.height;
+           var lw = skin.toPixels(lineWidth);
+           var rad = skin.toPixels(radius);
+           var outlineCol = skin.resolveLineColour(outline);
+           var fillCol = skin.resolveFillColour(fill);
+           var emptyCol = skin.resolveFillColour(empty);
 
-           var off = (Std.int(lineWidth) & 1) > 0 ? 0.5 : 0.0;
-           gfx.beginFill(empty);
+           var off = (Std.int(lw) & 1) > 0 ? 0.5 : 0.0;
+           gfx.beginFill(emptyCol);
            gfx.drawRoundRect(off,off,w,h,rad,rad);
            gfx.lineStyle();
-           gfx.beginFill(fill);
+           gfx.beginFill(fillCol);
            gfx.drawRoundRect(off,off,w*mFraction,h,rad,rad);
            gfx.endFill();
-           gfx.lineStyle(lineWidth,outline);
+           gfx.lineStyle(lw,outlineCol);
            gfx.drawRoundRect(off,off,w,h,rad,rad);
 
-        case ProgressRoundRectBall(outline, fill, empty, lineWidth, rad):
+        case ProgressRoundRectBall(outline, fill, empty, lineWidth, radius):
            var w = mRect.width;
            var h = mRect.height;
+           var lw = skin.toPixels(lineWidth);
+           var rad = skin.toPixels(radius);
+           var outlineCol = skin.resolveLineColour(outline);
+           var fillCol = skin.resolveFillColour(fill);
+           var emptyCol = skin.resolveFillColour(empty);
 
-           var off = (Std.int(lineWidth) & 1) > 0 ? 0.5 : 0.0;
-           gfx.beginFill(empty);
-           gfx.lineStyle(lineWidth,outline);
+           var off = (Std.int(lw) & 1) > 0 ? 0.5 : 0.0;
+           gfx.beginFill(emptyCol);
+           gfx.lineStyle(lw,outlineCol);
            gfx.drawRoundRect(off,off,w,h,rad,rad);
 
            if (ball==null && mFraction<1)
@@ -85,7 +95,7 @@ class ProgressBar extends Widget
               addChild(ball);
               ballRad = rad;
               var g = ball.graphics;
-              g.beginFill(fill);
+              g.beginFill(fillCol);
               g.drawCircle(0,0,rad);
               t0 = haxe.Timer.stamp();
 

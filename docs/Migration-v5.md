@@ -36,6 +36,7 @@ For each entry below:
 | [SKIN-005](#skin-005--skinshadowfilterscurrentfilters-replaced-by-a-named-filterset-palette) | `Skin.shadowFilters`/`currentFilters` replaced by a named `FilterSet` palette (`Attribs.filters`/`chromeFilters` retyped) | removal + retype | shipped | no (manual — describe the filter, don't construct one) |
 | [SKIN-006](#skin-006--default-menubar-is-now-theme-following-light-instead-of-a-fixed-dark-bar) | Default `Menubar`/`MenubarItem` now use theme-following colours instead of a fixed dark bar | behavior | shipped | no (visual re-check) |
 | [SKIN-007](#skin-007--live-skin-propagation-widgetsetskin-gamesetskin) | Live skin propagation: new `Widget.setSkin()`/`Window.setSkin()`/`Game.setSkin()` | new API | shipped | n/a (additive) |
+| [SKIN-008](#skin-008--progressstyle-retyped-to-fillstylelinestyle-margin-and-shaperoundrectrads-radius-now-auto-scaled) | `ProgressStyle` retyped to `FillStyle`/`LineStyle`; `margin` and `ShapeRoundRectRad`'s radius now auto-scaled | retype + behavior | shipped | partial (see below) |
 
 ---
 
@@ -1055,6 +1056,133 @@ calls `Game.setSkin(lightSkin)`/`Game.setSkin(darkSkin)`, where `darkSkin` is
 `lightSkin.createDark()` — a test/example method added alongside this that mechanically inverts
 every entry in `colours` and returns `copyWithPalette(...)` of the result; not a curated dark
 theme, just a way to exercise the whole live-propagation path end to end.
+
+---
+
+## SKIN-008 — `ProgressStyle` retyped to `FillStyle`/`LineStyle`; `margin` and `ShapeRoundRectRad`'s radius now auto-scaled
+
+- **Kind:** retype (enum constructor fields) + behavior change (two previously-unscaled `Renderer`
+  inputs are now auto-scaled)
+- **Status:** shipped
+- **Shipped in:** `master` (unreleased)
+- **Compiler assistance:** full for the retype — every `ProgressRoundRect`/`ProgressRoundRectBall`
+  call passing a raw `Int` fails as "Int should be gm2d.skin.LineStyle" (or `FillStyle`). None for
+  the auto-scaling change — a silent visual-size change for anyone who was manually pre-scaling
+  `margin` or a `ShapeRoundRectRad` radius before this shipped.
+
+**Background:** this was found while migrating a downstream consumer of LAY/SKIN-001 through 007 —
+mechanically applying SKIN-003's rename (`scale()`→`toPixels()`) to `margin:`/`shape:
+ShapeRoundRectRad(...)`/`progressStyle:` attribs values initially looked correct (each was baked
+once at skin-construction time, matching pre-migration behaviour, and compiled fine), but on
+inspection turned out to be preserving a *pre-existing* eager-bake gap rather than actually
+finishing the DPI-independence work those other entries did for `padding`/`minSize`/`fontSize`/etc.
+Three related gaps closed together:
+
+1. **`Renderer.margin` is now auto-scaled**, the same way `padding` already was
+   ([SKIN-002](#skin-002--attribset-values-are-now-dpi-independent-logical-units-resolved-once-at-renderer-construction)
+   explicitly called out `margin` as *not yet* resolved at the time — this closes that gap).
+2. **`Shape.ShapeRoundRectRad(rad)`'s `rad` payload is now auto-scaled live**, in
+   `Renderer.renderRect()` at the point it's drawn (a "reruns naturally" site, same classification
+   as the rest of [SKIN-003](#skin-003--skinscale-renamed-to-skintopixels-new-widgetonscalechanged-hook)'s
+   fix step 2) — instead of requiring the value to already be in pixels when it reaches the
+   `attribSet` literal. Other `Shape` cases with numeric payloads (`ShapeRoundRectFlags`,
+   `ShapeShadowRect`, their `ShadowCache`-backed bitmap-caching path) were **not** touched by this
+   entry — out of scope, flagged for a future pass.
+3. **`ProgressStyle.ProgressRoundRect`/`ProgressRoundRectBall`'s `outlineCol`/`fillCol`/`emptyCol`
+   fields are retyped** from raw `Int` to `LineStyle`/`FillStyle`/`FillStyle` respectively, and
+   `ProgressBar.hx` now resolves them live (`skin.resolveLineColour`/`skin.resolveFillColour`) and
+   scales `lineWidth`/`radius` live (`skin.toPixels(...)`) in its own `redraw()`, rather than the
+   caller baking a colour/size once into the `attribSet` literal. This is the same colour-role
+   migration [SKIN-001](#skin-001--skin-construction-always-fully-initializes-named-colour-fields-replaced-by-a-palette-map)
+   already did elsewhere, applied to the one style enum that still took raw `Int` colours.
+
+Two new public `Skin` methods support case 3 — `resolveFillColour(FillStyle):Int` (already existed,
+now widened from private to public) and the new `resolveLineColour(LineStyle):Int` — both accept
+either a bare named role (`FillHighlight`, `LineBorder`, ...) *or* a literal `FillSolid`/`LineSolid`/
+`LineSolidFill` payload (unlike `getFillColour`/`getLineColour`, which throw on a payload case).
+Reach for these (not `getFillColour`/`getLineColour`) whenever a call site needs to accept both a
+role and a literal, the same way filter resolution already did
+([SKIN-005](#skin-005--skinshadowfilterscurrentfilters-replaced-by-a-named-filterset-palette)).
+
+**Detect:**
+
+```sh
+grep -rnE 'ProgressRoundRect(Ball)?\(' --include='*.hx' .
+grep -rn 'margin:.*\btoPixels(\|margin:.*\bscale(\|margin\s*=.*\btoPixels(\|margin\s*=.*\bscale(' --include='*.hx' .
+grep -rn 'ShapeRoundRectRad(.*\btoPixels(\|ShapeRoundRectRad(.*\bscale(' --include='*.hx' .
+```
+
+The first pattern catches every `ProgressRoundRect`/`ProgressRoundRectBall` call site — check each
+by hand, since the fix depends on what the old `Int` value actually was (a role vs. a literal
+colour). The second and third are the double-scaling risk: any `margin`/`ShapeRoundRectRad` value
+that was already being pre-scaled (by a previous, correct application of SKIN-002/SKIN-003's own
+guidance to "leave margin scaled") needs that scaling removed now that `Renderer`/`renderRect` do
+it — if you already went through the earlier SKIN-002/003 entries and specifically kept `margin`/
+`ShapeRoundRectRad` scaled per their notes, this entry reverses that specific guidance.
+
+**Old:**
+
+```haxe
+addAttribs("Dialog", {
+   shape: ShapeRoundRectRad(skin.toPixels(3)),
+   margin: new Rectangle(skin.toPixels(2), skin.toPixels(2), skin.toPixels(4), skin.toPixels(4)),
+});
+addAttribs("ProgressBar", {
+   progressStyle: ProgressRoundRect(0x000000, getColour("FillHighlight"), getColour("FillLight"),
+                                     skin.toPixels(1), skin.toPixels(6)),
+});
+```
+
+**New:**
+
+```haxe
+addAttribs("Dialog", {
+   shape: ShapeRoundRectRad(3),
+   margin: new Rectangle(2, 2, 4, 4),
+});
+addAttribs("ProgressBar", {
+   progressStyle: ProgressRoundRect(LineBorder, FillHighlight, FillLight, 1, 6),
+});
+```
+
+Note `getColour("FillHighlight")` became the bare role `FillHighlight` too — not part of this
+entry's compiler-enforced retype (a raw `Int` still satisfies `Int`, since `getColour` returns
+`Int`), but doing this at the same time is strongly recommended: leaving `getColour(...)` inside an
+`attribSet` literal is exactly the eager-bake anti-pattern
+[SKIN-001](#skin-001--skin-construction-always-fully-initializes-named-colour-fields-replaced-by-a-palette-map)'s
+"General rule going forward" already warns against — it happened to still compile here only because
+`ProgressStyle`'s colour fields hadn't been retyped away from `Int` yet either.
+
+**Why:** see Background — this closes the same "value baked once at skin-construction time instead
+of resolved live" gap [SKIN-001](#skin-001--skin-construction-always-fully-initializes-named-colour-fields-replaced-by-a-palette-map)/[SKIN-002](#skin-002--attribset-values-are-now-dpi-independent-logical-units-resolved-once-at-renderer-construction)/[SKIN-003](#skin-003--skinscale-renamed-to-skintopixels-new-widgetonscalechanged-hook)
+already closed for `padding`/`minSize`/`fontSize`/most colours, for the three places it was still
+open. Found by actually reading `Renderer.hx`/`ProgressBar.hx` rather than assuming a `scale()` →
+`toPixels()` rename was sufficient just because it compiled — a rename compiling is not the same
+as a value being resolved at the right time.
+
+**Fix (agent instructions):**
+
+1. For every `ProgressRoundRect(...)`/`ProgressRoundRectBall(...)` call, replace the first
+   (`outlineCol`) argument with the matching `LineStyle` (a named role, or `LineSolid(w,rgb,a)`/
+   `LineSolidFill(w,fill,a)` if it must stay a literal), and the second/third (`fillCol`/`emptyCol`)
+   with the matching `FillStyle` (a named role, or `FillSolid(rgb,a)` for a literal) — same
+   role-picking judgment as [SKIN-004](#skin-004--attribstextcolor-retyped-int--textcolour), not
+   mechanical. If the old value was already `getColour("FillXxx")`/a raw hex matching a seeded
+   role, use the bare role directly.
+2. If your own code (not just `gm2d`'s default skin) reads a `ProgressStyle` value (a custom
+   `ProgressBar` renderer, say), resolve colours via `skin.resolveLineColour(outline)`/
+   `skin.resolveFillColour(fill)` — not `getLineColour`/`getFillColour`, which throw on a literal
+   payload — and scale `lineWidth`/`radius` via `skin.toPixels(...)` at the point you draw, not
+   once when the style value is constructed.
+3. For every `margin:`/`ShapeRoundRectRad(...)` value that is currently wrapped in `scale(...)`/
+   `toPixels(...)` (per the second/third **Detect** patterns), remove the wrapper and leave the
+   bare logical number — `Renderer`/`renderRect` now resolve both live, and leaving the old
+   wrapping in place double-scales (renders roughly `uiScale` times too large).
+4. Recompile — any remaining `Int`-vs-`LineStyle`/`FillStyle` mismatch on a `ProgressRoundRect`/
+   `ProgressRoundRectBall` call marks a site step 1 missed.
+5. This is a **silent** behavior change for steps 3 in particular (no compile-time signal once the
+   wrapper is just sitting there unnecessarily rather than causing a type error) — visually
+   re-check any custom `Dialog`-shaped chrome or `ProgressBar` after applying.
 
 ---
 

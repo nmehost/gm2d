@@ -94,9 +94,15 @@ class Renderer
             if (m==null)
                margin = null;
             else if (Std.isOfType(m,Rectangle))
-               margin = m;
+            {
+               var r:Rectangle = m;
+               margin = new Rectangle(skin.toPixels(r.x), skin.toPixels(r.y), skin.toPixels(r.width), skin.toPixels(r.height));
+            }
             else
-               margin = new Rectangle(m,m,m*2,m*2);
+            {
+               var sm = skin.toPixels(m);
+               margin = new Rectangle(sm,sm,sm*2,sm*2);
+            }
          }
          if (map.exists("textFormat"))
             textFormat = map.get("textFormat");
@@ -490,7 +496,10 @@ class Renderer
             lineOffset = setLine(skin, gfx,lineStyle);
             filled = setFill(skin, gfx,fillStyle,w,h,r.x,r.y);
             if (lineOffset>0 || filled)
-               gfx.drawRoundRect(r.x+lineOffset, r.y+lineOffset, r.width-lineOffset*2, r.height-lineOffset*2, rad*2,rad*2);
+            {
+               var radPx = skin.toPixels(rad);
+               gfx.drawRoundRect(r.x+lineOffset, r.y+lineOffset, r.width-lineOffset*2, r.height-lineOffset*2, radPx*2,radPx*2);
+            }
 
          case ShapeCustom( render ):
             lineOffset = setLine(skin, gfx,lineStyle);

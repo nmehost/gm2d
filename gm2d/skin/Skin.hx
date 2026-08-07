@@ -296,14 +296,28 @@ class Skin
    }
 
    // FillStyle proper only resolves named roles via getFillColour (throws on a payload case
-   // like FillSolid) - filters need to accept a literal FillSolid too (eg. the fixed-black
-   // shadow default), so unwrap that one payload case here instead of widening getFillColour.
-   function resolveFillColour(inStyle:FillStyle):Int
+   // like FillSolid) - some callers (filters, ProgressStyle) need to accept a literal FillSolid
+   // too (eg. the fixed-black shadow default), so unwrap that one payload case here instead of
+   // widening getFillColour.
+   public function resolveFillColour(inStyle:FillStyle):Int
    {
       return switch(inStyle)
       {
          case FillSolid(rgb,a): rgb;
          default: getFillColour(inStyle);
+      }
+   }
+
+   // Same idea as resolveFillColour, for LineStyle - accepts a literal LineSolid/LineSolidFill
+   // payload (unwrapping to the rgb, ignoring the width/alpha the caller already tracks
+   // separately eg. ProgressStyle's own lineWidth) as well as a bare named role.
+   public function resolveLineColour(inStyle:LineStyle):Int
+   {
+      return switch(inStyle)
+      {
+         case LineSolid(_, rgb, _): rgb;
+         case LineSolidFill(_, fill, _): resolveFillColour(fill);
+         default: getLineColour(inStyle);
       }
    }
 
@@ -714,7 +728,7 @@ class Skin
         "ProgressBar" => {
            align: Layout.AlignStretch,
            minItemSize: new Size(100,20),
-           progressStyle: ProgressRoundRect(0x000000, getColour("FillHighlight"), getColour("FillLight"), toPixels(1), toPixels(6) ),
+           progressStyle: ProgressRoundRect(LineBorder, FillHighlight, FillLight, 1, 6),
            },
         "Stretch" => {
            align: Layout.AlignStretch,
