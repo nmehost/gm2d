@@ -3,8 +3,10 @@ package gm2d.ui;
 import nme.display.DisplayObjectContainer;
 import nme.display.Sprite;
 import nme.display.BitmapData;
+import nme.display.Bitmap;
 import gm2d.ui.DockPosition;
 import nme.geom.Rectangle;
+import nme.geom.Matrix;
 import gm2d.skin.Skin;
 import gm2d.skin.DockRenderer;
 
@@ -118,7 +120,10 @@ class SideDock extends Layout implements IDock implements IDockable
    //var sideLayout:SideLayout;
 
    public var shortTitle:String;
+   // The original, unscaled icon source - see Pane.icon.
    public var icon:BitmapData;
+   var iconCache:BitmapData;
+   var iconCacheSize:Int = -1;
    public var title:String;
 
    public function new(?inSkin:Skin, inPos:DockPosition)
@@ -153,7 +158,26 @@ class SideDock extends Layout implements IDock implements IDockable
    // Display
    public function getTitle():String { return title; }
    public function getShortTitle():String { return shortTitle; }
-   public function getIcon():BitmapData { return icon; }
+   public function getIcon(inPixelSize:Int):BitmapData
+   {
+      if (icon==null)
+         return null;
+      if (iconCacheSize!=inPixelSize)
+      {
+         iconCacheSize = inPixelSize;
+         if (icon.width==inPixelSize && icon.height==inPixelSize)
+            iconCache = icon;
+         else
+         {
+            var bitmap = new Bitmap(icon);
+            bitmap.smoothing = true;
+            var mtx = new Matrix(inPixelSize/icon.width,0,0,inPixelSize/icon.height,0,0);
+            iconCache = new BitmapData(inPixelSize,inPixelSize,icon.transparent,0);
+            iconCache.draw(bitmap,mtx);
+         }
+      }
+      return iconCache;
+   }
    public function buttonStates():Array<Int> { return null; }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }

@@ -731,26 +731,20 @@ class ColourControl extends Widget
 
       setItemLayout(vstack);
 
-      onScaleChanged();
+      addScaleChanged(() -> {
+         wheel.getLayout().setBestSize( skin.toPixels(140), skin.toPixels(140) );
+         wheel.getLayout().setBorders(0,0,skin.toPixels(6),0);
+         var b = skin.toPixels(2);
+         box.getLayout().setBorders(b,b,b,b);
+
+         fixInputWidth(redIn);
+         fixInputWidth(greenIn);
+         fixInputWidth(blueIn);
+         fixInputWidth(hueIn);
+         fixInputWidth(saturationIn);
+         fixInputWidth(valueIn);
+      });
       //build();
-   }
-
-   override public function onScaleChanged()
-   {
-      super.onScaleChanged();
-      if (wheel==null)
-         return;
-      wheel.getLayout().setBestSize( skin.toPixels(140), skin.toPixels(140) );
-      wheel.getLayout().setBorders(0,0,skin.toPixels(6),0);
-      var b = skin.toPixels(2);
-      box.getLayout().setBorders(b,b,b,b);
-
-      fixInputWidth(redIn);
-      fixInputWidth(greenIn);
-      fixInputWidth(blueIn);
-      fixInputWidth(hueIn);
-      fixInputWidth(saturationIn);
-      fixInputWidth(valueIn);
    }
 
    function onRGBDrag(e:MouseEvent)

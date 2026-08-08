@@ -49,7 +49,7 @@ class ChoiceButtons extends Control
       {
          if (!inBitmaps.exists(key))
             throw "ChoiceButtons : missing bitmap " + key;
-         var button = new BitmapButton(inBitmaps.get(key),null,["ChoiceButton","SimpleButton"],inAttribs);
+         var button = new BitmapButton(gm2d.skin.BitmapStyle.BitmapBitmap(inBitmaps.get(key)),null,["ChoiceButton","SimpleButton"],inAttribs);
          result.add( button, key );
       }
       return result;

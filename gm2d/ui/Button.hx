@@ -12,6 +12,7 @@ import nme.geom.Rectangle;
 import gm2d.ui.Layout;
 import gm2d.skin.Skin;
 import gm2d.skin.Renderer;
+import gm2d.skin.BitmapStyle;
 
 class Button extends Control
 {
@@ -59,34 +60,42 @@ class Button extends Control
             var widget:Widget = cast mDisplayObj;
             layout = widget.getLayout();
          }
+         else if ( Std.isOfType(mDisplayObj,TextField))
+         {
+            var tf = cast mDisplayObj;
+            layout = new AutoTextLayout(tf);
+            name += " " +tf.text;
+         }
          else
          {
+            var displayLayout = new DisplayLayout(mDisplayObj);
+            layout = displayLayout;
+
+            // objectSize is a logical size, like any other attrib - the DisplayObject given to a
+            // Button is assumed to be a fixed-resolution asset (eg. a small bitmap) whose
+            // *displayed* size is declared here rather than baked into the object itself, so it
+            // can be rescaled live: nme's width/height setters adjust scaleX/scaleY for us, and
+            // DisplayLayout's own cached best-size is kept in sync on every rescale, not just at
+            // construction.
             var objSize:Dynamic = attrib("objectSize");
             if (objSize!=null)
             {
-               if (Std.isOfType(objSize,Float))
-               {
-                   mDisplayObj.width = mDisplayObj.height = (objSize:Float);
-               }
-               else
-               {
-                  var s:Size = cast objSize;
-                  if (s!=null)
+               addScaleChanged(() -> {
+                  var w:Float, h:Float;
+                  if (Std.isOfType(objSize,Float))
+                     w = h = (objSize:Float);
+                  else
                   {
-                     mDisplayObj.width = s.x;
-                     mDisplayObj.height = s.y;
+                     var s:Size = cast objSize;
+                     w = s.x;
+                     h = s.y;
                   }
-               }
-            }
-            if ( Std.isOfType(mDisplayObj,TextField))
-            {
-               var tf = cast mDisplayObj;
-               layout = new AutoTextLayout(tf);
-               name += " " +tf.text;
-            }
-            else
-            {
-               layout = new DisplayLayout(mDisplayObj);
+                  w = skin.toPixels(w);
+                  h = skin.toPixels(h);
+                  mDisplayObj.width = w;
+                  mDisplayObj.height = h;
+                  displayLayout.setObjSize(w,h);
+               });
             }
          }
          layout.mDebugCol = 0x00ff00;
@@ -97,10 +106,26 @@ class Button extends Control
       else
       {
          var contents:String = attribString("contents","icon-text");
-         var icon:BitmapData = contents.indexOf("icon")>=0 ? getBitmap(0) : null;
+         var icon:BitmapData = contents.indexOf("icon")>=0 ? resolveIcon() : null;
          var text:String = contents.indexOf("text")>=0 ? attrib("text") : null;
          var items = (icon!=null ? 1:0) + (text!=null ? 1:0);
-         if (items>0)
+         if (items==1 && icon!=null)
+         {
+            // Icon-only: a raw Bitmap + DisplayLayout (default AlignCenter) - not an Image, which
+            // is itself a Widget with its own outerLayout/BorderLayout wrapping alignBitmap's
+            // DisplayLayout. That extra aligner level was leaving icons pinned top-left instead
+            // of centred (see conversation history). This matches how BitmapButton always built
+            // its icon before being folded into Button.resolveIcon().
+            var bitmap = new Bitmap(icon);
+            bitmap.smoothing = attribBool("smooth", true);
+            mStateBitmap = bitmap;
+            addChild(mDisplayObj = bitmap);
+            var displayLayout = new DisplayLayout(bitmap);
+            displayLayout.name = "ButtonInner";
+            setItemLayout(displayLayout);
+            getLayout().name = "Button Outer";
+         }
+         else if (items>0)
          {
             var textStyle = attribDynamic("textStyle",{});
             var textLineage = attribDynamic("textLineage",[]);
@@ -113,8 +138,8 @@ class Button extends Control
             //trace("Button: " + name + " contents: " + contents + " items: " + items + " text: " + text + " icon: " + icon);
             if (items==1)
             {
-               addChild(mDisplayObj = (textWidget!=null ? textWidget : iconWidget) );
-               setItemLayout((textWidget!=null ? (textWidget:Widget) : (iconWidget:Widget)).getLayout());
+               addChild(mDisplayObj = textWidget );
+               setItemLayout(textWidget.getLayout());
                getLayout().name = "Button Outer";
             }
             else
@@ -147,12 +172,41 @@ class Button extends Control
 
    override public function redraw()
    {
-      var bmpName = attribString("bitmapId",name);
       if (mStateBitmap!=null)
-         mStateBitmap.bitmapData = mRenderer.getBitmap(bmpName,state);
+      {
+         mStateBitmap.bitmapData = resolveIcon();
+         // DisplayLayout's cached best-size is a one-time snapshot taken when it was
+         // constructed - refresh it on every bitmap swap (rescale, state change) same as
+         // Image.set_bitmapData does, so a resized icon doesn't leave stale layout data behind.
+         var dl = Std.isOfType(getItemLayout(), DisplayLayout) ? cast(getItemLayout(), DisplayLayout) : null;
+         if (dl!=null)
+            dl.setObjSize(mStateBitmap.width, mStateBitmap.height);
+      }
       else if (iconWidget!=null)
-         iconWidget.bitmapData = mRenderer.getBitmap(bmpName,state);
+         iconWidget.bitmapData = resolveIcon();
       super.redraw();
+   }
+
+   // Icon source, size and post-process are all plain attribs (bitmapStyle/bitmapRenderSize/
+   // bitmapTransform) - this runs fresh on every redraw() (construction, every state change via
+   // set_state, and every rescale via rebuildState()), so a BitmapButton stays correctly scaled
+   // and styled with no bespoke addScaleChanged wiring of its own. Falls back to the older
+   // id/state-keyed "bitmap" attrib (via mRenderer.getBitmap) when bitmapStyle isn't set.
+   function resolveIcon() : BitmapData
+   {
+      // "icon" is a plain manual override (same priority setIcon()/Renderer.getBitmap() already
+      // give it) - takes precedence over bitmapStyle so setIcon() keeps working as an escape
+      // hatch even on a bitmapStyle-driven button.
+      var bmp:BitmapData = attrib("icon");
+      if (bmp==null)
+      {
+         var bmpStyle:BitmapStyle = attrib("bitmapStyle");
+         bmp = bmpStyle!=null
+            ? skin.renderBitmapStyle(bmpStyle, attribInt("bitmapRenderSize",24))
+            : mRenderer.getBitmap(attribString("bitmapId",name), state);
+      }
+      var transform:BitmapData->BitmapData = attrib("bitmapTransform");
+      return (bmp!=null && transform!=null) ? transform(bmp) : bmp;
    }
 
 

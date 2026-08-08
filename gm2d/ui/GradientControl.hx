@@ -25,33 +25,23 @@ import gm2d.RGBHSV;
 
 class GradSwatchBox extends Widget
 {
-   var swatch:GradSwatch;
    var control:GradientControl;
-   var logicalSize:Int;
    // inSize is in logical units
    public function new(inControl:GradientControl, inSwatch:GradSwatch, inSize:Int)
    {
       super();
       control = inControl;
-      swatch = inSwatch;
-      logicalSize = inSize;
       addEventListener(MouseEvent.MOUSE_DOWN, function(_) inControl.setGradient(inSwatch.gradient) );
       setItemLayout( new Layout() );
-      onScaleChanged();
-   }
-
-   override public function onScaleChanged()
-   {
-      super.onScaleChanged();
-      if (swatch==null)
-         return;
-      var size = skin.toPixels(logicalSize);
-      var gfx = graphics;
-      gfx.clear();
-      gfx.beginBitmapFill(swatch.bitmapData, new Matrix(size/16,0,0,size/16) );
-      gfx.lineStyle(1,0x000000);
-      gfx.drawRect(0.5,0.5,size,size);
-      getItemLayout().setMinSize(size,size);
+      addScaleChanged(() -> {
+         var size = skin.toPixels(inSize);
+         var gfx = graphics;
+         gfx.clear();
+         gfx.beginBitmapFill(inSwatch.bitmapData, new Matrix(size/16,0,0,size/16) );
+         gfx.lineStyle(1,0x000000);
+         gfx.drawRect(0.5,0.5,size,size);
+         getItemLayout().setMinSize(size,size);
+      });
    }
 }
 
@@ -115,7 +105,6 @@ class GradientControl extends Widget
 
    var gradient:Gradient;
    var currentId:Int;
-   var swatches:GridLayout;
 
 
    public static var createdBmps = false;
@@ -171,7 +160,7 @@ class GradientControl extends Widget
       controls.setColStretch(1,1);
       controls.setAlignment(Layout.AlignStretch);
 
-      swatches = new GridLayout(10);
+      var swatches = new GridLayout(10);
       for(i in 0...20)
       {
          var swatch = new GradSwatch(i,20);
@@ -223,16 +212,10 @@ class GradientControl extends Widget
       setGradient( gradient = (new GradSwatch(0,20)).gradient );
 
       setItemLayout(vstack);
-      onScaleChanged();
-   }
-
-   override public function onScaleChanged()
-   {
-      super.onScaleChanged();
-      if (swatches==null)
-         return;
-      var s = skin.toPixels(4);
-      swatches.setSpacing(s,s);
+      addScaleChanged(() -> {
+         var s = skin.toPixels(4);
+         swatches.setSpacing(s,s);
+      });
    }
 
    public function getGradient() { return gradient.clone(); }

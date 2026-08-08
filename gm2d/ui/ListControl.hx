@@ -57,6 +57,10 @@ class ListControl extends ScrollWidget
    var overlay:nme.display.Shape;
    var draggingIndex:Int;
    var minCtrlWidth = 0.0;
+   // The list scrolls by whole rows, not the generic ScrollWidget step - tracked here (and
+   // exposed by overriding get_scrollWheelStep) rather than through the base class's attrib,
+   // since it depends on actual row heights, not just the skin/scale.
+   var mScrollWheelStep:Float;
 
    public var maxHeight:Null<Float>;
 
@@ -78,9 +82,16 @@ class ListControl extends ScrollWidget
    {
       super(inSkin, Widget.addLine(inLineage,"List"), inAttribs);
 
+      // itemHeight is a logical unit, like any other attrib - resolved here rather than
+      // requiring the caller to pre-scale it (see getAttribScaled). width is NOT scaled here -
+      // unlike itemHeight, real callers (eg. ComboBox's popup list) pass an already-measured
+      // pixel width that must match another widget's actual on-screen size exactly, not a
+      // logical constant - so width keeps the older "caller provides pixels" contract.
       mMinControlWidth = mMinWidth = attribFloat("width",0);
-      mOrigItemHeight = mHeight = mListHeight = attribFloat("itemHeight",0);
-      mItemHeight = mOrigItemHeight;
+      addScaleChanged(() -> {
+         mOrigItemHeight = mHeight = mListHeight = getAttribScaled("itemHeight",0);
+         mItemHeight = mOrigItemHeight;
+      });
       maxHeight = attrib("maxHeight");
       draggingIndex = -1;
 
@@ -92,6 +103,9 @@ class ListControl extends ScrollWidget
       oddRenderer = skin.renderer(rowLineage,   0, attribs);
       evenRenderer = skin.renderer(rowLineage, Widget.ALTERNATE, attribs);
       selectRenderer = skin.renderer(rowLineage, Widget.CURRENT, attribs);
+      // The three renderers above bake mMinWidth/mItemHeight in at construction time and are not
+      // currently rebuilt on a later rescale - a known remaining gap, same class as other
+      // cached-Renderer sizing elsewhere (see Migration-v5.md SKIN-003's "Known remaining bakes").
 
       mStretchCol = null;
       onSelect = inOnSelect;
@@ -113,24 +127,23 @@ class ListControl extends ScrollWidget
       wantFocus = false;
       mColAlign = [];
       mMultiSelect = null;
-      var internalLayout = new Layout().setMinSize(mMinWidth,mOrigItemHeight).setAlignment( Layout.AlignTop );
+      var internalLayout = new Layout().setAlignment( Layout.AlignTop );
       //internalLayout.onInnerRect = layoutList;
       setItemLayout(internalLayout);
-      var layout = getLayout();
-      layout.setMinWidth(mMinWidth);
-      layout.setMinHeight(mOrigItemHeight);
-      setScrollRange(mMinWidth,mMinWidth,mOrigItemHeight,mOrigItemHeight);
       applyStyles();
-      onScaleChanged();
+
+      addScaleChanged(() -> {
+         mXGap = getAttribScaled("xgap",2.0);
+         getItemLayout().setMinSize(mMinWidth,mOrigItemHeight);
+         var layout = getLayout();
+         layout.setMinWidth(mMinWidth);
+         layout.setMinHeight(mOrigItemHeight);
+         setScrollRange(mMinWidth,mMinWidth,mOrigItemHeight,mOrigItemHeight);
+         mScrollWheelStep = mOrigItemHeight;
+      });
    }
 
-   override public function onScaleChanged()
-   {
-      super.onScaleChanged();
-      mXGap = getAttribScaled("xgap",2.0);
-      // The list scrolls by whole rows, not by the generic ScrollWidget step
-      scrollWheelStep = mOrigItemHeight;
-   }
+   override function get_scrollWheelStep():Float return mScrollWheelStep;
 
    override public function getMinContentSize()
    {
@@ -161,7 +174,7 @@ class ListControl extends ScrollWidget
       mChildrenClean = 0;
       mSelected = -1;
       mItemHeight = mOrigItemHeight;
-      scrollWheelStep = mOrigItemHeight;
+      mScrollWheelStep = mOrigItemHeight;
       graphics.clear();
       while(contents.numChildren>0)
          contents.removeChildAt(0);
@@ -551,15 +564,15 @@ class ListControl extends ScrollWidget
          {
             if (rowHeight<mItemHeight)
                rowHeight = mItemHeight;
-            if ( (rowHeight<scrollWheelStep||scrollWheelStep==0) && rowHeight>0)
-                scrollWheelStep = rowHeight;
+            if ( (rowHeight<mScrollWheelStep||mScrollWheelStep==0) && rowHeight>0)
+                mScrollWheelStep = rowHeight;
          }
          else if (rowHeight>mItemHeight)
          {
             mItemHeight = rowHeight;
             for(i in 0...mRows.length)
                mRows[i].height = mItemHeight;
-            scrollWheelStep = rowHeight;
+            mScrollWheelStep = rowHeight;
             needRecalcPos = true;
             mChildrenClean = 0;
          }

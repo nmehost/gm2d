@@ -56,6 +56,14 @@ class MultiDock extends Widget implements IDock implements IDockable
       setItemLayout(layout);
    }
 
+   // See SlideBar.setSkin() - TabRenderer isn't a Widget, so it never finds out about a skin/
+   // scale change on its own; the owner has to push it through explicitly.
+   override public function setSkin(inSkin:Skin):Void
+   {
+      super.setSkin(inSkin);
+      tabRenderer.setSkin(skin);
+   }
+
    function setClientRect(x:Float, y:Float, w:Float, h:Float)
    {
       if (currentDockable!=null)
@@ -112,7 +120,8 @@ class MultiDock extends Widget implements IDock implements IDockable
    // Display
    public function getTitle():String { return title; }
    public function getShortTitle():String { return shortTitle; }
-   public function getIcon():nme.display.BitmapData { return icon; }
+   // No caller sets MultiDock.icon today - kept simple (no caching/scaling) unless that changes.
+   public function getIcon(inPixelSize:Int):nme.display.BitmapData { return icon; }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int):Void { flags = inFlags; }
    // Layout

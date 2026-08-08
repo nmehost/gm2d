@@ -59,7 +59,8 @@ class ScrollWidget extends Widget //Control
 
    public var scrollX(get,set):Float;
    public var scrollY(get,set):Float;
-   public var scrollWheelStep:Float;
+   public var scrollWheelStep(get,never):Float;
+   function get_scrollWheelStep():Float return getAttribScaled("scrollWheelStep", 20);
    public var maxScrollX:Float;
    public var maxScrollY:Float;
    public var controlW:Float;
@@ -122,12 +123,6 @@ class ScrollWidget extends Widget //Control
       addEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
       addEventListener(MouseEvent.CLICK,onScrollClick,true);
       addEventListener(Event.REMOVED_FROM_STAGE, (_) -> removeStageListeners() );
-   }
-
-   override public function onScaleChanged()
-   {
-      super.onScaleChanged();
-      scrollWheelStep = skin.toPixels(20);
    }
 
    override public function createLayout() return new ScrollWidgetLayout(this,contentLayout);

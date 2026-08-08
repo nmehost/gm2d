@@ -37,6 +37,7 @@ For each entry below:
 | [SKIN-006](#skin-006--default-menubar-is-now-theme-following-light-instead-of-a-fixed-dark-bar) | Default `Menubar`/`MenubarItem` now use theme-following colours instead of a fixed dark bar | behavior | shipped | no (visual re-check) |
 | [SKIN-007](#skin-007--live-skin-propagation-widgetsetskin-gamesetskin) | Live skin propagation: new `Widget.setSkin()`/`Window.setSkin()`/`Game.setSkin()` | new API | shipped | n/a (additive) |
 | [SKIN-008](#skin-008--progressstyle-retyped-to-fillstylelinestyle-margin-and-shaperoundrectrads-radius-now-auto-scaled) | `ProgressStyle` retyped to `FillStyle`/`LineStyle`; `margin` and `ShapeRoundRectRad`'s radius now auto-scaled | retype + behavior | shipped | partial (see below) |
+| [SKIN-009](#skin-009--skincreatebitmapdatas-inwidth-is-now-a-logical-unit-fixes-a-uiscale²-double-scale-on-svg-backed-icons) | `Skin.createBitmapData`'s `inWidth` is now a logical unit — fixes a `uiScale²` double-scale on SVG-backed icons | bugfix + behavior | shipped | yes |
 
 ---
 
@@ -1183,6 +1184,92 @@ as a value being resolved at the right time.
 5. This is a **silent** behavior change for steps 3 in particular (no compile-time signal once the
    wrapper is just sitting there unnecessarily rather than causing a type error) — visually
    re-check any custom `Dialog`-shaped chrome or `ProgressBar` after applying.
+
+---
+
+## SKIN-009 — `Skin.createBitmapData`'s `inWidth` is now a logical unit — fixes a `uiScale²` double-scale on SVG-backed icons
+
+- **Kind:** bugfix (the two branches of one function silently disagreed about their shared
+  parameter's units) + behavior change (the fix changes what unit callers must now pass)
+- **Status:** shipped
+- **Shipped in:** `master` (unreleased)
+- **Compiler assistance:** none — `inWidth:Int` accepts either a logical or a pre-scaled pixel
+  value without complaint; the bug (and the fix) are both invisible to the type system.
+
+**Background:** found while chasing a real symptom — at higher-than-1x `uiScale`, an app's menubar
+was rendering taller than expected. `SpriteMenubar.layout()` (`gm2d/ui/Menubar.hx`) grows the bar
+to fit the tallest `extraWidget`, and a title-icon `extraWidget` built from an SVG-backed icon was
+coming out roughly `uiScale` times too big — invisible at `uiScale=1`, so nobody had hit it before.
+
+The actual bug was in `Skin.createBitmapData(inResoName:String, inWidth:Int)`: its two branches
+disagreed about whether `inWidth` was already a real pixel value.
+
+```haxe
+public function createBitmapData(inResoName:String,inWidth:Int) : BitmapData
+{
+   var bmp:BitmapData = null;
+   if (Assets.hasBitmapData(inResoName))
+   {
+      bmp = Assets.getBitmapData(inResoName);
+      var extraScale = inWidth/bmp.width;        // treats inWidth as already real pixels
+      return scaleBitmap(bmp,extraScale);
+   }
+   else
+   {
+      var svg = new SvgRenderer(gm2d.reso.Resources.loadSvg(inResoName));
+      var size = toPixels(inWidth);               // treats inWidth as a logical unit
+      ...
+   }
+}
+```
+
+Every real call site (there were only two in this codebase) passed an *already-scaled* pixel value
+(`skin.createBitmapData("titleIcon", skin.toPixels(32))`) — correct for the bitmap branch, since
+that branch does no scaling of its own. For an asset that resolves through the SVG branch instead
+(no matching `Assets.hasBitmapData`, so it falls through to load/rasterize an SVG), that same
+pre-scaled value then goes through `toPixels()` **a second time** inside the function — `uiScale²`
+instead of `uiScale`. Which branch a given `inResoName` takes is an asset-packaging detail invisible
+at the call site, so this silently depended on whether `"titleIcon"` happened to be a raw bitmap
+asset or an SVG one.
+
+One existing call (`gm2d/ui/MenuGroup.hx`'s `createBitmapData(inKey,16)`) was already passing a bare
+logical value with no pre-scaling — accidentally correct for the SVG branch, silently un-scaled for
+the bitmap branch. That inconsistency was the tell that the *function's* contract was the bug, not
+any individual call site.
+
+**Why fix it this direction (logical unit in, not pixel):** matches the DPI-independent-logical-unit
+convention [SKIN-002](#skin-002--attribset-values-are-now-dpi-independent-logical-units-resolved-once-at-renderer-construction)/[SKIN-003](#skin-003--skinscale-renamed-to-skintopixels-new-widgetonscalechanged-hook)
+already established everywhere else — a caller should never need to know or care which asset-storage
+branch a given `inResoName` will take.
+
+**Detect:** `manual` — no reliable textual pattern distinguishes "a pre-scaled pixel value passed to
+`createBitmapData`" from "a correct logical value passed to it"; both are `Int`, and the bug is
+silent (no error, just wrong-at-runtime sizing that only shows up away from `uiScale=1`). Grep for
+every call site and inspect each by hand:
+
+```sh
+grep -rn 'createBitmapData(' --include='*.hx' .
+```
+
+**Old:**
+
+```haxe
+skin.createBitmapData("titleIcon", skin.toPixels(32));   // now double-scales SVG-backed icons
+```
+
+**New:**
+
+```haxe
+skin.createBitmapData("titleIcon", 32);   // bare logical unit - scaled internally, once
+```
+
+**Fix (agent instructions):** for each call found by **Detect**, check whether the second argument
+is wrapped in `toPixels(...)`/`scale(...)` (or is itself a variable that was computed that way). If
+so, remove the wrapping and pass the bare logical value instead — the function now resolves it to
+pixels internally exactly once, regardless of which branch (bitmap asset vs. SVG asset) the named
+resource actually takes. If the argument is already a bare logical number/variable (matching
+`MenuGroup.hx`'s existing call), leave it as-is — it was already correct under the new contract, and
+is now also correct for a bitmap-backed asset of the same name (previously it wasn't).
 
 ---
 

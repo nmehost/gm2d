@@ -42,21 +42,40 @@ class TabRenderer
 
    public static inline var IS_OVERLAPPED = 0x0100;
 
-   static var gripBmp:BitmapData = null;
+   // Was `static` - shared (and frozen at whatever scale first created it) across every
+   // TabRenderer/Skin instance for the process's whole lifetime. Instance field, cleared in
+   // setSkin(), so it regenerates at the new scale instead.
+   var gripBmp:BitmapData = null;
 
    var attribs:Map<String,Dynamic>;
    var currentAttribs:Map<String,Dynamic>;
    var skin:Skin;
    var bgRenderer:Renderer;
+   var lineage:Array<String>;
+   var attribsSource:Attribs;
 
    var buts:Array<Widget>;
 
    public function new(inSkin:Skin, inLineage:Array<String>, inAttribs:Attribs)
    {
+      lineage = inLineage;
+      attribsSource = inAttribs;
+      setSkin(inSkin);
+   }
+
+   // Game.setSkin()'s rescale produces a *new* Skin instance (copyWithScale) rather than
+   // mutating the old one in place - TabRenderer isn't a Widget, so it never sees that on its
+   // own; whoever owns this TabRenderer (SlideBar, MultiDock) must call this from their own
+   // setSkin() override, or attribs/bgRenderer (and everything toPixels()'d from them at render
+   // time, eg. renderTabs()'s margins) stay frozen at whatever scale was active when this
+   // TabRenderer was first created.
+   public function setSkin(inSkin:Skin):Void
+   {
       skin = inSkin;
-      attribs = skin.combineAttribs(inLineage, 0, inAttribs);
-      currentAttribs = skin.combineAttribs(inLineage, Widget.CURRENT, inAttribs);
+      attribs = skin.combineAttribs(lineage, 0, attribsSource);
+      currentAttribs = skin.combineAttribs(lineage, Widget.CURRENT, attribsSource);
       bgRenderer = new Renderer(skin,attribs);
+      gripBmp = null;
    }
 
 
@@ -85,7 +104,7 @@ class TabRenderer
       //gfx.drawRect(0,0,w,tabHeight);
 
       if (gripBmp==null)
-         gripBmp = skin.createDefaultBitmap("#grip",0);
+         gripBmp = Skin.createDefaultBitmap(skin,"#grip",0);
 
       var by = Std.int( (tabHeight-gripBmp.height) * 0.5 );
       var bx = w - gripBmp.width - by;
@@ -129,6 +148,7 @@ class TabRenderer
 
       var borderLeft = skin.toPixels(4);
       var borderRight = skin.toPixels(4);
+      var iconBorderY = skin.toPixels(10);
       var bmpPad = skin.toPixels(2);
       var tabGap = 0;
       var tabX = new Array<Float>();
@@ -142,6 +162,7 @@ class TabRenderer
       var w = inSide==TOP || inSide==BOTTOM ? inRect.width : inRect.height;
       var right = w;
       var tabHeight = Std.int(inSide==TOP || inSide==BOTTOM ? inRect.height : inRect.width);
+      var iconSize = tabHeight - iconBorderY*2;
 
       if ((inFlags & SHOW_POPUP) > 0)
          createTabButton( MiniButton.POPUP,outHitBoxes );
@@ -160,7 +181,7 @@ class TabRenderer
          for(pane in inPanes)
          {
             tabX.push(tx);
-            var icon = pane.getIcon();
+            var icon = pane.getIcon(iconSize);
             tx += borderLeft + borderRight;
             if (icon==null || forceText)
             {
@@ -244,7 +265,7 @@ class TabRenderer
       for(pane in inPanes)
       {
          var tx0 = trans.tx;
-         var icon = pane.getIcon();
+         var icon = pane.getIcon(iconSize);
 
          var tw:Float = borderLeft;
          if (icon==null || forceText)
@@ -327,7 +348,7 @@ class TabRenderer
             borderLeft += 1;
          }
          borderRight += 2;
-         var icon = inCurrent.getIcon();
+         var icon = inCurrent.getIcon(iconSize);
  
          var tw:Float = borderLeft;
          if (icon==null || forceText)

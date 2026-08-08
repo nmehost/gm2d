@@ -128,6 +128,8 @@ class Skin
    var cachedFilters:Map<String,Array<BitmapFilter>>;
    public var sliderRenderer:SliderRenderer;
    public var defaultTabRenderer:TabRenderer;
+   // Per-instance, not shared like attribSet - each Skin's own uiScale/colours are fixed for its
+   // whole lifetime, so this only ever needs to start empty on copy, never invalidated afterward.
    public var bmpCache = new Map<String, BitmapData>();
 
 
@@ -346,7 +348,7 @@ class Skin
       // Deliberately NOT copied - a realized filter/bitmap depends on this instance's own
       // uiScale/colours, so the copy starts empty and lazily rebuilds against its own. Sharing
       // either cache here would be the same staleness bug either way (a copyWithScale() result
-      // serving the source's stale, wrong-size cached bitmaps/filters).
+      // serving the source's stale, wrong-size cached filters/bitmaps).
       result.cachedFilters = new Map<String,Array<BitmapFilter>>();
       result.bmpCache = new Map<String, BitmapData>();
       result.sliderRenderer = sliderRenderer;
@@ -367,6 +369,18 @@ class Skin
    {
       var result = shallowCopy();
       result.uiScale = inUiScale;
+      // textFormat/mText/sliderRenderer/defaultTabRenderer are lazily created once (guarded in
+      // init(), which a shallowCopy() never re-runs) and so are just shared by reference above -
+      // same staleness bug cachedFilters/bmpCache are deliberately NOT shared to avoid (see the
+      // comment on those in shallowCopy()), just missed for these when they were added. Rebuild
+      // them fresh against the new scale rather than leaving them frozen at the old one.
+      result.textFormat = new TextFormat(textFormat.font, result.toPixels(14));
+      result.mText = new TextField();
+      result.styleLabel(result.mText);
+      if (sliderRenderer!=null)
+         result.sliderRenderer = result.createSliderRenderer();
+      if (defaultTabRenderer!=null)
+         result.defaultTabRenderer = result.createTabRenderer(["Tabs","TabRenderer"],{});
       return result;
    }
 
@@ -444,6 +458,9 @@ class Skin
               line: LineHighlight,
               },
            },
+        "Scroll" => {
+           scrollWheelStep: 20,
+           },
         "Button" => {
            parent:"Control",
            shape: ShapeRect,
@@ -456,6 +473,9 @@ class Skin
            itemAlign: Layout.AlignCenterY,
            padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
            offset: new Point(1,1),
+           stateDisabled: {
+              bitmapTransform: Skin.makeGrey,
+              },
            },
         "SimpleButton" => {
            parent:"Control",
@@ -945,24 +965,34 @@ class Skin
       theSkin = this;
    }
 
-   public function createDefaultBitmap( inButton:String, inState:Int) : BitmapData
+   // Static (and skin passed explicitly, not via `this`) - these are referenced as bare
+   // BitmapFactory values inside attribSet's lineage literals, which are built once and then
+   // shared by reference across every copyWithScale() result (see BitmapStyle.BitmapFactory).
+   // An instance method reference bound at attribSet-construction time would stay bound to
+   // whichever Skin happened to build attribSet first, forever. Caching is keyed into the
+   // *passed* skin's own bmpCache, not `this`, so it's naturally scoped to that skin's own
+   // uiScale/colours (see bmpCache's own comment).
+   public static function createDefaultBitmap( skin:Skin, inButton:String, inState:Int) : BitmapData
    {
       var key = inButton + "::" + inState;
-      if (bmpCache.exists(key))
-          return  bmpCache.get(key);
-      var bmp = DefaultBitmaps.createBitmap(this, inButton, inState, getColour("FillDark"), getColour("FillLight"));
-      bmpCache[key] = bmp;
+      var bmp = skin.bmpCache.get(key);
+      if (bmp==null)
+      {
+         bmp = DefaultBitmaps.createBitmap(skin, inButton, inState, skin.getColour("FillDark"), skin.getColour("FillLight"));
+         skin.bmpCache.set(key, bmp);
+      }
       return bmp;
    }
 
-   public function createDefaultDarkBitmap( inButton:String, inState:Int) : BitmapData
+   public static function createDefaultDarkBitmap( skin:Skin, inButton:String, inState:Int) : BitmapData
    {
       var key = "dark::" + inButton + "::" + inState;
-      if (bmpCache.exists(key))
-          return  bmpCache.get(key);
-
-      var bmp = DefaultBitmaps.createBitmap(this, inButton, inState,  getColour("FillLight"), getColour("FillDark"));
-      bmpCache[key] = bmp;
+      var bmp = skin.bmpCache.get(key);
+      if (bmp==null)
+      {
+         bmp = DefaultBitmaps.createBitmap(skin, inButton, inState, skin.getColour("FillLight"), skin.getColour("FillDark"));
+         skin.bmpCache.set(key, bmp);
+      }
       return bmp;
    }
 
@@ -974,6 +1004,7 @@ class Skin
       var w = skin.toPixels(inBmp.width*extraScale);
       var h = skin.toPixels(inBmp.height*extraScale);
       var bitmap = new Bitmap(inBmp);
+      bitmap.smoothing = true;
       var mtx = new nme.geom.Matrix(w/inBmp.width,0,0,h/inBmp.height,0,0);
 
       var result = new BitmapData(w,h, inBmp.transparent, 0);
@@ -1725,6 +1756,8 @@ class Skin
        return null;
    }
 
+   // inWidth is a logical unit (scaled to pixels internally, once) - matches the convention used
+   // throughout attribSet/Renderer. Do not pre-scale the value you pass in.
    public function createBitmapData(inResoName:String,inWidth:Int) : BitmapData
    {
       var bmp:BitmapData = null;
@@ -1732,7 +1765,7 @@ class Skin
       {
          bmp = Assets.getBitmapData(inResoName);
 
-         var extraScale = inWidth/bmp.width;
+         var extraScale = toPixels(inWidth)/bmp.width;
          return scaleBitmap(bmp,extraScale);
       }
       else
@@ -1750,6 +1783,79 @@ class Skin
       }
    }
 
+   // Resolves a size-driven BitmapStyle (as opposed to BitmapFactory/BitmapAndDisable, which are
+   // resolved by id+state via Renderer.getBitmap) to a BitmapData rendered fresh for the current
+   // scale. Used by Button.resolveIcon() and Image.fromStyle() so a single "source + logical
+   // size" pair is enough to stay correctly scaled across every rescale, with no per-call-site
+   // addScaleChanged bookkeeping.
+   public function renderBitmapStyle(style:BitmapStyle, logicalSize:Int) : BitmapData
+   {
+      var pixelSize = toPixels(logicalSize);
+      return switch(style)
+      {
+         case BitmapBitmap(bmp): bmp;
+         case BitmapResource(name):
+            if (Assets.hasBitmapData(name))
+               return scaleRasterTo(Assets.getBitmapData(name), pixelSize);
+            return renderSvgIcon(name, pixelSize);
+         case BitmapRender(draw): draw(this, pixelSize);
+         default: throw "BitmapStyle not resolvable by logical size: " + style;
+      }
+   }
+
+   // Like the static scaleBitmap(), but scales to an exact target pixel width (preserving
+   // aspect) using *this* skin's uiScale, rather than the static's Skin.getSkin() global.
+   function scaleRasterTo(inBmp:BitmapData, inPixelWidth:Int) : BitmapData
+   {
+      var w = inPixelWidth;
+      var h = Std.int(w * inBmp.height/inBmp.width);
+      var bitmap = new Bitmap(inBmp);
+      bitmap.smoothing = true;
+      var mtx = new nme.geom.Matrix(w/inBmp.width,0,0,h/inBmp.height,0,0);
+      var result = new BitmapData(w,h, inBmp.transparent, 0);
+      result.draw(bitmap, mtx);
+      return result;
+   }
+
+   // Same rendering (scale 0.8, 2-logical-pixel inset) as the icons previously baked by
+   // App.createSvg - kept here so BitmapResource-sourced SVG icons look identical to before.
+   function renderSvgIcon(inResoName:String, inPixelSize:Int) : BitmapData
+   {
+      var bmp = new BitmapData(inPixelSize,inPixelSize,true, gm2d.RGB.CLEAR );
+      var svg = new SvgRenderer(gm2d.reso.Resources.loadSvg(inResoName));
+      var svgScale = Math.min(inPixelSize/svg.width, inPixelSize/svg.height) * 0.8;
+      var shape = svg.createShape();
+      var scaled = new Sprite();
+      scaled.addChild(shape);
+      shape.scaleX = shape.scaleY = svgScale;
+      shape.x = shape.y = toPixels(2) + 0.5;
+      bmp.draw(scaled);
+      return bmp;
+   }
+
+   // Moved from BitmapButton.createDisabled - the default "stateDisabled" bitmapTransform for
+   // the "Button" lineage (see attribSet below). A plain BitmapData->BitmapData transform, so
+   // call sites can override or null it out per lineage/instance via the bitmapTransform attrib.
+   public static function makeGrey(inBmp:BitmapData) : BitmapData
+   {
+      var w = inBmp.width;
+      var h = inBmp.height;
+      var result = new BitmapData(w,h,true,gm2d.RGB.CLEAR);
+
+      for(y in 0...h)
+         for(x in 0...w)
+         {
+            var pix:Int = inBmp.getPixel32(x,y);
+            var val:Int = (pix&0xff) + ( (pix>>8)&0xff ) + ( (pix>>16)&0xff );
+            if (val<255) val=0;
+            else if (val>512) val = 255;
+            else val = 128;
+            val = (val * 0x10101) | (pix&0xff000000);
+            result.setPixel32(x,y,val);
+         }
+
+      return result;
+   }
 
 }
 

@@ -24,7 +24,11 @@ interface IDockable
    // Display
    public function getTitle():String;
    public function getShortTitle():String;
-   public function getIcon():BitmapData;
+   // inPixelSize is the icon's target width/height in real pixels, as decided by whoever is
+   // about to draw it (eg. TabRenderer) - implementations resolve/cache/scale to exactly that
+   // size on demand, rather than needing to be told in advance (eg. via setSkin()'s propagation,
+   // which a backgrounded/detached dockable's content may never receive).
+   public function getIcon(inPixelSize:Int):BitmapData;
    public function getFlags():Int;
    public function setFlags(inFlags:Int):Void;
 

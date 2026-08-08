@@ -560,9 +560,13 @@ class Renderer
             // TODO - disable
             return bmBitmapData;
          case BitmapFactory(factory):
-            return factory(inId,inState);
+            return factory(skin,inId,inState);
          case BitmapAndDisable(bmp,bmpDisabled):
             return ( (inState&Widget.DISABLED>0) ? bmpDisabled : bmp );
+         default:
+            // BitmapResource/BitmapRender are size-keyed (resolved via skin.renderBitmapStyle
+            // through the "bitmapStyle" attrib, not "bitmap") - not valid here.
+            return null;
       }
    }
 

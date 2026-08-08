@@ -29,7 +29,7 @@ class SecondaryWin extends DocumentParent implements IDock
       window = nme.Lib.createSecondaryWindow(
            Std.int(inW), Std.int(inH), title,
            nme.app.Application.HARDWARE | nme.app.Application.RESIZABLE,
-           nme.Lib.nmeStage.opaqueBackground, fps, pane==null ? null : pane.getIcon() );
+           nme.Lib.nmeStage.opaqueBackground, fps, pane==null || pane.icon==null ? null : pane.getIcon(Std.int(pane.icon.width)) );
       var stage = window.stage;
       stage.scaleMode = nme.display.StageScaleMode.NO_SCALE;
       stage.addEventListener( Event.RESIZE, (_) -> {

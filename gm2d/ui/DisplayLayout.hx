@@ -46,6 +46,17 @@ class DisplayLayout extends Layout
       return this;
    }
 
+   // Refreshes the cached best-size read by getMinSize()/getBestWidth()/getBestHeight() - use
+   // this after resizing the underlying DisplayObject outside the constructor (eg. Button's
+   // objectSize handling on a live rescale), since mOWidth/mOHeight otherwise only ever reflect
+   // whatever inObj.width/height happened to be when this Layout was constructed.
+   public function setObjSize(inW:Float,inH:Float) : DisplayLayout
+   {
+      mOWidth = inW;
+      mOHeight = inH;
+      return this;
+   }
+
    // DisplayLayout
    public override function getMinSize(?inWidth:Null<Float>) : Size
    {

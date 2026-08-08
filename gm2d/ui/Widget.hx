@@ -58,6 +58,7 @@ class Widget extends Sprite
    public var mAttribs : Dynamic;
    public var combinedAttribs : Map<String,Dynamic>;
    public var skin : Skin;
+   var scaleCallbacks:Array<Void->Void>;
 
    //var highlightColour:Int;
 
@@ -82,7 +83,6 @@ class Widget extends Sprite
       mRect = new Rectangle(0,0,0,0);
       addEventListener( MouseEvent.CLICK, widgetClick );
       onState = attribDynamic("onState",null);
-      onScaleChanged();
    }
 
    // Recompute and apply this widget's scale-dependent local state - sizes in logical units
@@ -90,16 +90,39 @@ class Widget extends Sprite
    // scale.  Overrides must be self-contained (apply the result, don't just compute it) and
    // must be safe to call repeatedly.
    //
-   // Called at the end of Widget's own constructor, so an override runs once before the
-   // subclass constructor body has executed - guard against members that do not exist yet, and
-   // prefer getItemLayout() over getLayout(), since getLayout() would lazily build the wrong
-   // layout.  Subclasses that set up further scale-dependent state call onScaleChanged() again
-   // as the last line of their own constructor.
+   // Not called automatically during construction - prefer addScaleChanged() for scale-dependent
+   // construction-time setup (it applies immediately, once everything it closes over already
+   // exists, and needs no null-guarding). Overriding onScaleChanged() directly is still fine for
+   // genuine ongoing per-instance state read by other methods; just call it yourself at the right
+   // point in your own constructor - nothing calls it for you there any more.
    //
-   // In the future this will also be called when the ui scale changes - eg the dpi changing as
-   // a window moves between monitors.
+   // setSkin() calls this (via the most-derived override, so a direct override or any
+   // addScaleChanged callbacks registered so far both still run) whenever the ui scale actually
+   // changes on an already-constructed widget - eg the dpi changing as a window moves between
+   // monitors, or Game.setSkin() applying a new skin globally.
    public function onScaleChanged():Void
    {
+      if (scaleCallbacks!=null)
+         for (cb in scaleCallbacks)
+            cb();
+   }
+
+   // Registers a scale-dependent callback and applies it immediately, then replays it on every
+   // future onScaleChanged() (a live rescale via setSkin() - see onScaleChanged's contract above).
+   // Meant for scale-dependent construction-time setup - a Layout, a cached size, a
+   // locally-scoped variable - without needing a null-guarded onScaleChanged() override plus an
+   // explicit duplicate call at the end of the constructor. Call it once, after the locals it
+   // closes over exist; no guard needed inside the callback, since registration itself only
+   // happens once, after they're already in scope.
+   //
+   // If a subclass overrides onScaleChanged() instead of using this, it must call
+   // super.onScaleChanged() (directly or transitively) or registered callbacks stop firing.
+   public function addScaleChanged(cb:Void->Void):Void
+   {
+      if (scaleCallbacks==null)
+         scaleCallbacks = [];
+      scaleCallbacks.push(cb);
+      cb();
    }
 
    // Propagates a skin change through this widget and its whole subtree (display-list scan, not
@@ -354,11 +377,15 @@ class Widget extends Sprite
             // TODO - disable
             return bmBitmapData;
          case BitmapFactory(factory):
-            return factory(bmpName,inState);
+            return factory(skin,bmpName,inState);
          case BitmapAndDisable(bmp,bmpDisabled):
             return ( (inState&Widget.DISABLED>0) ? bmpDisabled : bmp );
+         default:
+            // BitmapResource/BitmapRender are size-keyed (resolved via skin.renderBitmapStyle
+            // through the "bitmapStyle" attrib, not "bitmap") - not valid here.
+            return null;
       }
- 
+
       return null;
    }
 

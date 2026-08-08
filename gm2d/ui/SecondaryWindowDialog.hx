@@ -38,7 +38,7 @@ class SecondaryWindowDialog implements IDialog
            Std.int(size.x), Std.int(size.y), pane.getTitle(),
            nme.app.Application.HARDWARE | nme.app.Application.RESIZABLE |
            nme.app.Application.ALWAYS_ON_TOP,
-           bgCol, fps, pane.getIcon() );
+           bgCol, fps, pane.icon==null ? null : pane.getIcon(Std.int(pane.icon.width)) );
       var stage = window.stage;
       stage.scaleMode = StageScaleMode.NO_SCALE;
       stage.addEventListener( Event.RESIZE, (_) ->

@@ -16,7 +16,7 @@ import gm2d.skin.FillStyle;
 import nme.geom.Rectangle;
 
 
-class SlideBar extends Sprite implements IDock
+class SlideBar extends Widget implements IDock
 {
    var pos:DockPosition;
    var container:DisplayObjectContainer;
@@ -25,7 +25,8 @@ class SlideBar extends Sprite implements IDock
    var horizontal:Bool;
    var minSize:Null<Int>;
    var maxSize:Null<Int>;
-   var tabPos:Null<Int>;
+   var tabPos:Null<Int>;         // resolved pixels, read by tabRenderer.renderTabs
+   var tabPosLogical:Null<Int>;  // raw constructor value, re-resolved on rescale
    //var background:Widget;
    var chrome:Sprite;
    var bgRect:Rectangle;
@@ -50,8 +51,6 @@ class SlideBar extends Sprite implements IDock
    var children:Array<IDockable>;
    var barDockable:IDockable;
    var tabRenderer:TabRenderer;
-   var renderer:Renderer;
-   var skin:Skin;
 
    public var pinned(default,set):Bool;
    public var onPinned:Bool->Void;
@@ -65,15 +64,14 @@ class SlideBar extends Sprite implements IDock
              inSlideOver:Bool, inShowTab:Bool,
              inOffset:Null<Int>, inTabPos:Null<Int>)
    {
-      super();
-      skin = Skin.getSkin(inSkin);
+      super(inSkin, ["Dock"]);
       pos = inPos;
       container = inParent;
       horizontal = pos==DOCK_LEFT || pos==DOCK_RIGHT;
       maxSize = inMaxSize;
       minSize = inMinSize;
       slideOver = inSlideOver;
-      tabPos = inTabPos;
+      tabPosLogical = inTabPos;
       showing = 0;
       lastPopDown = 0;
       layoutDirty = true;
@@ -102,7 +100,6 @@ class SlideBar extends Sprite implements IDock
 
       chrome = new Sprite();
       addChild(chrome);
-      renderer = new Renderer(skin,skin.combineAttribs(["Dock"]));
 
       /*
       background = new Widget([ line, "Dock"], pane.frameAttribs);
@@ -119,6 +116,23 @@ class SlideBar extends Sprite implements IDock
       hitBoxes = new HitBoxes(skin, chrome,onHitBox);
       new DockSizeHandler(chrome,overlayContainer,hitBoxes);
       paneContainer.visible = showing>0;
+
+      addScaleChanged(() -> {
+         tabPos = tabPosLogical==null ? null : skin.toPixels(tabPosLogical);
+         chromeDirty = true;
+      });
+   }
+
+   // addScaleChanged only fires when uiScale actually changes, but tabRenderer's attribs/
+   // bgRenderer depend on the whole skin (palette too, not just scale) - and TabRenderer isn't a
+   // Widget, so it never finds out about either kind of change on its own. Refresh it on every
+   // setSkin(), not just a rescale.
+   override public function setSkin(inSkin:Skin):Void
+   {
+      super.setSkin(inSkin);
+      if (tabRenderer!=null)
+         tabRenderer.setSkin(skin);
+      chromeDirty = true;
    }
 
    public function onHitBox(inAction:HitAction,inEvent:MouseEvent)
@@ -280,7 +294,9 @@ class SlideBar extends Sprite implements IDock
       return h;
    }
  
-   public function setRect(x:Float, y:Float, w:Float, h:Float) : Float
+   // Not Widget.setRect() - that returns Widget for chaining; this returns the effective size
+   // consumed along the dock axis, which App.relayout() uses directly.
+   public function setDockRect(x:Float, y:Float, w:Float, h:Float) : Float
    {
       layoutDirty = false;
       //if (current==null) return 0;
@@ -453,7 +469,7 @@ class SlideBar extends Sprite implements IDock
          {
             fill = Reflect.field(asPane.frameAttribs,"fill");
             if (fill==null)
-               fill = renderer.getDynamic("fill");
+               fill = mRenderer.getDynamic("fill");
 
             if (fill!=null && fill!=FillNone)
                if (Renderer.setFill(skin, gfx,fill,bgRect.width,bgRect.height))

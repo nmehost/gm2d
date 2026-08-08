@@ -206,14 +206,14 @@ class App extends Screen
 
       if (rightSlider!=null)
       {
-         var size = rightSlider.setRect(x0+slideBorders,y0,w-slideBorders,h);
+         var size = rightSlider.setDockRect(x0+slideBorders,y0,w-slideBorders,h);
          w -=size+slideBorders;
       }
 
       var bottomOffset = 0;
       if (leftSlider!=null)
       {
-         var size = leftSlider.setRect(x0,y0,w-slideBorders,h);
+         var size = leftSlider.setDockRect(x0,y0,w-slideBorders,h);
          bottomOffset = Std.int(leftSlider.getBarHeight());
          x0+=size+slideBorders;
          w -=size+slideBorders;
@@ -223,7 +223,7 @@ class App extends Screen
       {
          //var size = bottomSlider.setRect(x0,y0+slideBorders,w,h-slideBorders);
          //h -=size+slideBorders;
-         var size = bottomSlider.setRect(x0-bottomOffset,y0+slideBorders,w+bottomOffset,h-slideBorders);
+         var size = bottomSlider.setDockRect(x0-bottomOffset,y0+slideBorders,w+bottomOffset,h-slideBorders);
          h -=size+slideBorders;
       }
  

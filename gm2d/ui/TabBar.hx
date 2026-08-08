@@ -61,6 +61,14 @@ class TabBar extends Widget
           mDockables, currentDockable, mHitBoxes, TabRenderer.TOP, flags);
    }
 
+   // See SlideBar.setSkin()/MultiDock.setSkin() - same issue, third holder of a TabRenderer
+   // reference that setSkin()'s propagation doesn't refresh on its own.
+   override public function setSkin(inSkin:Skin):Void
+   {
+      super.setSkin(inSkin);
+      tabRenderer = skin.tabRenderer();
+   }
+
    public function setTop(inCurrent:IDockable, inIsMaximised:Bool)
    {
       currentDockable = inCurrent;

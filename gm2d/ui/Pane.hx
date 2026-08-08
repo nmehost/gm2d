@@ -6,6 +6,8 @@ import nme.geom.Rectangle;
 import nme.geom.Point;
 import nme.display.Sprite;
 import nme.display.BitmapData;
+import nme.display.Bitmap;
+import nme.geom.Matrix;
 import gm2d.ui.IDockable;
 import gm2d.skin.Skin;
 import gm2d.ui.Layout;
@@ -33,7 +35,11 @@ class Pane implements IDockable
    public var itemLayout:Layout;
    public var bestSize:Array<Size>;
    public var properties:Dynamic;
+   // The original, unscaled icon source - set this directly (eg. Resources.loadBitmap(...)), do
+   // not pre-scale it. getIcon(size) resolves/caches a copy at whatever size is actually needed.
    public var icon:BitmapData;
+   var iconCache:BitmapData;
+   var iconCacheSize:Int = -1;
    public var clipped:Bool;
    //public var bestPos:Array<Point>;
    var flags:Int;
@@ -213,7 +219,26 @@ class Pane implements IDockable
    public function getDock():IDock { return dock; }
    public function getTitle():String { return title; }
    public function getShortTitle():String { return shortTitle; }
-   public function getIcon():BitmapData { return icon; }
+   public function getIcon(inPixelSize:Int):BitmapData
+   {
+      if (icon==null)
+         return null;
+      if (iconCacheSize!=inPixelSize)
+      {
+         iconCacheSize = inPixelSize;
+         if (icon.width==inPixelSize && icon.height==inPixelSize)
+            iconCache = icon;
+         else
+         {
+            var bitmap = new Bitmap(icon);
+            bitmap.smoothing = true;
+            var mtx = new Matrix(inPixelSize/icon.width,0,0,inPixelSize/icon.height,0,0);
+            iconCache = new BitmapData(inPixelSize,inPixelSize,icon.transparent,0);
+            iconCache.draw(bitmap,mtx);
+         }
+      }
+      return iconCache;
+   }
    public function getFlags():Int { return flags; }
    public function setFlags(inFlags:Int) : Void { flags=inFlags; }
    /*

@@ -2,20 +2,19 @@ package gm2d.ui;
 
 import nme.display.BitmapData;
 import nme.display.Bitmap;
-import nme.display.Sprite;
 import gm2d.ui.Layout;
 import gm2d.skin.Skin;
 import gm2d.skin.Renderer;
-import gm2d.svg.SvgRenderer;
+import gm2d.skin.BitmapStyle;
 
 
 class Image extends Widget
 {
    public var bitmapData(get,set):BitmapData;
    var bitmap:Bitmap;
-   // Set by fromSvg, so the bitmap can be re-rendered at the new size if the scale changes
-   var svg:SvgRenderer;
-   var svgScale:Float;
+   // Set by fromStyle, so the bitmap can be re-rendered fresh on every rescale
+   var source:BitmapStyle;
+   var logicalSize:Int;
 
    public function new(?skin:Skin, ?inBmp:BitmapData, ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
@@ -46,48 +45,41 @@ class Image extends Widget
    }
    */
 
-   public static function fromSvg(?skin:Skin,resoName:String, inScale = 1.0,?inLineage:Array<String>, ?inAttribs:Attribs)
+   // Boot skin only matters for this first render - every later rescale runs through
+   // onScaleChanged() below, which uses the widget's own `skin` field (kept correct by
+   // setSkin()'s propagation), not this fallback.
+   public static function fromStyle(inSource:BitmapStyle, inLogicalSize:Int=24, ?inLineage:Array<String>, ?inAttribs:Attribs, ?skin:Skin)
    {
       if (skin==null)
          skin = Skin.getSkin();
-      var svg = new SvgRenderer(gm2d.reso.Resources.loadSvg(resoName));
-
-      var result = new Image(skin, renderSvg(skin,svg,inScale), inLineage, inAttribs);
-      result.svg = svg;
-      result.svgScale = inScale;
+      var result = new Image(skin, skin.renderBitmapStyle(inSource,inLogicalSize), inLineage, inAttribs);
+      result.source = inSource;
+      result.logicalSize = inLogicalSize;
       return result;
-   }
-
-   static function renderSvg(skin:Skin, svg:SvgRenderer, inScale:Float) : BitmapData
-   {
-      var w = skin.toPixels(svg.width*inScale);
-      var h = skin.toPixels(svg.height*inScale);
-      var bmp = new BitmapData(w,h,true, gm2d.RGB.CLEAR );
-
-      var shape = svg.createShape();
-      var scaled = new Sprite();
-      scaled.addChild(shape);
-      shape.scaleX = w/svg.width;
-      shape.scaleY = h/svg.height;
-      bmp.draw(scaled);
-      return bmp;
    }
 
    override public function onScaleChanged()
    {
       super.onScaleChanged();
-      if (svg==null || bitmap==null)
+      if (source==null || bitmap==null)
          return;
-      var w = skin.toPixels(svg.width*svgScale);
-      if (bitmap.bitmapData.width!=w)
-         bitmap.bitmapData = renderSvg(skin,svg,svgScale);
+      bitmapData = skin.renderBitmapStyle(source, logicalSize);
    }
 
    function get_bitmapData() return bitmap==null ? null : bitmap.bitmapData;
    function set_bitmapData(inData:BitmapData) :BitmapData
    {
       if (bitmap!=null)
+      {
          bitmap.bitmapData = inData;
+         // DisplayLayout's cached best-size is a one-time snapshot of bitmap.width/height taken
+         // when it was constructed - refresh it here so a live bitmap swap (eg. a chrome button
+         // redrawing its icon fresh at a new scale via BitmapFactory) is actually reflected in
+         // this Image's reserved layout space, not just its pixel content.
+         var layout = getItemLayout();
+         if (Std.isOfType(layout,DisplayLayout))
+            cast(layout,DisplayLayout).setObjSize(bitmap.width, bitmap.height);
+      }
       return inData;
    }
 }
