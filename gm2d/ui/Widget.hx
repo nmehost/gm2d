@@ -625,21 +625,6 @@ class Widget extends Sprite
 
    }
  
-   public function onChromeMouse(inId:String,inEvent:MouseEvent) : Bool
-   {
-      var p = parent;
-      while(p!=null)
-      {
-         if (Std.isOfType(p,Widget))
-         {
-            var widget : Widget = cast p;
-            return widget.onChromeMouse(inId,inEvent);
-         }
-         p = p.parent;
-      }
-      return true;
-   }
-
 
 
 /*

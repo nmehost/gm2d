@@ -80,7 +80,6 @@ typedef Attribs =
 
 
    ?bmpScale:Float,
-   ?chromeButtons:Array<Attribs>,
    ?smooth:Bool,
    ?dynamicSize:Bool,
    ?titleStyle:Attribs,

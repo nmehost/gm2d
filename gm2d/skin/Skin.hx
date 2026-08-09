@@ -571,14 +571,6 @@ class Skin
            shape: ShapeRect,
            fill: FillMax,
            //hitBoxId: HitBoxes.Title,
-           chromeButtons: [ {
-                id:Close,
-                align:Layout.AlignRight|Layout.AlignCenterY,
-                margin:new Rectangle(5,0,10,0),
-                itemAlign:Layout.AlignCenter,
-                parent:"DialogButton"
-                }
-              ],
            },
         "DocumentFrame" => {
            padding: 0,//new Rectangle(toPixels(2),toPixels(2),toPixels(4),toPixels(4)),
@@ -729,13 +721,6 @@ class Skin
            //padding: new Rectangle(borders, borders, borders*2, borders*2),
            chromeFilters: FilterSetShadow,
            fill: FillLight,
-           /*
-           chromeButtons: [ {bitmapId:Resize,
-              align:Layout.AlignRight|Layout.AlignBottom|Layout.AlignOverlap,
-              margin:new Rectangle(0,0,0,0),
-              wantsFocus:false,
-              lineage:["NoChrome"] } ],
-           */
            },
         "DialogScreen" => {
            shape: ShapeRect,

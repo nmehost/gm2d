@@ -10,6 +10,7 @@ import gm2d.ui.DockPosition;
 import gm2d.ui.IDockable;
 import gm2d.skin.Skin;
 import gm2d.ui.Layout;
+import gm2d.ui.TitleBar.TitleBarButton;
 
 
 // --- DockFrame ----------------------------------------------------------------------
@@ -53,15 +54,15 @@ class DockFrame extends Widget
 
       var vlayout = new VerticalLayout([0,1]);
 
-      var chromeButtons:Array<Attribs> = [
+      var titleButtons:Array<TitleBarButton> = [
           { id:Skin.Close, onClick:function() pane.closeRequest(false) },
       ];
       if (callbacks!=null && callbacks.onPaneMaximize!=null )
-         chromeButtons.push({ id:Skin.Maximize, onClick:callbacks.onPaneMaximize });
+         titleButtons.push({ id:Skin.Maximize, onClick:callbacks.onPaneMaximize });
       if (callbacks!=null && callbacks.onPaneMinimize!=null )
-         chromeButtons.push({ id:Skin.Maximize, onClick:callbacks.onPaneMinimize });
+         titleButtons.push({ id:Skin.Minimize, onClick:callbacks.onPaneMinimize });
 
-      title = new TitleBar(name,  { chromeButtons: chromeButtons } );
+      title = new TitleBar(name, null, null, titleButtons );
       addChild(title);
       vlayout.add(title.getLayout().stretch());
 

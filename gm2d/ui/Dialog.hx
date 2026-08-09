@@ -10,8 +10,6 @@ import nme.filters.BitmapFilter;
 import nme.filters.DropShadowFilter;
 import gm2d.ui.HitBoxes;
 import nme.geom.Rectangle;
-import gm2d.skin.Skin;
-import gm2d.skin.Renderer;
 
 
 class Dialog extends Window implements IDialog
@@ -89,22 +87,6 @@ class Dialog extends Window implements IDialog
    public function show(inCentre = true, inAutoClose=true)
    {
       gm2d.Game.doShowDialog(this, inCentre,inAutoClose);
-   }
-
-   override public function onChromeMouse(inId:String,inEvent:MouseEvent) : Bool
-   {
-      if (inId==Skin.Resize)
-      {
-         return false;
-      }
-      if (inEvent.type == MouseEvent.CLICK)
-      {
-         if (inId==Skin.Close)
-            goBack();
-         else
-            trace(inId);
-      }
-      return true;
    }
 
    override public function getPane() : Pane { return mPane; }

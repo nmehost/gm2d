@@ -20,7 +20,6 @@ import nme.Vector;
 import gm2d.ui.Widget;
 import gm2d.ui.WidgetState;
 import gm2d.ui.Size;
-import gm2d.ui.Button;
 import gm2d.ui.Layout;
 import gm2d.skin.Shape;
 import gm2d.skin.BitmapStyle;
@@ -28,167 +27,190 @@ import gm2d.skin.BitmapStyle;
 
 class Renderer
 {
-   public var shape:Shape;
-   public var fillStyle:FillStyle;
-   public var lineStyle:LineStyle;
-   public var textFormat:TextFormat;
-   public var offset:Point;
-   public var minSize:Size;
-   public var minItemSize:Size;
-   public var bestWidth:Null<Float>;
-   public var bestHeight:Null<Float>;
-   public var align:Null<Int>;
-   public var itemAlign:Null<Int>;
-   public var textBorder:Null<Int>;
-   public var padding:Rectangle;
-   public var margin:Rectangle;
-   public var filters:Array<BitmapFilter>;
-   public var bitmapStyle:BitmapStyle;
+   // skin/map are the only real state - everything below is a read-only property resolved
+   // from them on demand, not cached, since each is read at most a handful of times per
+   // widget redraw/layout pass (see individual getters for the one or two spots - textFormat,
+   // minSize's fillStyle dependency - that aren't a plain map lookup).
+   public var shape(get,never):Shape;
+   public var fillStyle(get,never):FillStyle;
+   public var lineStyle(get,never):LineStyle;
+   public var textFormat(get,never):TextFormat;
+   public var offset(get,never):Point;
+   public var minSize(get,never):Size;
+   public var minItemSize(get,never):Size;
+   public var bestWidth(get,never):Null<Float>;
+   public var bestHeight(get,never):Null<Float>;
+   public var align(get,never):Null<Int>;
+   public var itemAlign(get,never):Null<Int>;
+   public var textBorder(get,never):Null<Int>;
+   public var padding(get,never):Rectangle;
+   public var margin(get,never):Rectangle;
+   public var filters(get,never):Array<BitmapFilter>;
+   public var bitmapStyle(get,never):BitmapStyle;
    public var map:Map<String,Dynamic>;
-   public var chromeButtons:Array<Button>;
    var skin:Skin;
 
 
    public function new(inSkin:Skin, ?inMap:Map<String,Dynamic>)
    {
       skin = inSkin;
-      shape = Shape.ShapeNone;
-      // font/fontSize come from the "*" attribSet lineage entry below (always present, so
-      // map.exists("font")/("fontSize") is guaranteed) - only the colour needs a base here.
-      textFormat = new TextFormat();
-      textFormat.color = skin.getTextColour(TextColNormal);
-      offset = new Point(0,0);
-      align = null;
       map = inMap;
+   }
 
+   function get_shape():Shape
+   {
+      if (map!=null && map.exists("shape"))
+         return map.get("shape");
+      return Shape.ShapeNone;
+   }
+
+   function get_fillStyle():FillStyle
+   {
+      return (map!=null && map.exists("fill")) ? map.get("fill") : null;
+   }
+
+   function get_lineStyle():LineStyle
+   {
+      return (map!=null && map.exists("line")) ? map.get("line") : null;
+   }
+
+   // font/fontSize come from the "*" attribSet lineage entry (always present, so
+   // map.exists("font")/("fontSize") is guaranteed in practice) - only the colour needs a
+   // base here. A "textFormat" override is layered under font/fontSize/textColor/textAlign/bold,
+   // so those still apply on top of a supplied override, same as before this was a getter.
+   function get_textFormat():TextFormat
+   {
+      var result = new TextFormat();
+      result.color = skin.getTextColour(TextColNormal);
       if (map!=null)
       {
-         if (map.exists("offset"))
-         {
-            var o:Point = map.get("offset");
-            offset = o==null ? null : new Point(skin.toPixels(o.x), skin.toPixels(o.y));
-         }
-         if (map.exists("fill"))
-            fillStyle = map.get("fill");
-         if (map.exists("line"))
-            lineStyle = map.get("line");
-         if (map.exists("padding"))
-         {
-            var p = map.get("padding");
-            if (p==null)
-               padding = null;
-            else if (Std.isOfType(p,Rectangle))
-            {
-               var r:Rectangle = p;
-               padding = new Rectangle(skin.toPixels(r.x), skin.toPixels(r.y), skin.toPixels(r.width), skin.toPixels(r.height));
-            }
-            else
-            {
-               var sp = skin.toPixels(p);
-               padding = new Rectangle(sp,sp,sp*2,sp*2);
-            }
-         }
-         if (map.exists("margin"))
-         {
-            var m = map.get("margin");
-            if (m==null)
-               margin = null;
-            else if (Std.isOfType(m,Rectangle))
-            {
-               var r:Rectangle = m;
-               margin = new Rectangle(skin.toPixels(r.x), skin.toPixels(r.y), skin.toPixels(r.width), skin.toPixels(r.height));
-            }
-            else
-            {
-               var sm = skin.toPixels(m);
-               margin = new Rectangle(sm,sm,sm*2,sm*2);
-            }
-         }
          if (map.exists("textFormat"))
-            textFormat = map.get("textFormat");
-         if (map.exists("minSize"))
-         {
-            var s:Size = map.get("minSize");
-            minSize = s==null ? null : new Size(skin.toPixels(s.x), skin.toPixels(s.y));
-         }
-         if (map.exists("minItemSize"))
-         {
-            var s:Size = map.get("minItemSize");
-            minItemSize = s==null ? null : new Size(skin.toPixels(s.x), skin.toPixels(s.y));
-         }
-         if (map.exists("align"))
-            align = map.get("align");
-         if (map.exists("itemAlign"))
-            itemAlign = map.get("itemAlign");
+            result = map.get("textFormat");
          if (map.exists("font"))
-            textFormat.font = map.get("font");
+            result.font = map.get("font");
          if (map.exists("fontSize"))
-            textFormat.size = skin.toPixels(map.get("fontSize"));
+            result.size = skin.toPixels(map.get("fontSize"));
          if (map.exists("textColor"))
-            textFormat.color = skin.getTextColour(map.get("textColor"));
+            result.color = skin.getTextColour(map.get("textColor"));
          if (map.exists("textAlign"))
-            textFormat.align = map.get("textAlign");
-         if (map.exists("textBorder"))
-            textBorder = map.get("textBorder");
+            result.align = map.get("textAlign");
          if (map.exists("bold"))
-            textFormat.bold= map.get("bold");
-         if (map.exists("shape"))
-             shape = map.get("shape");
-         if (map.exists("bitmap"))
-             bitmapStyle = map.get("bitmap");
-         if (map.exists("filters"))
-         {
-            var fs:FilterSet = map.get("filters");
-            filters = fs==null ? null : skin.getFilterSet(fs);
-         }
-         if (map.exists("bestWidth"))
-             bestWidth = map.get("bestWidth");
-         if (map.exists("bestHeight"))
-             bestHeight = map.get("bestHeight");
+            result.bold = map.get("bold");
+      }
+      return result;
+   }
 
-         if (fillStyle!=null)
-         {
-            switch(fillStyle)
-            {
-               case FillStyle.FillBitmap(bmp):
-                  var w = bmp.width;
-                  var h = bmp.height;
-                  if (minSize==null)
-                     minSize = new Size(w,h);
-                  else
-                     minSize = new Size(w>minSize.x ? w : minSize.x ,h>minSize.y ? h : minSize.y);
-               default:
-            }
-         }
+   function get_offset():Point
+   {
+      if (map!=null && map.exists("offset"))
+      {
+         var o:Point = map.get("offset");
+         return o==null ? null : new Point(skin.toPixels(o.x), skin.toPixels(o.y));
+      }
+      return new Point(0,0);
+   }
 
-         if (map.exists("chromeButtons"))
+   // Bumped to at least the fill bitmap's own size when fillStyle is FillBitmap, same as
+   // the one-shot check this replaced.
+   function get_minSize():Size
+   {
+      var result:Size = null;
+      if (map!=null && map.exists("minSize"))
+      {
+         var s:Size = map.get("minSize");
+         result = s==null ? null : new Size(skin.toPixels(s.x), skin.toPixels(s.y));
+      }
+      var fs = fillStyle;
+      if (fs!=null)
+      {
+         switch(fs)
          {
-            var data:Array<Dynamic> = map.get("chromeButtons");
-            if (data!=null && data.length>0)
-            {
-               var pad = padding==null ? new Rectangle(0,0,0,0) : padding.clone();
-               chromeButtons = null;
-               for(box in data)
-               {
-                  var button = new Button(null, null, ["ChromeButton"], box );
-                  button.applyStyles();
-                  if (chromeButtons==null)
-                     chromeButtons = [button];
-                  else
-                     chromeButtons.push(button);
-                  var l = button.getLayout();
-                  var s = l.getBestSize();
-                  if ( (l.mAlign & Layout.AlignOverlap) == 0)
-                  {
-                     pad.width += s.x;
-                     if ( (l.mAlign & Layout.AlignMaskX)==Layout.AlignLeft )
-                        pad.x += s.x;
-                  }
-               }
-               padding = pad;
-            }
+            case FillStyle.FillBitmap(bmp):
+               var w = bmp.width;
+               var h = bmp.height;
+               result = result==null ? new Size(w,h) : new Size(w>result.x ? w : result.x, h>result.y ? h : result.y);
+            default:
          }
       }
+      return result;
+   }
+
+   function get_minItemSize():Size
+   {
+      if (map==null || !map.exists("minItemSize"))
+         return null;
+      var s:Size = map.get("minItemSize");
+      return s==null ? null : new Size(skin.toPixels(s.x), skin.toPixels(s.y));
+   }
+
+   function get_bestWidth():Null<Float>
+   {
+      return (map!=null && map.exists("bestWidth")) ? map.get("bestWidth") : null;
+   }
+
+   function get_bestHeight():Null<Float>
+   {
+      return (map!=null && map.exists("bestHeight")) ? map.get("bestHeight") : null;
+   }
+
+   function get_align():Null<Int>
+   {
+      return (map!=null && map.exists("align")) ? map.get("align") : null;
+   }
+
+   function get_itemAlign():Null<Int>
+   {
+      return (map!=null && map.exists("itemAlign")) ? map.get("itemAlign") : null;
+   }
+
+   function get_textBorder():Null<Int>
+   {
+      return (map!=null && map.exists("textBorder")) ? map.get("textBorder") : null;
+   }
+
+   function get_padding():Rectangle
+   {
+      if (map==null || !map.exists("padding"))
+         return null;
+      var p = map.get("padding");
+      if (p==null)
+         return null;
+      if (Std.isOfType(p,Rectangle))
+      {
+         var r:Rectangle = p;
+         return new Rectangle(skin.toPixels(r.x), skin.toPixels(r.y), skin.toPixels(r.width), skin.toPixels(r.height));
+      }
+      var sp = skin.toPixels(p);
+      return new Rectangle(sp,sp,sp*2,sp*2);
+   }
+
+   function get_margin():Rectangle
+   {
+      if (map==null || !map.exists("margin"))
+         return null;
+      var m = map.get("margin");
+      if (m==null)
+         return null;
+      if (Std.isOfType(m,Rectangle))
+      {
+         var r:Rectangle = m;
+         return new Rectangle(skin.toPixels(r.x), skin.toPixels(r.y), skin.toPixels(r.width), skin.toPixels(r.height));
+      }
+      var sm = skin.toPixels(m);
+      return new Rectangle(sm,sm,sm*2,sm*2);
+   }
+
+   function get_filters():Array<BitmapFilter>
+   {
+      if (map==null || !map.exists("filters"))
+         return null;
+      var fs:FilterSet = map.get("filters");
+      return fs==null ? null : skin.getFilterSet(fs);
+   }
+
+   function get_bitmapStyle():BitmapStyle
+   {
+      return (map!=null && map.exists("bitmap")) ? map.get("bitmap") : null;
    }
 
    public function getDefaultFloat(inName:String, inDefault:Float):Float
@@ -329,31 +351,6 @@ class Renderer
 
    public function renderWidget(inWidget:Widget)
    {
-      if (chromeButtons!=null)
-      {
-         var x0 = inWidget.mRect.x;
-         var y0 = inWidget.mRect.y;
-         var x1 = x0 + inWidget.mRect.width;
-         var y1 = y0 + inWidget.mRect.height;
-         for(box in chromeButtons)
-         {
-            var layout = box.getLayout();
-            inWidget.mChrome.addChild(box);
-            var id = box.name;
-            box.mouseHandler = inWidget.onChromeMouse;
-            var xPos = layout.mAlign & Layout.AlignMaskX;
-            box.align(x0,y0,x1-x0,y1-y0);
-            if ( (layout.mAlign & Layout.AlignOverlap) == 0)
-            {
-               var s = layout.getBestSize();
-               if (xPos==Layout.AlignLeft)
-                  x0+=s.x;
-               else
-                  x1 -= s.x;
-            }
-         }
-      }
-
       var label = inWidget.getLabel();
       if (label!=null)
       {
@@ -374,11 +371,12 @@ class Renderer
           inWidget.mChrome.filters = null;
 
 
-      if (shape==ShapeNone)
+      var s = shape;
+      if (s==ShapeNone)
          return;
 
       var gfx = inWidget.mChrome.graphics;
-      var r = shape==ShapeItemRect ? inWidget.getItemRect() : inWidget.mRect;
+      var r = s==ShapeItemRect ? inWidget.getItemRect() : inWidget.mRect;
       renderRect(inWidget,gfx,r);
    }
 
@@ -444,7 +442,8 @@ class Renderer
 
    public function isRectRender()
    {
-      return shape!=null && switch(shape)
+      var s = shape;
+      return s!=null && switch(s)
       {
          case ShapeRect, ShapeRoundRect, ShapeRoundRectRad(_) : true;
          default: false;
@@ -453,7 +452,8 @@ class Renderer
 
    public function renderRect(widget:Widget, gfx:Graphics, r:Rectangle)
    {
-      if (shape==null)
+      var s = shape;
+      if (s==null)
          return;
 
       var lineOffset = 0.0;
@@ -461,7 +461,7 @@ class Renderer
       var w = widget==null ? r.width : widget.layoutWidth;
       var h = widget==null ? r.height : widget.layoutHeight;
 
-      switch(shape)
+      switch(s)
       {
          case ShapeNone:
          case ShapeRect, ShapeItemRect:
@@ -551,10 +551,11 @@ class Renderer
       var icon:BitmapData = getDynamic("icon");
       if (icon!=null)
          return icon;
-      if (bitmapStyle==null || inId=="" || inId==null)
+      var bs = bitmapStyle;
+      if (bs==null || inId=="" || inId==null)
          return null;
 
-      switch(bitmapStyle)
+      switch(bs)
       {
          case BitmapBitmap(bmBitmapData):
             // TODO - disable
@@ -572,12 +573,14 @@ class Renderer
 
    public function renderLabel(label:TextField)
    {
-      label.defaultTextFormat = textFormat;
-      label.setTextFormat(textFormat);
-      if (textBorder!=null)
+      var fmt = textFormat;
+      label.defaultTextFormat = fmt;
+      label.setTextFormat(fmt);
+      var tb = textBorder;
+      if (tb!=null)
       {
          label.border = true;
-         label.borderColor = textBorder;
+         label.borderColor = tb;
       }
       if (map.exists("textRotation"))
          label.rotation = map.get("textRotation");
@@ -601,23 +604,27 @@ class Renderer
          if (layout.name==null)
             layout.name = ioWidget.name;
 
-         if (margin!=null)
+         var m = margin;
+         if (m!=null)
          {
-            layout.setBorders(margin.x, margin.y,
-               margin.width-margin.x, margin.height-margin.y);
+            layout.setBorders(m.x, m.y, m.width-m.x, m.height-m.y);
          }
 
-         if (minSize!=null)
-            layout.setMinSize( minSize.x, minSize.y );
+         var ms = minSize;
+         if (ms!=null)
+            layout.setMinSize( ms.x, ms.y );
 
-         if (bestWidth!=null)
-            layout.setBestWidth(bestWidth);
+         var bw = bestWidth;
+         if (bw!=null)
+            layout.setBestWidth(bw);
 
-         if (bestHeight!=null)
-            layout.setBestHeight(bestHeight);
+         var bh = bestHeight;
+         if (bh!=null)
+            layout.setBestHeight(bh);
 
-         if (align!=null)
-            layout.setAlignment(align);
+         var a = align;
+         if (a!=null)
+            layout.setAlignment(a);
       }
 
       var layout = ioWidget.getItemLayout();
@@ -626,18 +633,20 @@ class Renderer
          if (layout.name==null)
             layout.name = ioWidget.name+":inner";
 
-         if (padding!=null)
+         var p = padding;
+         if (p!=null)
          {
-            layout.setBorders(padding.x, padding.y,
-               padding.width-padding.x, padding.height-padding.y);
+            layout.setBorders(p.x, p.y, p.width-p.x, p.height-p.y);
          }
 
-         if (minItemSize!=null)
-            layout.setMinSize( minItemSize.x, minItemSize.y );
+         var mis = minItemSize;
+         if (mis!=null)
+            layout.setMinSize( mis.x, mis.y );
 
 
-         if (itemAlign!=null)
-            layout.setAlignment(itemAlign);
+         var ia = itemAlign;
+         if (ia!=null)
+            layout.setAlignment(ia);
          else
             layout.stretch();
       }

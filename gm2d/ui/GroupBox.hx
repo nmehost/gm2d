@@ -36,10 +36,11 @@ class GroupBox extends Widget
    override public function onLayout(x,y,w,h)
    {
       super.onLayout(x,y,w,h);
-      if (title!=null && mRenderer.margin!=null)
+      var margin = mRenderer.margin;
+      if (title!=null && margin!=null)
       {
-         title.y = -mRenderer.margin.y;
-         title.x = mRenderer.margin.x;
+         title.y = -margin.y;
+         title.x = margin.x;
       }
    }
 
