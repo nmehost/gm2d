@@ -1,5 +1,4 @@
 package gm2d.ui;
-import gm2d.skin.Skin;
 import gm2d.skin.ProgressStyle;
 import nme.events.Event;
 
@@ -12,7 +11,7 @@ class ProgressBar extends Widget
    var ballRad:Float;
    var t0:Float;
 
-   public function new(?inSkin:Skin, inMax:Float,?inLineage:Array<String>,?inAttribs:Attribs)
+   public function new(inMax:Float,?inLineage:Array<String>,?inAttribs:Attribs)
    {
       super(Widget.addLine(inLineage,"ProgressBar"),inAttribs);
       mMax = inMax;

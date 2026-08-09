@@ -34,17 +34,18 @@ class App extends Screen
 
    public function new(inSingleDocument=false)
    {
-      skin = createSkin();
-      super(skin);
-
+      super();
 
       slideBorders = 0;
 
       //widgets = new WidgetManager();
 
-      docParent = new DocumentParent(skin, inSingleDocument);
+      var appSkin = createSkin();
+      docParent = new DocumentParent(appSkin, inSingleDocument);
 
-      dock = new TopLevelDock(skin, this,docParent);
+      dock = new TopLevelDock(appSkin, this,docParent);
+
+      setSkin(appSkin);
 
       makeCurrent();
 

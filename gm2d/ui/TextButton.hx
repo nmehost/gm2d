@@ -5,9 +5,9 @@ import gm2d.skin.Skin;
 
 class TextButton extends Button
 {
-   public function new(?inSkin:Skin, inText:String, inOnClick:Void->Void, ?inLineage:Array<String>, ?inAttribs:Attribs)
+   public function new(inText:String, inOnClick:Void->Void, ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
-      var skin = Skin.getSkin(inSkin);
+      var skin = Skin.getSkin();
       var renderer = skin.renderer(Widget.addLines(inLineage,["ButtonText","Button","StaticText","Text"]),0,inAttribs);
       var label = new TextField();
       label.text = inText;

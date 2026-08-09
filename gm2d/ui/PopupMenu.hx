@@ -7,7 +7,6 @@ import nme.display.Graphics;
 import nme.events.MouseEvent;
 import gm2d.ui.Layout;
 import nme.display.Bitmap;
-import gm2d.skin.Skin;
 
 class PopupMenu extends Window
 {
@@ -17,9 +16,9 @@ class PopupMenu extends Window
    var mList:ListControl;
    var mRowIdx:Array<Int>;
    
-   public function new(?inSkin:Skin, inItem:MenuItem,inBar:Menubar=null)
+   public function new(inItem:MenuItem,inBar:Menubar=null)
    {
-      super(inSkin, ["PopupMenu"] );
+      super(["PopupMenu"] );
 
       mItem = inItem;
       mBar = inBar;
@@ -66,7 +65,7 @@ class PopupMenu extends Window
                      item.checked = !item.checked;
                   if (item.children!=null && item.children.length>0)
                   {
-                     var p = new PopupMenu(inSkin, item);
+                     var p = new PopupMenu(item);
                      var px = Math.max(0, e.stageX-skin.toPixels(16));
                      var py = Math.max(0, e.stageY-skin.toPixels(16));
                      Game.popup(p,px,py);

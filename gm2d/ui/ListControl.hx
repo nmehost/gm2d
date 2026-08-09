@@ -9,7 +9,6 @@ import nme.geom.Point;
 import nme.text.TextField;
 import nme.events.MouseEvent;
 import nme.text.TextFieldAutoSize;
-import gm2d.skin.Skin;
 import gm2d.skin.Renderer;
 import gm2d.ui.Layout;
 import gm2d.ui.IListDrag;
@@ -78,9 +77,9 @@ class ListControl extends ScrollWidget
    public var variableHeightRows = false;
 
 
-   public function new(?inSkin:Skin, ?inOnSelect:Int->Void, ?inLineage:Array<String>,?inAttribs:Attribs)
+   public function new(?inOnSelect:Int->Void, ?inLineage:Array<String>,?inAttribs:Attribs)
    {
-      super(inSkin, Widget.addLine(inLineage,"List"), inAttribs);
+      super(Widget.addLine(inLineage,"List"), inAttribs);
 
       // itemHeight is a logical unit, like any other attrib - resolved here rather than
       // requiring the caller to pre-scale it (see getAttribScaled). width is NOT scaled here -

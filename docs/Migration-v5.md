@@ -38,6 +38,7 @@ For each entry below:
 | [SKIN-007](#skin-007--live-skin-propagation-widgetsetskin-gamesetskin) | Live skin propagation: new `Widget.setSkin()`/`Window.setSkin()`/`Game.setSkin()` | new API | shipped | n/a (additive) |
 | [SKIN-008](#skin-008--progressstyle-retyped-to-fillstylelinestyle-margin-and-shaperoundrectrads-radius-now-auto-scaled) | `ProgressStyle` retyped to `FillStyle`/`LineStyle`; `margin` and `ShapeRoundRectRad`'s radius now auto-scaled | retype + behavior | shipped | partial (see below) |
 | [SKIN-009](#skin-009--skincreatebitmapdatas-inwidth-is-now-a-logical-unit-fixes-a-uiscale²-double-scale-on-svg-backed-icons) | `Skin.createBitmapData`'s `inWidth` is now a logical unit — fixes a `uiScale²` double-scale on SVG-backed icons | bugfix + behavior | shipped | yes |
+| [SKIN-010](#skin-010--widget-constructors-no-longer-take-a-skin-parameter-use-setskin-after-construction) | `Widget` (and every subclass) constructor no longer takes a leading `?inSkin:Skin` parameter — construction always uses the global default; use `setSkin()` after construction for a specific skin | removal | shipped | partial (see below) |
 
 ---
 
@@ -1270,6 +1271,98 @@ pixels internally exactly once, regardless of which branch (bitmap asset vs. SVG
 resource actually takes. If the argument is already a bare logical number/variable (matching
 `MenuGroup.hx`'s existing call), leave it as-is — it was already correct under the new contract, and
 is now also correct for a bitmap-backed asset of the same name (previously it wasn't).
+
+---
+
+## SKIN-010 — `Widget` constructors no longer take a `skin` parameter — use `setSkin()` after construction
+
+- **Kind:** removal (constructor signature change across `Widget` and every subclass that used to
+  forward a leading `?inSkin:Skin` parameter)
+- **Status:** shipped
+- **Shipped in:** `master` (unreleased)
+- **Compiler assistance:** full for most call sites — passing an extra leading argument (or a
+  `Skin` where a differently-typed parameter is now expected) fails to compile. **Except:** a call
+  that passed a bare `null` for the old leading `Skin` parameter, where a later argument is itself
+  optional/`Dynamic`/structurally compatible, can silently re-bind to the wrong parameter instead of
+  failing — see the caveat under **Fix** below.
+
+**Background:** `Widget`'s constructor used to accept an optional `Skin` as its first argument
+(`?inSkin:Skin`), resolved as `skin = inSkin==null ? Skin.getSkin() : inSkin`. Now that
+[SKIN-007](#skin-007--live-skin-propagation-widgetsetskin-gamesetskin)'s `Widget.setSkin()` gives
+every widget a real way to change its skin *after* construction, the constructor-time override was
+redundant — nothing except a handful of internal call sites ever passed a real (non-null) `Skin`
+instance, and every one of those has been converted to construct plain, then call `setSkin(...)`
+explicitly. The parameter (and every subclass's forwarding of it) is removed entirely; a widget
+always starts on `Skin.getSkin()` (the current global default) and moves to a different skin, if it
+needs to, via `setSkin()`.
+
+Two pre-existing bugs surfaced during this removal, in `Control` and `TextLabel`: both forwarded
+`super(skin, ...)` (the inherited *field*, not-yet-set at that point in the constructor) instead of
+`super(inSkin, ...)` (the actual parameter) — meaning any explicit skin passed to a `Control`/
+`Button`/`Slider`/`TextLabel`/`TextInput`/etc. constructor was already silently discarded before
+this change. Since removing the parameter makes the bug moot (there's nothing left to discard), it
+was not "fixed" separately — just confirm no call site in your own code was relying on an explicit
+skin actually reaching one of these classes (per the compiler-assistance caveat above, it wasn't
+being applied even before this change).
+
+**Detect:**
+
+```sh
+grep -rnE 'new (Widget|Control|Button|TextButton|BitmapButton|TextLabel|TextInput|ComboBox|ChoiceBox|FileBox|Panel|Window|Screen|Dialog|DialogScreen|PopupMenu|MultiDock|SlideBar|TabBar|DockFrame|ScrollWidget|ListControl|TileControl|ProgressBar|RGBBox|Slider|Image)\(' --include='*.hx' .
+```
+
+Then check each match for a first argument whose static type is `Skin` (a variable, `skin` field
+access, or `Skin.getSkin()`/`null` in the position the old signature's `?inSkin` occupied) — those
+are the sites that need a change. Compiling first is more reliable for the ones that fail outright;
+this grep is for finding the silent-rebind cases a clean compile won't catch (see below).
+
+**Old:**
+
+```haxe
+var img = new gm2d.ui.Image(someSkin, bitmapData, { bmpScale: 2.0 } );
+```
+
+**New:**
+
+```haxe
+var img = new gm2d.ui.Image(bitmapData, { bmpScale: 2.0 } );
+img.setSkin(someSkin);
+```
+
+**Why:** see Background — `setSkin()` already exists and is the single, general mechanism for
+"this widget should be on a specific skin, not the global default," so having two different ways to
+express the same thing (one only usable at construction time) was redundant, and the construction
+path was the one with a latent forwarding bug in two classes.
+
+**Fix (agent instructions):**
+
+1. For each match from **Detect** whose first argument is a `Skin`-typed value, remove that
+   argument and, immediately after the `new ...(...)` call, add `<var>.setSkin(<theSkinExpr>);` —
+   the same construct-then-setSkin pattern used throughout this change (see `Image.fromStyle`,
+   `ComboBox`'s `ComboList`, `FloatingWin`, `App`). If the resulting widget is never retained in a
+   variable (a fire-and-forget construction whose only purpose was the side effect of adding it to
+   the display list), assign it to a local first so `setSkin()` has a receiver.
+2. For each match whose first argument was a bare `null` (the far more common case — every
+   sample/consumer codebase this was checked against used `null` here, never a real `Skin`), simply
+   delete that argument; do **not** add a `setSkin()` call, there is nothing to propagate.
+3. **Caveat — silent mis-binding, not a compile error:** Haxe resolves a call with fewer arguments
+   than a function has parameters by matching each given argument's static type against the
+   remaining parameter types in order, skipping an optional parameter whose type doesn't match. This
+   is what let old code omit the `?inSkin` argument entirely and still compile (e.g.
+   `super(Widget.addLine(inLineage,"Frame")), inAttribs)` bound straight past the now-removed `Skin`
+   slot). After removing the parameter, a **leftover explicit `null`** in the old `inSkin` position
+   does not always fail to compile — if the next real parameter is itself nullable/optional and
+   loosely typed (`Dynamic`, or a structurally-compatible anonymous type), Haxe can happily bind that
+   `null` (or worse, a differently-shaped literal) to the *wrong* parameter instead of erroring. This
+   was caught once during this change itself (`ImportConvert.hx` passed `app.skin` — not even a
+   `null` — as a genuine, non-null first argument to `Image`'s constructor with no compile error
+   surfacing anywhere else in the same build; it only appeared because that particular call happened
+   to trip a real type mismatch on the *next* argument down the line). Do not assume a clean compile
+   after this change means every call site was actually looked at — grep for `Skin`-typed variables
+   feeding one of the constructors in **Detect**'s list, by hand, in addition to just recompiling.
+4. Recompile with a real build (not a type-check-only pass — some of these consumers are large
+   enough that a partial/incremental build can miss a call site a full rebuild catches) and fix any
+   remaining argument-count/type mismatch the same way.
 
 ---
 

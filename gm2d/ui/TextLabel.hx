@@ -5,7 +5,6 @@ import nme.display.BitmapData;
 import nme.events.MouseEvent;
 import nme.ui.Keyboard;
 import gm2d.ui.Button;
-import gm2d.skin.Skin;
 import gm2d.ui.Layout;
 
 class TextLabel extends Widget
@@ -17,9 +16,9 @@ class TextLabel extends Widget
    public var isInput(default,null):Bool;
    public var processSpecial:Bool;
 
-   public function new(?inSkin:Skin, inVal="",?inLineage:Array<String>, ?inAttribs:Attribs )
+   public function new(inVal="",?inLineage:Array<String>, ?inAttribs:Attribs )
    {
-       super(skin, Widget.addLine(inLineage,"TextLabel"),inAttribs);
+       super(Widget.addLine(inLineage,"TextLabel"),inAttribs);
        wantFocus = false;
 
        createUnderlay();

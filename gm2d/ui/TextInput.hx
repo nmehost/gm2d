@@ -7,7 +7,6 @@ import nme.events.MouseEvent;
 import nme.events.KeyboardEvent;
 import nme.ui.Keyboard;
 import gm2d.ui.Button;
-import gm2d.skin.Skin;
 import gm2d.ui.Layout;
 
 class TextInput extends TextLabel
@@ -20,11 +19,11 @@ class TextInput extends TextLabel
 
    var isEditing:Bool;
 
-   public function new(?inSkin:Skin,inVal="", ?inOnText:String->Void, ?inOnTextPhase:String->Int->Void, ?inLineage:Array<String>,?inAttribs:Dynamic)
+   public function new(inVal="", ?inOnText:String->Void, ?inOnTextPhase:String->Int->Void, ?inLineage:Array<String>,?inAttribs:Dynamic)
    {
        placeholder = null;
        onTextPhase = inOnTextPhase;
-       super(inSkin, inVal,Widget.addLine(inLineage,"TextInput"),inAttribs);
+       super(inVal,Widget.addLine(inLineage,"TextInput"),inAttribs);
        placeholder = attribString("placeholder",null);
        wantFocus = true;
        onTextUpdate = inOnText;

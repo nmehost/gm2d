@@ -18,12 +18,12 @@ class Screen extends gm2d.ui.Window
    public var controller(default,set):Input;
 
 
-   public function new(?inSkin:Skin, ?inLineage:Array<String>, ?inAttribs:Dynamic )
+   public function new(?inLineage:Array<String>, ?inAttribs:Dynamic )
    {
       Game.create();
       mPaused = false;
       timeline = new Timeline();
-      super(inSkin,Widget.addLine(inLineage,"Screen"),inAttribs);
+      super(Widget.addLine(inLineage,"Screen"),inAttribs);
    }
 
    public function makeCurrent()

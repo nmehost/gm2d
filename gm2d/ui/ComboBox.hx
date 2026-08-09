@@ -22,10 +22,12 @@ class ComboList extends Window
 
    public function new(inCombo:ComboBox, inW:Float, inOptions:Array<Dynamic>,inSelectOnMove:Bool)
    {
-      super(inCombo.skin);
+      super();
+      setSkin(inCombo.skin);
       selectOnMove = inSelectOnMove;
       mCombo = inCombo;
-      mList = new ListControl(skin,["PopupComboBox"], { width:inW } );
+      mList = new ListControl(["PopupComboBox"], { width:inW } );
+      mList.setSkin(skin);
       mList.variableHeightRows = true;
       mList.addItems(inOptions);
       addChild(mList);
@@ -164,7 +166,7 @@ class ComboBox extends TextInput
 
       var r = getItemRect(true);
       var w = r.width;
-      var list = new ListControl(skin, {
+      var list = new ListControl({
          width:w,
          shape: ShapeNone,
          rowAttribs : {
@@ -173,6 +175,7 @@ class ComboBox extends TextInput
            shape: ShapeNone,
          }
       });
+      list.setSkin(skin);
       var item:Dynamic = mDisplay[index];
 
       if (Std.isOfType(item,Array))

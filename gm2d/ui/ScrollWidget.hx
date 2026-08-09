@@ -9,7 +9,6 @@ import nme.geom.Point;
 import nme.geom.Rectangle;
 import gm2d.tween.Tween;
 import gm2d.math.TimeAverage;
-import gm2d.skin.Skin;
 import gm2d.ui.Layout;
 import haxe.Timer;
 
@@ -97,9 +96,9 @@ class ScrollWidget extends Widget //Control
    var speedY:TimeAverage;
    var mLastT:Float;
 
-   public function new(?inSkin:Skin, ?inLineage:Array<String>,?inAttribs:Attribs)
+   public function new(?inLineage:Array<String>,?inAttribs:Attribs)
    {
-      super(inSkin, Widget.addLine(inLineage,"Scroll"), inAttribs);
+      super(Widget.addLine(inLineage,"Scroll"), inAttribs);
       mEventStage = null;
       maxScrollX = 0;
       maxScrollY = 0;

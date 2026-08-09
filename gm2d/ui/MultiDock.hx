@@ -33,9 +33,9 @@ class MultiDock extends Widget implements IDock implements IDockable
    var tabBar:TabBar;
    var clientLayout:Layout;
 
-   public function new(?inSkin:Skin)
+   public function new()
    {
-      super(inSkin,["Dock"]);
+      super(["Dock"]);
       flags = 0;
       mDockables = [];
       bestSize = [];

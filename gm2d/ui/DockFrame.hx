@@ -33,9 +33,8 @@ class DockFrame extends Widget
    var mSizeX0:Int;
    var mSizeY0:Int;
 
-   public function new(?inSkin:Skin,inPane:IDockable, parentDock:IDock, callbacks:DockCallbacks, ?inAttribs:Attribs)
+   public function new(inPane:IDockable, parentDock:IDock, callbacks:DockCallbacks, ?inAttribs:Attribs)
    {
-      var skin = Skin.getSkin(inSkin);
       var p = inPane.asPane();
       if (p!=null)
       {
@@ -44,7 +43,7 @@ class DockFrame extends Widget
          else if (p.frameAttribs!=null)
             inAttribs = Skin.mergeAttribs(p.frameAttribs,inAttribs);
       }
-      super(skin,["DocumentFrame","Dock"],inAttribs);
+      super(["DocumentFrame","Dock"],inAttribs);
 
       this.name = "DockFrame";
 

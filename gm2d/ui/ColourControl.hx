@@ -665,7 +665,7 @@ class ColourControl extends Widget
 
    public function new(inColour:RGBHSV, ?inOnChange:RGBHSV->Int->Void, ?swatchSet:SwatchSet, ?inAttribs:Attribs)
    {
-      super(null,inAttribs);
+      super(inAttribs);
 
       mColour = inColour.clone();
       onColourChange = inOnChange;

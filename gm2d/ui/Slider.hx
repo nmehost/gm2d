@@ -9,7 +9,6 @@ import nme.geom.Rectangle;
 import gm2d.ui.Layout;
 import gm2d.svg.Svg;
 import gm2d.svg.SvgRenderer;
-import gm2d.skin.Skin;
 import gm2d.skin.SliderRenderer;
 
 class Slider extends Control
@@ -28,9 +27,9 @@ class Slider extends Control
    public var isActive:Bool;
    var removeStage:DisplayObject;
 
-   public function new(?inSkin:Skin,inMin:Float,inMax:Float,inPos:Float,inOnChange:Float->Void )
+   public function new(inMin:Float,inMax:Float,inPos:Float,inOnChange:Float->Void )
    {
-      super(inSkin,"Slider");
+      super("Slider");
       name = "Slider";
       mCallback = inOnChange;
       mMax = inMax;

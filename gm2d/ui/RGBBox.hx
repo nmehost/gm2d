@@ -5,7 +5,6 @@ import nme.events.MouseEvent;
 import gm2d.ui.Layout;
 import gm2d.ui.ColourControl;
 import gm2d.RGBHSV;
-import gm2d.skin.Skin;
 import nme.text.TextFieldAutoSize;
 
 
@@ -20,9 +19,9 @@ class RGBBox extends Widget
    var rgbDialog:RGBDialog;
    var swatchSet:SwatchSet;
 
-   public function new(?inSkin:Skin, inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Int->Void, ?swatchSet:SwatchSet, ?inAttribs:Attribs)
+   public function new(inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Int->Void, ?swatchSet:SwatchSet, ?inAttribs:Attribs)
    {
-      super(inSkin,inAttribs);
+      super(inAttribs);
       mShowAlpha = inShowAlpha;
       onColourChange = inOnColour;
       mColour = inColour==null ? new RGBHSV( ) : inColour.clone();

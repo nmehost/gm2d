@@ -59,12 +59,12 @@ class SlideBar extends Widget implements IDock
    public var tabGap = false;
    public var showGrip = false;
 
-   public function new(?inSkin:Skin, inParent:DisplayObjectContainer,inPos:DockPosition,
+   public function new(inParent:DisplayObjectContainer,inPos:DockPosition,
              inMinSize:Null<Int>, inMaxSize:Null<Int>,
              inSlideOver:Bool, inShowTab:Bool,
              inOffset:Null<Int>, inTabPos:Null<Int>)
    {
-      super(inSkin, ["Dock"]);
+      super(["Dock"]);
       pos = inPos;
       container = inParent;
       horizontal = pos==DOCK_LEFT || pos==DOCK_RIGHT;

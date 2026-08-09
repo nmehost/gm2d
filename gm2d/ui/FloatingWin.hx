@@ -21,11 +21,10 @@ class FloatingWin extends DockFrame implements IDock
    var origRect:Rectangle;
    var dragStage:nme.display.Stage;
 
-   public function new(?inSkin:Skin, inTopLevel:TopLevelDock,inPane:Pane,inX:Float, inY:Float)
+   public function new(inTopLevel:TopLevelDock,inPane:Pane,inX:Float, inY:Float)
    {
-      if (inSkin==null)
-         inSkin=inTopLevel.skin;
-      super(inSkin, inPane, inTopLevel, { onTitleDrag:function(_,e) doStartDrag(e) } );
+      super(inPane, inTopLevel, { onTitleDrag:function(_,e) doStartDrag(e) } );
+      setSkin(inTopLevel.skin);
       mTopLevel = inTopLevel;
       mHitBoxes = new HitBoxes(skin, this, onHitBox);
       mouseWatcher = null;

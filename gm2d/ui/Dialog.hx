@@ -33,7 +33,7 @@ class Dialog extends Window implements IDialog
       vlayout.name = "Dialog VLayout";
 
       var attribs:Attribs = attribDynamic("titleStyle", null);
-      var title = new TextLabel(skin, inPane.title, ["DialogTitle"], attribs );
+      var title = new TextLabel(inPane.title, ["DialogTitle"], attribs );
       name = "Dialog(" + inPane.title + ")";
 
       addChild(title);

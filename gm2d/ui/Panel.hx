@@ -28,11 +28,11 @@ class Panel extends Widget
    var mPane:Pane;
    var sizeHint:Int;
 
-   public function new(?inSkin:Skin, inTitle:String = "",?inIcon:Image, ?inLineage:Array<String>, ?inAttribs:Attribs)
+   public function new(inTitle:String = "",?inIcon:Image, ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
       if (inTitle!="")
          inAttribs = Widget.addAttribs(inAttribs, {title:inTitle});
-      super(inSkin,Widget.addLine(inLineage,"Panel"),inAttribs);
+      super(Widget.addLine(inLineage,"Panel"),inAttribs);
 
       mButtons = [];
       sizeHint = 0;

@@ -16,9 +16,9 @@ class Image extends Widget
    var source:BitmapStyle;
    var logicalSize:Int;
 
-   public function new(?skin:Skin, ?inBmp:BitmapData, ?inLineage:Array<String>, ?inAttribs:Attribs)
+   public function new(?inBmp:BitmapData, ?inLineage:Array<String>, ?inAttribs:Attribs)
    {
-      super(skin,Widget.addLine(inLineage,"Image"),inAttribs);
+      super(Widget.addLine(inLineage,"Image"),inAttribs);
       var bmp = inBmp != null ? inBmp : getBitmap();
       if (bmp!=null)
       {
@@ -52,7 +52,8 @@ class Image extends Widget
    {
       if (skin==null)
          skin = Skin.getSkin();
-      var result = new Image(skin, skin.renderBitmapStyle(inSource,inLogicalSize), inLineage, inAttribs);
+      var result = new Image(skin.renderBitmapStyle(inSource,inLogicalSize), inLineage, inAttribs);
+      result.setSkin(skin);
       result.source = inSource;
       result.logicalSize = inLogicalSize;
       return result;

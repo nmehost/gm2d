@@ -62,10 +62,10 @@ class Widget extends Sprite
 
    //var highlightColour:Int;
 
-   public function new(?inSkin:Skin, ?inLineage:Array<String>, ?inAttribs:Attribs)
+   public function new(?inLineage:Array<String>, ?inAttribs:Attribs)
    {
       super();
-      skin = inSkin==null ? Skin.getSkin() : inSkin;
+      skin = Skin.getSkin();
       styled = false;
       mAttribs = inAttribs;
       Reflect.setField(this,"state",0);
