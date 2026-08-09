@@ -18,6 +18,7 @@
 		background="0x0000ff"
       resizeable="true"
 		hardware="true"
+		high_dpi="true"
 	/>
 
    <icon name="../icon.svg" />
@@ -27,7 +28,7 @@
   <haxelib name="gm2d" />
   <haxelib name="waxe" if="waxe" />
 
-  <ndll name="nme" haxelib="nme" nekoapi="1"/>
+  <ndll name="nme" static="true" />
   <ndll name="waxe" haxelib="waxe" if="waxe" />
   <ndll name="std" />
   <ndll name="zlib" />

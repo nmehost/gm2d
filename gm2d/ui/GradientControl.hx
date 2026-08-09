@@ -212,10 +212,7 @@ class GradientControl extends Widget
       setGradient( gradient = (new GradSwatch(0,20)).gradient );
 
       setItemLayout(vstack);
-      addScaleChanged(() -> {
-         var s = skin.toPixels(4);
-         swatches.setSpacing(s,s);
-      });
+      swatches.setLogicalSpacing(this, 4, 4);
    }
 
    public function getGradient() { return gradient.clone(); }

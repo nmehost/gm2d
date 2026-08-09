@@ -237,6 +237,16 @@ class Layout
       return this;
    }
 
+   // Logical-unit sibling of setMinSize() - registers with widget.addScaleChanged so the min
+   // size is re-resolved through skin.toPixels() on every rescale instead of being baked in at
+   // construction. See docs/Migration-v5.md.
+   public function setLogicalMinSize(widget:Widget, inWidth:Float, inHeight:Float) : Layout
+   {
+      widget.addScaleChanged(() ->
+         setMinSize(widget.skin.toPixels(inWidth), widget.skin.toPixels(inHeight)) );
+      return this;
+   }
+
    // Layout
    public function getMinSize(?inWidth:Null<Float>) : Size
    {
@@ -293,6 +303,16 @@ class Layout
    }
    public function setSpacing(inX:Float,inY:Float) : Layout { return this; }
 
+   // Logical-unit sibling of setSpacing() - see setLogicalMinSize(). A no-op on plain Layout
+   // (matching setSpacing() itself), but dispatches to the real override on GridLayout,
+   // FlowLayout etc, since setSpacing() is called virtually from inside the closure.
+   public function setLogicalSpacing(widget:Widget, inX:Float, inY:Float) : Layout
+   {
+      widget.addScaleChanged(() ->
+         setSpacing(widget.skin.toPixels(inX), widget.skin.toPixels(inY)) );
+      return this;
+   }
+
    static public function setDebug(inObj:Shape)
    {
       mDebugObject = inObj;
@@ -307,6 +327,14 @@ class Layout
       borderBottom = inY==null ? inX : inY;
       return this;
    }
+
+   // Logical-unit sibling of setPadding() - see setLogicalMinSize().
+   public function setLogicalPadding(widget:Widget, inX:Float, ?inY:Float) : Layout
+   {
+      widget.addScaleChanged(() ->
+         setPadding(widget.skin.toPixels(inX), inY==null ? null : widget.skin.toPixels(inY)) );
+      return this;
+   }
    public function setIndent(inL:Float) : Layout
    {
       borderLeft = inL;
@@ -318,6 +346,15 @@ class Layout
       borderTop = inT;
       borderRight = inR;
       borderBottom = inB;
+      return this;
+   }
+
+   // Logical-unit sibling of setBorders() - see setLogicalMinSize().
+   public function setLogicalBorders(widget:Widget, inL:Float, inT:Float, inR:Float, inB:Float) : Layout
+   {
+      widget.addScaleChanged(() ->
+         setBorders(widget.skin.toPixels(inL), widget.skin.toPixels(inT),
+                    widget.skin.toPixels(inR), widget.skin.toPixels(inB)) );
       return this;
    }
    public function add(inLayout:Layout) : Layout
@@ -360,6 +397,14 @@ class Layout
    {
       setBestWidth(inW);
       setBestHeight(inH);
+      return this;
+   }
+
+   // Logical-unit sibling of setBestSize() - see setLogicalMinSize().
+   public function setLogicalBestSize(widget:Widget, inW:Float, inH:Float) : Layout
+   {
+      widget.addScaleChanged(() ->
+         setBestSize(widget.skin.toPixels(inW), widget.skin.toPixels(inH)) );
       return this;
    }
    public function getColWidths() : Array<Float> { return [ getBestWidth() ]; }
