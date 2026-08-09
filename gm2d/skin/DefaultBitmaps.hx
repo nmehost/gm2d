@@ -11,8 +11,6 @@ import gm2d.ui.Widget;
 
 class DefaultBitmaps
 {
-   static var cache = new Map<String, BitmapData>();
-
    public static function createBitmap(skin:Skin, inButton:String, inState:Int, lineCol:Int, fillCol:Int ) : BitmapData
    {
       var down = (inState & Widget.DOWN) > 0;

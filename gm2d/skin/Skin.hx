@@ -131,6 +131,10 @@ class Skin
    // Per-instance, not shared like attribSet - each Skin's own uiScale/colours are fixed for its
    // whole lifetime, so this only ever needs to start empty on copy, never invalidated afterward.
    public var bmpCache = new Map<String, BitmapData>();
+   // Same reasoning as bmpCache - shadow bitmaps are keyed on symbolic line/fill styles, which
+   // only resolve to real colours via this instance's own palette, so this must not be shared
+   // across Skin instances either.
+   public var shadowCache = new ShadowCache();
 
 
    public var tabHeight:Int = 24;
@@ -351,6 +355,7 @@ class Skin
       // serving the source's stale, wrong-size cached filters/bitmaps).
       result.cachedFilters = new Map<String,Array<BitmapFilter>>();
       result.bmpCache = new Map<String, BitmapData>();
+      result.shadowCache = new ShadowCache();
       result.sliderRenderer = sliderRenderer;
       result.defaultTabRenderer = defaultTabRenderer;
       result.tabHeight = tabHeight;

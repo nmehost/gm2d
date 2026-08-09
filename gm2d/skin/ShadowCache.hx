@@ -11,13 +11,18 @@ import nme.filters.GlowFilter;
 
 
 
+// Owned per-Skin (see Skin.shadowCache) - shadow bitmaps are keyed on symbolic line/fill
+// styles, which only resolve to real colours via the owning Skin's own palette, so a cache
+// shared across Skin instances would serve stale colours after a live skin/palette switch.
 class ShadowCache
 {
-   static var now = 0.0;
-   static var instances = new Array<ShadowInstance>();
-   static var drawing:Sprite;
+   var now = 0.0;
+   var instances = new Array<ShadowInstance>();
+   var drawing:Sprite;
 
-   static public function create(skin:Skin, lineStyle:LineStyle, fillStyle:FillStyle, depth:Float,flags:Int,rad:Float)
+   public function new() { }
+
+   public function create(skin:Skin, lineStyle:LineStyle, fillStyle:FillStyle, depth:Float,flags:Int,rad:Float)
    {
       var result:ShadowInstance = null;
       for(i in instances)
@@ -91,7 +96,7 @@ class ShadowCache
       return result;
    }
 
-   static function initGfx()
+   function initGfx()
    {
       if (drawing==null)
          drawing = new Sprite();

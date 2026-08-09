@@ -107,8 +107,11 @@ class GradientControl extends Widget
    var currentId:Int;
 
 
-   public static var createdBmps = false;
-   public static var bitmaps = new haxe.ds.StringMap<BitmapData>();
+   // Shared across all instances, rebuilt only when uiScale changes - see getBitmaps().
+   static var sBitmaps:haxe.ds.StringMap<BitmapData>;
+   static var sBitmapsScale:Float = -1;
+
+   var bitmaps:haxe.ds.StringMap<BitmapData>;
 
    public function new(inOnChange:Gradient->Int->Void,?inLineage:Array<String>, ?swatchSet:SwatchSet)
    {
@@ -169,8 +172,7 @@ class GradientControl extends Widget
          swatches.add(box.getLayout());
       }
 
-      if (!createdBmps)
-         createBmps();
+      bitmaps = getBitmaps(skin.uiScale);
       var properties = new GridLayout(4);
 
       properties.add( addLabel("Spread") );
@@ -225,9 +227,16 @@ class GradientControl extends Widget
    }
    */
 
-   public static function createBmps()
+   // Returns the shared preview-bitmap set for inUiScale, rebuilding it only if the scale
+   // has changed since the last call - repeated construction at a stable scale is then just
+   // a map lookup per instance.
+   static function getBitmaps(inUiScale:Float):haxe.ds.StringMap<BitmapData>
    {
-      createdBmps = true;
+      if (sBitmaps!=null && sBitmapsScale==inUiScale)
+         return sBitmaps;
+
+      var result = new haxe.ds.StringMap<BitmapData>();
+
       var s = new Shape();
       var gfx = s.graphics;
 
@@ -236,82 +245,71 @@ class GradientControl extends Widget
       gradient.addStop( new RGBHSV(0x508080,1), 0.5);
       gradient.addStop( new RGBHSV(0xa0b0b0,1), 1);
       var matrix = new Matrix();
-      var size = Skin.getSkin().toPixels(24);
+      var size = Std.int(24*inUiScale);
       matrix.createGradientBox(size*0.5,size,0,0,0);
- 
+
       for(spread in Gradient.spreads)
       {
-         var key:String = spread + "";
-         if (!bitmaps.exists(key))
-         {
-            gradient.spreadMethod = spread;
-            gfx.clear();
-            var bmp = new BitmapData(size,size);
-            gfx.lineStyle(1,0x000000);
-            gradient.beginFill(gfx,matrix);
-            gfx.drawRect(0.5,0.5,size-1,size-1);
-            bmp.draw(s);
-            bitmaps.set(key,bmp);
-         }
+         gradient.spreadMethod = spread;
+         gfx.clear();
+         var bmp = new BitmapData(size,size);
+         gfx.lineStyle(1,0x000000);
+         gradient.beginFill(gfx,matrix);
+         gfx.drawRect(0.5,0.5,size-1,size-1);
+         bmp.draw(s);
+         result.set(spread+"",bmp);
       }
 
       matrix.createGradientBox(size,size,0,0,0);
       gradient.spreadMethod = Gradient.spreads[2];
       for(type in Gradient.types)
       {
-         var key:String = type + "";
-         if (!bitmaps.exists(key))
-         {
-            gradient.type = type;
-            gfx.clear();
-            var bmp = new BitmapData(size,size);
-            gfx.lineStyle(1,0x000000);
-            gradient.beginFill(gfx,matrix);
-            gfx.drawRect(0.5,0.5,size-1,size-1);
-            bmp.draw(s);
-            bitmaps.set(key,bmp);
-         }
+         gradient.type = type;
+         gfx.clear();
+         var bmp = new BitmapData(size,size);
+         gfx.lineStyle(1,0x000000);
+         gradient.beginFill(gfx,matrix);
+         gfx.drawRect(0.5,0.5,size-1,size-1);
+         bmp.draw(s);
+         result.set(type+"",bmp);
       }
       gradient.type = Gradient.types[0];
       for(interp in Gradient.interps)
       {
-         var key:String = interp + "";
-         if (!bitmaps.exists(key))
-         {
-            gradient.interpolationMethod = interp;
-            gfx.clear();
-            var bmp = new BitmapData(size,size);
-            gfx.lineStyle(1,0x000000);
-            gradient.beginFill(gfx,matrix);
-            gfx.drawRect(0.5,0.5,size-1,size-1);
-            bmp.draw(s);
-            bitmaps.set(key,bmp);
-         }
-      }
-
-      if (!bitmaps.exists("positionMarker"))
-      {
-         var h = 42;
-         var bmp = new BitmapData(7,h,true, gm2d.RGB.CLEAR );
+         gradient.interpolationMethod = interp;
          gfx.clear();
+         var bmp = new BitmapData(size,size);
          gfx.lineStyle(1,0x000000);
-         gfx.beginFill(0xffffff);
-         gfx.moveTo(0.5,0.5);
-         gfx.lineTo(6.5,0.5);
-         gfx.lineTo(3.5,3.5);
-         gfx.lineTo(0.5,0.5);
-
-         gfx.moveTo(0.5,h-1-0.5);
-         gfx.lineTo(6.5,h-1-0.5);
-         gfx.lineTo(3.5,h-1-3.5);
-         gfx.lineTo(0.5,h-1-0.5);
-
-         gfx.moveTo(3.5,3.5);
-         gfx.lineTo(3.5,h-1-3.5);
-
+         gradient.beginFill(gfx,matrix);
+         gfx.drawRect(0.5,0.5,size-1,size-1);
          bmp.draw(s);
-         bitmaps.set("positionMarker",bmp);
+         result.set(interp+"",bmp);
       }
+
+      var h = 42;
+      var bmp = new BitmapData(7,h,true, gm2d.RGB.CLEAR );
+      gfx.clear();
+      gfx.lineStyle(1,0x000000);
+      gfx.beginFill(0xffffff);
+      gfx.moveTo(0.5,0.5);
+      gfx.lineTo(6.5,0.5);
+      gfx.lineTo(3.5,3.5);
+      gfx.lineTo(0.5,0.5);
+
+      gfx.moveTo(0.5,h-1-0.5);
+      gfx.lineTo(6.5,h-1-0.5);
+      gfx.lineTo(3.5,h-1-3.5);
+      gfx.lineTo(0.5,h-1-0.5);
+
+      gfx.moveTo(3.5,3.5);
+      gfx.lineTo(3.5,h-1-3.5);
+
+      bmp.draw(s);
+      result.set("positionMarker",bmp);
+
+      sBitmaps = result;
+      sBitmapsScale = inUiScale;
+      return sBitmaps;
    }
 
    function onGradientChange(inPhase:Int=Phase.ALL)

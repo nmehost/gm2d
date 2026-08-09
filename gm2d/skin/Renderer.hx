@@ -514,7 +514,7 @@ class Renderer
             filled = true;
 
          case ShapeShadowRect(depth,flags):
-            var shadow = ShadowCache.create(skin, lineStyle, fillStyle, depth, flags, 0.0 );
+            var shadow = skin.shadowCache.create(skin, lineStyle, fillStyle, depth, flags, 0.0 );
             if (shadow!=null)
             {
                renderScale9(gfx, r, shadow.bmp, shadow.inner, 1.0);
@@ -522,7 +522,7 @@ class Renderer
             }
 
          case ShapeRectFlags(flags):
-            var shadow = ShadowCache.create(skin, lineStyle, fillStyle, 0, flags | EdgeFlags.Rect, 0.0 );
+            var shadow = skin.shadowCache.create(skin, lineStyle, fillStyle, 0, flags | EdgeFlags.Rect, 0.0 );
             if (shadow!=null)
             {
                renderScale9(gfx, r, shadow.bmp, shadow.inner, 1.0);
@@ -530,7 +530,7 @@ class Renderer
             }
 
          case ShapeRoundRectFlags(flags,rad):
-            var shadow = ShadowCache.create(skin, lineStyle, fillStyle, 0, flags | EdgeFlags.Rect, rad );
+            var shadow = skin.shadowCache.create(skin, lineStyle, fillStyle, 0, flags | EdgeFlags.Rect, rad );
             if (shadow!=null)
             {
                renderScale9(gfx, r, shadow.bmp, shadow.inner, 1.0);
