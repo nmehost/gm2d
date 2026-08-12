@@ -104,6 +104,7 @@ typedef Attribs =
    ?browseFilter: String,
    ?browseFlags: Int,
    ?onTextEnter:String->Void,
+   ?onUpdate:String->Void,
    // 'Activate' / enter / click
    ?onEnter:Void->Void,
    ?icon:BitmapData,

@@ -702,7 +702,7 @@ class ColourControl extends Widget
       addChild(wheel);
       all.add(wheel.getLayout());
 
-      box = new RGBBox(mColour,true, false, null, mRenderer.getDynamic("rgbBox"));
+      box = new RGBBox(mColour,true, false, onRgbBox, mRenderer.getDynamic("rgbBox"));
       addChild(box);
       new MouseWatcher(box,null,onRGBDrag,onRGBDrop,0,0,true);
       all.add(box.getLayout().setAlignment( Layout.AlignStretch));
@@ -754,8 +754,7 @@ class ColourControl extends Widget
          wheel.getLayout().setBorders(0,0,skin.toPixels(6),0);
          var b = skin.toPixels(2);
          box.getLayout().setBorders(b,b,b,b);
-         var ref = new NumericInput(1);
-         ref.setSkin(skin);
+         all.setBorders(b,b,b,b);
       });
       //build();
    }
@@ -808,6 +807,12 @@ class ColourControl extends Widget
          swbox.dropColour(mColour);
    }
 
+   function onRgbBox(inColour:RGBHSV,inPhase:Int)
+   {
+      mColour = inColour.clone();
+      setAll(inPhase==Phase.END);
+      send(inPhase);
+   }
    function setComponent(inWhich:Int, inVal:Float,inPhase:Int)
    {
       if (updateLockout==0)

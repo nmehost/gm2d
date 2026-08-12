@@ -29,7 +29,12 @@ class RGBBox extends Widget
       updateLockout = 0;
       this.swatchSet = swatchSet;
 
-      var attribs:Attribs = { alternateText:"WWWWWWWW", textAlign:"center" };
+      var attribs:Attribs = {
+           alternateText:"WWWWWWWW",
+           textAlign:"center",
+           //fill : FillSolid(0xff00ff,1),
+           fill : FillNone,
+         };
       if (inShouldShowPopup)
       {
          attribs.onEnter = showDialog;
@@ -39,7 +44,24 @@ class RGBBox extends Widget
             line: LineHighlight,
          };
       }
-      textLabel = new TextLabel("FFFFFFFF", attribs);
+      if (inShouldShowPopup)
+         textLabel = new TextLabel("FFFFFFFF", attribs);
+      else
+      {
+         textLabel = new TextInput("FFFFFFFF",
+         function(s:String, phase:Int) {
+            if (updateLockout==0 && ((s.length==6) || (s.length==8)) )
+            {
+               updateLockout++;
+               var col = RGBHSV.fromHex("0x" + s,s.length==8);
+               setColour(col);
+               if (onColourChange!=null)
+                  onColourChange(col,phase);
+               updateLockout--;
+            }
+         },
+         attribs);
+      }
       addWidget(textLabel);
    }
 
@@ -77,7 +99,7 @@ class RGBBox extends Widget
    override public function set(data:Dynamic)
    {
       if (Std.isOfType(data,String) && data!="")
-         setColour( RGBHSV.fromHex(data,mShowAlpha) );
+         setColour( RGBHSV.fromHex(data,data.length==8) );
       else if (Std.isOfType(data,RGBHSV) )
          setColour( data );
       else if (Std.isOfType(data,Int) )
@@ -104,14 +126,12 @@ class RGBBox extends Widget
 
    public function setColour(inCol:RGBHSV)
    {
-      updateLockout++;
       var draw =  (inCol.compare(mColour)!=0 || (inCol.a!=mColour.a && mShowAlpha) );
       mColour = inCol.clone();
       if (rgbDialog!=null)
          rgbDialog.setColour(inCol);
       if (draw)
          redraw();
-      updateLockout--;
    }
 
    override function redraw()
@@ -127,12 +147,22 @@ class RGBBox extends Widget
 
       var textField = textLabel.getLabel();
       textField.textColor = mColour.v > 128 ? 0x000000 : 0xffffff;
-      updateLockout++;
-      if (mShowAlpha)
-         textField.text = StringTools.hex(Std.int(mColour.a*255),2) + StringTools.hex(mColour.getRGB(),6);
-      else
-         textField.text = StringTools.hex(mColour.getRGB(),6);
-      updateLockout--;
+      if (updateLockout==0)
+      {
+         updateLockout++;
+         if (mShowAlpha)
+         {
+            var a = Std.int(mColour.a*255);
+            if (a<0) a = 0;
+            else if (a>255) a = 255;
+            var aTxt = StringTools.hex(a,2);
+            var cTxt = StringTools.hex(mColour.getRGB(),6);
+            textField.text = aTxt+ cTxt;
+         }
+         else
+            textField.text = StringTools.hex(mColour.getRGB(),6);
+         updateLockout--;
+      }
    }
 
 }
