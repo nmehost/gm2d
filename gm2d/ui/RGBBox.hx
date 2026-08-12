@@ -10,13 +10,14 @@ import nme.text.TextFieldAutoSize;
 
 class RGBBox extends Widget
 {
-   var textField:TextField;
+   var textLabel:TextLabel;
    var mColour:RGBHSV;
    var updateLockout:Int;
    public var onColourChange:RGBHSV->Int->Void;
    public var onDialogCreated:RGBDialog->Void;
    var mShowAlpha:Bool;
    var rgbDialog:RGBDialog;
+   var shouldShowPopup:Bool;
    var swatchSet:SwatchSet;
 
    public function new(inColour:RGBHSV,inShowAlpha:Bool,inShouldShowPopup=false,?inOnColour:RGBHSV->Int->Void, ?swatchSet:SwatchSet, ?inAttribs:Attribs)
@@ -28,27 +29,20 @@ class RGBBox extends Widget
       updateLockout = 0;
       this.swatchSet = swatchSet;
 
-      textField = new TextField( );
-      textField.text = "FFFFFFFF";
-      mRenderer.renderLabel(textField);
-      textField.border = false;
-      textField.background = false;
-      // Todo - enter text
-      //textField.selectable = true;
-      var fmt = textField.defaultTextFormat;
-      fmt.align = "center";
-      textField.defaultTextFormat = fmt;
-      addChild(textField);
-
-      var textLayout = new AutoTextLayout(textField).setAlignment(Layout.AlignCenterY|Layout.AlignCenterX);
-      textLayout.setMinSize( textField.textWidth, textField.textHeight*1.2 );
-      setItemLayout(textLayout);
-
+      var attribs:Attribs = { alternateText:"WWWWWWWW", textAlign:"center" };
       if (inShouldShowPopup)
-         addEventListener(MouseEvent.CLICK, function(_) showDialog() );
-
-      //build();
+      {
+         attribs.onEnter = showDialog;
+         attribs.wantsFocus = true;
+         attribs.shape = ShapeRect;
+         attribs.stateCurrent = {
+            line: LineHighlight,
+         };
+      }
+      textLabel = new TextLabel("FFFFFFFF", attribs);
+      addWidget(textLabel);
    }
+
 
    public function setRgba(rgb:Int, a:Float)
    {
@@ -58,7 +52,7 @@ class RGBBox extends Widget
    public function showDialog( )
    {
       var isNew = false;
-      if (rgbDialog==null)
+      if (rgbDialog==null || rgbDialog.skin!=skin)
       {
          isNew = true;
          rgbDialog = new RGBDialog(mColour, function(colour,phase) {
@@ -67,6 +61,7 @@ class RGBBox extends Widget
             setColour(colour);
             }, swatchSet );
          rgbDialog.onClose = function() rgbDialog = null;
+         rgbDialog.setSkin(skin);
          if (onDialogCreated!=null)
             onDialogCreated(rgbDialog);
       }
@@ -121,13 +116,16 @@ class RGBBox extends Widget
 
    override function redraw()
    {
-      clearChrome();
+      super.redraw();
+      //clearChrome();
       var gfx = mChrome.graphics;
       gfx.lineStyle(0,0x000000);
-      gfx.beginFill(mColour.getRGB());
-      gfx.drawRect( mRect.x, mRect.y, mRect.width, mRect.height );
+
+      gfx.beginFill( isCurrent ? 0x4040ff : mColour.getRGB());
+      gfx.drawRect( mRect.x+0.5, mRect.y+0.5, mRect.width, mRect.height );
       onWidgetDrawn();
 
+      var textField = textLabel.getLabel();
       textField.textColor = mColour.v > 128 ? 0x000000 : 0xffffff;
       updateLockout++;
       if (mShowAlpha)

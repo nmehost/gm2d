@@ -480,7 +480,7 @@ class Layout
              y+=(h-nh)*0.5;
              h = nh;
          }
-         trace("alignChild keepAspect: $child $cw x $ch -> $w x $h");
+         //trace('alignChild keepAspect: $child $cw x $ch -> $w x $h');
       }
 
       switch(child.mAlign & Layout.AlignMaskX)

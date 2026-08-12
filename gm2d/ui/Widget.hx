@@ -125,17 +125,6 @@ class Widget extends Sprite
       cb();
    }
 
-   // Propagates a skin change through this widget and its whole subtree (display-list scan, not
-   // the Layout tree - a child widget's own subtree needs to be walked as a unit, which the
-   // display list encodes directly). Per-widget: onScaleChanged() (only if uiScale actually
-   // changed - a pure palette swap skips it), then rebuildState() (recombines attribs, rebuilds
-   // the Renderer, redraws - already correct for a palette swap since Fill/Line/TextColour all
-   // resolve live against skin), then push the fresh sizing onto this widget's own Layout.
-   // Freezes the incoming skin (Skin.mutable=false) - every widget that attaches a skin does
-   // this, idempotently.
-   //
-   // No separate relayout here by design - Window overrides this to do exactly one top-down
-   // relayout once its whole subtree is restyled, so nothing else needs to.
    public function setSkin(inSkin:Skin):Void
    {
       if (inSkin==skin)
@@ -143,10 +132,22 @@ class Widget extends Sprite
       var rescale = skin==null || skin.uiScale!=inSkin.uiScale;
       skin = inSkin;
       skin.mutable = false;
+
+      // Combine values, recreate the renderer
+      rebuildState();
+
+      // Inform layouts etc to rescale gaps etc.
       if (rescale)
          onScaleChanged();
-      rebuildState();
+
+      // Font change might change min/max size
+      getItemLayout()?.findTextLayout()?.updateSizeFromText();
+
+      // Apply min/max/padding
       mRenderer.layoutWidget(this);
+
+      var size = outerLayout.getBestSize();
+      outerLayout.setRect(0,0,size.x,size.y);
 
       setSkinChildren(this, inSkin);
    }
@@ -421,36 +422,7 @@ class Widget extends Sprite
          outerLayout.onInnerRect = onLayout;
       }
       if (mRenderer!=null)
-      {
          mRenderer.layoutWidget(this);
-         var tf = getLabel();
-         if (tf!=null)
-         {
-            var alternate:Dynamic = mRenderer.getDynamic("alternateText");
-            if (alternate==null)
-               alternate =  mRenderer.getDynamic("placeholder");
-            var textLayout = alternate==null ? null : contentLayout.findTextLayout();
-            if (textLayout!=null)
-            {
-               mRenderer.renderLabel(tf);
-
-               var t0 = tf.text;
-               var w = tf.width;
-
-               var strs:Array<String> = Std.isOfType(alternate,Array) ? alternate :
-                        [ Std.string(alternate) ];
-               for(str in strs)
-               {
-                  tf.text = str;
-                  w = tf.width + textLayout.getBordersX();
-                  var s = textLayout.getMinSize();
-                  if (w>s.x)
-                     textLayout.setMinWidth(w);
-               }
-               tf.text = t0;
-            }
-         }
-      }
 
       var size = outerLayout.getBestSize();
       outerLayout.setRect(0,0,size.x,size.y);

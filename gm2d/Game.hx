@@ -531,11 +531,17 @@ class Game
    static public function setSkin(inSkin:Skin):Void
    {
       Skin.theSkin = inSkin;
+      closePopup();
       if (mCurrentScreen!=null)
          mCurrentScreen.setSkin(inSkin);
       var dlg = getSpriteDialog();
       if (dlg!=null)
+      {
          dlg.setSkin(inSkin);
+         updateDialogSize();
+         //dlg.relayout();
+         //dlg.center(initWidth,initHeight);
+      }
    }
   
    static function isRotated() : Bool
@@ -571,20 +577,19 @@ class Game
          var sd = getSpriteDialog();
          if (sd!=null && sd.stage==mDialogGrey.stage)
          {
-            sd.scaleX = 1.0;
-            sd.scaleY = 1.0;
+            var skin0  = mCurrentScreen.skin;
+            sd.setSkin(skin0);
             var size = sd.fitStage(sw,sh);
 
             var scale = Math.min( sw/size.x, sh/size.y );
             if (scale<1)
             {
-               scale *= 0.95;
-               sd.scaleX = sd.scaleY = scale;
+               var scaledSkin = skin0.copyWithScale(skin0.uiScale * scale * 0.9);
+               sd.setSkin(scaledSkin);
+               size = sd.fitStage(sw,sh);
             }
-            else
-               scale = 1.0;
 
-            var screenPos = new Point( Std.int(0.5*(sw-size.x*scale)), Std.int(0.5*(sh-size.y*scale)));
+            var screenPos = new Point( Std.int(0.5*(sw-size.x)), Std.int(0.5*(sh-size.y)));
             var local = mDialogParent.globalToLocal(screenPos);
             sd.x = local.x;
             sd.y = local.y;

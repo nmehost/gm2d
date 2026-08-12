@@ -31,7 +31,7 @@ class DockRenderer
    public function renderResizeBar(outDisplay:Sprite, inRect:Rectangle)
    {
       var gfx = outDisplay.graphics;
-      gfx.beginFill(skin.resizeBarColor);
+      Renderer.setFill(skin, gfx, skin.resizeBarFill, inRect.width, inRect.height, inRect.x, inRect.y);
       gfx.drawRect(inRect.x, inRect.y,inRect.width,inRect.height);
    }
    public function renderPaneChrome(outDisplay:Sprite, inPane:Pane, inRect:Rectangle,

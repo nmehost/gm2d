@@ -1,5 +1,0 @@
--main SampleApp
--neko SampleApp.n
--lib nme
--lib systools
--cp ../..

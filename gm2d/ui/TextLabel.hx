@@ -19,7 +19,7 @@ class TextLabel extends Widget
    public function new(inVal="",?inLineage:Array<String>, ?inAttribs:Attribs )
    {
        super(Widget.addLine(inLineage,"TextLabel"),inAttribs);
-       wantFocus = false;
+       wantFocus = attribBool("wantsFocus",false);
 
        createUnderlay();
 
@@ -79,6 +79,15 @@ class TextLabel extends Widget
        mTextLayout.mDebugCol = 0xff00ff;
 
        //build();
+   }
+
+   override function widgetClick(e:MouseEvent)
+   {
+      var target:Dynamic = e.target;
+      if (target==this || target==mChrome || target==mText)
+      {
+         activate();
+      }
    }
 
    override public function setText(inText:String) : Void

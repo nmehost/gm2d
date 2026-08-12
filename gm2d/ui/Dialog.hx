@@ -38,7 +38,8 @@ class Dialog extends Window implements IDialog
       vlayout.add(title.getLayout().stretch());
 
       inPane.setDock(null,this);
-      var paneLayout =inPane.itemLayout.stretch();
+      //var paneLayout =inPane.itemLayout.stretch();
+      var paneLayout =inPane.getLayout().stretch();
       vlayout.add(paneLayout);
       setItemLayout(vlayout.stretch());
 

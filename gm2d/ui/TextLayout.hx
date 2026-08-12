@@ -88,6 +88,7 @@ class TextLayout extends DisplayLayout
       }
       else
       {
+         text.autoSize = TextFieldAutoSize.NONE;
          text.width = w;
          text.height = h;
       }
@@ -108,10 +109,13 @@ class TextLayout extends DisplayLayout
    function reflowHeight(inWidth:Float) : Float
    {
       var textF:TextField = cast mObj;
+      var a = textF.autoSize;
+      var w = textF.width;
       textF.autoSize = TextFieldAutoSize.LEFT;
       textF.width = inWidth - borderLeft - borderRight;
       var h = textF.height + borderTop + borderBottom;
-      textF.autoSize = TextFieldAutoSize.NONE;
+      textF.autoSize = a;
+      textF.width = w;
       return h;
    }
 

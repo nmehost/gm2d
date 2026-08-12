@@ -255,10 +255,11 @@ class NumericInput extends TextInput
       {
          setTextEditMode(false);
          var range =maxBar-minBar;
+         var barW = getBarWidth();
          if (range>0)
          {
             var x = mText.globalToLocal( new Point(e.stageX, e.stageY) ).x;
-            setValue( x*range/mText.width + min );
+            setValue( x*range/barW + min );
          }
 
          if (onUpdate!=null)
@@ -338,7 +339,8 @@ class NumericInput extends TextInput
             val = min;
          if (val-min > range)
             val = min+range;
-         gfx.drawRect(1,1,(mText.width-2) * (val-min) / range, mText.height-2 );
+         var w = getBarWidth();
+         gfx.drawRect(1,1,(w-2) * (val-min) / range, mText.height-2 );
       }
    }
 
@@ -439,6 +441,12 @@ class NumericInput extends TextInput
             onUpdate(restrictedValue,Phase.ALL);
 
       }
+   }
+
+   public function getBarWidth() : Float
+   {
+      return mText.width;
+      //return mRect==null ? mText.width : mRect.width;
    }
 
    public override function redraw()

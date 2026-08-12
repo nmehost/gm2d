@@ -166,11 +166,12 @@ class GridLayout extends Layout
       //trace(indent + "calcWidthsMinAndBest..." + mColInfo.length);
       //var oindent = indent;
       //indent += "  ";
+      var cid = 0;
       for(col in mColInfo)
       {
          col.mBestWidth = col.mMinWidth = col.mMinSpecWidth;
          if (debug)
-            trace(' $key col ' + col.mMinWidth );
+            trace(' $key col ' + (cid++) + " " + col.mMinWidth );
       }
       var thickest = 0.0;
       for(row in mRowInfo)

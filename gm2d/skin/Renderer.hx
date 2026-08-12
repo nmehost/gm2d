@@ -354,13 +354,10 @@ class Renderer
       var label = inWidget.getLabel();
       if (label!=null)
       {
+         // Allow colour etc to change
          renderLabel(label);
-         // TextLayout.getBestWidth()/getMinSize() read a cached measurement (mOWidth/mOHeight)
-         // taken once at construction, not the TextField live - renderLabel() may just have
-         // changed the font/size (eg. a skin change), so the cache needs refreshing here or
-         // every text label silently keeps its construction-time best/min size forever.
-         inWidget.getItemLayout()?.findTextLayout()?.updateSizeFromText();
       }
+
       inWidget.filters = filters;
       if (map!=null && map.exists("chromeFilters"))
       {
@@ -641,8 +638,38 @@ class Renderer
 
          var mis = minItemSize;
          if (mis!=null)
+         {
             layout.setMinSize( mis.x, mis.y );
+         }
 
+         var tf = ioWidget.getLabel();
+         if (tf!=null)
+         {
+            var alternate:Dynamic = getDynamic("alternateText");
+            if (alternate==null)
+               alternate =  getDynamic("placeholder");
+            var textLayout = alternate==null ? null : layout.findTextLayout();
+            if (textLayout!=null)
+            {
+               renderLabel(tf);
+
+               var t0 = tf.text;
+               var itemW = tf.textWidth;
+
+               var strs:Array<String> = Std.isOfType(alternate,Array) ? alternate :
+                        [ Std.string(alternate) ];
+               for(str in strs)
+               {
+                  tf.text = str;
+                  var w = tf.textWidth;
+                  if (w>itemW)
+                     itemW = w;
+               }
+
+               textLayout.setMinWidth( itemW + textLayout.getBordersX() );
+               tf.text = t0;
+            }
+         }
 
          var ia = itemAlign;
          if (ia!=null)
@@ -650,7 +677,6 @@ class Renderer
          else
             layout.stretch();
       }
-
    }
 }
 

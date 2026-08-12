@@ -63,7 +63,7 @@ class Skin
       return uiScale = inScale;
    }
 
-   // False once this Skin is attached to a widget - see the propagation design, not wired up yet.
+   // Once a skin is used in anger, it should not be changed.
    public var mutable:Bool = true;
 
    // Closed set of named colour roles, keyed by FillStyle/LineStyle(/TextColour) constructor name
@@ -99,47 +99,23 @@ class Skin
 
 
 
-   // You can use these to set the defaults before you create a Widget
    public var roundRectRad = 4.0;
-   public var panelColor = 0xe0e0e0;
-   public var controlColor = 0xf0f0f0;
-   public var dialogColor = 0xf0f0f0;
+   public var resizeBarFill:FillStyle = FillInv;
+   // Null/FillNone/FillTransparent disables the MDI background fill entirely.
+   public var mdiFill:FillStyle = FillInv;
+   public var tabHeight:Int = 24;
 
    public var textFormat:nme.text.TextFormat;
 
 
-   public var controlBorder = 0x000000;
-   public var centerTitle = true;
-   public var buttonBorderX = 10;
-   public var buttonBorderY = 2;
-   public var mdiBGColor:Null<Int> = 0x404040;
-   public var labelColor = 0x000000;
-   public var disableColor = 0x808080;
-   public var resizeBarColor = 0x00ff00;
-   public var tabGradientColor = 0x909080;
-   public var menuHeight:Float = 32;
-   public var tabSize = 32;
-
-
-   // Named filter slots, keyed by FilterSet constructor name (eg. FilterSetShadow ->
-   // "FilterSetShadow") - same closed-set shape as "colours". Values are scale/palette-agnostic
-   // definitions; realized+cached to real BitmapFilters on demand, see getFilterSet/setFilterStyle.
    public var filterStyles:Map<String,Array<BitmapFilterStyle>>;
    var cachedFilters:Map<String,Array<BitmapFilter>>;
    public var sliderRenderer:SliderRenderer;
    public var defaultTabRenderer:TabRenderer;
-   // Per-instance, not shared like attribSet - each Skin's own uiScale/colours are fixed for its
-   // whole lifetime, so this only ever needs to start empty on copy, never invalidated afterward.
    public var bmpCache = new Map<String, BitmapData>();
-   // Same reasoning as bmpCache - shadow bitmaps are keyed on symbolic line/fill styles, which
-   // only resolve to real colours via this instance's own palette, so this must not be shared
-   // across Skin instances either.
    public var shadowCache = new ShadowCache();
 
 
-   public var tabHeight:Int = 24;
-   public var title_h:Int = 22;
-   public var borders:Int = 3;
 
    public var mDrawing:Sprite;
    public var mText:TextField;
@@ -184,10 +160,7 @@ class Skin
    function initFilters()
    {
       filterStyles = new Map<String,Array<BitmapFilterStyle>>();
-      // Fixed near-black, not a role - a drop shadow is a lighting metaphor, not a surface
-      // colour, and should not invert with a light/dark palette swap.
       filterStyles.set("FilterSetShadow", [ FilterDropShadow(3, 45, 3, FillSolid(0,1), 0.5) ]);
-      // Matches the previously-commented-out/disabled default - available, opt-in.
       filterStyles.set("FilterSetCurrent", []);
       cachedFilters = new Map<String,Array<BitmapFilter>>();
    }
@@ -248,9 +221,7 @@ class Skin
       setColour(Type.enumConstructor(inStyle), inRgb);
    }
 
-   // Realized+cached on demand - a filter set's definition rarely changes, but resolving a
-   // FillStyle colour role or scaling distance/blur is cheap enough to just redo when the cache
-   // is empty rather than trying to track exactly what changed.
+   // Create and cache
    public function getFilterSet(inSet:FilterSet):Array<BitmapFilter>
    {
       var key = Type.enumConstructor(inSet);
@@ -301,10 +272,6 @@ class Skin
       }
    }
 
-   // FillStyle proper only resolves named roles via getFillColour (throws on a payload case
-   // like FillSolid) - some callers (filters, ProgressStyle) need to accept a literal FillSolid
-   // too (eg. the fixed-black shadow default), so unwrap that one payload case here instead of
-   // widening getFillColour.
    public function resolveFillColour(inStyle:FillStyle):Int
    {
       return switch(inStyle)
@@ -314,9 +281,6 @@ class Skin
       }
    }
 
-   // Same idea as resolveFillColour, for LineStyle - accepts a literal LineSolid/LineSolidFill
-   // payload (unwrapping to the rgb, ignoring the width/alpha the caller already tracks
-   // separately eg. ProgressStyle's own lineWidth) as well as a bare named role.
    public function resolveLineColour(inStyle:LineStyle):Int
    {
       return switch(inStyle)
@@ -327,40 +291,25 @@ class Skin
       }
    }
 
+   // Shallow copy avoids duplication the attribs, but allows changing the colours or scale
    function shallowCopy():Skin
    {
       var result:Skin = Type.createEmptyInstance(Skin);
       result.mutable = true;
       result.uiScale = uiScale;
-      result.roundRectRad = roundRectRad;
-      result.panelColor = panelColor;
-      result.controlColor = controlColor;
-      result.dialogColor = dialogColor;
+      //result.roundRectRad = roundRectRad;
+      result.resizeBarFill = resizeBarFill;
+      result.mdiFill = mdiFill;
       result.textFormat = textFormat;
-      result.controlBorder = controlBorder;
-      result.centerTitle = centerTitle;
-      result.buttonBorderX = buttonBorderX;
-      result.buttonBorderY = buttonBorderY;
-      result.mdiBGColor = mdiBGColor;
-      result.labelColor = labelColor;
-      result.disableColor = disableColor;
-      result.resizeBarColor = resizeBarColor;
-      result.tabGradientColor = tabGradientColor;
-      result.menuHeight = menuHeight;
-      result.tabSize = tabSize;
       result.filterStyles = filterStyles.copy();
-      // Deliberately NOT copied - a realized filter/bitmap depends on this instance's own
-      // uiScale/colours, so the copy starts empty and lazily rebuilds against its own. Sharing
-      // either cache here would be the same staleness bug either way (a copyWithScale() result
-      // serving the source's stale, wrong-size cached filters/bitmaps).
+
       result.cachedFilters = new Map<String,Array<BitmapFilter>>();
       result.bmpCache = new Map<String, BitmapData>();
       result.shadowCache = new ShadowCache();
+
       result.sliderRenderer = sliderRenderer;
       result.defaultTabRenderer = defaultTabRenderer;
       result.tabHeight = tabHeight;
-      result.title_h = title_h;
-      result.borders = borders;
       result.mDrawing = mDrawing;
       result.mText = mText;
       result.attribSet = attribSet;
@@ -374,11 +323,6 @@ class Skin
    {
       var result = shallowCopy();
       result.uiScale = inUiScale;
-      // textFormat/mText/sliderRenderer/defaultTabRenderer are lazily created once (guarded in
-      // init(), which a shallowCopy() never re-runs) and so are just shared by reference above -
-      // same staleness bug cachedFilters/bmpCache are deliberately NOT shared to avoid (see the
-      // comment on those in shallowCopy()), just missed for these when they were added. Rebuild
-      // them fresh against the new scale rather than leaving them frozen at the old one.
       result.textFormat = new TextFormat(textFormat.font, result.toPixels(14));
       result.mText = new TextField();
       result.styleLabel(result.mText);
@@ -394,11 +338,16 @@ class Skin
       var result = shallowCopy();
       for(key in inColours.keys())
          result.colours.set(key, inColours.get(key));
+      result.mText = new TextField();
+      result.styleLabel(result.mText);
+      if (sliderRenderer!=null)
+         result.sliderRenderer = result.createSliderRenderer();
+      if (defaultTabRenderer!=null)
+         result.defaultTabRenderer = result.createTabRenderer(["Tabs","TabRenderer"],{});
       return result;
    }
 
-   // Test/example of copyWithPalette - mechanically inverts every colour (preserving any alpha
-   // packed in the top byte), not a curated dark theme.
+   // Create a simple variation of existing colours
    public function createDark():Skin
    {
       var inverted = new Map<String,Int>();
@@ -466,6 +415,12 @@ class Skin
         "Scroll" => {
            scrollWheelStep: 20,
            },
+        "ColourWheel" => {
+           itemAlign: Layout.AlignKeepAspect | Layout.AlignStretch,
+           },
+        "ColourControl" => {
+           itemAlign: Layout.AlignStretch | Layout.AlignTop,
+           },
         "Button" => {
            parent:"Control",
            shape: ShapeRect,
@@ -473,10 +428,8 @@ class Skin
            line: LineTrim,
            textAlign: "center",
            autoCurrent: false,
-           // Y-only: leave X unset (stretch) so text fills the button and textAlign actually
-           // has slack to act on, instead of the item box shrink-wrapping the text.
            itemAlign: Layout.AlignCenterY,
-           padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
+           padding: new Rectangle(10,2,20,4),
            offset: new Point(1,1),
            stateDisabled: {
               bitmapTransform: Skin.makeGrey,
@@ -504,11 +457,8 @@ class Skin
            line: LineBorder,
            contents:"icon-text",
            textAlign: "center",
-           // itemAlign here governs the icon+text block as a whole (this is the composite
-           // Horizontal/VerticalLayout case, not a single text box) - Y-only for the same
-           // reason as "Button" above.
            itemAlign: Layout.AlignCenterY,
-           padding: new Rectangle(buttonBorderX,buttonBorderY,buttonBorderX*2,buttonBorderY*2),
+           padding: new Rectangle(10,2,20,4),
            offset: new Point(1,1),
            },
         "Keyboard" => {
@@ -619,7 +569,7 @@ class Skin
         "TextInput" => {
            parent:"Control",
            shape: ShapeRoundRectRad(1.5),
-           align: Layout.AlignLeft,
+           align: Layout.AlignStretch | Layout.AlignCenterY,
            isInput: true,
            minItemSize : new Size(100,1),
            line: LineTrim,
@@ -718,7 +668,6 @@ class Skin
         "Dialog" => {
            shape: ShapeRect,
            line: LineHighlight,
-           //padding: new Rectangle(borders, borders, borders*2, borders*2),
            chromeFilters: FilterSetShadow,
            fill: FillLight,
            },
@@ -753,12 +702,12 @@ class Skin
            itemAlign: Layout.AlignStretch | Layout.AlignCenterY,
            },
         "TabBar" => {
-           minSize: new Size(tabSize,tabSize),
+           minSize: new Size(32,32),
            fill: FillLight,
            shape:ShapeRect,
            },
         "Menubar" => {
-           minSize: new Size(0,menuHeight),
+           minSize: new Size(0,32),
            align: Layout.AlignStretch,
            itemAlign: Layout.AlignLeft | Layout.AlignCenterY,
            line: LineNone,
@@ -955,13 +904,6 @@ class Skin
       theSkin = this;
    }
 
-   // Static (and skin passed explicitly, not via `this`) - these are referenced as bare
-   // BitmapFactory values inside attribSet's lineage literals, which are built once and then
-   // shared by reference across every copyWithScale() result (see BitmapStyle.BitmapFactory).
-   // An instance method reference bound at attribSet-construction time would stay bound to
-   // whichever Skin happened to build attribSet first, forever. Caching is keyed into the
-   // *passed* skin's own bmpCache, not `this`, so it's naturally scoped to that skin's own
-   // uiScale/colours (see bmpCache's own comment).
    public static function createDefaultBitmap( skin:Skin, inButton:String, inState:Int) : BitmapData
    {
       var key = inButton + "::" + inState;
@@ -1175,8 +1117,8 @@ class Skin
 
       inSlider.mThumb = new Sprite();
       var gfx = inSlider.mThumb.graphics;
-      gfx.beginFill(controlColor);
-      gfx.lineStyle(1,controlBorder);
+      Renderer.setFill(this, gfx, FillLight, 20, 20);
+      Renderer.setLine(this, gfx, LineBorder);
       gfx.drawRect(-10,0,20,20);
       inSlider.getItemLayout().onInnerRect = function(inX:Float,inY:Float,inW:Float,inH:Float)
       {
@@ -1192,14 +1134,14 @@ class Skin
 
       var gfx = inSlider.mTrack.graphics;
       gfx.clear();
-      gfx.beginFill(disableColor);
-      gfx.lineStyle(1,controlBorder);
+      Renderer.setFill(this, gfx, FillDisabled, inRect.width-20, inRect.height);
+      Renderer.setLine(this, gfx, LineBorder);
       gfx.drawRect(10,0,inRect.width-20,inRect.height);
 
       var gfx = inSlider.mThumb.graphics;
       gfx.clear();
-      gfx.beginFill(controlColor);
-      gfx.lineStyle(1,controlBorder);
+      Renderer.setFill(this, gfx, FillLight, inRect.height, inRect.height);
+      Renderer.setLine(this, gfx, LineBorder);
       gfx.drawRect(-inRect.height/2,0,inRect.height,inRect.height);
    }
 
@@ -1229,7 +1171,7 @@ class Skin
    public function styleLabel(label:TextField)
    {
       label.defaultTextFormat = textFormat;
-      label.textColor = labelColor;
+      label.textColor = getTextColour(TextColNormal);
       if (label.type != nme.text.TextFieldType.INPUT)
       {
          label.autoSize = TextFieldAutoSize.LEFT;
@@ -1272,7 +1214,7 @@ class Skin
    {
       var gfx = inContainer.graphics;
       gfx.lineStyle();
-      gfx.beginFill(panelColor);
+      gfx.beginFill(getFillColour(FillMedium));
       gfx.drawRect(inX,inY,inW,inH);
       gfx.endFill();
    }
@@ -1281,7 +1223,7 @@ class Skin
    {
       var gfx = inContainer.graphics;
       gfx.lineStyle();
-      gfx.beginFill(panelColor);
+      gfx.beginFill(getFillColour(FillMedium));
       gfx.drawRect(inRect.x,inRect.y,inRect.width,inRect.height);
       gfx.endFill();
       gfx.lineStyle(1,0x000000);
@@ -1314,7 +1256,7 @@ class Skin
       {
          gfx.drawRect(inRect.x+1.5,inRect.y+21.5,inRect.width-2,inRect.height-23);
          gfx.lineStyle();
-         gfx.beginFill(panelColor);
+         gfx.beginFill(getFillColour(FillMedium));
          gfx.drawRect(inRect.x,inRect.y,inRect.width,inRect.height);
 
          /*
@@ -1450,25 +1392,9 @@ class Skin
    }
 */
 
-   public function getFrameClientOffset() : Point
-   {
-      return new Point(borders,borders+title_h);
-   }
-   public function getMiniWinClientOffset() : Point
-   {
-      return new Point(borders,borders);
-   }
-   public function getMinFrameWidth() : Float
-   {
-      return 80;
-   }
    public function getResizeBarWidth() : Float
    {
       return toPixels(3);
-   }
-   public function getSideBorder() : Float
-   {
-      return 0;
    }
 
 
@@ -1532,59 +1458,6 @@ class Skin
 
       return bmp;
    }
-
-
-   public function renderMiniWin(outChrome:Sprite, pane:Pane, inRect:Rectangle,outHitBoxes:HitBoxes,inFull:Bool)
-   {
-      var gfx = outChrome.graphics;
-      gfx.clear();
-      outHitBoxes.clear();
-
-      gfx.beginFill(panelColor);
-      gfx.lineStyle(1,0xffffff);
-      while(outChrome.numChildren>0)
-          outChrome.removeChildAt(0);
-      outChrome.cacheAsBitmap = true;
-
-      var x0 = inRect.x-2.5;
-      var y0 = inRect.y-2.5;
-      var rw = inRect.width;
-      var rh = inRect.height;
-      if (inFull)
-      {
-         var text = new TextField();
-         styleLabel(text);
-         text.text = pane.shortTitle;
-         text.x = inRect.x+4;
-         text.y = inRect.y+-18;
-         outChrome.addChild(text);
-         var w = text.textWidth;
-         if (w>rw-10)
-         {
-            w = rw-10;
-            text.width = w;
-         }
-         gfx.moveTo(x0,y0);
-         gfx.lineTo(x0,y0-14);
-         gfx.curveTo(x0,y0-18, x0+4, y0-18);
-         gfx.lineTo(inRect.x+10+w, y0-18);
-         gfx.curveTo(inRect.x+14+w,y0-18,inRect.x+14+w,y0-14);
-         gfx.lineTo(inRect.x+14+w,y0);
-
-         gfx.lineTo(inRect.x+rw+borders+0.5,y0);
-         gfx.lineTo(inRect.x+rw+borders+0.5,rh+borders*2+y0);
-         gfx.lineTo(x0,rh+borders*2+y0);
-         gfx.lineTo(x0,y0);
-
-         outHitBoxes.add( new Rectangle(inRect.x,inRect.y-title_h,w,title_h), TITLE(pane) );
-      }
-      else
-      {
-         gfx.drawRoundRect(x0,y0,rw+borders*2, rh+borders*2, 3,3 );
-      }
-      gfx.endFill();
-   }
-
 
 
    function initGfx()

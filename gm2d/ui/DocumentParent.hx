@@ -505,11 +505,8 @@ class DocumentParent extends Sprite implements IDock implements IDockable
       }
       else
       {
-         if (skin.mdiBGColor!=null)
-         {
-            gfx.beginFill(skin.mdiBGColor);
+         if (gm2d.skin.Renderer.setFill(skin,gfx,skin.mdiFill,clientWidth,clientHeight))
             gfx.drawRect(0,0,clientWidth,clientHeight);
-         }
       }
 
       redrawTabs();

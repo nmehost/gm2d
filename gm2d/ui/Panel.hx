@@ -43,6 +43,8 @@ class Panel extends Widget
       //mGridLayout.setSpacing(0, mRenderer.getDefaultFloat("buttonGap",0) );
       mGridLayout.stretch();
       mGridLayout.name = "Panel Grid " + inTitle;
+
+
       var itemCols = attribInt("panelCols", 2);
       mItemGrid = new GridLayout(itemCols,"items");
       mItemGrid.name = "ItemGrid " + inTitle;
@@ -99,7 +101,9 @@ class Panel extends Widget
 
    public function setItemSize(inSize:Int)
    {
-       mItemGrid.setMinColWidth(1,inSize);
+      addScaleChanged( () -> {
+         mItemGrid.setMinColWidth(1,skin.toPixels(inSize));
+      } );
    }
 
    public function showDialog(inCentre=true,inAutoClose=true,inAsScreen=false,?inLineage:Array<String>, ?inAttribs:Attribs ) : IDialog
@@ -306,14 +310,10 @@ class Panel extends Widget
       if (mPane==null)
       {
          applyStyles();
-         var w = getLayout().getBestWidth();
-         var h = getLayout().getBestHeight(w);
          mPane = new Pane(this, mTitle, 0);
-         var s = getLayout().getMinSize();
-         mPane.setMinSize(s.x,s.y);
+         mPane.getDefaultWidget = getDefaultWidget;
          mPane.itemLayout = getLayout();
          mPane.setFlags( mPane.getFlags() | Dock.RESIZABLE );
-         mPane.getDefaultWidget = getDefaultWidget;
       }
       return mPane;
    }

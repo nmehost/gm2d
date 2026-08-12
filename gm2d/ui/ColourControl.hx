@@ -213,20 +213,35 @@ class ColourSlider extends Widget
 class SwatchBox extends Sprite
 {
    var swatch:Swatch;
-   public function new(inSwatch:Swatch, inControl:ColourControl,inSize:Int)
+   var skin:Skin;
+   var layout:Layout;
+   var pixelSize:Int;
+
+   public function new(inSwatch:Swatch, inControl:ColourControl,inSize:Int, skin:Skin)
    {
       super();
       swatch = inSwatch;
-      var gfx = graphics;
-      gfx.beginBitmapFill(swatch.bitmapData);
-      gfx.lineStyle(1,0x000000);
-      gfx.drawRect(0.5,0.5,inSize,inSize);
+      pixelSize = inSize;
+      layout = new DisplayLayout(this);
+      setSkin(skin);
       addEventListener(MouseEvent.MOUSE_DOWN, function(_) inControl.applyColour(inSwatch.colour) );
    }
-   public function getLayout() {
-      var o = new DisplayLayout(this);
-      return o;
+
+   public function setSkin(inSkin:Skin)
+   {
+      if (inSkin==skin)
+         return;
+      skin = inSkin;
+      var gfx = graphics;
+      gfx.clear();
+      gfx.beginBitmapFill(swatch.bitmapData);
+      gfx.lineStyle(1,0x000000);
+      var s = skin.toPixels(pixelSize);
+      gfx.drawRect(0.5,0.5,s,s);
+      layout.setMinSize(s,s);
    }
+   public function getLayout() return layout;
+
    public function dropColour(inCol:RGBHSV)
    {
      swatch.setColour(inCol);
@@ -283,7 +298,7 @@ class ColourWheel extends Widget
 
    public function new(inColour:RGBHSV)
    {
-      super();
+      super(["ColourWheel"]);
       mContainer = new Sprite();
       addChild(mContainer);
 
@@ -301,7 +316,6 @@ class ColourWheel extends Widget
       mWidth = skin.toPixels(100);
       mHeight = skin.toPixels(100);
       var layout = new Layout();
-      layout.mAlign = Layout.AlignKeepAspect | Layout.AlignStretch;
       layout.name = "colour";
       layout.onInnerRect = onBmpLayout;
       setItemLayout(layout);
@@ -665,7 +679,7 @@ class ColourControl extends Widget
 
    public function new(inColour:RGBHSV, ?inOnChange:RGBHSV->Int->Void, ?swatchSet:SwatchSet, ?inAttribs:Attribs)
    {
-      super(inAttribs);
+      super(["ColourControl"], inAttribs);
 
       mColour = inColour.clone();
       onColourChange = inOnChange;
@@ -709,21 +723,21 @@ class ColourControl extends Widget
       all.setRowStretch(1,0);
 
       var swatches = new GridLayout(10,"Swatches");
-      swatches.setSpacing(4,4);
       // SwatchBox bakes this into its graphics, so it will not follow a later scale change
-      var swatchSize = skin.toPixels(16);
+      var allBoxes = [];
       for(i in 0...20)
       {
          var swatch = swatchSet==null ? new Swatch(i,20) : swatchSet.swatches[i];
-         var box = new SwatchBox(swatch,this,swatchSize);
+         var box = new SwatchBox(swatch,this,16,skin);
          addChild(box);
          swatches.add(box.getLayout());
+         allBoxes.push(box);
       }
 
       var vstack = new GridLayout(1);
       vstack.add(swatches);
       vstack.add(all);
-      vstack.setAlignment(Layout.AlignStretch | Layout.AlignTop).setSpacing(0,4);
+      vstack.setSpacing(0,4);
 
       setInputMode(mMode);
       setAll();
@@ -732,19 +746,27 @@ class ColourControl extends Widget
       setItemLayout(vstack);
 
       addScaleChanged(() -> {
+         var space = skin.toPixels(4);
+         swatches.setSpacing(space,space);
+         for(box in allBoxes)
+            box.setSkin(skin);
          wheel.getLayout().setBestSize( skin.toPixels(140), skin.toPixels(140) );
          wheel.getLayout().setBorders(0,0,skin.toPixels(6),0);
          var b = skin.toPixels(2);
          box.getLayout().setBorders(b,b,b,b);
-
-         fixInputWidth(redIn);
-         fixInputWidth(greenIn);
-         fixInputWidth(blueIn);
-         fixInputWidth(hueIn);
-         fixInputWidth(saturationIn);
-         fixInputWidth(valueIn);
+         var ref = new NumericInput(1);
+         ref.setSkin(skin);
       });
       //build();
+   }
+
+   override public function onScaleChanged()
+   {
+      super.onScaleChanged();
+      wheel.getLayout().setBestSize( skin.toPixels(140), skin.toPixels(140) );
+      wheel.getLayout().setBorders(0,0,skin.toPixels(6),0);
+      var b = skin.toPixels(2);
+      box.getLayout().setBorders(b,b,b,b);
    }
 
    function onRGBDrag(e:MouseEvent)
@@ -817,20 +839,10 @@ class ColourControl extends Widget
       var delta = inMax<= 100 ? 0.01 : 1;
       var result = new NumericInput(inMax*0.5,
          function(f,phase)  if (updateLockout==0) setComponent(inMode,f,phase),
-         { isInteger:inMax>100,  maxValue:inMax, minValue:0, step:delta } );
-      fixInputWidth(result);
+         //["ColourBoxInput"],
+         { isInteger:inMax>100,  maxValue:inMax, minValue:0, step:delta, minItemSize: new Size(20,10), alternateText:"*255*" } );
       result.addEventListener( MouseEvent.MOUSE_DOWN, function(_) setInputMode(inMode) );
       return result;
-   }
-
-   // getBestWidth() reads the widget's currently-resolved (already scale-aware) text size, but
-   // setMinWidth/setBestWidth bake that pixel value directly onto the Layout - nothing re-pushes
-   // it later, so this needs to be re-run from onScaleChanged() too, not just at construction.
-   function fixInputWidth(inInput:NumericInput)
-   {
-      var lay = inInput.getLayout();
-      var w = lay.getBestWidth();
-      lay.setMinWidth( Std.int(w/2) ).setBestWidth(w).stretch();
    }
 
    function setInputMode(inMode:Int)
@@ -847,11 +859,16 @@ class ColourControl extends Widget
       panel.addLabelObj("R",redIn   = makeInput( RGBHSV.RED ) );
       redIn.getLayout().name="R";
       panel.addLabelObj("G",greenIn = makeInput( RGBHSV.GREEN) );
+      greenIn.getLayout().name="G";
       panel.addLabelObj("B",blueIn   = makeInput( RGBHSV.BLUE) );
+      blueIn.getLayout().name="B";
 
       panel.addLabelObj("H",hueIn         = makeInput( RGBHSV.HUE,359) );
+      hueIn.getLayout().name="H";
       panel.addLabelObj("S",saturationIn  = makeInput( RGBHSV.SATURATION,1 ) );
+      saturationIn.getLayout().name="S";
       panel.addLabelObj("V",valueIn       = makeInput( RGBHSV.VALUE ) );
+      valueIn.getLayout().name="V";
       return panel.getLayout().stretch();
    }
 

@@ -7,19 +7,20 @@
      package="com.gm2d.SampleApp"
      version="1.0"
      company="GM2D" 
-	  main="SampleApp"
+     main="SampleApp"
+      bootType="addStage"
   />
 
   <window
       width="800"
-		height="600"
-		orientation="landscape"
-		fps="24"
-		background="0x0000ff"
+      height="600"
+      orientation="landscape"
+      fps="24"
+      background="0x0000ff"
       resizeable="true"
-		hardware="true"
-		high_dpi="true"
-	/>
+      hardware="true"
+      high_dpi="true"
+   />
 
    <icon name="../icon.svg" />
 

@@ -9,10 +9,9 @@ class RGBDialog extends Dialog
 
    public function new(inRGB:RGBHSV, inOnColour:RGBHSV->Int->Void, swatchSet:SwatchSet)
    {
-      control = new ColourControl(inRGB, inOnColour, swatchSet);
+      control = new ColourControl(inRGB, inOnColour, swatchSet, { padding:10});
 
-      var pane = new Pane(control, "Select Colour", Dock.RESIZABLE);
-      pane.itemLayout = control.getLayout().setMinSize(300,300);
+      var pane = new Pane(control, "Select Colour", Dock.RESIZABLE );
       super(pane);
    }
    public function setColour(inRGB:RGBHSV)
