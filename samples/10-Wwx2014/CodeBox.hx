@@ -2,7 +2,7 @@ import nme.text.TextField;
 import nme.text.TextFormat;
 import nme.text.TextFieldAutoSize;
 import nme.ui.Keyboard;
-import gm2d.ui.Layout;
+import gm2d.ui.*;
 
 
 class CodeBox extends TextField

@@ -38,5 +38,6 @@
   </assets>
   <lib name="gm2d" />
   <haxelib name="nme" />
+  <haxedef name="nme_camera_api" />
   
 </project>
