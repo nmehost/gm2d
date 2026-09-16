@@ -64,8 +64,8 @@ class FileBox extends TextInput
       {
          var flags = attribInt("browseFlags",0);
          var ext = attribString("browseFilter","All Files|*.*");
-         var start = getText();
-         nme.system.Dialog.fileDialog(title,"File", getText(), ext,
+         var defaultPath = attribString("browsePath", getText() );
+         nme.system.Dialog.fileDialog(title,"File", defaultPath, ext,
              function(f) if (f!=null) setTextEnter(f), rememberKey, flags );
       }
    }

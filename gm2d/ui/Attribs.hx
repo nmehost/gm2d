@@ -102,6 +102,7 @@ typedef Attribs =
 
    ?browseTitle: String,
    ?browseFilter: String,
+   ?browsePath: String,
    ?browseFlags: Int,
    ?onTextEnter:String->Void,
    ?onUpdate:String->Void,
