@@ -104,6 +104,7 @@ typedef Attribs =
    ?browseFilter: String,
    ?browsePath: String,
    ?browseFlags: Int,
+   ?directory: Bool,
    ?onTextEnter:String->Void,
    ?onUpdate:String->Void,
    // 'Activate' / enter / click
