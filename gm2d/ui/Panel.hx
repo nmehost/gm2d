@@ -69,6 +69,7 @@ class Panel extends Widget
       {
          mGridLayout.add(mItemGrid.stretch());
       }
+      mGridLayout.setColStretch(0,1);
       mGridLayout.setRowStretch(0,1);
       mGridLayout.setRowStretch(1,0);
       setItemLayout( mGridLayout );

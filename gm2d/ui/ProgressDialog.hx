@@ -33,10 +33,11 @@ class ProgressDialog extends Dialog
       if (status!=null)
          panel.addLabelUI("Status", status);
 
-      var attribs:Attribs = null;
+      // Give the bar a definite width and let the dialog fit around it
+      var attribs:Attribs = { minSize: new Size(400,20) };
       if (inStyle!=null)
-         attribs = { progressStyle : inStyle }
-      var progress = new ProgressBar(inMax, attribs );
+         attribs.progressStyle = inStyle;
+      var progress = new ProgressBar(inMax, null, attribs );
       panel.addLabelUI(inLabel, progress);
 
       var button:Button = null;
@@ -60,7 +61,6 @@ class ProgressDialog extends Dialog
       }
 
 
-      panel.setSizeHint(500);
 
       return new ProgressDialog(panel.getPane(),progress, status, button, inMax, ipsText, timeText);
    }
