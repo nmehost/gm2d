@@ -89,7 +89,7 @@ class Panel extends Widget
       var labelGap = mRenderer.getDefaultScaled("labelGap", 10);
       var lineGap = mRenderer.getDefaultScaled("lineGap", 10);
       mItemGrid.setSpacing(labelGap, lineGap);
-      mButtonLayout.setSpacing( mRenderer.getDefaultScaled("buttonSpacing",0), 0);
+      applyButtonSpacing();
       if (mIconLayout!=null)
          mIconLayout.setSpacing(labelGap, lineGap);
       if (sizeHint>0)
@@ -98,7 +98,20 @@ class Panel extends Widget
 
    public function getVerticalLayout() return mGridLayout;
 
-   public function setButtonLayout(layout:Layout) mButtonLayout = layout;
+   // Replace the button row (eg with a VerticalLayout to stack the buttons).
+   // Call before adding any buttons.
+   public function setButtonLayout(layout:Layout)
+   {
+      mButtonLayout = layout;
+      applyButtonSpacing();
+   }
+
+   // The same gap between buttons whichever way the button layout runs
+   function applyButtonSpacing()
+   {
+      var spacing = mRenderer.getDefaultScaled("buttonSpacing",0);
+      mButtonLayout.setSpacing(spacing, spacing);
+   }
 
    public function setItemSize(inSize:Int)
    {
