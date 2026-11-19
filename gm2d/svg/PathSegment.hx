@@ -279,7 +279,8 @@ class ArcSegment extends PathSegment
       fS = inSweep;
    }
 
-   public function toQuadratics(tx0:Float,ty0:Float) : Array<PathSegment>
+   // Each quadratic covers up to 45 degrees, divided by inDetail - 2 gives 22.5 degrees
+   public function toQuadratics(tx0:Float,ty0:Float,inDetail:Float=1.0) : Array<PathSegment>
    {
       var result = new Array<PathSegment>();
       if (rx==0 || ry==0)
@@ -337,7 +338,7 @@ class ArcSegment extends PathSegment
          else if (!fS && dtheta>0)
             dtheta-=2.0*Math.PI;
   
-         var quartics = Std.int( Math.abs(dtheta) * 4/Math.PI + 0.99 );
+         var quartics = Std.int( Math.abs(dtheta) * 4*inDetail/Math.PI + 0.99 );
          if (quartics<1)
          { 
             result.push( new DrawSegment(x,y) );
