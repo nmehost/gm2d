@@ -258,9 +258,10 @@ class SvgRenderer
              lineStyle.thickness = styles.getFloat("stroke-width",1)*strokeScale;
              lineStyle.alpha = styles.getFloat("stroke-opacity",1)*opacity;
              lineStyle.color = 0;
-             lineStyle.capsStyle = CapsStyle.ROUND;
-             lineStyle.jointStyle = JointStyle.ROUND;
-             lineStyle.miterLimit = styles.getFloat("stroke-miterlimit",3.0);
+             lineStyle.capsStyle = styles.getLineCap();
+             lineStyle.jointStyle = styles.getLineJoin();
+             lineStyle.miterLimit = styles.getMiterLimit();
+             lineStyle.order = styles.getPaintOrder();
 
              switch(strokeFill)
              {

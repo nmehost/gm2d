@@ -6,6 +6,7 @@ import nme.display.InterpolationMethod;
 import nme.display.CapsStyle;
 import nme.display.JointStyle;
 import nme.display.LineScaleMode;
+import nme.display.LineOrder;
 import nme.geom.Matrix;
 
 import nme.utils.ByteArray;
@@ -25,6 +26,9 @@ class GfxBytes extends Gfx
 
    static inline var LINE_STYLE = 20;
    static inline var END_LINE_STYLE = 21;
+   // Persists until changed, and is only written when it is not the default,
+   //  so older data without it reads as before.
+   static inline var LINE_ORDER = 22;
 
    static inline var MOVE = 30;
    static inline var LINE = 31;
@@ -78,6 +82,9 @@ class GfxBytes extends Gfx
    override public function eof() { buffer.writeByte(EOF); }
 
    static var scaleModes = [ LineScaleMode.NORMAL, LineScaleMode.NONE, LineScaleMode.VERTICAL, LineScaleMode.HORIZONTAL ];
+   static var lineOrders = [ LineOrder.OVER_FILL, LineOrder.UNDER_FILL ];
+   // The order last written
+   var lastLineOrder:LineOrder = LineOrder.OVER_FILL;
    static var capsStyles = [ CapsStyle.ROUND, CapsStyle.NONE, CapsStyle.SQUARE ];
    static var jointStyles = [ JointStyle.ROUND, JointStyle.MITER, JointStyle.BEVEL ];
    static var spreadMethods = [ SpreadMethod.PAD, SpreadMethod.REPEAT, SpreadMethod.REFLECT ];
@@ -87,6 +94,7 @@ class GfxBytes extends Gfx
    public function iterate(inGfx:Gfx)
    {
       buffer.position = 0;
+      var lineOrder = LineOrder.OVER_FILL;
       while(true)
       {
          switch(buffer.readUnsignedByte())
@@ -128,8 +136,12 @@ class GfxBytes extends Gfx
             case END_FILL:
               inGfx.endFill();
 
+            case LINE_ORDER:
+              lineOrder = lineOrders[buffer.readUnsignedByte()];
+
             case LINE_STYLE:
               var style = new LineStyle();
+              style.order = lineOrder;
               style.thickness = buffer.readFloat();
               style.color = readRGB();
               style.alpha = buffer.readFloat();
@@ -228,6 +240,12 @@ class GfxBytes extends Gfx
 
    override public function lineStyle(style:LineStyle)
    {
+      if (style.order!=lastLineOrder)
+      {
+         lastLineOrder = style.order;
+         buffer.writeByte(LINE_ORDER);
+         buffer.writeByte(Type.enumIndex(style.order));
+      }
       buffer.writeByte(LINE_STYLE);
       buffer.writeFloat(style.thickness);
       writeRGB(style.color);

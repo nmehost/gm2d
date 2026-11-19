@@ -37,6 +37,7 @@ class GfxGraphics extends Gfx
 
    override public function lineStyle(style:LineStyle)
    {
+      graphics.lineOrder(style.order);
       graphics.lineStyle(style.thickness,style.color,style.alpha,style.pixelHinting,style.scaleMode,style.capsStyle,style.jointStyle,style.miterLimit);
       if (style.gradient!=null)
       {

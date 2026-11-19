@@ -3,6 +3,7 @@ package gm2d.gfx;
 import nme.display.LineScaleMode;
 import nme.display.CapsStyle;
 import nme.display.JointStyle;
+import nme.display.LineOrder;
 
 class LineStyle
 {
@@ -15,6 +16,8 @@ class LineStyle
    public var capsStyle:CapsStyle;
    public var jointStyle:JointStyle;
    public var miterLimit:Float;
+   // Whether the line is drawn over or under the fill - the svg paint-order
+   public var order:LineOrder;
 
    public function new()
    {
@@ -27,5 +30,6 @@ class LineStyle
       capsStyle = CapsStyle.ROUND;
       jointStyle = JointStyle.ROUND;
       miterLimit = 3.0;
+      order = LineOrder.OVER_FILL;
    }
 }

@@ -12,6 +12,7 @@ import nme.geom.Matrix;
 class Gfx2Haxe extends Gfx
 {
     public var commands : Array<String>;
+    var lastLineOrder:nme.display.LineOrder = nme.display.LineOrder.OVER_FILL;
 
     public function new( )
     {
@@ -49,6 +50,11 @@ class Gfx2Haxe extends Gfx
 
    override public function lineStyle(style:LineStyle)
    {
+      if (style.order!=lastLineOrder)
+      {
+         lastLineOrder = style.order;
+         commands.push("g.lineOrder(nme.display.LineOrder." + style.order + ");");
+      }
       commands.push("g.lineStyle("+f2a(style.thickness)+","+style.color+","+f2a(style.alpha)+"," + style.pixelHinting + "," + style.scaleMode + "," + style.capsStyle + "," + style.jointStyle + "," + f2a(style.miterLimit) + ");" );
    }
 

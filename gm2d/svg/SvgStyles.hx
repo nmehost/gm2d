@@ -8,7 +8,8 @@ class SvgStyles
 {
    public var defaultFill = FillSolid(0x000000);
    public var defaultStroke = FillNone;
-   var urlMatch = ~/url\(#(.*?)\)/;
+   // Allows quotes around the reference, as in url("#id")
+   var urlMatch = ~/url\(\s*["']?#(.*?)["']?\s*\)/;
    var rgbMatch = ~/rgb\((.*),(.*),(.*)\)/;
 
    var stack : Array<Map<String,String>>;
@@ -148,6 +149,46 @@ class SvgStyles
    }
 
 
+   // Only the fill/stroke ordering of "paint-order" is supported - markers are ignored.
+   // Per the spec, anything not listed follows in the default order (fill, stroke, markers),
+   //  so the first of fill or stroke to be listed decides.
+   public function getPaintOrder() : nme.display.LineOrder
+   {
+      var s = StringTools.trim( get("paint-order","normal") );
+      for(token in ~/\s+/g.split(s))
+      {
+         if (token=="fill")
+            return nme.display.LineOrder.OVER_FILL;
+         if (token=="stroke")
+            return nme.display.LineOrder.UNDER_FILL;
+      }
+      return nme.display.LineOrder.OVER_FILL;
+   }
+
+   // The svg defaults are butt caps, miter joins and a miter limit of 4
+   public function getLineCap() : nme.display.CapsStyle
+   {
+      return switch(get("stroke-linecap","butt"))
+      {
+         case "round": nme.display.CapsStyle.ROUND;
+         case "square": nme.display.CapsStyle.SQUARE;
+         default: nme.display.CapsStyle.NONE;
+      }
+   }
+
+   // miter-clip and arcs are svg2 extras, treated as miter
+   public function getLineJoin() : nme.display.JointStyle
+   {
+      return switch(get("stroke-linejoin","miter"))
+      {
+         case "round": nme.display.JointStyle.ROUND;
+         case "bevel": nme.display.JointStyle.BEVEL;
+         default: nme.display.JointStyle.MITER;
+      }
+   }
+
+   public function getMiterLimit() : Float return getFloat("stroke-miterlimit",4.0);
+
    public function getFill(inKey:String, forceCurrent:Bool)
    {
       var s = get(inKey,"");
@@ -178,8 +219,9 @@ class SvgStyles
          if (grad!=null)
             return FillGrad(grad);
 
+         // A reference to something that is not there renders as no fill
          trace("Warning: unknown url:" + url);
-         //throw("Unknown url:" + url);
+         return FillNone;
       }
 
       if (rgbMatch.match(s))
