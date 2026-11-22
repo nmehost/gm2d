@@ -323,6 +323,11 @@ class ComboBox extends TextInput
          pop.getLayout().setRect(0,0,w,h);
          gm2d.Game.popup(pop,pos.x,pos.y-h, pop.onClosePopup);
       }
+      else if (below>=above)
+      {
+         pop.getLayout().setRect(0,0,w,below);
+         gm2d.Game.popup(pop,pos.x,pos.y+offset, pop.onClosePopup);
+      }
       else
       {
          pop.getLayout().setRect(0,0,w,above);
